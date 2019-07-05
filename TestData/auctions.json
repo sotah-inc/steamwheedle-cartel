@@ -1,0 +1,44 @@
+{
+	"realms": [
+		{
+			"name": "Medivh",
+			"slug": "medivh"
+		},
+		{
+			"name": "Exodar",
+			"slug": "exodar"
+		}
+	],
+	"auctions": [
+		{
+			"auc": 1441945078,
+			"item": 82800,
+			"owner": "Niomii",
+			"ownerRealm": "Exodar",
+			"bid": 1250000,
+			"buyout": 1250000,
+			"quantity": 5,
+            "timeLeft": "LONG"
+		},
+		{
+			"auc": 1441945078,
+			"item": 14267,
+			"owner": "Lunarhawk",
+			"ownerRealm": "Exodar",
+			"bid": 1250000,
+			"buyout": 1250000,
+			"quantity": 5,
+            "timeLeft": "LONG"
+		},
+		{
+			"auc": 1441945078,
+			"item": 74719,
+			"owner": "Erorus",
+			"ownerRealm": "Exodar",
+			"bid": 1250000,
+			"buyout": 1250000,
+			"quantity": 5,
+            "timeLeft": "LONG"
+		}
+	]
+}
