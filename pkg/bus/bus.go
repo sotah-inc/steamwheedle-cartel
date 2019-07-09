@@ -473,6 +473,10 @@ func (c Client) BulkRequest(intakeTopic *pubsub.Topic, messages []Message, timeo
 	receiveConfig.Stop <- struct{}{}
 	<-receiveConfig.OnStopped
 
+	if err := recipientTopic.Delete(c.context); err != nil {
+		return BulkRequestMessages{}, err
+	}
+
 	return responses.FilterInCompleted(), nil
 }
 
