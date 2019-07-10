@@ -1,0 +1,8 @@
+run:
+  concurrency: 8
+linter-settings:
+  lll:
+    line-length: 120
+  gocyclo:
+    min-complexity: 10
+  unconvert:
