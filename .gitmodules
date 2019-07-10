@@ -1,3 +1,6 @@
 [submodule "extern/steamwheedle-cartel-download-auctions"]
 	path = extern/steamwheedle-cartel-download-auctions
 	url = git@github.com:sotah-inc/steamwheedle-cartel-download-auctions.git
+[submodule "extern/infra"]
+	path = extern/infra
+	url = git@github.com:sotah-inc/infra.git
