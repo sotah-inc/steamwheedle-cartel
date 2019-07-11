@@ -26,7 +26,7 @@ func NewHook(projectID string, serviceName string) (Hook, error) {
 		return Hook{}, err
 	}
 
-	return Hook{lc, ec, lc.Logger(fmt.Sprintf("steamwheedle-cartel/%s", serviceName)), ctx}, nil
+	return Hook{lc, ec, lc.Logger(fmt.Sprintf("steamwheedle-cartel-%s", serviceName)), ctx}, nil
 }
 
 type Hook struct {
