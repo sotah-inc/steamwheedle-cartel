@@ -3,7 +3,6 @@ package stackdriver
 import (
 	"context"
 	"errors"
-	"fmt"
 
 	"cloud.google.com/go/errorreporting"
 	stackdriverlogging "cloud.google.com/go/logging"
@@ -13,7 +12,7 @@ import (
 func NewHook(projectID string, serviceName string) (Hook, error) {
 	ctx := context.Background()
 
-	lc, err := stackdriverlogging.NewClient(ctx, fmt.Sprintf("projects/%s", projectID))
+	lc, err := stackdriverlogging.NewClient(ctx, projectID)
 	if err != nil {
 		return Hook{}, err
 	}
@@ -91,7 +90,10 @@ func (h Hook) Levels() []logrus.Level {
 	return logrus.AllLevels
 }
 
-func newStackdriverEntryFromLogrusEntry(e *logrus.Entry, severity stackdriverlogging.Severity) stackdriverlogging.Entry {
+func newStackdriverEntryFromLogrusEntry(
+	e *logrus.Entry,
+	severity stackdriverlogging.Severity,
+) stackdriverlogging.Entry {
 	payload := map[string]interface{}{}
 	for k, v := range e.Data {
 		payload[k] = v
