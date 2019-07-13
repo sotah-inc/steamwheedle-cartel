@@ -1,9 +1,13 @@
 package state
 
 import (
+	"encoding/base64"
 	"encoding/json"
+	"errors"
+	"fmt"
 	"time"
 
+	"github.com/sirupsen/logrus"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/blizzard"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/bus"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/database"
@@ -18,12 +22,13 @@ import (
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/sotah"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/state/subjects"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/store"
+	"github.com/sotah-inc/steamwheedle-cartel/pkg/util"
 	"github.com/twinj/uuid"
 )
 
-type requestError struct {
-	code    mCodes.Code
-	message string
+type RequestError struct {
+	Code    mCodes.Code
+	Message string
 }
 
 // databases
@@ -152,6 +157,62 @@ type State struct {
 	Statuses sotah.Statuses
 }
 
+func NewStatusRequest(payload []byte) (StatusRequest, error) {
+	sr := &StatusRequest{}
+	err := json.Unmarshal(payload, &sr)
+	if err != nil {
+		return StatusRequest{}, err
+	}
+
+	return *sr, nil
+}
+
+type StatusRequest struct {
+	RegionName blizzard.RegionName `json:"region_name"`
+}
+
+func (sr StatusRequest) Resolve(sta State) (sotah.Region, error) {
+	reg := func() sotah.Region {
+		for _, r := range sta.Regions {
+			if r.Name == sr.RegionName {
+				return r
+			}
+		}
+
+		return sotah.Region{}
+	}()
+
+	if reg.Name == "" {
+		return sotah.Region{}, errors.New("invalid region")
+	}
+
+	return reg, nil
+}
+
+func (sta State) NewStatus(reg sotah.Region) (sotah.Status, error) {
+	lm := StatusRequest{RegionName: reg.Name}
+	encodedMessage, err := json.Marshal(lm)
+	if err != nil {
+		return sotah.Status{}, err
+	}
+
+	msg, err := sta.IO.Messenger.Request(string(subjects.Status), encodedMessage)
+	if err != nil {
+		return sotah.Status{}, err
+	}
+
+	if msg.Code != mCodes.Ok {
+		return sotah.Status{}, errors.New(msg.Err)
+	}
+
+	stat, err := blizzard.NewStatus([]byte(msg.Data))
+	if err != nil {
+		return sotah.Status{}, err
+	}
+
+	return sotah.NewStatus(reg, stat), nil
+}
+
 type RealmTimeTuple struct {
 	Realm      sotah.Realm
 	TargetTime time.Time
@@ -200,4 +261,100 @@ type RealmModificationDatesResponse struct {
 
 func (r RealmModificationDatesResponse) EncodeForDelivery() ([]byte, error) {
 	return json.Marshal(r)
+}
+
+type ItemBlacklist []blizzard.ItemID
+
+func (ib ItemBlacklist) IsPresent(itemId blizzard.ItemID) bool {
+	for _, blacklistItemId := range ib {
+		if blacklistItemId == itemId {
+			return true
+		}
+	}
+
+	return false
+}
+
+func (sta State) NewRegions() (sotah.RegionList, error) {
+	msg, err := func() (messenger.Message, error) {
+		attempts := 0
+
+		for {
+			out, err := sta.IO.Messenger.Request(string(subjects.Boot), []byte{})
+			if err == nil {
+				return out, nil
+			}
+
+			attempts++
+
+			if attempts >= 20 {
+				return messenger.Message{}, fmt.Errorf("failed to fetch boot message after %d attempts", attempts)
+			}
+
+			logrus.WithField("attempt", attempts).Info("Requested boot, sleeping until next")
+
+			time.Sleep(250 * time.Millisecond)
+		}
+	}()
+	if err != nil {
+		return sotah.RegionList{}, err
+	}
+
+	if msg.Code != mCodes.Ok {
+		return nil, errors.New(msg.Err)
+	}
+
+	boot := BootResponse{}
+	if err := json.Unmarshal([]byte(msg.Data), &boot); err != nil {
+		return sotah.RegionList{}, err
+	}
+
+	return boot.Regions, nil
+}
+
+type BootResponse struct {
+	Regions     sotah.RegionList     `json:"regions"`
+	ItemClasses blizzard.ItemClasses `json:"item_classes"`
+	Expansions  []sotah.Expansion    `json:"expansions"`
+	Professions []sotah.Profession   `json:"professions"`
+}
+
+type SessionSecretData struct {
+	SessionSecret string `json:"session_secret"`
+}
+
+func NewItemsRequest(payload []byte) (ItemsRequest, error) {
+	iRequest := &ItemsRequest{}
+	err := json.Unmarshal(payload, &iRequest)
+	if err != nil {
+		return ItemsRequest{}, err
+	}
+
+	return *iRequest, nil
+}
+
+type ItemsRequest struct {
+	ItemIds []blizzard.ItemID `json:"itemIds"`
+}
+
+func (iRequest ItemsRequest) Resolve(sta State) (sotah.ItemsMap, error) {
+	return sta.IO.Databases.ItemsDatabase.FindItems(iRequest.ItemIds)
+}
+
+type ItemsResponse struct {
+	Items sotah.ItemsMap `json:"items"`
+}
+
+func (iResponse ItemsResponse) EncodeForMessage() (string, error) {
+	encodedResult, err := json.Marshal(iResponse)
+	if err != nil {
+		return "", err
+	}
+
+	gzippedResult, err := util.GzipEncode(encodedResult)
+	if err != nil {
+		return "", err
+	}
+
+	return base64.StdEncoding.EncodeToString(gzippedResult), nil
 }
