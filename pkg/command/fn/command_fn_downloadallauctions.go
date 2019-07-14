@@ -8,7 +8,7 @@ import (
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/state/fn"
 )
 
-func FnDownloadAllAuctions(config fn.DownloadAllAuctionsStateConfig) error {
+func DownloadAllAuctions(config fn.DownloadAllAuctionsStateConfig) error {
 	logging.Info("Starting fn-download-all-auctions")
 
 	// establishing a state
