@@ -1,6 +1,6 @@
 [submodule "extern/steamwheedle-cartel-download-auctions"]
 	path = extern/steamwheedle-cartel-download-auctions
-	url = git@github.com:sotah-inc/steamwheedle-cartel-download-auctions.git
+	url = git@github.com:sotah-inc/steamwheedle-cartel-download-auctions
 [submodule "extern/infra"]
 	path = extern/infra
 	url = git@github.com:sotah-inc/infra.git
@@ -10,3 +10,21 @@
 [submodule "extern/steamwheedle-cartel-cleanup-pricelist-histories"]
 	path = extern/steamwheedle-cartel-cleanup-pricelist-histories
 	url = git@github.com:sotah-inc/steamwheedle-cartel-cleanup-pricelist-histories.git
+[submodule "extern/steamwheedle-cartel-compute-live-auctions"]
+	path = extern/steamwheedle-cartel-compute-live-auctions
+	url = git@github.com:sotah-inc/steamwheedle-cartel-compute-live-auctions
+[submodule "extern/steamwheedle-cartel-compute-pricelist-histories"]
+	path = extern/steamwheedle-cartel-compute-pricelist-histories
+	url = git@github.com:sotah-inc/steamwheedle-cartel-compute-pricelist-histories
+[submodule "extern/steamwheedle-cartel-download-auctions-server"]
+	path = extern/steamwheedle-cartel-download-auctions-server
+	url = git@github.com:sotah-inc/steamwheedle-cartel-download-auctions-server
+[submodule "extern/steamwheedle-cartel-server"]
+	path = extern/steamwheedle-cartel-server
+	url = git@github.com:sotah-inc/steamwheedle-cartel-server
+[submodule "extern/steamwheedle-cartel-sync-item-icons"]
+	path = extern/steamwheedle-cartel-sync-item-icons
+	url = git@github.com:sotah-inc/steamwheedle-cartel-sync-item-icons
+[submodule "extern/steamwheedle-cartel-sync-items"]
+	path = extern/steamwheedle-cartel-sync-items
+	url = git@github.com:sotah-inc/steamwheedle-cartel-sync-items
