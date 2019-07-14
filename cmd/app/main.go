@@ -5,7 +5,7 @@ import (
 	"os"
 
 	"github.com/sirupsen/logrus"
-	"github.com/sotah-inc/steamwheedle-cartel-server/app/commands"
+	"github.com/sotah-inc/steamwheedle-cartel/cmd/app/commands"
 	devCommand "github.com/sotah-inc/steamwheedle-cartel/pkg/command/dev"
 	fnCommand "github.com/sotah-inc/steamwheedle-cartel/pkg/command/fn"
 	prodCommand "github.com/sotah-inc/steamwheedle-cartel/pkg/command/prod"
