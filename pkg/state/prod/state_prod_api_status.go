@@ -15,7 +15,7 @@ import (
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/state/subjects"
 )
 
-func (sta ProdApiState) ListenForBusStatus(
+func (apiState ApiState) ListenForBusStatus(
 	onReady chan interface{},
 	stop chan interface{},
 	onStopped chan interface{},
@@ -30,7 +30,7 @@ func (sta ProdApiState) ListenForBusStatus(
 			if err != nil {
 				reply.Err = err.Error()
 				reply.Code = bCodes.MsgJSONParseError
-				if _, err := sta.IO.BusClient.ReplyTo(busMsg, reply); err != nil {
+				if _, err := apiState.IO.BusClient.ReplyTo(busMsg, reply); err != nil {
 					logging.WithField("error", err.Error()).Error("Failed to reply")
 
 					return
@@ -40,7 +40,7 @@ func (sta ProdApiState) ListenForBusStatus(
 			}
 
 			reg, err := func() (sotah.Region, error) {
-				for _, r := range sta.Regions {
+				for _, r := range apiState.Regions {
 					if r.Name == sr.RegionName {
 						return r, nil
 					}
@@ -51,7 +51,7 @@ func (sta ProdApiState) ListenForBusStatus(
 			if err != nil {
 				reply.Err = err.Error()
 				reply.Code = bCodes.NotFound
-				if _, err := sta.IO.BusClient.ReplyTo(busMsg, reply); err != nil {
+				if _, err := apiState.IO.BusClient.ReplyTo(busMsg, reply); err != nil {
 					logging.WithField("error", err.Error()).Error("Failed to reply")
 
 					return
@@ -60,11 +60,11 @@ func (sta ProdApiState) ListenForBusStatus(
 				return
 			}
 
-			regionStatus, ok := sta.Statuses[reg.Name]
+			regionStatus, ok := apiState.Statuses[reg.Name]
 			if !ok {
 				reply.Err = "Region found but not in Statuses"
 				reply.Code = bCodes.NotFound
-				if _, err := sta.IO.BusClient.ReplyTo(busMsg, reply); err != nil {
+				if _, err := apiState.IO.BusClient.ReplyTo(busMsg, reply); err != nil {
 					logging.WithField("error", err.Error()).Error("Failed to reply")
 
 					return
@@ -77,7 +77,7 @@ func (sta ProdApiState) ListenForBusStatus(
 			if err != nil {
 				reply.Err = err.Error()
 				reply.Code = bCodes.GenericError
-				if _, err := sta.IO.BusClient.ReplyTo(busMsg, reply); err != nil {
+				if _, err := apiState.IO.BusClient.ReplyTo(busMsg, reply); err != nil {
 					logging.WithField("error", err.Error()).Error("Failed to reply")
 
 					return
@@ -87,7 +87,7 @@ func (sta ProdApiState) ListenForBusStatus(
 			}
 
 			reply.Data = string(encodedStatus)
-			if _, err := sta.IO.BusClient.ReplyTo(busMsg, reply); err != nil {
+			if _, err := apiState.IO.BusClient.ReplyTo(busMsg, reply); err != nil {
 				logging.WithField("error", err.Error()).Error("Failed to reply")
 
 				return
@@ -99,27 +99,27 @@ func (sta ProdApiState) ListenForBusStatus(
 
 	// starting up worker for the subscription
 	go func() {
-		if err := sta.IO.BusClient.SubscribeToTopic(string(subjects.Status), config); err != nil {
+		if err := apiState.IO.BusClient.SubscribeToTopic(string(subjects.Status), config); err != nil {
 			logging.WithField("error", err.Error()).Fatal("Failed to subscribe to topic")
 		}
 	}()
 }
 
-func (sta ProdApiState) ListenForMessengerStatus(stop state.ListenStopChan) error {
-	err := sta.IO.Messenger.Subscribe(string(subjects.Status), stop, func(natsMsg nats.Msg) {
+func (apiState ApiState) ListenForMessengerStatus(stop state.ListenStopChan) error {
+	err := apiState.IO.Messenger.Subscribe(string(subjects.Status), stop, func(natsMsg nats.Msg) {
 		m := messenger.NewMessage()
 
 		sr, err := state.NewStatusRequest(natsMsg.Data)
 		if err != nil {
 			m.Err = err.Error()
 			m.Code = mCodes.MsgJSONParseError
-			sta.IO.Messenger.ReplyTo(natsMsg, m)
+			apiState.IO.Messenger.ReplyTo(natsMsg, m)
 
 			return
 		}
 
 		reg, err := func() (sotah.Region, error) {
-			for _, r := range sta.Regions {
+			for _, r := range apiState.Regions {
 				if r.Name == sr.RegionName {
 					return r, nil
 				}
@@ -130,16 +130,16 @@ func (sta ProdApiState) ListenForMessengerStatus(stop state.ListenStopChan) erro
 		if err != nil {
 			m.Err = err.Error()
 			m.Code = mCodes.NotFound
-			sta.IO.Messenger.ReplyTo(natsMsg, m)
+			apiState.IO.Messenger.ReplyTo(natsMsg, m)
 
 			return
 		}
 
-		regionStatus, ok := sta.Statuses[reg.Name]
+		regionStatus, ok := apiState.Statuses[reg.Name]
 		if !ok {
 			m.Err = "Region found but not in Statuses"
 			m.Code = mCodes.NotFound
-			sta.IO.Messenger.ReplyTo(natsMsg, m)
+			apiState.IO.Messenger.ReplyTo(natsMsg, m)
 
 			return
 		}
@@ -148,13 +148,13 @@ func (sta ProdApiState) ListenForMessengerStatus(stop state.ListenStopChan) erro
 		if err != nil {
 			m.Err = err.Error()
 			m.Code = mCodes.GenericError
-			sta.IO.Messenger.ReplyTo(natsMsg, m)
+			apiState.IO.Messenger.ReplyTo(natsMsg, m)
 
 			return
 		}
 
 		m.Data = string(encodedStatus)
-		sta.IO.Messenger.ReplyTo(natsMsg, m)
+		apiState.IO.Messenger.ReplyTo(natsMsg, m)
 	})
 	if err != nil {
 		return err

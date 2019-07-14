@@ -12,31 +12,31 @@ import (
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/state/subjects"
 )
 
-func (sta ProdApiState) ListenForReceiveRealms(stop state.ListenStopChan) error {
-	err := sta.IO.Messenger.Subscribe(string(subjects.ReceiveRealms), stop, func(natsMsg nats.Msg) {
+func (apiState ApiState) ListenForReceiveRealms(stop state.ListenStopChan) error {
+	err := apiState.IO.Messenger.Subscribe(string(subjects.ReceiveRealms), stop, func(natsMsg nats.Msg) {
 		m := messenger.NewMessage()
 
 		var regionRealmSlugs map[blizzard.RegionName][]blizzard.RealmSlug
 		if err := json.Unmarshal(natsMsg.Data, &regionRealmSlugs); err != nil {
 			m.Err = err.Error()
 			m.Code = mCodes.GenericError
-			sta.IO.Messenger.ReplyTo(natsMsg, m)
+			apiState.IO.Messenger.ReplyTo(natsMsg, m)
 
 			return
 		}
 
-		hellRegionRealms, err := sta.IO.HellClient.GetRegionRealms(regionRealmSlugs, gameversions.Retail)
+		hellRegionRealms, err := apiState.IO.HellClient.GetRegionRealms(regionRealmSlugs, gameversions.Retail)
 		if err != nil {
 			m.Err = err.Error()
 			m.Code = mCodes.GenericError
-			sta.IO.Messenger.ReplyTo(natsMsg, m)
+			apiState.IO.Messenger.ReplyTo(natsMsg, m)
 
 			return
 		}
 
-		sta.HellRegionRealms = sta.HellRegionRealms.Merge(hellRegionRealms)
+		apiState.HellRegionRealms = apiState.HellRegionRealms.Merge(hellRegionRealms)
 
-		sta.IO.Messenger.ReplyTo(natsMsg, m)
+		apiState.IO.Messenger.ReplyTo(natsMsg, m)
 	})
 	if err != nil {
 		return err

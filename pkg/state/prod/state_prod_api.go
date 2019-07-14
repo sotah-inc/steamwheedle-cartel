@@ -32,9 +32,9 @@ type ProdApiStateConfig struct {
 	MessengerPort int
 }
 
-func NewProdApiState(config ProdApiStateConfig) (ProdApiState, error) {
+func NewProdApiState(config ProdApiStateConfig) (ApiState, error) {
 	// establishing an initial state
-	apiState := ProdApiState{
+	apiState := ApiState{
 		State: state.NewState(uuid.NewV4(), config.SotahConfig.UseGCloud),
 	}
 	apiState.SessionSecret = uuid.NewV4()
@@ -47,7 +47,7 @@ func NewProdApiState(config ProdApiStateConfig) (ProdApiState, error) {
 	// establishing a store
 	stor, err := store.NewClient(config.GCloudProjectID)
 	if err != nil {
-		return ProdApiState{}, err
+		return ApiState{}, err
 	}
 	apiState.IO.StoreClient = stor
 
@@ -56,24 +56,24 @@ func NewProdApiState(config ProdApiStateConfig) (ProdApiState, error) {
 	var bootBucket *storage.BucketHandle
 	bootBucket, err = bootBase.GetFirmBucket()
 	if err != nil {
-		return ProdApiState{}, err
+		return ApiState{}, err
 	}
 	blizzardCredentials, err := bootBase.GetBlizzardCredentials(bootBucket)
 	if err != nil {
-		return ProdApiState{}, err
+		return ApiState{}, err
 	}
 
 	apiState.RealmsBase = store.NewRealmsBase(apiState.IO.StoreClient, regions.USCentral1, gameversions.Retail)
 	apiState.RealmsBucket, err = apiState.RealmsBase.GetFirmBucket()
 	if err != nil {
-		return ProdApiState{}, err
+		return ApiState{}, err
 	}
 
 	// establishing a bus
 	logging.Info("Connecting bus-client")
 	busClient, err := bus.NewClient(config.GCloudProjectID, "prod-api")
 	if err != nil {
-		return ProdApiState{}, err
+		return ApiState{}, err
 	}
 	apiState.IO.BusClient = busClient
 
@@ -82,13 +82,13 @@ func NewProdApiState(config ProdApiStateConfig) (ProdApiState, error) {
 	if err != nil {
 		log.Fatalf("Failed to connect to firebase: %s", err.Error())
 
-		return ProdApiState{}, err
+		return ApiState{}, err
 	}
 
 	// connecting to the messenger host
 	mess, err := messenger.NewMessenger(config.MessengerHost, config.MessengerPort)
 	if err != nil {
-		return ProdApiState{}, err
+		return ApiState{}, err
 	}
 	apiState.IO.Messenger = mess
 
@@ -98,7 +98,7 @@ func NewProdApiState(config ProdApiStateConfig) (ProdApiState, error) {
 	// connecting a new blizzard client
 	blizzardClient, err := blizzard.NewClient(blizzardCredentials.ClientId, blizzardCredentials.ClientSecret)
 	if err != nil {
-		return ProdApiState{}, err
+		return ApiState{}, err
 	}
 	apiState.IO.Resolver = resolver.NewResolver(blizzardClient, apiState.IO.Reporter)
 
@@ -106,7 +106,7 @@ func NewProdApiState(config ProdApiStateConfig) (ProdApiState, error) {
 	for _, region := range apiState.Regions {
 		realms, err := apiState.RealmsBase.GetAllRealms(region.Name, apiState.RealmsBucket)
 		if err != nil {
-			return ProdApiState{}, err
+			return ApiState{}, err
 		}
 
 		status := apiState.Statuses[region.Name]
@@ -122,15 +122,15 @@ func NewProdApiState(config ProdApiStateConfig) (ProdApiState, error) {
 			"regions": apiState.Regions,
 		}).Error("Failed to retrieve primary region")
 
-		return ProdApiState{}, err
+		return ApiState{}, err
 	}
 	uri, err := apiState.IO.Resolver.AppendAccessToken(apiState.IO.Resolver.GetItemClassesURL(primaryRegion.Hostname))
 	if err != nil {
-		return ProdApiState{}, err
+		return ApiState{}, err
 	}
 	itemClasses, _, err := blizzard.NewItemClassesFromHTTP(uri)
 	if err != nil {
-		return ProdApiState{}, err
+		return ApiState{}, err
 	}
 	apiState.ItemClasses = itemClasses
 
@@ -138,7 +138,7 @@ func NewProdApiState(config ProdApiStateConfig) (ProdApiState, error) {
 	itemIconsBase := store.NewItemIconsBase(stor, regions.USCentral1, gameversions.Retail)
 	itemIconsBucket, err := itemIconsBase.GetFirmBucket()
 	if err != nil {
-		return ProdApiState{}, err
+		return ApiState{}, err
 	}
 	for i, prof := range apiState.Professions {
 		itemIconUrl, err := func() (string, error) {
@@ -170,7 +170,7 @@ func NewProdApiState(config ProdApiStateConfig) (ProdApiState, error) {
 			return url, nil
 		}()
 		if err != nil {
-			return ProdApiState{}, err
+			return ApiState{}, err
 		}
 
 		apiState.Professions[i].IconURL = itemIconUrl
@@ -190,7 +190,7 @@ func NewProdApiState(config ProdApiStateConfig) (ProdApiState, error) {
 		return out.Merge(hellRegionRealms), nil
 	}()
 	if err != nil {
-		return ProdApiState{}, err
+		return ApiState{}, err
 	}
 
 	// establishing bus-listeners
@@ -211,7 +211,7 @@ func NewProdApiState(config ProdApiStateConfig) (ProdApiState, error) {
 	return apiState, nil
 }
 
-type ProdApiState struct {
+type ApiState struct {
 	state.State
 
 	RealmsBase   store.RealmsBase

@@ -8,21 +8,21 @@ import (
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/state/subjects"
 )
 
-func (sta ProdApiState) ListenForRealmModificationDates(stop state.ListenStopChan) error {
-	err := sta.IO.Messenger.Subscribe(string(subjects.RealmModificationDates), stop, func(natsMsg nats.Msg) {
+func (apiState ApiState) ListenForRealmModificationDates(stop state.ListenStopChan) error {
+	err := apiState.IO.Messenger.Subscribe(string(subjects.RealmModificationDates), stop, func(natsMsg nats.Msg) {
 		m := messenger.NewMessage()
 
-		encodedData, err := sta.HellRegionRealms.ToRegionRealmModificationDates().EncodeForDelivery()
+		encodedData, err := apiState.HellRegionRealms.ToRegionRealmModificationDates().EncodeForDelivery()
 		if err != nil {
 			m.Err = err.Error()
 			m.Code = mCodes.GenericError
-			sta.IO.Messenger.ReplyTo(natsMsg, m)
+			apiState.IO.Messenger.ReplyTo(natsMsg, m)
 
 			return
 		}
 
 		m.Data = string(encodedData)
-		sta.IO.Messenger.ReplyTo(natsMsg, m)
+		apiState.IO.Messenger.ReplyTo(natsMsg, m)
 	})
 	if err != nil {
 		return err

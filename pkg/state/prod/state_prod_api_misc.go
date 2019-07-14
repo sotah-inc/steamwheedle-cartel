@@ -11,26 +11,26 @@ import (
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/state/subjects"
 )
 
-func (sta ProdApiState) ListenForMessengerBoot(stop state.ListenStopChan) error {
-	err := sta.IO.Messenger.Subscribe(string(subjects.Boot), stop, func(natsMsg nats.Msg) {
+func (apiState ApiState) ListenForMessengerBoot(stop state.ListenStopChan) error {
+	err := apiState.IO.Messenger.Subscribe(string(subjects.Boot), stop, func(natsMsg nats.Msg) {
 		m := messenger.NewMessage()
 
 		encodedResponse, err := json.Marshal(state.BootResponse{
-			Regions:     sta.Regions,
-			ItemClasses: sta.ItemClasses,
-			Expansions:  sta.Expansions,
-			Professions: sta.Professions,
+			Regions:     apiState.Regions,
+			ItemClasses: apiState.ItemClasses,
+			Expansions:  apiState.Expansions,
+			Professions: apiState.Professions,
 		})
 		if err != nil {
 			m.Err = err.Error()
 			m.Code = mCodes.MsgJSONParseError
-			sta.IO.Messenger.ReplyTo(natsMsg, m)
+			apiState.IO.Messenger.ReplyTo(natsMsg, m)
 
 			return
 		}
 
 		m.Data = string(encodedResponse)
-		sta.IO.Messenger.ReplyTo(natsMsg, m)
+		apiState.IO.Messenger.ReplyTo(natsMsg, m)
 	})
 	if err != nil {
 		return err
