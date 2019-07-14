@@ -1,0 +1,176 @@
+package sotah
+
+import (
+	"encoding/json"
+
+	"github.com/sotah-inc/steamwheedle-cartel/pkg/blizzard"
+	"github.com/sotah-inc/steamwheedle-cartel/pkg/util"
+)
+
+func NewRealms(reg Region, blizzRealms []blizzard.Realm) Realms {
+	reas := make([]Realm, len(blizzRealms))
+	for i, rea := range blizzRealms {
+		reas[i] = Realm{rea, reg}
+	}
+
+	return reas
+}
+
+type Realms []Realm
+
+func (realms Realms) ToRealmMap() RealmMap {
+	out := RealmMap{}
+	for _, realm := range realms {
+		out[realm.Slug] = realm
+	}
+
+	return out
+}
+
+type RegionRealmModificationDates map[blizzard.RegionName]map[blizzard.RealmSlug]RealmModificationDates
+
+func (d RegionRealmModificationDates) Get(
+	regionName blizzard.RegionName,
+	realmSlug blizzard.RealmSlug,
+) RealmModificationDates {
+	realmsModDates, ok := d[regionName]
+	if !ok {
+		return RealmModificationDates{}
+	}
+
+	realmModDates, ok := realmsModDates[realmSlug]
+	if !ok {
+		return RealmModificationDates{}
+	}
+
+	return realmModDates
+}
+
+func (d RegionRealmModificationDates) Set(
+	regionName blizzard.RegionName,
+	realmSlug blizzard.RealmSlug,
+	modDates RealmModificationDates,
+) RegionRealmModificationDates {
+	realmsModDates, ok := d[regionName]
+	if !ok {
+		d[regionName] = map[blizzard.RealmSlug]RealmModificationDates{realmSlug: modDates}
+
+		return d
+	}
+
+	realmsModDates[realmSlug] = modDates
+	d[regionName] = realmsModDates
+
+	return d
+}
+
+func (d RegionRealmModificationDates) EncodeForDelivery() ([]byte, error) {
+	return json.Marshal(d)
+}
+
+type RealmModificationDates struct {
+	Downloaded                 int64 `json:"downloaded"`
+	LiveAuctionsReceived       int64 `json:"live_auctions_received"`
+	PricelistHistoriesReceived int64 `json:"pricelist_histories_received"`
+}
+
+func NewSkeletonRealm(regionName blizzard.RegionName, realmSlug blizzard.RealmSlug) Realm {
+	return Realm{
+		Region: Region{Name: regionName},
+		Realm:  blizzard.Realm{Slug: realmSlug},
+	}
+}
+
+type Realm struct {
+	blizzard.Realm
+	Region Region `json:"region"`
+}
+
+func (r Realm) EncodeForStorage() ([]byte, error) {
+	jsonEncoded, err := json.Marshal(r)
+	if err != nil {
+		return []byte{}, err
+	}
+
+	gzipEncoded, err := util.GzipEncode(jsonEncoded)
+	if err != nil {
+		return []byte{}, err
+	}
+
+	return gzipEncoded, nil
+}
+
+type RegionRealms map[blizzard.RegionName]Realms
+
+func (regionRealms RegionRealms) TotalRealms() int {
+	out := 0
+	for _, realms := range regionRealms {
+		out += len(realms)
+	}
+
+	return out
+}
+
+func (regionRealms RegionRealms) ToRegionRealmSlugs() RegionRealmSlugs {
+	out := RegionRealmSlugs{}
+
+	for regionName, realms := range regionRealms {
+		out[regionName] = make([]blizzard.RealmSlug, len(realms))
+		i := 0
+		for _, realm := range realms {
+			out[regionName][i] = realm.Slug
+
+			i++
+		}
+	}
+
+	return out
+}
+
+type RegionRealmSlugs map[blizzard.RegionName][]blizzard.RealmSlug
+
+type RegionRealmMap map[blizzard.RegionName]RealmMap
+
+func (regionRealmMap RegionRealmMap) ToRegionRealms() RegionRealms {
+	out := RegionRealms{}
+	for regionName, realmMap := range regionRealmMap {
+		out[regionName] = realmMap.ToRealms()
+	}
+
+	return out
+}
+
+func (regionRealmMap RegionRealmMap) ToRegionRealmSlugs() RegionRealmSlugs {
+	out := RegionRealmSlugs{}
+
+	for regionName, realmsMap := range regionRealmMap {
+		out[regionName] = make([]blizzard.RealmSlug, len(realmsMap))
+		i := 0
+		for realmSlug := range realmsMap {
+			out[regionName][i] = realmSlug
+
+			i++
+		}
+	}
+
+	return out
+}
+
+type RealmMap map[blizzard.RealmSlug]Realm
+
+func (rMap RealmMap) ToRealms() Realms {
+	out := Realms{}
+	for _, realm := range rMap {
+		out = append(out, realm)
+	}
+
+	return out
+}
+
+type RealmTimestampMap map[blizzard.RealmSlug]int64
+
+type RegionRealmTimestampMaps map[blizzard.RegionName]RealmTimestampMap
+
+type RealmTimestamps map[blizzard.RealmSlug][]UnixTimestamp
+
+type RegionRealmTimestamps map[blizzard.RegionName]RealmTimestamps

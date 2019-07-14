@@ -297,3 +297,86 @@ func (pHistory PriceHistory) EncodeForPersistence() ([]byte, error) {
 
 	return gzipEncoded, nil
 }
+
+type PricelistHistoryVersions map[blizzard.RegionName]map[blizzard.RealmSlug]map[UnixTimestamp]string
+
+func (v PricelistHistoryVersions) Insert(
+	regionName blizzard.RegionName,
+	realmSlug blizzard.RealmSlug,
+	targetTimestamp UnixTimestamp,
+	version string,
+) PricelistHistoryVersions {
+	if _, ok := v[regionName]; !ok {
+		v[regionName] = map[blizzard.RealmSlug]map[UnixTimestamp]string{}
+	}
+	if _, ok := v[regionName][realmSlug]; !ok {
+		v[regionName][realmSlug] = map[UnixTimestamp]string{}
+	}
+
+	v[regionName][realmSlug][targetTimestamp] = version
+
+	return v
+}
+
+func NewCleanupPricelistPayloads(regionRealmMap map[blizzard.RegionName]Realms) CleanupPricelistPayloads {
+	out := CleanupPricelistPayloads{}
+	for regionName, realms := range regionRealmMap {
+		for _, realm := range realms {
+			out = append(out, CleanupPricelistPayload{
+				RegionName: string(regionName),
+				RealmSlug:  string(realm.Slug),
+			})
+		}
+	}
+
+	return out
+}
+
+type CleanupPricelistPayloads []CleanupPricelistPayload
+
+func NewCleanupPricelistPayload(data string) (CleanupPricelistPayload, error) {
+	var out CleanupPricelistPayload
+	if err := json.Unmarshal([]byte(data), &out); err != nil {
+		return CleanupPricelistPayload{}, err
+	}
+
+	return out, nil
+}
+
+type CleanupPricelistPayload struct {
+	RegionName string `json:"region_name"`
+	RealmSlug  string `json:"realm_slug"`
+}
+
+func (p CleanupPricelistPayload) EncodeForDelivery() (string, error) {
+	jsonEncoded, err := json.Marshal(p)
+	if err != nil {
+		return "", err
+	}
+
+	return string(jsonEncoded), nil
+}
+
+func NewCleanupPricelistPayloadResponse(data string) (CleanupPricelistPayloadResponse, error) {
+	var out CleanupPricelistPayloadResponse
+	if err := json.Unmarshal([]byte(data), &out); err != nil {
+		return CleanupPricelistPayloadResponse{}, err
+	}
+
+	return out, nil
+}
+
+type CleanupPricelistPayloadResponse struct {
+	RegionName   string `json:"region_name"`
+	RealmSlug    string `json:"realm_slug"`
+	TotalDeleted int    `json:"total_removed"`
+}
+
+func (p CleanupPricelistPayloadResponse) EncodeForDelivery() (string, error) {
+	jsonEncoded, err := json.Marshal(p)
+	if err != nil {
+		return "", err
+	}
+
+	return string(jsonEncoded), nil
+}
