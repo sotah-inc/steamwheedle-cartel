@@ -168,7 +168,7 @@ func main() {
 			})
 		},
 		fnDownloadAllAuctions.FullCommand(): func() error {
-			return fnCommand.FnDownloadAllAuctions(fnState.DownloadAllAuctionsStateConfig{
+			return fnCommand.DownloadAllAuctions(fnState.DownloadAllAuctionsStateConfig{
 				ProjectId:     *projectID,
 				MessengerHost: *natsHost,
 				MessengerPort: *natsPort,
