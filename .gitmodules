@@ -7,3 +7,6 @@
 [submodule "extern/steamwheedle-cartel-cleanup-expired-manifest"]
 	path = extern/steamwheedle-cartel-cleanup-expired-manifest
 	url = git@github.com:sotah-inc/steamwheedle-cartel-cleanup-expired-manifest.git
+[submodule "extern/steamwheedle-cartel-cleanup-pricelist-histories"]
+	path = extern/steamwheedle-cartel-cleanup-pricelist-histories
+	url = git@github.com:sotah-inc/steamwheedle-cartel-cleanup-pricelist-histories.git
