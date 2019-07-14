@@ -195,6 +195,24 @@ func (regionRealms RegionRealms) TotalRealms() int {
 	return out
 }
 
+func (regionRealms RegionRealms) ToRegionRealmSlugs() RegionRealmSlugs {
+	out := RegionRealmSlugs{}
+
+	for regionName, realms := range regionRealms {
+		out[regionName] = make([]blizzard.RealmSlug, len(realms))
+		i := 0
+		for _, realm := range realms {
+			out[regionName][i] = realm.Slug
+
+			i++
+		}
+	}
+
+	return out
+}
+
+type RegionRealmSlugs map[blizzard.RegionName][]blizzard.RealmSlug
+
 type RegionRealmMap map[blizzard.RegionName]RealmMap
 
 func (regionRealmMap RegionRealmMap) ToRegionRealms() RegionRealms {
@@ -206,8 +224,8 @@ func (regionRealmMap RegionRealmMap) ToRegionRealms() RegionRealms {
 	return out
 }
 
-func (regionRealmMap RegionRealmMap) RegionRealmSlugs() map[blizzard.RegionName][]blizzard.RealmSlug {
-	out := map[blizzard.RegionName][]blizzard.RealmSlug{}
+func (regionRealmMap RegionRealmMap) ToRegionRealmSlugs() RegionRealmSlugs {
+	out := RegionRealmSlugs{}
 
 	for regionName, realmsMap := range regionRealmMap {
 		out[regionName] = make([]blizzard.RealmSlug, len(realmsMap))
