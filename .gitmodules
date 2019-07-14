@@ -4,3 +4,6 @@
 [submodule "extern/infra"]
 	path = extern/infra
 	url = git@github.com:sotah-inc/infra.git
+[submodule "extern/steamwheedle-cartel-cleanup-expired-manifest"]
+	path = extern/steamwheedle-cartel-cleanup-expired-manifest
+	url = git@github.com:sotah-inc/steamwheedle-cartel-cleanup-expired-manifest.git
