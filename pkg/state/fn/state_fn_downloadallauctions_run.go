@@ -69,19 +69,19 @@ func (sta DownloadAllAuctionsState) Run() error {
 		return err
 	}
 
-	regionRealmMap := sotah.RegionRealmMap{}
+	regionRealms := sotah.RegionRealms{}
 	for _, region := range regions {
 		realms, err := sta.realmsBase.GetAllRealms(region.Name, sta.realmsBucket)
 		if err != nil {
 			return err
 		}
 
-		regionRealmMap[region.Name] = realms.ToRealmMap()
+		regionRealms[region.Name] = realms
 	}
 
 	// producing messages
 	logging.Info("Producing messages for bulk requesting")
-	messages, err := bus.NewCollectAuctionMessages(regionRealmMap.ToRegionRealms())
+	messages, err := bus.NewCollectAuctionMessages(regionRealms)
 	if err != nil {
 		return err
 	}
