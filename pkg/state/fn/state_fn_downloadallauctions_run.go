@@ -17,10 +17,7 @@ import (
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/state/subjects"
 )
 
-func (sta DownloadAllAuctionsState) PublishToReceiveRealms(
-	regionRealmMap sotah.RegionRealmMap,
-	tuples bus.RegionRealmTimestampTuples,
-) error {
+func (sta DownloadAllAuctionsState) PublishToReceiveRealms(tuples bus.RegionRealmTimestampTuples) error {
 	// gathering a whitelist of region-realm-slugs
 	regionRealmSlugs := tuples.ToRegionRealmSlugs()
 
@@ -133,7 +130,7 @@ func (sta DownloadAllAuctionsState) Run() error {
 
 	// publishing to receive-realms
 	logging.Info("Publishing realms to receive-realms")
-	if err := sta.PublishToReceiveRealms(regionRealmMap, tuples); err != nil {
+	if err := sta.PublishToReceiveRealms(tuples); err != nil {
 		return err
 	}
 
