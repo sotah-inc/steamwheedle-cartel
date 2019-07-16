@@ -2,23 +2,30 @@ package act
 
 import (
 	"compress/gzip"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
 
+	"cloud.google.com/go/compute/metadata"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/logging"
 )
 
-func Create(url string, body io.Reader) (ResponseMeta, error) {
-	return Call("POST", url, body)
+func GetToken(serviceURL string) (string, error) {
+	tokenURL := fmt.Sprintf("/instance/service-accounts/default/identity?audience=%s", serviceURL)
+	idToken, err := metadata.Get(tokenURL)
+	if err != nil {
+		return "", fmt.Errorf("metadata.Get: failed to query id_token: %+v", err)
+	}
+
+	return idToken, nil
 }
 
-func Update(url string, body io.Reader) (ResponseMeta, error) {
-	return Call("PUT", url, body)
-}
-
-func Get(url string, body io.Reader) (ResponseMeta, error) {
-	return Call("Get", url, body)
+type RequestMeta struct {
+	Method     string
+	ServiceURL string
+	Body       io.Reader
+	Token      string
 }
 
 type ResponseMeta struct {
@@ -26,12 +33,13 @@ type ResponseMeta struct {
 	Code int
 }
 
-func Call(method string, url string, body io.Reader) (ResponseMeta, error) {
-	req, err := http.NewRequest(method, url, body)
+func Call(in RequestMeta) (ResponseMeta, error) {
+	req, err := http.NewRequest(in.Method, in.ServiceURL, in.Body)
 	if err != nil {
 		return ResponseMeta{}, err
 	}
 	req.Header.Add("Accept-Encoding", "gzip")
+	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", in.Token))
 
 	// running it into a client
 	httpClient := &http.Client{}
