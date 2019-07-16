@@ -78,6 +78,8 @@ func (sta DownloadAllAuctionsState) Run() error {
 		regionRealms[region.Name] = realms
 	}
 
+	logging.WithField("endpoint-url", sta.actEndpoints.DownloadAuctions).Info("Fetching from act endpoint")
+
 	actData, err := act.Get(sta.actEndpoints.DownloadAuctions, nil)
 	if err != nil {
 		return err
