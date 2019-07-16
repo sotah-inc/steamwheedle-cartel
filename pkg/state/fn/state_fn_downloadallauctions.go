@@ -3,8 +3,6 @@ package fn
 import (
 	"log"
 
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/sotah"
-
 	"cloud.google.com/go/pubsub"
 	"cloud.google.com/go/storage"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/bus"
@@ -127,7 +125,7 @@ type DownloadAllAuctionsState struct {
 	computeAllLiveAuctionsTopic       *pubsub.Topic
 	computeAllPricelistHistoriesTopic *pubsub.Topic
 
-	actEndpoints sotah.ActEndpoints
+	actEndpoints hell.ActEndpoints
 }
 
 func (sta DownloadAllAuctionsState) ListenForDownloadAllAuctions(
