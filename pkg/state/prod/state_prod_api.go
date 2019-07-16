@@ -180,7 +180,7 @@ func NewProdApiState(config ProdApiStateConfig) (ApiState, error) {
 		out := hell.RegionRealmsMap{}
 
 		hellRegionRealms, err := apiState.IO.HellClient.GetRegionRealms(
-			apiState.Statuses.RegionRealmsMap().RegionRealmSlugs(),
+			apiState.Statuses.RegionRealmsMap().ToRegionRealmSlugs(),
 			gameversions.Retail,
 		)
 		if err != nil {
