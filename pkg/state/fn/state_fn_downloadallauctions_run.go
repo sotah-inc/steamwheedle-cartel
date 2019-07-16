@@ -5,6 +5,8 @@ import (
 	"errors"
 	"time"
 
+	"github.com/sotah-inc/steamwheedle-cartel/pkg/act"
+
 	"github.com/sirupsen/logrus"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/blizzard"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/bus"
@@ -75,6 +77,12 @@ func (sta DownloadAllAuctionsState) Run() error {
 
 		regionRealms[region.Name] = realms
 	}
+
+	actData, err := act.Get(sta.actEndpoints.DownloadAuctions, nil)
+	if err != nil {
+		return err
+	}
+	logging.WithField("act-data", actData).Info("Received from download-auctions act endpoint")
 
 	// producing messages
 	logging.Info("Producing messages for bulk requesting")

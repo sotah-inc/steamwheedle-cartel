@@ -3,6 +3,8 @@ package fn
 import (
 	"log"
 
+	"github.com/sotah-inc/steamwheedle-cartel/pkg/sotah"
+
 	"cloud.google.com/go/pubsub"
 	"cloud.google.com/go/storage"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/bus"
@@ -68,6 +70,13 @@ func NewDownloadAllAuctionsState(config DownloadAllAuctionsStateConfig) (Downloa
 		return DownloadAllAuctionsState{}, err
 	}
 
+	sta.actEndpoints, err = sta.IO.HellClient.GetActEndpoints()
+	if err != nil {
+		log.Fatalf("Failed to fetch act endpoints: %s", err.Error())
+
+		return DownloadAllAuctionsState{}, err
+	}
+
 	// connecting to the messenger host
 	mess, err := messenger.NewMessenger(config.MessengerHost, config.MessengerPort)
 	if err != nil {
@@ -117,6 +126,8 @@ type DownloadAllAuctionsState struct {
 	downloadAuctionsTopic             *pubsub.Topic
 	computeAllLiveAuctionsTopic       *pubsub.Topic
 	computeAllPricelistHistoriesTopic *pubsub.Topic
+
+	actEndpoints sotah.ActEndpoints
 }
 
 func (sta DownloadAllAuctionsState) ListenForDownloadAllAuctions(

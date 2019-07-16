@@ -2,7 +2,6 @@ package act
 
 import (
 	"compress/gzip"
-	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -10,18 +9,27 @@ import (
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/logging"
 )
 
-func Create(url string, body io.Reader) ([]byte, error) {
+func Create(url string, body io.Reader) (ResponseMeta, error) {
 	return Call("POST", url, body)
 }
 
-func Update(url string, body io.Reader) ([]byte, error) {
+func Update(url string, body io.Reader) (ResponseMeta, error) {
 	return Call("PUT", url, body)
 }
 
-func Call(method string, url string, body io.Reader) ([]byte, error) {
+func Get(url string, body io.Reader) (ResponseMeta, error) {
+	return Call("Get", url, body)
+}
+
+type ResponseMeta struct {
+	Body []byte
+	Code int
+}
+
+func Call(method string, url string, body io.Reader) (ResponseMeta, error) {
 	req, err := http.NewRequest(method, url, body)
 	if err != nil {
-		return []byte{}, err
+		return ResponseMeta{}, err
 	}
 	req.Header.Add("Accept-Encoding", "gzip")
 
@@ -29,7 +37,7 @@ func Call(method string, url string, body io.Reader) ([]byte, error) {
 	httpClient := &http.Client{}
 	resp, err := httpClient.Do(req)
 	if err != nil {
-		return []byte{}, err
+		return ResponseMeta{}, err
 	}
 	defer func() {
 		if err := resp.Body.Close(); err != nil {
@@ -37,14 +45,10 @@ func Call(method string, url string, body io.Reader) ([]byte, error) {
 		}
 	}()
 
-	if resp.StatusCode != http.StatusOK {
-		return []byte{}, fmt.Errorf("response was not OK: %d", resp.StatusCode)
-	}
-
 	if resp.Header.Get("Content-Encoding") == "gzip" {
 		reader, err := gzip.NewReader(resp.Body)
 		if err != nil {
-			return []byte{}, err
+			return ResponseMeta{}, err
 		}
 		defer func() {
 			if err := reader.Close(); err != nil {
@@ -54,16 +58,16 @@ func Call(method string, url string, body io.Reader) ([]byte, error) {
 
 		out, err := ioutil.ReadAll(reader)
 		if err != nil {
-			return []byte{}, err
+			return ResponseMeta{}, err
 		}
 
-		return out, nil
+		return ResponseMeta{Body: out, Code: resp.StatusCode}, nil
 	}
 
 	out, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return []byte{}, err
+		return ResponseMeta{}, err
 	}
 
-	return out, nil
+	return ResponseMeta{Body: out, Code: resp.StatusCode}, nil
 }

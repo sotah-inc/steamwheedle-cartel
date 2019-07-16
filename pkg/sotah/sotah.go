@@ -73,3 +73,7 @@ type BlizzardCredentials struct {
 func (c BlizzardCredentials) EncodeForStorage() ([]byte, error) {
 	return json.Marshal(c)
 }
+
+type ActEndpoints struct {
+	DownloadAuctions string `json:"download_auctions"`
+}
