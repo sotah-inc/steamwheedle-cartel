@@ -1,23 +1,23 @@
 package hell
 
-import (
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/sotah"
-)
+type ActEndpoints struct {
+	DownloadAuctions string `firestore:"download_auctions"`
+}
 
-func (c Client) GetActEndpoints() (sotah.ActEndpoints, error) {
+func (c Client) GetActEndpoints() (ActEndpoints, error) {
 	endpointsRef, err := c.FirmDocument("connection_info/act_endpoints")
 	if err != nil {
-		return sotah.ActEndpoints{}, err
+		return ActEndpoints{}, err
 	}
 
 	docsnap, err := endpointsRef.Get(c.Context)
 	if err != nil {
-		return sotah.ActEndpoints{}, err
+		return ActEndpoints{}, err
 	}
 
-	var actEndpoints sotah.ActEndpoints
+	var actEndpoints ActEndpoints
 	if err := docsnap.DataTo(&actEndpoints); err != nil {
-		return sotah.ActEndpoints{}, err
+		return ActEndpoints{}, err
 	}
 
 	return actEndpoints, nil
