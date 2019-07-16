@@ -5,7 +5,7 @@ import (
 )
 
 func (c Client) GetActEndpoints() (sotah.ActEndpoints, error) {
-	endpointsRef, err := c.FirmDocument("")
+	endpointsRef, err := c.FirmDocument("connection_info/act_endpoints")
 	if err != nil {
 		return sotah.ActEndpoints{}, err
 	}
