@@ -88,7 +88,7 @@ func (sta DownloadAllAuctionsState) Run() error {
 	if err != nil {
 		return err
 	}
-	logging.WithField("act-data", actData).Info("Received from download-auctions act endpoint")
+	logging.WithField("act-data", string(actData.Body)).Info("Received from download-auctions act endpoint")
 
 	// producing messages
 	logging.Info("Producing messages for bulk requesting")
