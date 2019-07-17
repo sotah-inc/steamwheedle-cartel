@@ -90,7 +90,6 @@ func (sta DownloadAllAuctionsState) Run() error {
 	}
 	logging.WithFields(logrus.Fields{
 		"act-data": string(actData.Body),
-		"token":    actClient.Token,
 	}).Info("Received from download-auctions act endpoint")
 
 	// producing messages
