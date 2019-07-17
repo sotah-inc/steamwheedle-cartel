@@ -85,6 +85,7 @@ func (sta DownloadAllAuctionsState) Run() error {
 	}
 
 	logging.Info("Calling download-auctions with act client")
+	actStartTime := time.Now()
 	for outJob := range actClient.DownloadAuctions(regionRealms) {
 		if outJob.Err != nil {
 			logging.WithFields(outJob.ToLogrusFields()).Error("Failed to fetch auctions")
@@ -98,6 +99,10 @@ func (sta DownloadAllAuctionsState) Run() error {
 			"data":   string(outJob.Data),
 		}).Info("Received from download-auctions")
 	}
+	logging.WithField(
+		"duration",
+		int(int64(time.Since(actStartTime))/1000/1000/1000),
+	).Info("Finished calling act download-auctions")
 
 	// producing messages
 	logging.Info("Producing messages for bulk requesting")
