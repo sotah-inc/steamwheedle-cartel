@@ -23,6 +23,8 @@ func GetToken(serviceURL string) (string, error) {
 		return "", fmt.Errorf("metadata.Get: failed to query id_token: %+v", err)
 	}
 
+	logging.WithField("token", idToken).Info("Received token")
+
 	return idToken, nil
 }
 
