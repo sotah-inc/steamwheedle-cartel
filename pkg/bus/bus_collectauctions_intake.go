@@ -10,12 +10,20 @@ import (
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/util"
 )
 
+type CollectAuctionsJob struct {
+	RegionName string `json:"region_name"`
+	RealmSlug  string `json:"realm_slug"`
+}
+
 type LoadRegionRealmsOutJob struct {
 	Err   error
 	Realm sotah.Realm
 }
 
-func (c Client) LoadRegionRealms(recipientTopic *pubsub.Topic, regionRealms map[blizzard.RegionName]sotah.Realms) chan LoadRegionRealmsOutJob {
+func (c Client) LoadRegionRealms(
+	recipientTopic *pubsub.Topic,
+	regionRealms map[blizzard.RegionName]sotah.Realms,
+) chan LoadRegionRealmsOutJob {
 	// establishing channels for intake
 	in := make(chan sotah.Realm)
 	out := make(chan LoadRegionRealmsOutJob)
