@@ -92,16 +92,10 @@ func (sta DownloadAllAuctionsState) Run() error {
 
 			continue
 		}
-
-		logging.WithFields(logrus.Fields{
-			"region": outJob.RegionName,
-			"realm":  outJob.RealmSlug,
-			"data":   string(outJob.Data),
-		}).Info("Received from download-auctions")
 	}
 	logging.WithField(
-		"duration",
-		int(int64(time.Since(actStartTime))/1000/1000/1000),
+		"duration-in-ms",
+		int(int64(time.Since(actStartTime))/1000/1000),
 	).Info("Finished calling act download-auctions")
 
 	// producing messages

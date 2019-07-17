@@ -1,6 +1,8 @@
 package act
 
 import (
+	"fmt"
+
 	"github.com/sirupsen/logrus"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/blizzard"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/sotah"
@@ -35,7 +37,11 @@ func (c Client) DownloadAuctions(regionRealms sotah.RegionRealms) chan DownloadA
 	// spinning up the workers
 	worker := func() {
 		for inJob := range in {
-			actData, err := c.Call("/", "GET", nil)
+			actData, err := c.Call(
+				fmt.Sprintf("/?region=%s&realm=%s", inJob.RegionName, inJob.RealmSlug),
+				"GET",
+				nil,
+			)
 			if err != nil {
 				out <- DownloadAuctionsOutJob{
 					RegionName: inJob.RegionName,
