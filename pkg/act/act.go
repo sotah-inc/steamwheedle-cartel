@@ -15,7 +15,7 @@ import (
 
 func GetToken(serviceURL string) (string, error) {
 	tokenURL := fmt.Sprintf(
-		"http://metadata/computeMetadata/v1/instance/service-accounts/default/identityit status?audience=%s",
+		"http://metadata/computeMetadata/v1/instance/service-accounts/default/identity?audience=%s",
 		serviceURL,
 	)
 
