@@ -14,7 +14,10 @@ import (
 )
 
 func GetToken(serviceURL string) (string, error) {
-	tokenURL := fmt.Sprintf("/instance/service-accounts/default/identity?audience=%s", serviceURL)
+	tokenURL := fmt.Sprintf(
+		"http://metadata/computeMetadata/v1/instance/service-accounts/default/identityit status?audience=%s",
+		serviceURL,
+	)
 
 	logging.WithField("token-url", tokenURL).Info("Fetching id-token from metadata api")
 
