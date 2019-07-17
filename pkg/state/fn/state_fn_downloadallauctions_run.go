@@ -84,18 +84,11 @@ func (sta DownloadAllAuctionsState) Run() error {
 		return err
 	}
 
-	for regionName, realms := range regionRealms {
-		for _, realm := range realms {
-			actData, err := actClient.Call("/", "GET", nil)
-			if err != nil {
-				return err
-			}
+	for outJob := range actClient.DownloadAuctions(regionRealms) {
+		if outJob.Err != nil {
+			logging.WithFields(outJob.ToLogrusFields()).Error("Failed to fetch auctions")
 
-			logging.WithFields(logrus.Fields{
-				"region":   regionName,
-				"realm":    realm.Slug,
-				"act-data": string(actData.Body),
-			}).Info("Received from download-auctions act endpoint")
+			continue
 		}
 	}
 
