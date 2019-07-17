@@ -5,8 +5,6 @@ import (
 	"io"
 )
 
-// curl -H "Metadata-Flavor: Google" 'http://metadata/computeMetadata/v1/instance/service-accounts/default/identity?audience=https://download-auctions-server-7ynizip42q-uc.a.run.app'
-
 func NewClient(serviceURL string) (Client, error) {
 	token, err := GetToken(serviceURL)
 	if err != nil {
