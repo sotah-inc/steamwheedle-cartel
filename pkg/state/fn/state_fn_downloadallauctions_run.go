@@ -84,13 +84,20 @@ func (sta DownloadAllAuctionsState) Run() error {
 		return err
 	}
 
-	actData, err := actClient.Call("/", "GET", nil)
-	if err != nil {
-		return err
+	for regionName, realms := range regionRealms {
+		for _, realm := range realms {
+			actData, err := actClient.Call("/", "GET", nil)
+			if err != nil {
+				return err
+			}
+
+			logging.WithFields(logrus.Fields{
+				"region":   regionName,
+				"realm":    realm.Slug,
+				"act-data": string(actData.Body),
+			}).Info("Received from download-auctions act endpoint")
+		}
 	}
-	logging.WithFields(logrus.Fields{
-		"act-data": string(actData.Body),
-	}).Info("Received from download-auctions act endpoint")
 
 	// producing messages
 	logging.Info("Producing messages for bulk requesting")
