@@ -84,12 +84,19 @@ func (sta DownloadAllAuctionsState) Run() error {
 		return err
 	}
 
+	logging.Info("Calling download-auctions with act client")
 	for outJob := range actClient.DownloadAuctions(regionRealms) {
 		if outJob.Err != nil {
 			logging.WithFields(outJob.ToLogrusFields()).Error("Failed to fetch auctions")
 
 			continue
 		}
+
+		logging.WithFields(logrus.Fields{
+			"region": outJob.RegionName,
+			"realm":  outJob.RealmSlug,
+			"data":   string(outJob.Data),
+		}).Info("Received from download-auctions")
 	}
 
 	// producing messages
