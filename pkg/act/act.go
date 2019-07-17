@@ -7,12 +7,17 @@ import (
 	"io/ioutil"
 	"net/http"
 
+	"github.com/sirupsen/logrus"
+
 	"cloud.google.com/go/compute/metadata"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/logging"
 )
 
 func GetToken(serviceURL string) (string, error) {
 	tokenURL := fmt.Sprintf("/instance/service-accounts/default/identity?audience=%s", serviceURL)
+
+	logging.WithField("token-url", tokenURL).Info("Fetching id-token from metadata api")
+
 	idToken, err := metadata.Get(tokenURL)
 	if err != nil {
 		return "", fmt.Errorf("metadata.Get: failed to query id_token: %+v", err)
@@ -40,6 +45,11 @@ func Call(in RequestMeta) (ResponseMeta, error) {
 	}
 	req.Header.Add("Accept-Encoding", "gzip")
 	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", in.Token))
+
+	logging.WithFields(logrus.Fields{
+		"authorization": fmt.Sprintf("Bearer %s", in.Token),
+		"url":           in.ServiceURL,
+	}).Info("Calling with token")
 
 	// running it into a client
 	httpClient := &http.Client{}
