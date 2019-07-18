@@ -1,24 +1,19 @@
 package act
 
 import (
-	"fmt"
-
 	"github.com/sirupsen/logrus"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/blizzard"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/sotah"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/util"
 )
 
 type DownloadAuctionsInJob struct {
-	RegionName blizzard.RegionName
-	RealmSlug  blizzard.RealmSlug
+	sotah.RegionRealmTuple
 }
 
 type DownloadAuctionsOutJob struct {
-	RegionName blizzard.RegionName
-	RealmSlug  blizzard.RealmSlug
-	Data       []byte
-	Err        error
+	sotah.RegionRealmTuple
+	Data []byte
+	Err  error
 }
 
 func (job DownloadAuctionsOutJob) ToLogrusFields() logrus.Fields {
@@ -37,27 +32,32 @@ func (c Client) DownloadAuctions(regionRealms sotah.RegionRealms) chan DownloadA
 	// spinning up the workers
 	worker := func() {
 		for inJob := range in {
-			actData, err := c.Call(
-				fmt.Sprintf("/?region=%s&realm=%s", inJob.RegionName, inJob.RealmSlug),
-				"GET",
-				nil,
-			)
+			body, err := inJob.RegionRealmTuple.EncodeForDelivery()
 			if err != nil {
 				out <- DownloadAuctionsOutJob{
-					RegionName: inJob.RegionName,
-					RealmSlug:  inJob.RealmSlug,
-					Data:       nil,
-					Err:        err,
+					RegionRealmTuple: inJob.RegionRealmTuple,
+					Data:             nil,
+					Err:              err,
+				}
+
+				continue
+			}
+
+			actData, err := c.Call("/", "POST", []byte(body))
+			if err != nil {
+				out <- DownloadAuctionsOutJob{
+					RegionRealmTuple: inJob.RegionRealmTuple,
+					Data:             nil,
+					Err:              err,
 				}
 
 				continue
 			}
 
 			out <- DownloadAuctionsOutJob{
-				RegionName: inJob.RegionName,
-				RealmSlug:  inJob.RealmSlug,
-				Data:       actData.Body,
-				Err:        nil,
+				RegionRealmTuple: inJob.RegionRealmTuple,
+				Data:             actData.Body,
+				Err:              nil,
 			}
 		}
 	}
@@ -70,7 +70,12 @@ func (c Client) DownloadAuctions(regionRealms sotah.RegionRealms) chan DownloadA
 	go func() {
 		for regionName, realms := range regionRealms {
 			for _, realm := range realms {
-				in <- DownloadAuctionsInJob{RegionName: regionName, RealmSlug: realm.Slug}
+				in <- DownloadAuctionsInJob{
+					RegionRealmTuple: sotah.RegionRealmTuple{
+						RegionName: string(regionName),
+						RealmSlug:  string(realm.Slug),
+					},
+				}
 			}
 		}
 

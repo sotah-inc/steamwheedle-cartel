@@ -2,7 +2,6 @@ package act
 
 import (
 	"fmt"
-	"io"
 )
 
 func NewClient(serviceURL string) (Client, error) {
@@ -19,7 +18,7 @@ type Client struct {
 	Token      string
 }
 
-func (c Client) Call(routeEndpoint string, method string, body io.Reader) (ResponseMeta, error) {
+func (c Client) Call(routeEndpoint string, method string, body []byte) (ResponseMeta, error) {
 	if routeEndpoint == "/" {
 		routeEndpoint = ""
 	}

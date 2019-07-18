@@ -1,9 +1,9 @@
 package act
 
 import (
+	"bytes"
 	"compress/gzip"
 	"fmt"
-	"io"
 	"io/ioutil"
 	"net/http"
 
@@ -27,7 +27,7 @@ func GetToken(serviceURL string) (string, error) {
 type RequestMeta struct {
 	Method     string
 	ServiceURL string
-	Body       io.Reader
+	Body       []byte
 	Token      string
 }
 
@@ -37,7 +37,7 @@ type ResponseMeta struct {
 }
 
 func Call(in RequestMeta) (ResponseMeta, error) {
-	req, err := http.NewRequest(in.Method, in.ServiceURL, in.Body)
+	req, err := http.NewRequest(in.Method, in.ServiceURL, bytes.NewReader(in.Body))
 	if err != nil {
 		return ResponseMeta{}, err
 	}
