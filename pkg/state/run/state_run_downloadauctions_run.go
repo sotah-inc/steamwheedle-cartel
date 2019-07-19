@@ -158,14 +158,5 @@ func (sta DownloadAuctionsState) Run(data []byte) sotah.Message {
 		return sotah.NewErrorMessage(err)
 	}
 
-	if true {
-		logging.WithFields(logrus.Fields{
-			"region": regionRealmTuple.RegionName,
-			"realm":  regionRealmTuple.RealmSlug,
-		}).Info("Received region-realm tuple")
-
-		return sotah.NewMessage()
-	}
-
 	return sta.Handle(regionRealmTuple)
 }
