@@ -1,5 +1,7 @@
 package codes
 
+import "net/http"
+
 // Code - typehint for these enums
 type Code int
 
@@ -15,3 +17,20 @@ var (
 	UserError         Code = -4
 	BlizzardError     Code = -5
 )
+
+func CodeToHTTPStatus(code Code) int {
+	switch code {
+	case Ok:
+		return http.StatusOK
+	case UserError:
+		return http.StatusBadRequest
+	case Blank:
+	case GenericError:
+	case MsgJSONParseError:
+	case BlizzardError:
+	default:
+		return http.StatusInternalServerError
+	}
+
+	return http.StatusInternalServerError
+}
