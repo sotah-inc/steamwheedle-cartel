@@ -113,7 +113,7 @@ func (sta DownloadAllAuctionsState) Run() error {
 			logging.WithFields(logrus.Fields{
 				"region": outJob.RegionName,
 				"realm":  outJob.RealmSlug,
-			}).Error("Region-realm tuple was processed but no new auctions were found")
+			}).Info("Region-realm tuple was processed but no new auctions were found")
 		default:
 			logging.WithFields(logrus.Fields{
 				"region":      outJob.RegionName,
