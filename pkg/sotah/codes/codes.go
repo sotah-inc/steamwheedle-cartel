@@ -22,6 +22,8 @@ func CodeToHTTPStatus(code Code) int {
 	switch code {
 	case Ok:
 		return http.StatusOK
+	case NotFound:
+		return http.StatusNotFound
 	case UserError:
 		return http.StatusBadRequest
 	case Blank:
