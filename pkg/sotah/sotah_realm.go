@@ -220,3 +220,42 @@ func (tuple RegionRealmTimestampTuple) EncodeForDelivery() (string, error) {
 
 	return string(jsonEncoded), nil
 }
+
+func NewRegionRealmTimestampTuples(data string) (RegionRealmTimestampTuples, error) {
+	var out RegionRealmTimestampTuples
+	if err := json.Unmarshal([]byte(data), &out); err != nil {
+		return RegionRealmTimestampTuples{}, err
+	}
+
+	return out, nil
+}
+
+type RegionRealmTimestampTuples []RegionRealmTimestampTuple
+
+func (tuples RegionRealmTimestampTuples) EncodeForDelivery() (string, error) {
+	jsonEncoded, err := json.Marshal(tuples)
+	if err != nil {
+		return "", err
+	}
+
+	return string(jsonEncoded), nil
+}
+
+func (tuples RegionRealmTimestampTuples) ToRegionRealmSlugs() map[blizzard.RegionName][]blizzard.RealmSlug {
+	out := map[blizzard.RegionName][]blizzard.RealmSlug{}
+	for _, tuple := range tuples {
+		next := func() []blizzard.RealmSlug {
+			result, ok := out[blizzard.RegionName(tuple.RegionName)]
+			if ok {
+				return result
+			}
+
+			return []blizzard.RealmSlug{}
+		}()
+
+		next = append(next, blizzard.RealmSlug(tuple.RealmSlug))
+		out[blizzard.RegionName(tuple.RegionName)] = next
+	}
+
+	return out
+}
