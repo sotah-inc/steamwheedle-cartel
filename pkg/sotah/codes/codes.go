@@ -9,6 +9,7 @@ type Code int
 Codes - message response codes
 */
 var (
+	NoAction          Code = 2
 	Ok                Code = 1
 	Blank             Code // zero value is 0
 	GenericError      Code = -1
@@ -20,6 +21,8 @@ var (
 
 func CodeToHTTPStatus(code Code) int {
 	switch code {
+	case NoAction:
+		return http.StatusNotModified
 	case Ok:
 		return http.StatusOK
 	case NotFound:
