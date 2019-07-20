@@ -94,7 +94,10 @@ func (sta DownloadAuctionsState) Handle(regionRealmTuple sotah.RegionRealmTuple)
 			"last-modified": lastModifiedTimestamp,
 		}).Info("Object exists for region/ realm/ last-modified tuple, skipping")
 
-		return sotah.NewMessage()
+		out := sotah.NewMessage()
+		out.Code = codes.NoAction
+
+		return out
 	}
 
 	resp, err := blizzard.Download(aucInfoFile.URL)
