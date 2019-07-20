@@ -9,6 +9,7 @@ import (
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/hell"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/logging"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/messenger"
+	"github.com/sotah-inc/steamwheedle-cartel/pkg/metric"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/sotah/gameversions"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/state"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/state/subjects"
@@ -43,22 +44,6 @@ func NewDownloadAllAuctionsState(config DownloadAllAuctionsStateConfig) (Downloa
 
 		return DownloadAllAuctionsState{}, err
 	}
-	sta.computeAllLiveAuctionsTopic, err = sta.IO.BusClient.FirmTopic(
-		string(subjects.ComputeAllLiveAuctions),
-	)
-	if err != nil {
-		log.Fatalf("Failed to get firm topic: %s", err.Error())
-
-		return DownloadAllAuctionsState{}, err
-	}
-	sta.computeAllPricelistHistoriesTopic, err = sta.IO.BusClient.FirmTopic(
-		string(subjects.ComputeAllPricelistHistories),
-	)
-	if err != nil {
-		log.Fatalf("Failed to get firm topic: %s", err.Error())
-
-		return DownloadAllAuctionsState{}, err
-	}
 
 	// connecting to hell
 	sta.IO.HellClient, err = hell.NewClient(config.ProjectId)
@@ -81,6 +66,9 @@ func NewDownloadAllAuctionsState(config DownloadAllAuctionsStateConfig) (Downloa
 		return DownloadAllAuctionsState{}, err
 	}
 	sta.IO.Messenger = mess
+
+	// initializing a reporter
+	sta.IO.Reporter = metric.NewReporter(mess)
 
 	sta.IO.StoreClient, err = store.NewClient(config.ProjectId)
 	if err != nil {
@@ -121,9 +109,7 @@ type DownloadAllAuctionsState struct {
 	realmsBase   store.RealmsBase
 	realmsBucket *storage.BucketHandle
 
-	downloadAuctionsTopic             *pubsub.Topic
-	computeAllLiveAuctionsTopic       *pubsub.Topic
-	computeAllPricelistHistoriesTopic *pubsub.Topic
+	downloadAuctionsTopic *pubsub.Topic
 
 	actEndpoints hell.ActEndpoints
 }
