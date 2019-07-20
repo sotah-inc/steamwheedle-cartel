@@ -9,6 +9,8 @@ import (
 
 	"cloud.google.com/go/compute/metadata"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/logging"
+	"github.com/sotah-inc/steamwheedle-cartel/pkg/sotah"
+	"github.com/sotah-inc/steamwheedle-cartel/pkg/sotah/codes"
 )
 
 func GetToken(serviceURL string) (string, error) {
@@ -81,4 +83,26 @@ func Call(in RequestMeta) (ResponseMeta, error) {
 	}
 
 	return ResponseMeta{Body: out, Code: resp.StatusCode}, nil
+}
+
+func WriteErroneousMessageResponse(w http.ResponseWriter, responseBody string, msg sotah.Message) {
+	WriteErroneousResponse(w, codes.CodeToHTTPStatus(msg.Code), responseBody)
+
+	logging.WithField("error", msg.Err).Error(responseBody)
+}
+
+func WriteErroneousErrorResponse(w http.ResponseWriter, responseBody string, err error) {
+	WriteErroneousResponse(w, http.StatusInternalServerError, responseBody)
+
+	logging.WithField("error", err.Error()).Error(responseBody)
+}
+
+func WriteErroneousResponse(w http.ResponseWriter, code int, responseBody string) {
+	w.WriteHeader(code)
+
+	if _, err := fmt.Fprint(w, responseBody); err != nil {
+		logging.WithField("error", err.Error()).Error("Failed to write response")
+
+		return
+	}
 }
