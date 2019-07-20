@@ -93,30 +93,34 @@ func (sta DownloadAllAuctionsState) Run() error {
 			continue
 		}
 
-		// checking response code from all act service calls
-		if outJob.Data.Code != http.StatusOK {
+		// handling the job
+		switch outJob.Data.Code {
+		case http.StatusOK:
+			// parsing the response body
+			tuple, err := sotah.NewRegionRealmTimestampTuple(string(outJob.Data.Body))
+			if err != nil {
+				logging.WithFields(logrus.Fields{
+					"error":  err.Error(),
+					"region": outJob.RegionName,
+					"realm":  outJob.RealmSlug,
+				}).Error("Failed to decode region-realm-timestamp tuple from act response body")
+
+				break
+			}
+
+			tuples = append(tuples, tuple)
+		case http.StatusNotModified:
+			logging.WithFields(logrus.Fields{
+				"region": outJob.RegionName,
+				"realm":  outJob.RealmSlug,
+			}).Error("Region-realm tuple was processed but no new auctions were found")
+		default:
 			logging.WithFields(logrus.Fields{
 				"region":      outJob.RegionName,
 				"realm":       outJob.RealmSlug,
 				"status-code": outJob.Data.Code,
 			}).Error("Response code for act call was not OK")
-
-			continue
 		}
-
-		// parsing the response body
-		tuple, err := sotah.NewRegionRealmTimestampTuple(string(outJob.Data.Body))
-		if err != nil {
-			logging.WithFields(logrus.Fields{
-				"error":  err.Error(),
-				"region": outJob.RegionName,
-				"realm":  outJob.RealmSlug,
-			}).Error("Failed to decode region-realm-timestamp tuple from act response body")
-
-			continue
-		}
-
-		tuples = append(tuples, tuple)
 	}
 	durationInUs := int(int64(time.Since(actStartTime)) / 1000 / 1000 / 1000)
 	logging.WithField(
