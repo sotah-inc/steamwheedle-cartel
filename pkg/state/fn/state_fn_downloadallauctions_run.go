@@ -3,6 +3,7 @@ package fn
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -119,6 +120,7 @@ func (sta DownloadAllAuctionsState) Run() error {
 				"region":      outJob.RegionName,
 				"realm":       outJob.RealmSlug,
 				"status-code": outJob.Data.Code,
+				"data":        fmt.Sprintf("%.25s", string(outJob.Data.Body)),
 			}).Error("Response code for act call was not OK")
 		}
 	}
