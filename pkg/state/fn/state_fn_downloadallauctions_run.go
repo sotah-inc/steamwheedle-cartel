@@ -95,7 +95,7 @@ func (sta DownloadAllAuctionsState) Run() error {
 
 		// handling the job
 		switch outJob.Data.Code {
-		case http.StatusOK:
+		case http.StatusCreated:
 			// parsing the response body
 			tuple, err := sotah.NewRegionRealmTimestampTuple(string(outJob.Data.Body))
 			if err != nil {

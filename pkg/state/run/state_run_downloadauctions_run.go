@@ -150,6 +150,7 @@ func (sta DownloadAuctionsState) Handle(regionRealmTuple sotah.RegionRealmTuple)
 	}
 
 	out := sotah.NewMessage()
+	out.Code = http.StatusCreated
 	out.Data = encodedReplyTuple
 
 	return out
