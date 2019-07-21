@@ -125,6 +125,19 @@ func (c Client) GetRegionRealms(
 				inJob.Err = err
 				out <- inJob
 
+				logging.WithFields(logrus.Fields{
+					"document-name": fmt.Sprintf(
+						"%s/%s/%s/%s/%s/%s",
+						collections.Games,
+						version,
+						collections.Regions,
+						inJob.RegionName,
+						collections.Realms,
+						inJob.RealmSlug,
+					),
+					"error": err.Error(),
+				}).Error("Failed to fetch firm document")
+
 				continue
 			}
 
