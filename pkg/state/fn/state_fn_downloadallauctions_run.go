@@ -30,7 +30,10 @@ func (sta DownloadAllAuctionsState) PublishToReceiveRealms(tuples sotah.RegionRe
 	}
 
 	// updating the list of realms' timestamps
-	logging.WithField("total", hellRegionRealms.Total()).Info("Updating region-realms in hell with new downloaded timestamp")
+	logging.WithField(
+		"total",
+		hellRegionRealms.Total(),
+	).Info("Updating region-realms in hell with new downloaded timestamp")
 	for _, tuple := range tuples {
 		hellRealm := hellRegionRealms[blizzard.RegionName(tuple.RegionName)][blizzard.RealmSlug(tuple.RealmSlug)]
 		hellRealm.Downloaded = tuple.TargetTimestamp
