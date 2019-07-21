@@ -121,7 +121,7 @@ func (sta DownloadAllAuctionsState) Run() error {
 				"realm":       outJob.RealmSlug,
 				"status-code": outJob.Data.Code,
 				"data":        fmt.Sprintf("%.25s", string(outJob.Data.Body)),
-			}).Error("Response code for act call was not OK")
+			}).Error("Response code for act call was invalid")
 		}
 	}
 	durationInUs := int(int64(time.Since(actStartTime)) / 1000 / 1000 / 1000)
