@@ -23,12 +23,14 @@ func (sta DownloadAllAuctionsState) PublishToReceiveRealms(tuples sotah.RegionRe
 	regionRealmSlugs := tuples.ToRegionRealmSlugs()
 
 	// gathering hell-realms for syncing
+	logging.Info("Fetching region-realms from hell")
 	hellRegionRealms, err := sta.IO.HellClient.GetRegionRealms(regionRealmSlugs, gameversions.Retail)
 	if err != nil {
 		return err
 	}
 
 	// updating the list of realms' timestamps
+	logging.WithField("total", hellRegionRealms.Total()).Info("Updating region-realms in hell with new downloaded timestamp")
 	for _, tuple := range tuples {
 		hellRealm := hellRegionRealms[blizzard.RegionName(tuple.RegionName)][blizzard.RealmSlug(tuple.RealmSlug)]
 		hellRealm.Downloaded = tuple.TargetTimestamp
@@ -49,6 +51,7 @@ func (sta DownloadAllAuctionsState) PublishToReceiveRealms(tuples sotah.RegionRe
 		return err
 	}
 
+	logging.Info("Publishing to receive-realms messenger endpoint")
 	req, err := sta.IO.Messenger.Request(string(subjects.ReceiveRealms), jsonEncoded)
 	if err != nil {
 		return err
