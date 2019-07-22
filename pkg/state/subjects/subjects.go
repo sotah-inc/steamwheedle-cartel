@@ -62,4 +62,6 @@ const (
 
 	Bullshit       Subject = "bullshit"
 	BullshitIntake Subject = "bullshitIntake"
+
+	CallGateway Subject = "callGateway"
 )
