@@ -3,23 +3,19 @@ package run
 import (
 	"log"
 
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/messenger"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/metric"
-
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/hell"
-
+	"cloud.google.com/go/pubsub"
 	"cloud.google.com/go/storage"
+	"github.com/sotah-inc/steamwheedle-cartel/pkg/bus"
+	"github.com/sotah-inc/steamwheedle-cartel/pkg/hell"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/sotah/gameversions"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/state"
+	"github.com/sotah-inc/steamwheedle-cartel/pkg/state/subjects"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/store"
 	"github.com/twinj/uuid"
 )
 
 type GatewayStateConfig struct {
 	ProjectId string
-
-	MessengerHost string
-	MessengerPort int
 }
 
 func NewGatewayState(config GatewayStateConfig) (GatewayState, error) {
@@ -45,15 +41,19 @@ func NewGatewayState(config GatewayStateConfig) (GatewayState, error) {
 		return GatewayState{}, err
 	}
 
-	// connecting to the messenger host
-	mess, err := messenger.NewMessenger(config.MessengerHost, config.MessengerPort)
+	// initializing a bus client
+	sta.IO.BusClient, err = bus.NewClient(config.ProjectId, "run-gateway")
 	if err != nil {
+		log.Fatalf("Failed to create new bus client: %s", err.Error())
+
 		return GatewayState{}, err
 	}
-	sta.IO.Messenger = mess
+	sta.receiveRealmsTopic, err = sta.IO.BusClient.FirmTopic(string(subjects.ReceiveRealms))
+	if err != nil {
+		log.Fatalf("Failed to get firm topic: %s", err.Error())
 
-	// initializing a reporter
-	sta.IO.Reporter = metric.NewReporter(mess)
+		return GatewayState{}, err
+	}
 
 	// initializing a store client
 	sta.IO.StoreClient, err = store.NewClient(config.ProjectId)
@@ -91,4 +91,6 @@ type GatewayState struct {
 	realmsBucket *storage.BucketHandle
 
 	actEndpoints hell.ActEndpoints
+
+	receiveRealmsTopic *pubsub.Topic
 }

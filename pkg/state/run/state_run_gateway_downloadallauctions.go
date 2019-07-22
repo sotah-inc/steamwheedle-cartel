@@ -10,12 +10,11 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/act"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/blizzard"
+	bCodes "github.com/sotah-inc/steamwheedle-cartel/pkg/bus/codes"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/logging"
-	mCodes "github.com/sotah-inc/steamwheedle-cartel/pkg/messenger/codes"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/metric"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/sotah"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/sotah/gameversions"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/state/subjects"
 )
 
 func (sta GatewayState) PublishDownloadedRegionRealmTuples(tuples sotah.RegionRealmTimestampTuples) error {
@@ -56,12 +55,12 @@ func (sta GatewayState) PublishDownloadedRegionRealmTuples(tuples sotah.RegionRe
 	}
 
 	logging.Info("Publishing to receive-realms messenger endpoint")
-	req, err := sta.IO.Messenger.Request(string(subjects.ReceiveRealms), jsonEncoded)
+	req, err := sta.IO.BusClient.Request(sta.receiveRealmsTopic, string(jsonEncoded), 10*time.Second)
 	if err != nil {
 		return err
 	}
 
-	if req.Code != mCodes.Ok {
+	if req.Code != bCodes.Ok {
 		return errors.New(req.Err)
 	}
 
@@ -129,10 +128,13 @@ func (sta GatewayState) DownloadRegionRealms(
 	).Info("Finished calling act download-auctions")
 
 	// reporting metrics
-	sta.IO.Reporter.Report(metric.Metrics{
+	m := metric.Metrics{
 		"download_all_auctions_duration": int(int64(time.Since(actStartTime)) / 1000 / 1000 / 1000),
 		"included_realms":                len(tuples),
-	})
+	}
+	if err := sta.IO.BusClient.PublishMetrics(m); err != nil {
+		return sotah.RegionRealmTimestampTuples{}, err
+	}
 
 	return tuples, nil
 }
