@@ -19,6 +19,8 @@ import (
 )
 
 func (sta DownloadAllAuctionsState) PublishToReceiveRealms(tuples sotah.RegionRealmTimestampTuples) error {
+	logging.WithField("tuples", tuples).Info("Converting tuples to region-realm slugs")
+
 	// gathering a whitelist of region-realm-slugs
 	regionRealmSlugs := tuples.ToRegionRealmSlugs()
 
