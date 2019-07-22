@@ -93,8 +93,7 @@ func (sta DownloadAllAuctionsState) Run() error {
 
 	logging.Info("Calling download-auctions with act client")
 	actStartTime := time.Now()
-	tuples := make(sotah.RegionRealmTimestampTuples, regionRealms.TotalRealms())
-	tuplesIndex := 0
+	tuples := sotah.RegionRealmTimestampTuples{}
 	for outJob := range actClient.DownloadAuctions(regionRealms) {
 		// validating that no error occurred during act service calls
 		if outJob.Err != nil {
@@ -118,8 +117,7 @@ func (sta DownloadAllAuctionsState) Run() error {
 				break
 			}
 
-			tuples[tuplesIndex] = tuple
-			tuplesIndex++
+			tuples = append(tuples, tuple)
 		case http.StatusNotModified:
 			logging.WithFields(logrus.Fields{
 				"region": outJob.RegionName,
