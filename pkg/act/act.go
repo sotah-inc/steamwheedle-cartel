@@ -39,6 +39,8 @@ type ResponseMeta struct {
 }
 
 func Call(in RequestMeta) (ResponseMeta, error) {
+	logging.WithField("url", in.ServiceURL).Info("Calling")
+
 	req, err := http.NewRequest(in.Method, in.ServiceURL, bytes.NewReader(in.Body))
 	if err != nil {
 		return ResponseMeta{}, err
