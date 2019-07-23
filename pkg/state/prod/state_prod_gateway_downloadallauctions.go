@@ -1,17 +1,25 @@
 package prod
 
 import (
-	"time"
-
+	"github.com/sotah-inc/steamwheedle-cartel/pkg/act"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/bus"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/logging"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/state/subjects"
 )
 
 func (sta GatewayState) RunDownloadAllAuctions() error {
-	logging.Info("RunDownloadAllAuctions()")
+	// generating an act client
+	logging.WithField("endpoint-url", sta.actEndpoints.Gateway).Info("Producing act client")
+	actClient, err := act.NewClient(sta.actEndpoints.DownloadAuctions)
+	if err != nil {
+		return err
+	}
 
-	<-time.After(10 * time.Second)
+	// calling download-all-auctions on gateway service
+	logging.Info("Calling download-all-auctions on gateway service")
+	if err := actClient.DownloadAllAuctions(); err != nil {
+		return err
+	}
 
 	return nil
 }
