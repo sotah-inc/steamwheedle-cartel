@@ -1,7 +1,6 @@
 package prod
 
 import (
-	nats "github.com/nats-io/go-nats"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/messenger"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/state"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/state/subjects"
@@ -28,9 +27,9 @@ func NewGatewayState(config GatewayStateConfig) (GatewayState, error) {
 	}
 	sta.IO.Messenger = mess
 
-	// establishing messenger-listeners
-	sta.Listeners = state.NewListeners(state.SubjectListeners{
-		subjects.CallGateway: sta.ListenForCallGateway,
+	// establishing bus-listeners
+	sta.BusListeners = state.NewBusListeners(state.SubjectBusListeners{
+		subjects.CallDownloadAllAuctions: sta.ListenForCallDownloadAllAuctions,
 	})
 
 	return sta, nil
@@ -38,15 +37,4 @@ func NewGatewayState(config GatewayStateConfig) (GatewayState, error) {
 
 type GatewayState struct {
 	state.State
-}
-
-func (sta GatewayState) ListenForCallGateway(stop state.ListenStopChan) error {
-	err := sta.IO.Messenger.Subscribe(string(subjects.Items), stop, func(natsMsg nats.Msg) {
-		sta.IO.Messenger.ReplyTo(natsMsg, messenger.NewMessage())
-	})
-	if err != nil {
-		return err
-	}
-
-	return nil
 }
