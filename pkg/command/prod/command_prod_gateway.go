@@ -19,10 +19,8 @@ func Gateway(config prodState.GatewayStateConfig) error {
 		return err
 	}
 
-	// opening all listeners
-	if err := sta.Listeners.Listen(); err != nil {
-		return err
-	}
+	// opening all bus-listeners
+	sta.BusListeners.Listen()
 
 	// catching SIGINT
 	logging.Info("Waiting for SIGINT")
