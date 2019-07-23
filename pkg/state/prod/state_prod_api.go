@@ -195,7 +195,8 @@ func NewProdApiState(config ProdApiStateConfig) (ApiState, error) {
 
 	// establishing bus-listeners
 	apiState.BusListeners = state.NewBusListeners(state.SubjectBusListeners{
-		subjects.Status: apiState.ListenForBusStatus,
+		subjects.Status:        apiState.ListenForBusStatus,
+		subjects.ReceiveRealms: apiState.ListenForReceiveRealms,
 	})
 
 	// establishing messenger-listeners
@@ -203,7 +204,6 @@ func NewProdApiState(config ProdApiStateConfig) (ApiState, error) {
 		subjects.Boot:                        apiState.ListenForMessengerBoot,
 		subjects.Status:                      apiState.ListenForMessengerStatus,
 		subjects.SessionSecret:               apiState.ListenForSessionSecret,
-		subjects.ReceiveRealms:               apiState.ListenForReceiveRealms,
 		subjects.QueryRealmModificationDates: apiState.ListenForQueryRealmModificationDates,
 		subjects.RealmModificationDates:      apiState.ListenForRealmModificationDates,
 	})
