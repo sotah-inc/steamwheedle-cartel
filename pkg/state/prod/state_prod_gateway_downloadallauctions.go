@@ -1,12 +1,18 @@
 package prod
 
 import (
+	"time"
+
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/bus"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/logging"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/state/subjects"
 )
 
 func (sta GatewayState) RunDownloadAllAuctions() error {
+	logging.Info("RunDownloadAllAuctions()")
+
+	<-time.After(10 * time.Second)
+
 	return nil
 }
 
@@ -31,6 +37,7 @@ func (sta GatewayState) ListenForCallDownloadAllAuctions(
 		Stop: stop,
 		Callback: func(busMsg bus.Message) {
 			logging.WithField("bus-msg", busMsg).Info("Received bus-message")
+			in <- struct{}{}
 		},
 		OnReady:   onReady,
 		OnStopped: onStopped,
