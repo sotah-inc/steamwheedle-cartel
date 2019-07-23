@@ -10,7 +10,7 @@ import (
 func (sta GatewayState) RunDownloadAllAuctions() error {
 	// generating an act client
 	logging.WithField("endpoint-url", sta.actEndpoints.Gateway).Info("Producing act client")
-	actClient, err := act.NewClient(sta.actEndpoints.DownloadAuctions)
+	actClient, err := act.NewClient(sta.actEndpoints.Gateway)
 	if err != nil {
 		return err
 	}
