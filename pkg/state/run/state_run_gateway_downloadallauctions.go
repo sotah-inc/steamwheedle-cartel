@@ -54,7 +54,7 @@ func (sta GatewayState) PublishDownloadedRegionRealmTuples(tuples sotah.RegionRe
 		return err
 	}
 
-	logging.Info("Publishing to receive-realms messenger endpoint")
+	logging.Info("Publishing to receive-realms bus endpoint")
 	req, err := sta.IO.BusClient.Request(sta.receiveRealmsTopic, string(jsonEncoded), 10*time.Second)
 	if err != nil {
 		return err
