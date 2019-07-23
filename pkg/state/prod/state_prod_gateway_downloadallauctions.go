@@ -21,6 +21,8 @@ func (sta GatewayState) RunDownloadAllAuctions() error {
 		return err
 	}
 
+	logging.Info("Done calling download-all-auctions")
+
 	return nil
 }
 
