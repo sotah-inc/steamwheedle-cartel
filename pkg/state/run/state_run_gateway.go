@@ -48,7 +48,7 @@ func NewGatewayState(config GatewayStateConfig) (GatewayState, error) {
 
 		return GatewayState{}, err
 	}
-	sta.receiveRealmsTopic, err = sta.IO.BusClient.FirmTopic(string(subjects.ReceiveRealms))
+	sta.receiveRealmsTopic, err = sta.IO.BusClient.ResolveTopic(string(subjects.ReceiveRealms))
 	if err != nil {
 		log.Fatalf("Failed to get firm topic: %s", err.Error())
 
