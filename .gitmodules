@@ -31,3 +31,6 @@
 [submodule "extern/steamwheedle-cartel-run-gateway"]
 	path = extern/steamwheedle-cartel-run-gateway
 	url = git@github.com:sotah-inc/steamwheedle-cartel-run-gateway.git
+[submodule "extern/steamwheedle-cartel-run-download-auctions"]
+	path = extern/steamwheedle-cartel-run-download-auctions
+	url = git@github.com:sotah-inc/steamwheedle-cartel-run-download-auctions.git
