@@ -66,5 +66,6 @@ const (
 
 // gcloud gateway subjects
 const (
-	CallDownloadAllAuctions Subject = "callDownloadAllAuctions"
+	CallDownloadAllAuctions        Subject = "callDownloadAllAuctions"
+	CallCleanupAllExpiredManifests Subject = "callCleanupAllExpiredManifests"
 )
