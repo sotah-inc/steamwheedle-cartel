@@ -55,3 +55,26 @@ func (am AuctionManifest) Merge(subset AuctionManifest) AuctionManifest {
 
 	return NewAuctionManifestFromMap(out)
 }
+
+func NewCleanupManifestPayloadResponse(data string) (CleanupManifestPayloadResponse, error) {
+	var out CleanupManifestPayloadResponse
+	if err := json.Unmarshal([]byte(data), &out); err != nil {
+		return CleanupManifestPayloadResponse{}, err
+	}
+
+	return out, nil
+}
+
+type CleanupManifestPayloadResponse struct {
+	RegionRealmTuple
+	TotalDeleted int `json:"total_removed"`
+}
+
+func (p CleanupManifestPayloadResponse) EncodeForDelivery() (string, error) {
+	jsonEncoded, err := json.Marshal(p)
+	if err != nil {
+		return "", err
+	}
+
+	return string(jsonEncoded), nil
+}
