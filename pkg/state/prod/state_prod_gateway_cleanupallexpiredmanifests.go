@@ -7,9 +7,9 @@ import (
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/state/subjects"
 )
 
-func (sta GatewayState) RunCleanupExpiredManifests() error {
+func (sta GatewayState) RunCleanupAllExpiredManifests() error {
 	// generating an act client
-	logging.WithField("endpoint-url", sta.actEndpoints.CleanupExpiredManifests).Info("Producing act client")
+	logging.WithField("endpoint-url", sta.actEndpoints.Gateway).Info("Producing act client")
 	actClient, err := act.NewClient(sta.actEndpoints.Gateway)
 	if err != nil {
 		return err
@@ -26,7 +26,7 @@ func (sta GatewayState) RunCleanupExpiredManifests() error {
 	return nil
 }
 
-func (sta GatewayState) ListenForCallCleanupExpiredManifests(
+func (sta GatewayState) ListenForCallCleanupAllExpiredManifests(
 	onReady chan interface{},
 	stop chan interface{},
 	onStopped chan interface{},
@@ -34,8 +34,8 @@ func (sta GatewayState) ListenForCallCleanupExpiredManifests(
 	in := make(chan interface{})
 	go func() {
 		for range in {
-			if err := sta.RunCleanupExpiredManifests(); err != nil {
-				logging.WithField("error", err.Error()).Error("Failed to call RunCleanupExpiredManifests()")
+			if err := sta.RunCleanupAllExpiredManifests(); err != nil {
+				logging.WithField("error", err.Error()).Error("Failed to call RunCleanupAllExpiredManifests()")
 
 				continue
 			}
