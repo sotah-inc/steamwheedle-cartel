@@ -406,6 +406,29 @@ func (b AuctionManifestBaseV2) GetAllExpiredTimestamps(
 	return out, nil
 }
 
+func (b AuctionManifestBaseV2) GetExpiredTimestamps(
+	realm sotah.Realm,
+	bkt *storage.BucketHandle,
+) ([]sotah.UnixTimestamp, error) {
+	timestamps, err := b.GetTimestamps(realm, bkt)
+	if err != nil {
+		return []sotah.UnixTimestamp{}, err
+	}
+
+	limit := sotah.NormalizeTargetDate(time.Now()).AddDate(0, 0, -14)
+	expiredTimestamps := []sotah.UnixTimestamp{}
+	for _, timestamp := range timestamps {
+		targetTime := time.Unix(int64(timestamp), 0)
+		if targetTime.After(limit) {
+			continue
+		}
+
+		expiredTimestamps = append(expiredTimestamps, timestamp)
+	}
+
+	return expiredTimestamps, nil
+}
+
 func (b AuctionManifestBaseV2) GetTimestamps(
 	realm sotah.Realm,
 	bkt *storage.BucketHandle,
