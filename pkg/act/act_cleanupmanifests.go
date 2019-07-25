@@ -6,17 +6,17 @@ import (
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/util"
 )
 
-type CleanupExpiredManifestsInJob struct {
+type CleanupManifestsInJob struct {
 	sotah.RegionRealmTuple
 }
 
-type CleanupExpiredManifestsOutJob struct {
+type CleanupManifestsOutJob struct {
 	sotah.RegionRealmTuple
 	Data ResponseMeta
 	Err  error
 }
 
-func (job CleanupExpiredManifestsOutJob) ToLogrusFields() logrus.Fields {
+func (job CleanupManifestsOutJob) ToLogrusFields() logrus.Fields {
 	return logrus.Fields{
 		"error":  job.Err.Error(),
 		"region": job.RegionName,
@@ -24,17 +24,17 @@ func (job CleanupExpiredManifestsOutJob) ToLogrusFields() logrus.Fields {
 	}
 }
 
-func (c Client) CleanupExpiredManifests(regionRealms sotah.RegionRealms) chan CleanupExpiredManifestsOutJob {
+func (c Client) CleanupManifests(regionRealms sotah.RegionRealms) chan CleanupManifestsOutJob {
 	// establishing channels
-	in := make(chan CleanupExpiredManifestsInJob)
-	out := make(chan CleanupExpiredManifestsOutJob)
+	in := make(chan CleanupManifestsInJob)
+	out := make(chan CleanupManifestsOutJob)
 
 	// spinning up the workers
 	worker := func() {
 		for inJob := range in {
 			body, err := inJob.RegionRealmTuple.EncodeForDelivery()
 			if err != nil {
-				out <- CleanupExpiredManifestsOutJob{
+				out <- CleanupManifestsOutJob{
 					RegionRealmTuple: inJob.RegionRealmTuple,
 					Data:             ResponseMeta{},
 					Err:              err,
@@ -45,7 +45,7 @@ func (c Client) CleanupExpiredManifests(regionRealms sotah.RegionRealms) chan Cl
 
 			actData, err := c.Call("/", "POST", []byte(body))
 			if err != nil {
-				out <- CleanupExpiredManifestsOutJob{
+				out <- CleanupManifestsOutJob{
 					RegionRealmTuple: inJob.RegionRealmTuple,
 					Data:             ResponseMeta{},
 					Err:              err,
@@ -54,7 +54,7 @@ func (c Client) CleanupExpiredManifests(regionRealms sotah.RegionRealms) chan Cl
 				continue
 			}
 
-			out <- CleanupExpiredManifestsOutJob{
+			out <- CleanupManifestsOutJob{
 				RegionRealmTuple: inJob.RegionRealmTuple,
 				Data:             actData,
 				Err:              nil,
@@ -70,7 +70,7 @@ func (c Client) CleanupExpiredManifests(regionRealms sotah.RegionRealms) chan Cl
 	go func() {
 		for regionName, realms := range regionRealms {
 			for _, realm := range realms {
-				in <- CleanupExpiredManifestsInJob{
+				in <- CleanupManifestsInJob{
 					RegionRealmTuple: sotah.RegionRealmTuple{
 						RegionName: string(regionName),
 						RealmSlug:  string(realm.Slug),

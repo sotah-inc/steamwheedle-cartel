@@ -7,7 +7,7 @@ import (
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/state/subjects"
 )
 
-func (sta GatewayState) RunCleanupAllExpiredManifests() error {
+func (sta GatewayState) RunCleanupAllManifests() error {
 	// generating an act client
 	logging.WithField("endpoint-url", sta.actEndpoints.Gateway).Info("Producing act client")
 	actClient, err := act.NewClient(sta.actEndpoints.Gateway)
@@ -15,18 +15,18 @@ func (sta GatewayState) RunCleanupAllExpiredManifests() error {
 		return err
 	}
 
-	// calling cleanup-all-expired-manifests on gateway service
-	logging.Info("Calling cleanup-all-expired-manifests on gateway service")
-	if err := actClient.CleanupAllExpiredManifests(); err != nil {
+	// calling cleanup-all-manifests on gateway service
+	logging.Info("Calling cleanup-all-manifests on gateway service")
+	if err := actClient.CleanupAllManifests(); err != nil {
 		return err
 	}
 
-	logging.Info("Done calling cleanup-all-expired-manifests")
+	logging.Info("Done calling cleanup-all-manifests")
 
 	return nil
 }
 
-func (sta GatewayState) ListenForCallCleanupAllExpiredManifests(
+func (sta GatewayState) ListenForCallCleanupAllManifests(
 	onReady chan interface{},
 	stop chan interface{},
 	onStopped chan interface{},
@@ -34,8 +34,8 @@ func (sta GatewayState) ListenForCallCleanupAllExpiredManifests(
 	in := make(chan interface{})
 	go func() {
 		for range in {
-			if err := sta.RunCleanupAllExpiredManifests(); err != nil {
-				logging.WithField("error", err.Error()).Error("Failed to call RunCleanupAllExpiredManifests()")
+			if err := sta.RunCleanupAllManifests(); err != nil {
+				logging.WithField("error", err.Error()).Error("Failed to call RunCleanupAllManifests()")
 
 				continue
 			}
@@ -55,7 +55,7 @@ func (sta GatewayState) ListenForCallCleanupAllExpiredManifests(
 
 	// starting up worker for the subscription
 	go func() {
-		if err := sta.IO.BusClient.SubscribeToTopic(string(subjects.CallCleanupAllExpiredManifests), config); err != nil {
+		if err := sta.IO.BusClient.SubscribeToTopic(string(subjects.CallCleanupAllManifests), config); err != nil {
 			logging.WithField("error", err.Error()).Fatal("Failed to subscribe to topic")
 		}
 	}()
