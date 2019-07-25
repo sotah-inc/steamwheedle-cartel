@@ -16,7 +16,11 @@ import (
 	"google.golang.org/api/iterator"
 )
 
-func NewAuctionManifestBaseV2(c Client, location regions.Region, version gameversions.GameVersion) AuctionManifestBaseV2 {
+func NewAuctionManifestBaseV2(
+	c Client,
+	location regions.Region,
+	version gameversions.GameVersion,
+) AuctionManifestBaseV2 {
 	return AuctionManifestBaseV2{
 		base{client: c, location: location},
 		version,
@@ -52,7 +56,10 @@ func (b AuctionManifestBaseV2) GetObjectName(targetTimestamp sotah.UnixTimestamp
 	return fmt.Sprintf("%s/%d.json", b.GetObjectPrefix(realm), targetTimestamp)
 }
 
-func (b AuctionManifestBaseV2) GetObject(targetTimestamp sotah.UnixTimestamp, realm sotah.Realm, bkt *storage.BucketHandle) *storage.ObjectHandle {
+func (b AuctionManifestBaseV2) GetObject(
+	targetTimestamp sotah.UnixTimestamp,
+	realm sotah.Realm, bkt *storage.BucketHandle,
+) *storage.ObjectHandle {
 	return b.base.getObject(b.GetObjectName(targetTimestamp, realm), bkt)
 }
 
@@ -64,8 +71,13 @@ func (b AuctionManifestBaseV2) GetFirmObject(
 	return b.base.getFirmObject(b.GetObjectName(targetTimestamp, realm), bkt)
 }
 
-func (b AuctionManifestBaseV2) Handle(targetTimestamp sotah.UnixTimestamp, realm sotah.Realm, bkt *storage.BucketHandle) error {
-	normalizedTargetTimestamp := sotah.UnixTimestamp(sotah.NormalizeTargetDate(time.Unix(int64(targetTimestamp), 0)).Unix())
+func (b AuctionManifestBaseV2) Handle(
+	targetTimestamp sotah.UnixTimestamp,
+	realm sotah.Realm, bkt *storage.BucketHandle,
+) error {
+	normalizedTargetTimestamp := sotah.UnixTimestamp(
+		sotah.NormalizeTargetDate(time.Unix(int64(targetTimestamp), 0)).Unix(),
+	)
 
 	obj := b.GetObject(normalizedTargetTimestamp, realm, bkt)
 	nextManifest, err := func() (sotah.AuctionManifest, error) {
@@ -129,7 +141,9 @@ type DeleteAuctionManifestJob struct {
 	Count int
 }
 
-func (b AuctionManifestBaseV2) DeleteAll(regionRealms map[blizzard.RegionName]sotah.Realms) chan DeleteAuctionManifestJob {
+func (b AuctionManifestBaseV2) DeleteAll(
+	regionRealms map[blizzard.RegionName]sotah.Realms,
+) chan DeleteAuctionManifestJob {
 	// spinning up the workers
 	in := make(chan sotah.Realm)
 	out := make(chan DeleteAuctionManifestJob)
@@ -212,7 +226,11 @@ type WriteAllOutJob struct {
 	NormalizedTimestamp sotah.UnixTimestamp
 }
 
-func (b AuctionManifestBaseV2) WriteAll(bkt *storage.BucketHandle, realm sotah.Realm, manifests map[sotah.UnixTimestamp]sotah.AuctionManifest) chan WriteAllOutJob {
+func (b AuctionManifestBaseV2) WriteAll(
+	bkt *storage.BucketHandle,
+	realm sotah.Realm,
+	manifests map[sotah.UnixTimestamp]sotah.AuctionManifest,
+) chan WriteAllOutJob {
 	// spinning up the workers
 	in := make(chan WriteAllInJob)
 	out := make(chan WriteAllOutJob)
@@ -388,7 +406,10 @@ func (b AuctionManifestBaseV2) GetAllExpiredTimestamps(
 	return out, nil
 }
 
-func (b AuctionManifestBaseV2) GetTimestamps(realm sotah.Realm, bkt *storage.BucketHandle) ([]sotah.UnixTimestamp, error) {
+func (b AuctionManifestBaseV2) GetTimestamps(
+	realm sotah.Realm,
+	bkt *storage.BucketHandle,
+) ([]sotah.UnixTimestamp, error) {
 	prefix := fmt.Sprintf("%s/", b.GetObjectPrefix(realm))
 	it := bkt.Objects(b.client.Context, &storage.Query{Prefix: prefix})
 	out := []sotah.UnixTimestamp{}

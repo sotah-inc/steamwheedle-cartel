@@ -55,7 +55,11 @@ func (b RealmsBase) GetObject(
 	return b.base.getObject(b.GetObjectName(regionName, realmSlug), bkt)
 }
 
-func (b RealmsBase) GetFirmObject(regionName blizzard.RegionName, realmSlug blizzard.RealmSlug, bkt *storage.BucketHandle) (*storage.ObjectHandle, error) {
+func (b RealmsBase) GetFirmObject(
+	regionName blizzard.RegionName,
+	realmSlug blizzard.RealmSlug,
+	bkt *storage.BucketHandle,
+) (*storage.ObjectHandle, error) {
 	return b.base.getFirmObject(b.GetObjectName(regionName, realmSlug), bkt)
 }
 

@@ -43,15 +43,28 @@ func (b AuctionsBaseV2) getObjectName(realm sotah.Realm, lastModified time.Time)
 	return fmt.Sprintf("%s/%s/%s/%d.json.gz", b.GameVersion, realm.Region.Name, realm.Slug, lastModified.Unix())
 }
 
-func (b AuctionsBaseV2) GetObject(realm sotah.Realm, lastModified time.Time, bkt *storage.BucketHandle) *storage.ObjectHandle {
+func (b AuctionsBaseV2) GetObject(
+	realm sotah.Realm,
+	lastModified time.Time,
+	bkt *storage.BucketHandle,
+) *storage.ObjectHandle {
 	return b.base.getObject(b.getObjectName(realm, lastModified), bkt)
 }
 
-func (b AuctionsBaseV2) GetFirmObject(realm sotah.Realm, lastModified time.Time, bkt *storage.BucketHandle) (*storage.ObjectHandle, error) {
+func (b AuctionsBaseV2) GetFirmObject(
+	realm sotah.Realm,
+	lastModified time.Time,
+	bkt *storage.BucketHandle,
+) (*storage.ObjectHandle, error) {
 	return b.base.getFirmObject(b.getObjectName(realm, lastModified), bkt)
 }
 
-func (b AuctionsBaseV2) Handle(jsonEncodedBody []byte, lastModified time.Time, realm sotah.Realm, bkt *storage.BucketHandle) error {
+func (b AuctionsBaseV2) Handle(
+	jsonEncodedBody []byte,
+	lastModified time.Time,
+	realm sotah.Realm,
+	bkt *storage.BucketHandle,
+) error {
 	gzipEncodedBody, err := util.GzipEncode(jsonEncodedBody)
 	if err != nil {
 		return err
@@ -76,7 +89,11 @@ type DeleteAuctionsJob struct {
 	TargetTimestamp sotah.UnixTimestamp
 }
 
-func (b AuctionsBaseV2) DeleteAll(bkt *storage.BucketHandle, realm sotah.Realm, manifest sotah.AuctionManifest) chan DeleteAuctionsJob {
+func (b AuctionsBaseV2) DeleteAll(
+	bkt *storage.BucketHandle,
+	realm sotah.Realm,
+	manifest sotah.AuctionManifest,
+) chan DeleteAuctionsJob {
 	// spinning up the workers
 	in := make(chan sotah.UnixTimestamp)
 	out := make(chan DeleteAuctionsJob)

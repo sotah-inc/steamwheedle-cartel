@@ -21,7 +21,11 @@ import (
 	"google.golang.org/api/iterator"
 )
 
-func NewPricelistHistoriesBaseV2(c Client, location regions.Region, version gameversions.GameVersion) PricelistHistoriesBaseV2 {
+func NewPricelistHistoriesBaseV2(
+	c Client,
+	location regions.Region,
+	version gameversions.GameVersion,
+) PricelistHistoriesBaseV2 {
 	return PricelistHistoriesBaseV2{
 		base{client: c, location: location},
 		version,
@@ -53,15 +57,28 @@ func (b PricelistHistoriesBaseV2) getObjectName(targetTime time.Time, realm sota
 	return fmt.Sprintf("%s/%d.txt.gz", b.GetObjectPrefix(realm), targetTime.Unix())
 }
 
-func (b PricelistHistoriesBaseV2) GetObject(targetTime time.Time, realm sotah.Realm, bkt *storage.BucketHandle) *storage.ObjectHandle {
+func (b PricelistHistoriesBaseV2) GetObject(
+	targetTime time.Time,
+	realm sotah.Realm,
+	bkt *storage.BucketHandle,
+) *storage.ObjectHandle {
 	return b.base.getObject(b.getObjectName(targetTime, realm), bkt)
 }
 
-func (b PricelistHistoriesBaseV2) GetFirmObject(targetTime time.Time, realm sotah.Realm, bkt *storage.BucketHandle) (*storage.ObjectHandle, error) {
+func (b PricelistHistoriesBaseV2) GetFirmObject(
+	targetTime time.Time,
+	realm sotah.Realm,
+	bkt *storage.BucketHandle,
+) (*storage.ObjectHandle, error) {
 	return b.base.getFirmObject(b.getObjectName(targetTime, realm), bkt)
 }
 
-func (b PricelistHistoriesBaseV2) Handle(aucs blizzard.Auctions, targetTime time.Time, rea sotah.Realm, bkt *storage.BucketHandle) (sotah.UnixTimestamp, error) {
+func (b PricelistHistoriesBaseV2) Handle(
+	aucs blizzard.Auctions,
+	targetTime time.Time,
+	rea sotah.Realm,
+	bkt *storage.BucketHandle,
+) (sotah.UnixTimestamp, error) {
 	normalizedTargetDate := sotah.NormalizeTargetDate(targetTime)
 
 	// resolving unix-timestamp of target-time
@@ -512,7 +529,10 @@ func (b PricelistHistoriesBaseV2) GetAllExpiredTimestamps(
 	return out, nil
 }
 
-func (b PricelistHistoriesBaseV2) GetTimestamps(realm sotah.Realm, bkt *storage.BucketHandle) ([]sotah.UnixTimestamp, error) {
+func (b PricelistHistoriesBaseV2) GetTimestamps(
+	realm sotah.Realm,
+	bkt *storage.BucketHandle,
+) ([]sotah.UnixTimestamp, error) {
 	prefix := fmt.Sprintf("%s/", b.GetObjectPrefix(realm))
 	it := bkt.Objects(b.client.Context, &storage.Query{Prefix: prefix})
 	out := []sotah.UnixTimestamp{}
@@ -537,7 +557,10 @@ func (b PricelistHistoriesBaseV2) GetTimestamps(realm sotah.Realm, bkt *storage.
 	return out, nil
 }
 
-func (b PricelistHistoriesBaseV2) GetExpiredTimestamps(realm sotah.Realm, bkt *storage.BucketHandle) ([]sotah.UnixTimestamp, error) {
+func (b PricelistHistoriesBaseV2) GetExpiredTimestamps(
+	realm sotah.Realm,
+	bkt *storage.BucketHandle,
+) ([]sotah.UnixTimestamp, error) {
 	timestamps, err := b.GetTimestamps(realm, bkt)
 	if err != nil {
 		return []sotah.UnixTimestamp{}, err
