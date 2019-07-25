@@ -101,7 +101,7 @@ func (sta GatewayState) DownloadRegionRealms(
 					"realm":  outJob.RealmSlug,
 				}).Error("Failed to decode region-realm-timestamp tuple from act response body")
 
-				break
+				continue
 			}
 
 			tuples = append(tuples, tuple)
