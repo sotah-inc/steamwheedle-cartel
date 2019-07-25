@@ -28,6 +28,6 @@
 [submodule "extern/steamwheedle-cartel-run-download-auctions"]
 	path = extern/steamwheedle-cartel-run-download-auctions
 	url = git@github.com:sotah-inc/steamwheedle-cartel-run-download-auctions.git
-[submodule "extern/steamwheedle-cartel-run-clean-auction-manifests"]
-	path = extern/steamwheedle-cartel-run-clean-auction-manifests
-	url = git@github.com:sotah-inc/steamwheedle-cartel-run-clean-auction-manifests.git
+[submodule "extern/steamwheedle-cartel-run-cleanup-manifests"]
+	path = extern/steamwheedle-cartel-run-cleanup-manifests
+	url = git@github.com:sotah-inc/steamwheedle-cartel-run-cleanup-manifests.git
