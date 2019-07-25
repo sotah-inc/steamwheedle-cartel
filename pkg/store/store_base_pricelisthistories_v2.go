@@ -85,7 +85,11 @@ func (b PricelistHistoriesBaseV2) Handle(aucs blizzard.Auctions, targetTime time
 		if err != nil {
 			return sotah.ItemPriceHistories{}, err
 		}
-		defer reader.Close()
+		defer func() {
+			if err := reader.Close(); err != nil {
+				logging.WithField("error", err.Error()).Error("Failed to close reader")
+			}
+		}()
 
 		return sotah.NewItemPriceHistoriesFromMinimized(reader)
 	}()
@@ -201,7 +205,11 @@ func (b PricelistHistoriesBaseV2) GetAll(
 				if err != nil {
 					return map[blizzard.ItemID][]byte{}, err
 				}
-				defer reader.Close()
+				defer func() {
+					if err := reader.Close(); err != nil {
+						logging.WithField("error", err.Error()).Error("Failed to close reader")
+					}
+				}()
 
 				out := map[blizzard.ItemID][]byte{}
 				r := csv.NewReader(reader)
