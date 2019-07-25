@@ -30,12 +30,8 @@ func NewCleanupManifestsState(config CleanupManifestsStateConfig) (CleanupManife
 		return CleanupManifestsState{}, err
 	}
 
-	sta.pricelistHistoriesBase = store.NewPricelistHistoriesBaseV2(
-		sta.IO.StoreClient,
-		regions.USCentral1,
-		gameversions.Retail,
-	)
-	sta.pricelistHistoriesBucket, err = sta.pricelistHistoriesBase.GetFirmBucket()
+	sta.manifestBase = store.NewAuctionManifestBaseV2(sta.IO.StoreClient, regions.USCentral1, gameversions.Retail)
+	sta.manifestBucket, err = sta.manifestBase.GetFirmBucket()
 	if err != nil {
 		log.Fatalf("Failed to get firm raw-auctions bucket: %s", err.Error())
 
@@ -48,6 +44,6 @@ func NewCleanupManifestsState(config CleanupManifestsStateConfig) (CleanupManife
 type CleanupManifestsState struct {
 	state.State
 
-	pricelistHistoriesBase   store.PricelistHistoriesBaseV2
-	pricelistHistoriesBucket *storage.BucketHandle
+	manifestBase   store.AuctionManifestBaseV2
+	manifestBucket *storage.BucketHandle
 }
