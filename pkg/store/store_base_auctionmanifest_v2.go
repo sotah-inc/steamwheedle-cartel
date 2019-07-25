@@ -9,7 +9,6 @@ import (
 
 	"cloud.google.com/go/storage"
 	"github.com/sirupsen/logrus"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/blizzard"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/logging"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/sotah"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/sotah/gameversions"
@@ -463,33 +462,34 @@ type DeleteAllFromTimestampsJob struct {
 }
 
 func (b AuctionManifestBaseV2) DeleteAllFromTimestamps(
-	regionRealmTimestamps sotah.RegionRealmTimestamps,
+	timestamps []sotah.UnixTimestamp,
+	realm sotah.Realm,
 	bkt *storage.BucketHandle,
 ) (int, error) {
 	// spinning up the workers
-	in := make(chan sotah.RegionRealmTimestampTuple)
+	in := make(chan sotah.UnixTimestamp)
 	out := make(chan DeleteAllFromTimestampsJob)
 	worker := func() {
-		for tuple := range in {
+		for targetTimestamp := range in {
 			entry := logging.WithFields(logrus.Fields{
-				"region":           tuple.RegionName,
-				"realm":            tuple.RealmSlug,
-				"target-timestamp": tuple.TargetTimestamp,
+				"region":           realm.Region.Name,
+				"realm":            realm.Slug,
+				"target-timestamp": targetTimestamp,
 			})
 			entry.Info("Handling target-timestamp")
 
-			obj := bkt.Object(b.GetObjectName(sotah.UnixTimestamp(tuple.TargetTimestamp), sotah.NewSkeletonRealm(
-				blizzard.RegionName(tuple.RegionName),
-				blizzard.RealmSlug(tuple.RealmSlug),
-			)))
+			obj := bkt.Object(b.GetObjectName(targetTimestamp, realm))
 
 			exists, err := b.ObjectExists(obj)
 			if err != nil {
 				entry.WithField("error", err.Error()).Error("Failed to check if obj exists")
 
 				out <- DeleteAllFromTimestampsJob{
-					Err:                       err,
-					RegionRealmTimestampTuple: tuple,
+					Err: err,
+					RegionRealmTimestampTuple: sotah.RegionRealmTimestampTuple{
+						RegionRealmTuple: sotah.NewRegionRealmTupleFromRealm(realm),
+						TargetTimestamp:  int(targetTimestamp),
+					},
 				}
 
 				continue
@@ -498,8 +498,11 @@ func (b AuctionManifestBaseV2) DeleteAllFromTimestamps(
 				entry.Info("Obj does not exist")
 
 				out <- DeleteAllFromTimestampsJob{
-					Err:                       nil,
-					RegionRealmTimestampTuple: tuple,
+					Err: nil,
+					RegionRealmTimestampTuple: sotah.RegionRealmTimestampTuple{
+						RegionRealmTuple: sotah.NewRegionRealmTupleFromRealm(realm),
+						TargetTimestamp:  int(targetTimestamp),
+					},
 				}
 
 				continue
@@ -509,8 +512,11 @@ func (b AuctionManifestBaseV2) DeleteAllFromTimestamps(
 				entry.WithField("error", err.Error()).Error("Could not delete obj")
 
 				out <- DeleteAllFromTimestampsJob{
-					Err:                       err,
-					RegionRealmTimestampTuple: tuple,
+					Err: err,
+					RegionRealmTimestampTuple: sotah.RegionRealmTimestampTuple{
+						RegionRealmTuple: sotah.NewRegionRealmTupleFromRealm(realm),
+						TargetTimestamp:  int(targetTimestamp),
+					},
 				}
 
 				continue
@@ -519,8 +525,11 @@ func (b AuctionManifestBaseV2) DeleteAllFromTimestamps(
 			entry.Info("Obj deleted")
 
 			out <- DeleteAllFromTimestampsJob{
-				RegionRealmTimestampTuple: tuple,
-				Err:                       nil,
+				RegionRealmTimestampTuple: sotah.RegionRealmTimestampTuple{
+					RegionRealmTuple: sotah.NewRegionRealmTupleFromRealm(realm),
+					TargetTimestamp:  int(targetTimestamp),
+				},
+				Err: nil,
 			}
 		}
 	}
@@ -531,18 +540,8 @@ func (b AuctionManifestBaseV2) DeleteAllFromTimestamps(
 
 	// queueing it up
 	go func() {
-		for regionName, realmTimestamps := range regionRealmTimestamps {
-			for realmSlug, timestamps := range realmTimestamps {
-				for _, timestamp := range timestamps {
-					in <- sotah.RegionRealmTimestampTuple{
-						RegionRealmTuple: sotah.RegionRealmTuple{
-							RegionName: string(regionName),
-							RealmSlug:  string(realmSlug),
-						},
-						TargetTimestamp: int(timestamp),
-					}
-				}
-			}
+		for _, targetTimestamp := range timestamps {
+			in <- targetTimestamp
 		}
 
 		close(in)
