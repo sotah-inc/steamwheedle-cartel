@@ -8,7 +8,9 @@ import (
 	"time"
 
 	"cloud.google.com/go/storage"
+	"github.com/sirupsen/logrus"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/blizzard"
+	"github.com/sotah-inc/steamwheedle-cartel/pkg/logging"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/sotah"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/sotah/gameversions"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/store/regions"
@@ -141,9 +143,7 @@ type DeleteAuctionManifestJob struct {
 	Count int
 }
 
-func (b AuctionManifestBaseV2) DeleteAll(
-	regionRealms map[blizzard.RegionName]sotah.Realms,
-) chan DeleteAuctionManifestJob {
+func (b AuctionManifestBaseV2) DeleteAll(regionRealms sotah.RegionRealms) chan DeleteAuctionManifestJob {
 	// spinning up the workers
 	in := make(chan sotah.Realm)
 	out := make(chan DeleteAuctionManifestJob)
@@ -312,7 +312,7 @@ func (b AuctionManifestBaseV2) NewAuctionManifest(obj *storage.ObjectHandle) (so
 }
 
 func (b AuctionManifestBaseV2) GetAllTimestamps(
-	regionRealms map[blizzard.RegionName]sotah.Realms,
+	regionRealms sotah.RegionRealms,
 	bkt *storage.BucketHandle,
 ) (sotah.RegionRealmTimestamps, error) {
 	out := make(chan GetTimestampsJob)
@@ -373,7 +373,7 @@ func (b AuctionManifestBaseV2) GetAllTimestamps(
 }
 
 func (b AuctionManifestBaseV2) GetAllExpiredTimestamps(
-	regionRealms map[blizzard.RegionName]sotah.Realms,
+	regionRealms sotah.RegionRealms,
 	bkt *storage.BucketHandle,
 ) (sotah.RegionRealmTimestamps, error) {
 	regionRealmTimestamps, err := b.GetAllTimestamps(regionRealms, bkt)
@@ -432,4 +432,108 @@ func (b AuctionManifestBaseV2) GetTimestamps(
 	}
 
 	return out, nil
+}
+
+type DeleteAllFromTimestampsJob struct {
+	sotah.RegionRealmTimestampTuple
+	Err error
+}
+
+func (b AuctionManifestBaseV2) DeleteAllFromTimestamps(
+	regionRealmTimestamps sotah.RegionRealmTimestamps,
+	bkt *storage.BucketHandle,
+) (int, error) {
+	// spinning up the workers
+	in := make(chan sotah.RegionRealmTimestampTuple)
+	out := make(chan DeleteAllFromTimestampsJob)
+	worker := func() {
+		for tuple := range in {
+			entry := logging.WithFields(logrus.Fields{
+				"region":           tuple.RegionName,
+				"realm":            tuple.RealmSlug,
+				"target-timestamp": tuple.TargetTimestamp,
+			})
+			entry.Info("Handling target-timestamp")
+
+			obj := bkt.Object(b.GetObjectName(sotah.UnixTimestamp(tuple.TargetTimestamp), sotah.NewSkeletonRealm(
+				blizzard.RegionName(tuple.RegionName),
+				blizzard.RealmSlug(tuple.RealmSlug),
+			)))
+
+			exists, err := b.ObjectExists(obj)
+			if err != nil {
+				entry.WithField("error", err.Error()).Error("Failed to check if obj exists")
+
+				out <- DeleteAllFromTimestampsJob{
+					Err:                       err,
+					RegionRealmTimestampTuple: tuple,
+				}
+
+				continue
+			}
+			if !exists {
+				entry.Info("Obj does not exist")
+
+				out <- DeleteAllFromTimestampsJob{
+					Err:                       nil,
+					RegionRealmTimestampTuple: tuple,
+				}
+
+				continue
+			}
+
+			if err := obj.Delete(b.client.Context); err != nil {
+				entry.WithField("error", err.Error()).Error("Could not delete obj")
+
+				out <- DeleteAllFromTimestampsJob{
+					Err:                       err,
+					RegionRealmTimestampTuple: tuple,
+				}
+
+				continue
+			}
+
+			entry.Info("Obj deleted")
+
+			out <- DeleteAllFromTimestampsJob{
+				RegionRealmTimestampTuple: tuple,
+				Err:                       nil,
+			}
+		}
+	}
+	postWork := func() {
+		close(out)
+	}
+	util.Work(16, worker, postWork)
+
+	// queueing it up
+	go func() {
+		for regionName, realmTimestamps := range regionRealmTimestamps {
+			for realmSlug, timestamps := range realmTimestamps {
+				for _, timestamp := range timestamps {
+					in <- sotah.RegionRealmTimestampTuple{
+						RegionRealmTuple: sotah.RegionRealmTuple{
+							RegionName: string(regionName),
+							RealmSlug:  string(realmSlug),
+						},
+						TargetTimestamp: int(timestamp),
+					}
+				}
+			}
+		}
+
+		close(in)
+	}()
+
+	// waiting for it to drain out
+	totalDeleted := 0
+	for outJob := range out {
+		if outJob.Err != nil {
+			return 0, outJob.Err
+		}
+
+		totalDeleted += 1
+	}
+
+	return totalDeleted, nil
 }
