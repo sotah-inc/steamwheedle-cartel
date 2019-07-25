@@ -175,6 +175,13 @@ type RealmTimestamps map[blizzard.RealmSlug][]UnixTimestamp
 
 type RegionRealmTimestamps map[blizzard.RegionName]RealmTimestamps
 
+func NewRegionRealmTupleFromRealm(r Realm) RegionRealmTuple {
+	return RegionRealmTuple{
+		RegionName: string(r.Region.Name),
+		RealmSlug:  string(r.Slug),
+	}
+}
+
 func NewRegionRealmTuple(data string) (RegionRealmTuple, error) {
 	var out RegionRealmTuple
 	if err := json.Unmarshal([]byte(data), &out); err != nil {
