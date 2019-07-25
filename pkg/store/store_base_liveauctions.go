@@ -34,10 +34,6 @@ func (b LiveAuctionsBase) GetBucket() *storage.BucketHandle {
 	return b.base.getBucket(b.getBucketName())
 }
 
-func (b LiveAuctionsBase) resolveBucket() (*storage.BucketHandle, error) {
-	return b.base.resolveBucket(b.getBucketName())
-}
-
 func (b LiveAuctionsBase) getObjectName(realm sotah.Realm) string {
 	return fmt.Sprintf("%s/%s/%s.json.gz", b.GameVersion, realm.Region.Name, realm.Slug)
 }

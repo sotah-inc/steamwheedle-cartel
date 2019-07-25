@@ -34,10 +34,6 @@ func (b ItemIconsBase) GetFirmBucket() (*storage.BucketHandle, error) {
 	return b.base.getFirmBucket(b.GetBucketName())
 }
 
-func (b ItemIconsBase) resolveBucket() (*storage.BucketHandle, error) {
-	return b.base.resolveBucket(b.GetBucketName())
-}
-
 func (b ItemIconsBase) GetObjectName(name string) string {
 	return fmt.Sprintf("%s/%s.jpg", b.GameVersion, name)
 }

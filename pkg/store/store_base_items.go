@@ -38,10 +38,6 @@ func (b ItemsBase) GetFirmBucket() (*storage.BucketHandle, error) {
 	return b.base.getFirmBucket(b.getBucketName())
 }
 
-func (b ItemsBase) resolveBucket() (*storage.BucketHandle, error) {
-	return b.base.resolveBucket(b.getBucketName())
-}
-
 func (b ItemsBase) getObjectName(id blizzard.ItemID) string {
 	return fmt.Sprintf("%s/%d.json.gz", b.GameVersion, id)
 }
