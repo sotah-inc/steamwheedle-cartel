@@ -503,6 +503,21 @@ func (b AuctionManifestBaseV2) DeleteAllFromTimestamps(
 				continue
 			}
 
+			attrs, err := obj.Attrs(b.client.Context)
+			if err != nil {
+				entry.WithField("error", err.Error()).Error("Failed to get obj attrs")
+
+				out <- DeleteAllFromTimestampsJob{
+					Err: err,
+					RegionRealmTimestampTuple: sotah.RegionRealmTimestampTuple{
+						RegionRealmTuple: sotah.NewRegionRealmTupleFromRealm(realm),
+						TargetTimestamp:  int(targetTimestamp),
+					},
+				}
+
+				continue
+			}
+
 			if err := obj.Delete(b.client.Context); err != nil {
 				entry.WithField("error", err.Error()).Error("Could not delete obj")
 
@@ -524,7 +539,8 @@ func (b AuctionManifestBaseV2) DeleteAllFromTimestamps(
 					RegionRealmTuple: sotah.NewRegionRealmTupleFromRealm(realm),
 					TargetTimestamp:  int(targetTimestamp),
 				},
-				Err: nil,
+				Err:  nil,
+				Size: attrs.Size,
 			}
 		}
 	}
