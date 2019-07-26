@@ -7,8 +7,8 @@ import (
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/logging"
 )
 
-func (c Client) CleanupAllManifests() error {
-	actData, err := c.Call("/cleanup-all-manifests", "POST", nil)
+func (c Client) CleanupAllAuctions() error {
+	actData, err := c.Call("/cleanup-all-auctions", "POST", nil)
 	if err != nil {
 		return err
 	}

@@ -12,22 +12,22 @@ import (
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/sotah"
 )
 
-func (sta GatewayState) CleanupRegionRealmsManifests(regionRealms sotah.RegionRealms) error {
+func (sta GatewayState) CleanupRegionRealmsAuctions(regionRealms sotah.RegionRealms) error {
 	// generating new act client
-	logging.WithField("endpoint-url", sta.actEndpoints.CleanupManifests).Info("Producing act client")
-	actClient, err := act.NewClient(sta.actEndpoints.CleanupManifests)
+	logging.WithField("endpoint-url", sta.actEndpoints.CleanupAuctions).Info("Producing act client")
+	actClient, err := act.NewClient(sta.actEndpoints.CleanupAuctions)
 	if err != nil {
 		return err
 	}
 
 	// calling act client with region-realms
-	logging.Info("Calling cleanup-manifests with act client")
+	logging.Info("Calling cleanup-auctions with act client")
 	actStartTime := time.Now()
 	totalDeleted := 0
-	for outJob := range actClient.CleanupManifests(regionRealms) {
+	for outJob := range actClient.CleanupAuctions(regionRealms) {
 		// validating that no error occurred during act service calls
 		if outJob.Err != nil {
-			logging.WithFields(outJob.ToLogrusFields()).Error("Failed to cleanup manifests")
+			logging.WithFields(outJob.ToLogrusFields()).Error("Failed to cleanup auctions")
 
 			continue
 		}
@@ -36,13 +36,13 @@ func (sta GatewayState) CleanupRegionRealmsManifests(regionRealms sotah.RegionRe
 		switch outJob.Data.Code {
 		case http.StatusOK:
 			// parsing the response body
-			resp, err := sotah.NewCleanupManifestPayloadResponse(string(outJob.Data.Body))
+			resp, err := sotah.NewCleanupAuctionsPayloadResponse(string(outJob.Data.Body))
 			if err != nil {
 				logging.WithFields(logrus.Fields{
 					"error":  err.Error(),
 					"region": outJob.RegionName,
 					"realm":  outJob.RealmSlug,
-				}).Error("Failed to decode cleanup-manifest-payload-response from act response body")
+				}).Error("Failed to decode cleanup-auctions-payload-response from act response body")
 
 				continue
 			}
@@ -53,7 +53,7 @@ func (sta GatewayState) CleanupRegionRealmsManifests(regionRealms sotah.RegionRe
 				"region":        resp.RegionName,
 				"realm":         resp.RealmSlug,
 				"total-deleted": resp.TotalDeleted,
-			}).Info("Manifests have been cleaned")
+			}).Info("Auctions have been cleaned")
 		default:
 			logging.WithFields(logrus.Fields{
 				"region":      outJob.RegionName,
@@ -69,12 +69,12 @@ func (sta GatewayState) CleanupRegionRealmsManifests(regionRealms sotah.RegionRe
 	logging.WithFields(logrus.Fields{
 		"duration-in-ms": durationInUs * 1000,
 		"total-deleted":  totalDeleted,
-	}).Info("Finished calling act cleanup-manifests")
+	}).Info("Finished calling act cleanup-auctions")
 
 	// reporting metrics
 	m := metric.Metrics{
-		"cleanup_all_manifests_duration":      int(int64(time.Since(actStartTime)) / 1000 / 1000 / 1000),
-		"cleanup_all_manifests_total_deleted": totalDeleted,
+		"cleanup_all_auctions_duration":      int(int64(time.Since(actStartTime)) / 1000 / 1000 / 1000),
+		"cleanup_all_auctions_total_deleted": totalDeleted,
 	}
 	if err := sta.IO.BusClient.PublishMetrics(m); err != nil {
 		return err
@@ -83,7 +83,7 @@ func (sta GatewayState) CleanupRegionRealmsManifests(regionRealms sotah.RegionRe
 	return nil
 }
 
-func (sta GatewayState) CleanupAllManifests() error {
+func (sta GatewayState) CleanupAllAuctions() error {
 	// gathering regions from boot-bucket
 	regions, err := sta.bootBase.GetRegions(sta.bootBucket)
 	if err != nil {
@@ -101,9 +101,9 @@ func (sta GatewayState) CleanupAllManifests() error {
 		regionRealms[region.Name] = realms
 	}
 
-	// cleaning up manifests in all region-realms
-	if err := sta.CleanupRegionRealmsManifests(regionRealms); err != nil {
-		logging.WithField("error", err.Error()).Error("Failed to cleanup all region-realms manifests")
+	// cleaning up auctions in all region-realms
+	if err := sta.CleanupRegionRealmsAuctions(regionRealms); err != nil {
+		logging.WithField("error", err.Error()).Error("Failed to cleanup all region-realms auctions")
 
 		return err
 	}

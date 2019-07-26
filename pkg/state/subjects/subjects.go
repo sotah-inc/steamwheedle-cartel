@@ -68,4 +68,5 @@ const (
 const (
 	CallDownloadAllAuctions Subject = "callDownloadAllAuctions"
 	CallCleanupAllManifests Subject = "callCleanupAllManifests"
+	CallCleanupAllAuctions  Subject = "callCleanupAllAuctions"
 )
