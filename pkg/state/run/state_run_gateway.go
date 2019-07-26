@@ -11,6 +11,7 @@ import (
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/state"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/state/subjects"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/store"
+	"github.com/sotah-inc/steamwheedle-cartel/pkg/store/regions"
 	"github.com/twinj/uuid"
 )
 
@@ -63,7 +64,7 @@ func NewGatewayState(config GatewayStateConfig) (GatewayState, error) {
 		return GatewayState{}, err
 	}
 
-	sta.bootBase = store.NewBootBase(sta.IO.StoreClient, "us-central1")
+	sta.bootBase = store.NewBootBase(sta.IO.StoreClient, regions.USCentral1)
 	sta.bootBucket, err = sta.bootBase.GetFirmBucket()
 	if err != nil {
 		log.Fatalf("Failed to get firm bucket: %s", err.Error())
@@ -71,7 +72,7 @@ func NewGatewayState(config GatewayStateConfig) (GatewayState, error) {
 		return GatewayState{}, err
 	}
 
-	sta.realmsBase = store.NewRealmsBase(sta.IO.StoreClient, "us-central1", gameversions.Retail)
+	sta.realmsBase = store.NewRealmsBase(sta.IO.StoreClient, regions.USCentral1, gameversions.Retail)
 	sta.realmsBucket, err = sta.realmsBase.GetFirmBucket()
 	if err != nil {
 		log.Fatalf("Failed to get firm bucket: %s", err.Error())
