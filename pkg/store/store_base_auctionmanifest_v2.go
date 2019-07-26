@@ -456,11 +456,6 @@ func (b AuctionManifestBaseV2) GetTimestamps(
 	return out, nil
 }
 
-type DeleteAllFromTimestampsJob struct {
-	sotah.RegionRealmTimestampTuple
-	Err error
-}
-
 func (b AuctionManifestBaseV2) DeleteAllFromTimestamps(
 	timestamps []sotah.UnixTimestamp,
 	realm sotah.Realm,

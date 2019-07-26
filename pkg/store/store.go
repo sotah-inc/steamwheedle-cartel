@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"cloud.google.com/go/storage"
+	"github.com/sotah-inc/steamwheedle-cartel/pkg/sotah"
 )
 
 func NewClient(projectID string) (Client, error) {
@@ -22,4 +23,9 @@ type Client struct {
 	Context   context.Context
 	projectID string
 	client    *storage.Client
+}
+
+type DeleteAllFromTimestampsJob struct {
+	sotah.RegionRealmTimestampTuple
+	Err error
 }
