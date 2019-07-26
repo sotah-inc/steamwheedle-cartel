@@ -23,6 +23,7 @@ func (sta GatewayState) CleanupRegionRealms(regionRealms sotah.RegionRealms) err
 	// calling act client with region-realms
 	logging.Info("Calling cleanup-manifests with act client")
 	actStartTime := time.Now()
+	totalDeleted := 0
 	for outJob := range actClient.CleanupManifests(regionRealms) {
 		// validating that no error occurred during act service calls
 		if outJob.Err != nil {
@@ -35,20 +36,23 @@ func (sta GatewayState) CleanupRegionRealms(regionRealms sotah.RegionRealms) err
 		switch outJob.Data.Code {
 		case http.StatusOK:
 			// parsing the response body
-			tuple, err := sotah.NewRegionRealmTuple(string(outJob.Data.Body))
+			resp, err := sotah.NewCleanupManifestPayloadResponse(string(outJob.Data.Body))
 			if err != nil {
 				logging.WithFields(logrus.Fields{
 					"error":  err.Error(),
 					"region": outJob.RegionName,
 					"realm":  outJob.RealmSlug,
-				}).Error("Failed to decode region-realm tuple from act response body")
+				}).Error("Failed to decode cleanup-manifest-payload-response from act response body")
 
 				continue
 			}
 
+			totalDeleted += resp.TotalDeleted
+
 			logging.WithFields(logrus.Fields{
-				"region": tuple.RegionName,
-				"realm":  tuple.RealmSlug,
+				"region":        resp.RegionName,
+				"realm":         resp.RealmSlug,
+				"total-deleted": resp.TotalDeleted,
 			}).Info("Manifests have been cleaned")
 		default:
 			logging.WithFields(logrus.Fields{
@@ -62,14 +66,15 @@ func (sta GatewayState) CleanupRegionRealms(regionRealms sotah.RegionRealms) err
 
 	// reporting duration to reporter
 	durationInUs := int(int64(time.Since(actStartTime)) / 1000 / 1000 / 1000)
-	logging.WithField(
-		"duration-in-ms",
-		durationInUs*1000,
-	).Info("Finished calling act cleanup-manifests")
+	logging.WithFields(logrus.Fields{
+		"duration-in-ms": durationInUs * 1000,
+		"total-deleted":  totalDeleted,
+	}).Info("Finished calling act cleanup-manifests")
 
 	// reporting metrics
 	m := metric.Metrics{
-		"cleanup_all_manifests_duration": int(int64(time.Since(actStartTime)) / 1000 / 1000 / 1000),
+		"cleanup_all_manifests_duration":      int(int64(time.Since(actStartTime)) / 1000 / 1000 / 1000),
+		"cleanup_all_manifests_total_deleted": totalDeleted,
 	}
 	if err := sta.IO.BusClient.PublishMetrics(m); err != nil {
 		return err
