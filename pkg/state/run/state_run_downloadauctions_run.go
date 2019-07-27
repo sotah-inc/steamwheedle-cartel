@@ -123,9 +123,10 @@ func (sta DownloadAuctionsState) Handle(regionRealmTuple sotah.RegionRealmTuple)
 	}
 
 	logging.WithFields(logrus.Fields{
-		"region":        realm.Region.Name,
-		"realm":         realm.Slug,
-		"last-modified": lastModifiedTimestamp,
+		"region":              realm.Region.Name,
+		"realm":               realm.Slug,
+		"last-modified":       lastModifiedTimestamp,
+		"ingested-size-bytes": resp.ContentLength,
 	}).Info("Parsed, saving to raw-auctions store")
 	if err := sta.auctionsStoreBase.Handle(resp.Body, lastModifiedTime, realm, sta.auctionsBucket); err != nil {
 		return sotah.NewErrorMessage(err)
@@ -140,9 +141,12 @@ func (sta DownloadAuctionsState) Handle(regionRealmTuple sotah.RegionRealmTuple)
 		return sotah.NewErrorMessage(err)
 	}
 
-	replyTuple := sotah.RegionRealmTimestampTuple{
-		RegionRealmTuple: regionRealmTuple,
-		TargetTimestamp:  int(lastModifiedTimestamp),
+	replyTuple := sotah.RegionRealmTimestampSizeTuple{
+		RegionRealmTimestampTuple: sotah.RegionRealmTimestampTuple{
+			RegionRealmTuple: regionRealmTuple,
+			TargetTimestamp:  int(lastModifiedTimestamp),
+		},
+		SizeBytes: resp.ContentLength,
 	}
 	encodedReplyTuple, err := replyTuple.EncodeForDelivery()
 	if err != nil {

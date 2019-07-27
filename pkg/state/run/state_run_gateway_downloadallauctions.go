@@ -81,6 +81,7 @@ func (sta GatewayState) DownloadRegionRealms(
 	logging.Info("Calling download-auctions with act client")
 	actStartTime := time.Now()
 	tuples := sotah.RegionRealmTimestampTuples{}
+	totalIngestedBytes := 0
 	for outJob := range actClient.DownloadAuctions(regionRealms) {
 		// validating that no error occurred during act service calls
 		if outJob.Err != nil {
@@ -93,7 +94,7 @@ func (sta GatewayState) DownloadRegionRealms(
 		switch outJob.Data.Code {
 		case http.StatusCreated:
 			// parsing the response body
-			tuple, err := sotah.NewRegionRealmTimestampTuple(string(outJob.Data.Body))
+			tuple, err := sotah.NewRegionRealmTimestampSizeTuple(string(outJob.Data.Body))
 			if err != nil {
 				logging.WithFields(logrus.Fields{
 					"error":  err.Error(),
@@ -104,7 +105,8 @@ func (sta GatewayState) DownloadRegionRealms(
 				continue
 			}
 
-			tuples = append(tuples, tuple)
+			tuples = append(tuples, tuple.RegionRealmTimestampTuple)
+			totalIngestedBytes += tuple.SizeBytes
 		case http.StatusNotModified:
 			logging.WithFields(logrus.Fields{
 				"region": outJob.RegionName,
@@ -122,15 +124,17 @@ func (sta GatewayState) DownloadRegionRealms(
 
 	// reporting duration to reporter
 	durationInUs := int(int64(time.Since(actStartTime)) / 1000 / 1000 / 1000)
-	logging.WithField(
-		"duration-in-ms",
-		durationInUs*1000,
+	logging.WithFields(logrus.Fields{
+		"duration-in-ms":       durationInUs * 1000,
+		"total-ingested-bytes": totalIngestedBytes,
+	},
 	).Info("Finished calling act download-auctions")
 
 	// reporting metrics
 	m := metric.Metrics{
-		"download_all_auctions_duration": int(int64(time.Since(actStartTime)) / 1000 / 1000 / 1000),
-		"included_realms":                len(tuples),
+		"download_all_auctions_duration":   int(int64(time.Since(actStartTime)) / 1000 / 1000 / 1000),
+		"download_all_auctions_size_bytes": totalIngestedBytes,
+		"included_realms":                  len(tuples),
 	}
 	if err := sta.IO.BusClient.PublishMetrics(m); err != nil {
 		return sotah.RegionRealmTimestampTuples{}, err
