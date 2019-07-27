@@ -3,6 +3,8 @@ package sotah
 import (
 	"encoding/json"
 
+	"github.com/sotah-inc/steamwheedle-cartel/pkg/sotah"
+
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/blizzard"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/util"
 )
@@ -249,6 +251,32 @@ func (tuple RegionRealmTimestampSizeTuple) EncodeForDelivery() (string, error) {
 	}
 
 	return string(jsonEncoded), nil
+}
+
+type RegionRealmSummaryTuples []RegionRealmSummaryTuple
+
+func (tuples RegionRealmSummaryTuples) ItemIds() blizzard.ItemIds {
+	itemIdsMap := sotah.ItemIdsMap{}
+	for _, tuple := range tuples {
+		for _, id := range tuple.ItemIds {
+			itemIdsMap[blizzard.ItemID(id)] = struct{}{}
+		}
+	}
+	out := blizzard.ItemIds{}
+	for id := range itemIdsMap {
+		out = append(out, id)
+	}
+
+	return out
+}
+
+func (tuples RegionRealmSummaryTuples) RegionRealmTuples() []RegionRealmTuple {
+	out := make([]RegionRealmTuple, len(tuples))
+	for i, tuple := range tuples {
+		out[i] = tuple.RegionRealmTuple
+	}
+
+	return out
 }
 
 func NewRegionRealmSummaryTuple(data string) (RegionRealmSummaryTuple, error) {
