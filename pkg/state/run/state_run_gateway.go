@@ -55,6 +55,12 @@ func NewGatewayState(config GatewayStateConfig) (GatewayState, error) {
 
 		return GatewayState{}, err
 	}
+	sta.receiveComputedLiveAuctionsTopic, err = sta.IO.BusClient.FirmTopic(string(subjects.ReceiveComputedLiveAuctions))
+	if err != nil {
+		log.Fatalf("Failed to get firm topic: %s", err.Error())
+
+		return GatewayState{}, err
+	}
 
 	// initializing a store client
 	sta.IO.StoreClient, err = store.NewClient(config.ProjectId)
@@ -93,5 +99,6 @@ type GatewayState struct {
 
 	actEndpoints hell.ActEndpoints
 
-	receiveRealmsTopic *pubsub.Topic
+	receiveRealmsTopic               *pubsub.Topic
+	receiveComputedLiveAuctionsTopic *pubsub.Topic
 }
