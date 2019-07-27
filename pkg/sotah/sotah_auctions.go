@@ -13,7 +13,8 @@ func NewCleanupAuctionsPayloadResponse(data string) (CleanupAuctionsPayloadRespo
 
 type CleanupAuctionsPayloadResponse struct {
 	RegionRealmTuple
-	TotalDeleted int `json:"total_removed"`
+	TotalDeletedCount     int   `json:"total_deleted_count"`
+	TotalDeletedSizeBytes int64 `json:"total_deleted_size_bytes"`
 }
 
 func (p CleanupAuctionsPayloadResponse) EncodeForDelivery() (string, error) {

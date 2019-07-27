@@ -16,14 +16,15 @@ func (sta CleanupAuctionsState) Handle(regionRealmTuple sotah.RegionRealmTuple) 
 		return sotah.NewErrorMessage(err)
 	}
 
-	totalDeleted, err := sta.auctionsBase.DeleteAllFromTimestamps(expiredTimestamps, realm, sta.auctionsBucket)
+	deleteResults, err := sta.auctionsBase.DeleteAllFromTimestamps(expiredTimestamps, realm, sta.auctionsBucket)
 	if err != nil {
 		return sotah.NewErrorMessage(err)
 	}
 
 	res := sotah.CleanupAuctionsPayloadResponse{
-		RegionRealmTuple: sotah.NewRegionRealmTupleFromRealm(realm),
-		TotalDeleted:     totalDeleted,
+		RegionRealmTuple:      sotah.NewRegionRealmTupleFromRealm(realm),
+		TotalDeletedCount:     deleteResults.TotalCount,
+		TotalDeletedSizeBytes: deleteResults.TotalSize,
 	}
 	data, err := res.EncodeForDelivery()
 	if err != nil {

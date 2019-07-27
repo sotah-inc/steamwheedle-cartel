@@ -30,3 +30,8 @@ type DeleteAllFromTimestampsJob struct {
 	Err  error
 	Size int64
 }
+
+type DeleteAllResults struct {
+	TotalCount int
+	TotalSize  int64
+}

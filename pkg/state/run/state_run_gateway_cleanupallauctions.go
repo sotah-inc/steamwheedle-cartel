@@ -23,7 +23,8 @@ func (sta GatewayState) CleanupRegionRealmsAuctions(regionRealms sotah.RegionRea
 	// calling act client with region-realms
 	logging.Info("Calling cleanup-auctions with act client")
 	actStartTime := time.Now()
-	totalDeleted := 0
+	totalDeletedSizeBytes := int64(0)
+	totalDeletedCount := 0
 	for outJob := range actClient.CleanupAuctions(regionRealms) {
 		// validating that no error occurred during act service calls
 		if outJob.Err != nil {
@@ -47,12 +48,14 @@ func (sta GatewayState) CleanupRegionRealmsAuctions(regionRealms sotah.RegionRea
 				continue
 			}
 
-			totalDeleted += resp.TotalDeleted
+			totalDeletedSizeBytes += resp.TotalDeletedSizeBytes
+			totalDeletedCount += resp.TotalDeletedCount
 
 			logging.WithFields(logrus.Fields{
-				"region":        resp.RegionName,
-				"realm":         resp.RealmSlug,
-				"total-deleted": resp.TotalDeleted,
+				"region":                   resp.RegionName,
+				"realm":                    resp.RealmSlug,
+				"total-deleted-count":      resp.TotalDeletedCount,
+				"total-deleted-size-bytes": resp.TotalDeletedSizeBytes,
 			}).Info("Auctions have been cleaned")
 		default:
 			logging.WithFields(logrus.Fields{
@@ -67,14 +70,16 @@ func (sta GatewayState) CleanupRegionRealmsAuctions(regionRealms sotah.RegionRea
 	// reporting duration to reporter
 	durationInUs := int(int64(time.Since(actStartTime)) / 1000 / 1000 / 1000)
 	logging.WithFields(logrus.Fields{
-		"duration-in-ms": durationInUs * 1000,
-		"total-deleted":  totalDeleted,
+		"duration-in-ms":           durationInUs * 1000,
+		"total-deleted-count":      totalDeletedCount,
+		"total-deleted-size-bytes": totalDeletedSizeBytes,
 	}).Info("Finished calling act cleanup-auctions")
 
 	// reporting metrics
 	m := metric.Metrics{
-		"cleanup_all_auctions_duration":      int(int64(time.Since(actStartTime)) / 1000 / 1000 / 1000),
-		"cleanup_all_auctions_total_deleted": totalDeleted,
+		"cleanup_all_auctions_duration":            int(int64(time.Since(actStartTime)) / 1000 / 1000 / 1000),
+		"cleanup_all_auctions_total_deleted":       totalDeletedCount,
+		"cleanup_all_auctions_total_deleted_bytes": int(totalDeletedSizeBytes),
 	}
 	if err := sta.IO.BusClient.PublishMetrics(m); err != nil {
 		return err

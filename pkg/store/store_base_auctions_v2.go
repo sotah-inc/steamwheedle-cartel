@@ -213,7 +213,7 @@ func (b AuctionsBaseV2) DeleteAllFromTimestamps(
 	timestamps []sotah.UnixTimestamp,
 	realm sotah.Realm,
 	bkt *storage.BucketHandle,
-) (int, error) {
+) (DeleteAllResults, error) {
 	// spinning up the workers
 	in := make(chan sotah.UnixTimestamp)
 	out := make(chan DeleteAllFromTimestampsJob)
@@ -312,14 +312,18 @@ func (b AuctionsBaseV2) DeleteAllFromTimestamps(
 	}()
 
 	// waiting for it to drain out
-	totalDeleted := 0
+	results := DeleteAllResults{
+		TotalCount: 0,
+		TotalSize:  0,
+	}
 	for outJob := range out {
 		if outJob.Err != nil {
-			return 0, outJob.Err
+			return DeleteAllResults{}, outJob.Err
 		}
 
-		totalDeleted += 1
+		results.TotalCount += 1
+		results.TotalSize += 1
 	}
 
-	return totalDeleted, nil
+	return results, nil
 }
