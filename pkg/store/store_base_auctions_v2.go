@@ -322,7 +322,7 @@ func (b AuctionsBaseV2) DeleteAllFromTimestamps(
 		}
 
 		results.TotalCount += 1
-		results.TotalSize += 1
+		results.TotalSize += outJob.Size
 	}
 
 	return results, nil
