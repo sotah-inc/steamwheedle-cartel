@@ -7,7 +7,7 @@ import (
 )
 
 type ComputeLiveAuctionsInJob struct {
-	sotah.RegionRealmTuple
+	sotah.RegionRealmTimestampTuple
 }
 
 type ComputeLiveAuctionsOutJob struct {
@@ -24,7 +24,7 @@ func (job ComputeLiveAuctionsOutJob) ToLogrusFields() logrus.Fields {
 	}
 }
 
-func (c Client) ComputeLiveAuctions(regionRealms sotah.RegionRealms) chan ComputeLiveAuctionsOutJob {
+func (c Client) ComputeLiveAuctions(tuples sotah.RegionRealmTimestampTuples) chan ComputeLiveAuctionsOutJob {
 	// establishing channels
 	in := make(chan ComputeLiveAuctionsInJob)
 	out := make(chan ComputeLiveAuctionsOutJob)
@@ -32,7 +32,7 @@ func (c Client) ComputeLiveAuctions(regionRealms sotah.RegionRealms) chan Comput
 	// spinning up the workers
 	worker := func() {
 		for inJob := range in {
-			body, err := inJob.RegionRealmTuple.EncodeForDelivery()
+			body, err := inJob.RegionRealmTimestampTuple.EncodeForDelivery()
 			if err != nil {
 				out <- ComputeLiveAuctionsOutJob{
 					RegionRealmTuple: inJob.RegionRealmTuple,
@@ -68,14 +68,9 @@ func (c Client) ComputeLiveAuctions(regionRealms sotah.RegionRealms) chan Comput
 
 	// queueing up the regions
 	go func() {
-		for regionName, realms := range regionRealms {
-			for _, realm := range realms {
-				in <- ComputeLiveAuctionsInJob{
-					RegionRealmTuple: sotah.RegionRealmTuple{
-						RegionName: string(regionName),
-						RealmSlug:  string(realm.Slug),
-					},
-				}
+		for _, tuple := range tuples {
+			in <- ComputeLiveAuctionsInJob{
+				RegionRealmTimestampTuple: tuple,
 			}
 		}
 
