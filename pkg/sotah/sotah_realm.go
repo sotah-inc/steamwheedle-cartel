@@ -251,6 +251,30 @@ func (tuple RegionRealmTimestampSizeTuple) EncodeForDelivery() (string, error) {
 	return string(jsonEncoded), nil
 }
 
+func NewRegionRealmSummaryTuple(data string) (RegionRealmSummaryTuple, error) {
+	var out RegionRealmSummaryTuple
+	if err := json.Unmarshal([]byte(data), &out); err != nil {
+		return RegionRealmSummaryTuple{}, err
+	}
+
+	return out, nil
+}
+
+type RegionRealmSummaryTuple struct {
+	RegionRealmTimestampTuple
+	ItemIds    []int    `json:"item_ids"`
+	OwnerNames []string `json:"owner_names"`
+}
+
+func (tuple RegionRealmSummaryTuple) EncodeForDelivery() (string, error) {
+	jsonEncoded, err := json.Marshal(tuple)
+	if err != nil {
+		return "", err
+	}
+
+	return string(jsonEncoded), nil
+}
+
 func NewRegionRealmTimestampTuples(data string) (RegionRealmTimestampTuples, error) {
 	var out RegionRealmTimestampTuples
 	if err := json.Unmarshal([]byte(data), &out); err != nil {
