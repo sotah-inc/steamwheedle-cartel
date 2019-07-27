@@ -1,6 +1,7 @@
 package prod
 
 import (
+	"encoding/json"
 	"errors"
 	"io/ioutil"
 	"time"
@@ -16,13 +17,13 @@ import (
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/util"
 )
 
-func HandleComputedLiveAuctions(liveAuctionsState ProdLiveAuctionsState, tuples bus.RegionRealmTimestampTuples) {
+func HandleComputedLiveAuctions(liveAuctionsState ProdLiveAuctionsState, tuples []sotah.RegionRealmTuple) {
 	// declaring a load-in channel for the live-auctions db and starting it up
 	loadInJobs := make(chan database.LiveAuctionsLoadEncodedDataInJob)
 	loadOutJobs := liveAuctionsState.IO.Databases.LiveAuctionsDatabases.LoadEncodedData(loadInJobs)
 
 	// starting workers for handling tuples
-	in := make(chan bus.RegionRealmTimestampTuple)
+	in := make(chan sotah.RegionRealmTuple)
 	worker := func() {
 		for tuple := range in {
 			// resolving the realm from the request
@@ -127,9 +128,9 @@ func (liveAuctionsState ProdLiveAuctionsState) ListenForComputedLiveAuctions(
 	config := bus.SubscribeConfig{
 		Stop: stop,
 		Callback: func(busMsg bus.Message) {
-			tuples, err := bus.NewRegionRealmTimestampTuples(busMsg.Data)
-			if err != nil {
-				logging.WithField("error", err.Error()).Error("Failed to decode region-realm-timestamps tuples")
+			var tuples []sotah.RegionRealmTuple
+			if err := json.Unmarshal([]byte(busMsg.Data), &tuples); err != nil {
+				logging.WithField("error", err.Error()).Error("Failed to decode region-realm tuples")
 
 				return
 			}
