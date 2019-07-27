@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/sotah-inc/steamwheedle-cartel/pkg/logging"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/util"
 )
 
@@ -90,7 +91,11 @@ func Download(url string) (ResponseMeta, error) {
 	if err != nil {
 		return ResponseMeta{}, err
 	}
-	defer resp.Body.Close()
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			logging.WithField("error", err.Error()).Error("Failed to close response body")
+		}
+	}()
 
 	respMeta := ResponseMeta{
 		ContentLength:      0,
