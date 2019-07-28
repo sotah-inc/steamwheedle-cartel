@@ -34,6 +34,8 @@ func (sta GatewayState) PublishComputedLiveAuctions(tuples []sotah.RegionRealmTu
 		return errors.New(req.Err)
 	}
 
+	logging.Info("Finished pushing to receive-computed-live-auctions bus endpoint")
+
 	return nil
 }
 
