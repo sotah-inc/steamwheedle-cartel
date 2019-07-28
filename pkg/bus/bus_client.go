@@ -7,11 +7,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/bus"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/bus/codes"
-
 	"cloud.google.com/go/pubsub"
 	"github.com/sirupsen/logrus"
+	"github.com/sotah-inc/steamwheedle-cartel/pkg/bus/codes"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/logging"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/metric"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/state/subjects"
@@ -205,7 +203,7 @@ func (c Client) Subscribe(config SubscribeConfig) error {
 }
 
 func (c Client) ReplyToWithError(recipient Message, err error, code codes.Code) error {
-	reply := bus.NewMessage()
+	reply := NewMessage()
 	reply.Code = code
 	reply.Err = err.Error()
 	if _, err := c.ReplyTo(recipient, reply); err != nil {
