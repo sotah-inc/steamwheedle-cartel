@@ -147,10 +147,10 @@ func (sta GatewayState) ComputeAllLiveAuctions(tuples sotah.RegionRealmTimestamp
 	}
 
 	// publishing to sync-items
-	logging.Info("Publishing tuples to sync-all-items")
-	if err := sta.PublishToSyncAllItems(nextTuples.ItemIds()); err != nil {
-		return err
-	}
+	//logging.Info("Publishing tuples to sync-all-items")
+	//if err := sta.PublishToSyncAllItems(nextTuples.ItemIds()); err != nil {
+	//	return err
+	//}
 
 	logging.Info("Finished")
 
