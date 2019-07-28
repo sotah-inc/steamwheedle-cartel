@@ -3,6 +3,7 @@ package prod
 import (
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/act"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/bus"
+	"github.com/sotah-inc/steamwheedle-cartel/pkg/bus/codes"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/logging"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/sotah"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/state/subjects"
@@ -53,6 +54,19 @@ func (sta GatewayState) ListenForCallComputeAllLiveAuctions(
 			tuples, err := sotah.NewRegionRealmTimestampTuples(busMsg.Data)
 			if err != nil {
 				logging.WithField("error", err.Error()).Error("Failed to parse bus message body")
+
+				if err := sta.IO.BusClient.ReplyToWithError(busMsg, err, codes.GenericError); err != nil {
+					logging.WithField("error", err.Error()).Error("Failed to reply to message")
+
+					return
+				}
+
+				return
+			}
+
+			// acking the message
+			if _, err := sta.IO.BusClient.ReplyTo(busMsg, bus.NewMessage()); err != nil {
+				logging.WithField("error", err.Error()).Error("Failed to reply to message")
 
 				return
 			}
