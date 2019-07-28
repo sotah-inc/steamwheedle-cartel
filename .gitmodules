@@ -4,9 +4,6 @@
 [submodule "extern/steamwheedle-cartel-cleanup-pricelist-histories"]
 	path = extern/steamwheedle-cartel-cleanup-pricelist-histories
 	url = git@github.com:sotah-inc/steamwheedle-cartel-cleanup-pricelist-histories.git
-[submodule "extern/steamwheedle-cartel-compute-live-auctions"]
-	path = extern/steamwheedle-cartel-compute-live-auctions
-	url = git@github.com:sotah-inc/steamwheedle-cartel-compute-live-auctions
 [submodule "extern/steamwheedle-cartel-compute-pricelist-histories"]
 	path = extern/steamwheedle-cartel-compute-pricelist-histories
 	url = git@github.com:sotah-inc/steamwheedle-cartel-compute-pricelist-histories
