@@ -6,6 +6,8 @@ import (
 	"io/ioutil"
 	"time"
 
+	"github.com/sotah-inc/steamwheedle-cartel/pkg/bus/codes"
+
 	"github.com/sirupsen/logrus"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/blizzard"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/bus"
@@ -128,9 +130,23 @@ func (liveAuctionsState ProdLiveAuctionsState) ListenForComputedLiveAuctions(
 	config := bus.SubscribeConfig{
 		Stop: stop,
 		Callback: func(busMsg bus.Message) {
+			// decoding message body
 			var tuples []sotah.RegionRealmTuple
 			if err := json.Unmarshal([]byte(busMsg.Data), &tuples); err != nil {
 				logging.WithField("error", err.Error()).Error("Failed to decode region-realm tuples")
+
+				if err := liveAuctionsState.IO.BusClient.ReplyToWithError(busMsg, err, codes.GenericError); err != nil {
+					logging.WithField("error", err.Error()).Error("Failed to reply to message")
+
+					return
+				}
+
+				return
+			}
+
+			// acking the message
+			if _, err := liveAuctionsState.IO.BusClient.ReplyTo(busMsg, bus.NewMessage()); err != nil {
+				logging.WithField("error", err.Error()).Error("Failed to reply to message")
 
 				return
 			}
@@ -147,6 +163,12 @@ func (liveAuctionsState ProdLiveAuctionsState) ListenForComputedLiveAuctions(
 			}
 			if err := liveAuctionsState.IO.BusClient.PublishMetrics(m); err != nil {
 				logging.WithField("error", err.Error()).Error("Failed to publish metric")
+
+				if err := liveAuctionsState.IO.BusClient.ReplyToWithError(busMsg, err, codes.GenericError); err != nil {
+					logging.WithField("error", err.Error()).Error("Failed to reply to message")
+
+					return
+				}
 
 				return
 			}
