@@ -31,3 +31,6 @@
 [submodule "extern/steamwheedle-cartel-run-cleanup-auctions"]
 	path = extern/steamwheedle-cartel-run-cleanup-auctions
 	url = git@github.com:sotah-inc/steamwheedle-cartel-run-cleanup-auctions.git
+[submodule "extern/steamwheedle-cartel-run-compute-live-auctions"]
+	path = extern/steamwheedle-cartel-run-compute-live-auctions
+	url = git@github.com:sotah-inc/steamwheedle-cartel-run-compute-live-auctions.git
