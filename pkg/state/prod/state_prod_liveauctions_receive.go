@@ -1,6 +1,7 @@
 package prod
 
 import (
+	"encoding/json"
 	"errors"
 	"io/ioutil"
 	"time"
@@ -174,7 +175,10 @@ func (liveAuctionsState ProdLiveAuctionsState) ListenForComputedLiveAuctions(
 
 			// gathering hell-realms for syncing
 			logging.Info("Fetching region-realms from hell")
-			hellRegionRealms, err := liveAuctionsState.IO.HellClient.GetRegionRealms(tuples.ToRegionRealmSlugs(), gameversions.Retail)
+			hellRegionRealms, err := liveAuctionsState.IO.HellClient.GetRegionRealms(
+				tuples.ToRegionRealmSlugs(),
+				gameversions.Retail,
+			)
 			if err != nil {
 				logging.WithField("error", err.Error()).Error("Failed to get region-realms")
 
@@ -199,6 +203,35 @@ func (liveAuctionsState ProdLiveAuctionsState) ListenForComputedLiveAuctions(
 			}
 			if err := liveAuctionsState.IO.HellClient.WriteRegionRealms(hellRegionRealms, gameversions.Retail); err != nil {
 				logging.WithField("error", err.Error()).Error("Failed to write region-realms to hell")
+
+				return
+			}
+
+			// publishing region-realm slugs to the receive-realms messenger endpoint
+			jsonEncoded, err := json.Marshal(tuples.ToRegionRealmSlugs())
+			if err != nil {
+				logging.WithField("error", err.Error()).Error("Failed to encode region-realm slugs for publishing")
+
+				return
+			}
+
+			logging.Info("Publishing to receive-realms bus endpoint")
+			req, err := liveAuctionsState.IO.BusClient.Request(
+				liveAuctionsState.receiveRealmsTopic,
+				string(jsonEncoded),
+				10*time.Second,
+			)
+			if err != nil {
+				logging.WithField("error", err.Error()).Error("Failed to encode region-realm slugs for publishing")
+
+				return
+			}
+
+			if req.Code != codes.Ok {
+				logging.WithField(
+					"error",
+					errors.New("response code was not ok").Error(),
+				).Error("Publish succeeded but response code was not ok")
 
 				return
 			}
