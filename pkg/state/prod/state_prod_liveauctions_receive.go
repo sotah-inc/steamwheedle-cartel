@@ -5,15 +5,15 @@ import (
 	"io/ioutil"
 	"time"
 
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/bus/codes"
-
 	"github.com/sirupsen/logrus"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/blizzard"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/bus"
+	"github.com/sotah-inc/steamwheedle-cartel/pkg/bus/codes"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/database"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/logging"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/metric"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/sotah"
+	"github.com/sotah-inc/steamwheedle-cartel/pkg/sotah/gameversions"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/state/subjects"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/util"
 )
@@ -168,6 +168,37 @@ func (liveAuctionsState ProdLiveAuctionsState) ListenForComputedLiveAuctions(
 
 					return
 				}
+
+				return
+			}
+
+			// gathering hell-realms for syncing
+			logging.Info("Fetching region-realms from hell")
+			hellRegionRealms, err := liveAuctionsState.IO.HellClient.GetRegionRealms(tuples.ToRegionRealmSlugs(), gameversions.Retail)
+			if err != nil {
+				logging.WithField("error", err.Error()).Error("Failed to get region-realms")
+
+				return
+			}
+
+			// updating the list of realms' timestamps
+			logging.WithField(
+				"total",
+				hellRegionRealms.Total(),
+			).Info("Updating region-realms in hell with new downloaded timestamp")
+			for _, tuple := range tuples {
+				hellRealm := hellRegionRealms[blizzard.RegionName(tuple.RegionName)][blizzard.RealmSlug(tuple.RealmSlug)]
+				hellRealm.LiveAuctionsReceived = int(time.Now().Unix())
+				hellRegionRealms[blizzard.RegionName(tuple.RegionName)][blizzard.RealmSlug(tuple.RealmSlug)] = hellRealm
+
+				logrus.WithFields(logrus.Fields{
+					"region":     blizzard.RegionName(tuple.RegionName),
+					"realm":      blizzard.RealmSlug(tuple.RealmSlug),
+					"downloaded": hellRealm.LiveAuctionsReceived,
+				}).Info("Setting downloaded value for hell realm")
+			}
+			if err := liveAuctionsState.IO.HellClient.WriteRegionRealms(hellRegionRealms, gameversions.Retail); err != nil {
+				logging.WithField("error", err.Error()).Error("Failed to write region-realms to hell")
 
 				return
 			}
