@@ -205,7 +205,25 @@ func (tuple RegionRealmTuple) EncodeForDelivery() (string, error) {
 	return string(jsonEncoded), nil
 }
 
+func NewRegionRealmTuples(data string) (RegionRealmTuples, error) {
+	var out RegionRealmTuples
+	if err := json.Unmarshal([]byte(data), &out); err != nil {
+		return RegionRealmTuples{}, err
+	}
+
+	return out, nil
+}
+
 type RegionRealmTuples []RegionRealmTuple
+
+func (tuples RegionRealmTuples) EncodeForDelivery() (string, error) {
+	jsonEncoded, err := json.Marshal(tuples)
+	if err != nil {
+		return "", err
+	}
+
+	return string(jsonEncoded), nil
+}
 
 func NewRegionRealmTimestampTuple(data string) (RegionRealmTimestampTuple, error) {
 	var out RegionRealmTimestampTuple
