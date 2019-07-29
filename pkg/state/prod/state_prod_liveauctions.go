@@ -2,7 +2,9 @@ package prod
 
 import (
 	"fmt"
+	"log"
 
+	"cloud.google.com/go/pubsub"
 	"cloud.google.com/go/storage"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/bus"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/database"
@@ -44,34 +46,44 @@ func NewProdLiveAuctionsState(config ProdLiveAuctionsStateConfig) (ProdLiveAucti
 	}
 
 	// connecting to the messenger host
-	mess, err := messenger.NewMessenger(config.MessengerHost, config.MessengerPort)
+	liveAuctionsState.IO.Messenger, err = messenger.NewMessenger(config.MessengerHost, config.MessengerPort)
 	if err != nil {
 		return ProdLiveAuctionsState{}, err
 	}
-	liveAuctionsState.IO.Messenger = mess
+
+	// initializing a reporter
+	liveAuctionsState.IO.Reporter = metric.NewReporter(liveAuctionsState.IO.Messenger)
 
 	// establishing a bus
 	logging.Info("Connecting bus-client")
-	busClient, err := bus.NewClient(config.GCloudProjectID, "prod-liveauctions")
+	liveAuctionsState.IO.BusClient, err = bus.NewClient(config.GCloudProjectID, "prod-liveauctions")
 	if err != nil {
 		return ProdLiveAuctionsState{}, err
 	}
-	liveAuctionsState.IO.BusClient = busClient
+	liveAuctionsState.receiveRealmsTopic, err = liveAuctionsState.IO.BusClient.FirmTopic(string(subjects.ReceiveRealms))
+	if err != nil {
+		log.Fatalf("Failed to get firm topic: %s", err.Error())
+
+		return ProdLiveAuctionsState{}, err
+	}
 
 	// establishing a store
-	storeClient, err := store.NewClient(config.GCloudProjectID)
+	liveAuctionsState.IO.StoreClient, err = store.NewClient(config.GCloudProjectID)
 	if err != nil {
 		return ProdLiveAuctionsState{}, err
 	}
-	liveAuctionsState.IO.StoreClient = storeClient
 
-	liveAuctionsState.LiveAuctionsBase = store.NewLiveAuctionsBase(storeClient, regions.USCentral1, gameversions.Retail)
+	liveAuctionsState.LiveAuctionsBase = store.NewLiveAuctionsBase(
+		liveAuctionsState.IO.StoreClient,
+		regions.USCentral1,
+		gameversions.Retail,
+	)
 	liveAuctionsState.LiveAuctionsBucket, err = liveAuctionsState.LiveAuctionsBase.GetFirmBucket()
 	if err != nil {
 		return ProdLiveAuctionsState{}, err
 	}
 
-	bootBase := store.NewBootBase(storeClient, "us-central1")
+	bootBase := store.NewBootBase(liveAuctionsState.IO.StoreClient, "us-central1")
 
 	// gathering region-realms
 	statuses := sotah.Statuses{}
@@ -85,7 +97,7 @@ func NewProdLiveAuctionsState(config ProdLiveAuctionsStateConfig) (ProdLiveAucti
 		return ProdLiveAuctionsState{}, err
 	}
 
-	realmsBase := store.NewRealmsBase(storeClient, "us-central1", gameversions.Retail)
+	realmsBase := store.NewRealmsBase(liveAuctionsState.IO.StoreClient, "us-central1", gameversions.Retail)
 	realmsBucket, err := realmsBase.GetFirmBucket()
 	if err != nil {
 		return ProdLiveAuctionsState{}, err
@@ -121,9 +133,6 @@ func NewProdLiveAuctionsState(config ProdLiveAuctionsStateConfig) (ProdLiveAucti
 		return ProdLiveAuctionsState{}, err
 	}
 
-	// initializing a reporter
-	liveAuctionsState.IO.Reporter = metric.NewReporter(mess)
-
 	// loading the live-auctions databases
 	logging.Info("Connecting to live-auctions databases")
 	ladBases, err := database.NewLiveAuctionsDatabases(config.LiveAuctionsDatabaseDir, liveAuctionsState.Statuses)
@@ -153,4 +162,6 @@ type ProdLiveAuctionsState struct {
 
 	LiveAuctionsBase   store.LiveAuctionsBase
 	LiveAuctionsBucket *storage.BucketHandle
+
+	receiveRealmsTopic *pubsub.Topic
 }
