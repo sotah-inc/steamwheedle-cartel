@@ -1,7 +1,6 @@
 package prod
 
 import (
-	"encoding/json"
 	"errors"
 	"io/ioutil"
 	"time"
@@ -131,8 +130,8 @@ func (liveAuctionsState ProdLiveAuctionsState) ListenForComputedLiveAuctions(
 		Stop: stop,
 		Callback: func(busMsg bus.Message) {
 			// decoding message body
-			var tuples sotah.RegionRealmTuples
-			if err := json.Unmarshal([]byte(busMsg.Data), &tuples); err != nil {
+			tuples, err := sotah.NewRegionRealmTuples(busMsg.Data)
+			if err != nil {
 				logging.WithField("error", err.Error()).Error("Failed to decode region-realm tuples")
 
 				if err := liveAuctionsState.IO.BusClient.ReplyToWithError(busMsg, err, codes.GenericError); err != nil {
