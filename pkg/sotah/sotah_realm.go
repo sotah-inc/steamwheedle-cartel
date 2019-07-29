@@ -205,6 +205,8 @@ func (tuple RegionRealmTuple) EncodeForDelivery() (string, error) {
 	return string(jsonEncoded), nil
 }
 
+type RegionRealmTuples []RegionRealmTuple
+
 func NewRegionRealmTimestampTuple(data string) (RegionRealmTimestampTuple, error) {
 	var out RegionRealmTimestampTuple
 	if err := json.Unmarshal([]byte(data), &out); err != nil {
@@ -268,8 +270,8 @@ func (tuples RegionRealmSummaryTuples) ItemIds() blizzard.ItemIds {
 	return out
 }
 
-func (tuples RegionRealmSummaryTuples) RegionRealmTuples() []RegionRealmTuple {
-	out := make([]RegionRealmTuple, len(tuples))
+func (tuples RegionRealmSummaryTuples) RegionRealmTuples() RegionRealmTuples {
+	out := make(RegionRealmTuples, len(tuples))
 	for i, tuple := range tuples {
 		out[i] = tuple.RegionRealmTuple
 	}
