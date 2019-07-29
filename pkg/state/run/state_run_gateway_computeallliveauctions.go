@@ -17,7 +17,7 @@ import (
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/sotah"
 )
 
-func (sta GatewayState) PublishComputedLiveAuctions(tuples []sotah.RegionRealmTuple) error {
+func (sta GatewayState) PublishComputedLiveAuctions(tuples sotah.RegionRealmTuples) error {
 	// publishing to receive-computed-live-auctions bus endpoint
 	jsonEncoded, err := json.Marshal(tuples)
 	if err != nil {

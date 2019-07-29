@@ -19,7 +19,7 @@ import (
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/util"
 )
 
-func HandleComputedLiveAuctions(liveAuctionsState ProdLiveAuctionsState, tuples []sotah.RegionRealmTuple) {
+func HandleComputedLiveAuctions(liveAuctionsState ProdLiveAuctionsState, tuples sotah.RegionRealmTuples) {
 	// declaring a load-in channel for the live-auctions db and starting it up
 	loadInJobs := make(chan database.LiveAuctionsLoadEncodedDataInJob)
 	loadOutJobs := liveAuctionsState.IO.Databases.LiveAuctionsDatabases.LoadEncodedData(loadInJobs)
@@ -131,7 +131,7 @@ func (liveAuctionsState ProdLiveAuctionsState) ListenForComputedLiveAuctions(
 		Stop: stop,
 		Callback: func(busMsg bus.Message) {
 			// decoding message body
-			var tuples []sotah.RegionRealmTuple
+			var tuples sotah.RegionRealmTuples
 			if err := json.Unmarshal([]byte(busMsg.Data), &tuples); err != nil {
 				logging.WithField("error", err.Error()).Error("Failed to decode region-realm tuples")
 
