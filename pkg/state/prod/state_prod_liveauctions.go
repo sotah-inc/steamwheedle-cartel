@@ -6,6 +6,7 @@ import (
 	"cloud.google.com/go/storage"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/bus"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/database"
+	"github.com/sotah-inc/steamwheedle-cartel/pkg/hell"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/logging"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/messenger"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/metric"
@@ -32,6 +33,14 @@ func NewProdLiveAuctionsState(config ProdLiveAuctionsStateConfig) (ProdLiveAucti
 	// establishing an initial state
 	liveAuctionsState := ProdLiveAuctionsState{
 		State: state.NewState(uuid.NewV4(), true),
+	}
+
+	var err error
+
+	// connecting to hell
+	liveAuctionsState.IO.HellClient, err = hell.NewClient(config.GCloudProjectID)
+	if err != nil {
+		return ProdLiveAuctionsState{}, err
 	}
 
 	// connecting to the messenger host
