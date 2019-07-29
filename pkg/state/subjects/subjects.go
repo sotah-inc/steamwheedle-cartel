@@ -35,11 +35,6 @@ const (
 
 // gcloud fn-related
 const (
-	DownloadAllAuctions Subject = "downloadAllAuctions"
-	DownloadAuctions    Subject = "downloadAuctions"
-
-	ComputeAllLiveAuctions      Subject = "computeAllLiveAuctions"
-	ComputeLiveAuctions         Subject = "computeLiveAuctions"
 	ReceiveComputedLiveAuctions Subject = "receiveComputedLiveAuctions"
 
 	ComputeAllPricelistHistories      Subject = "computeAllPricelistHistories"
@@ -54,14 +49,8 @@ const (
 	SyncItemIcons       Subject = "syncItemIcons"
 	ReceiveSyncedItems  Subject = "receiveSyncedItems"
 
-	CleanupAllExpiredManifests Subject = "cleanupAllExpiredManifests"
-	CleanupExpiredManifest     Subject = "cleanupExpiredManifest"
-
 	CleanupAllPricelistHistories Subject = "cleanupAllPricelistHistories"
 	CleanupPricelistHistories    Subject = "cleanupPricelistHistories"
-
-	Bullshit       Subject = "bullshit"
-	BullshitIntake Subject = "bullshitIntake"
 )
 
 // gcloud gateway subjects
