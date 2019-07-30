@@ -9,6 +9,7 @@ import (
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/bus"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/sotah"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/state"
+	"github.com/sotah-inc/steamwheedle-cartel/pkg/state/subjects"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/store"
 	"github.com/twinj/uuid"
 )
@@ -32,6 +33,12 @@ func NewSyncItemsState(config SyncItemsStateConfig) (SyncItemsState, error) {
 
 		return SyncItemsState{}, err
 	}
+	sta.receiveSyncedItemsTopic, err = sta.IO.BusClient.FirmTopic(string(subjects.ReceiveSyncedItems))
+	if err != nil {
+		log.Fatalf("Failed to get firm topic: %s", err.Error())
+
+		return SyncItemsState{}, err
+	}
 
 	// initializing a store client
 	sta.IO.StoreClient, err = store.NewClient(config.ProjectId)
@@ -47,7 +54,7 @@ func NewSyncItemsState(config SyncItemsStateConfig) (SyncItemsState, error) {
 type SyncItemsState struct {
 	state.State
 
-	receiveRealmsTopic *pubsub.Topic
+	receiveSyncedItemsTopic *pubsub.Topic
 
 	itemsBase   store.ItemsBase
 	itemsBucket *storage.BucketHandle
