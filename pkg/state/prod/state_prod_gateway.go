@@ -49,6 +49,7 @@ func NewGatewayState(config GatewayStateConfig) (GatewayState, error) {
 		subjects.CallCleanupAllManifests:    sta.ListenForCallCleanupAllManifests,
 		subjects.CallCleanupAllAuctions:     sta.ListenForCallCleanupAllAuctions,
 		subjects.CallComputeAllLiveAuctions: sta.ListenForCallComputeAllLiveAuctions,
+		subjects.CallSyncAllItems:           sta.ListenForCallSyncAllItems,
 	})
 
 	return sta, nil
