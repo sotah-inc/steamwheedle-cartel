@@ -9,8 +9,6 @@ import (
 
 	"github.com/sirupsen/logrus"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/act"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/blizzard"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/bus"
 	bCodes "github.com/sotah-inc/steamwheedle-cartel/pkg/bus/codes"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/logging"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/metric"
@@ -35,24 +33,6 @@ func (sta GatewayState) PublishComputedLiveAuctions(tuples sotah.RegionRealmTupl
 	}
 
 	logging.Info("Finished pushing to receive-computed-live-auctions bus endpoint")
-
-	return nil
-}
-
-func (sta GatewayState) PublishToSyncAllItems(itemIds blizzard.ItemIds) error {
-	// producing a item-ids message for syncing
-	data, err := itemIds.EncodeForDelivery()
-	if err != nil {
-		return err
-	}
-	msg := bus.NewMessage()
-	msg.Data = data
-
-	// publishing to sync-all-items
-	logging.Info("Publishing to sync-all-items")
-	if _, err := sta.IO.BusClient.Publish(sta.syncAllItemsTopic, msg); err != nil {
-		return err
-	}
 
 	return nil
 }
