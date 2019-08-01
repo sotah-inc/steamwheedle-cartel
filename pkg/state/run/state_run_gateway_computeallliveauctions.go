@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/sotah-inc/steamwheedle-cartel/pkg/blizzard"
+
 	"github.com/sirupsen/logrus"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/act"
 	bCodes "github.com/sotah-inc/steamwheedle-cartel/pkg/bus/codes"
@@ -33,6 +35,28 @@ func (sta GatewayState) PublishComputedLiveAuctions(tuples sotah.RegionRealmTupl
 	}
 
 	logging.Info("Finished pushing to receive-computed-live-auctions bus endpoint")
+
+	return nil
+}
+
+func (sta GatewayState) PublishToCallSyncAllItems(ids blizzard.ItemIds) error {
+	// publishing to call-sync-all-items bus endpoint
+	jsonEncoded, err := ids.EncodeForDelivery()
+	if err != nil {
+		return err
+	}
+
+	logging.Info("Publishing to call-sync-all-items bus endpoint")
+	req, err := sta.IO.BusClient.Request(sta.callSyncAllItemsTopic, jsonEncoded, 10*time.Second)
+	if err != nil {
+		return err
+	}
+
+	if req.Code != bCodes.Ok {
+		return errors.New(req.Err)
+	}
+
+	logging.Info("Finished pushing to call-sync-all-items bus endpoint")
 
 	return nil
 }
@@ -127,10 +151,10 @@ func (sta GatewayState) ComputeAllLiveAuctions(tuples sotah.RegionRealmTimestamp
 	}
 
 	// publishing to sync-items
-	//logging.Info("Publishing tuples to sync-all-items")
-	//if err := sta.PublishToSyncAllItems(nextTuples.ItemIds()); err != nil {
-	//	return err
-	//}
+	logging.Info("Publishing item-ids to call-sync-all-items")
+	if err := sta.PublishToCallSyncAllItems(nextTuples.ItemIds()); err != nil {
+		return err
+	}
 
 	logging.Info("Finished")
 
