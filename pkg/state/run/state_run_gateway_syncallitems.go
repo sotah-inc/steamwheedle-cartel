@@ -17,8 +17,8 @@ import (
 )
 
 func (sta GatewayState) HandleItemIds(ids blizzard.ItemIds) error { // generating new act client
-	logging.WithField("endpoint-url", sta.actEndpoints.DownloadAuctions).Info("Producing act client")
-	actClient, err := act.NewClient(sta.actEndpoints.DownloadAuctions)
+	logging.WithField("endpoint-url", sta.actEndpoints.SyncItems).Info("Producing act client")
+	actClient, err := act.NewClient(sta.actEndpoints.SyncItems)
 	if err != nil {
 		return err
 	}
@@ -32,7 +32,7 @@ func (sta GatewayState) HandleItemIds(ids blizzard.ItemIds) error { // generatin
 	for outJob := range actClient.SyncItems(itemIdsBatches) {
 		// validating that no error occurred during act service calls
 		if outJob.Err != nil {
-			logging.WithFields(outJob.ToLogrusFields()).Error("Failed to fetch auctions")
+			logging.WithFields(outJob.ToLogrusFields()).Error("Failed to sync items")
 
 			continue
 		}
