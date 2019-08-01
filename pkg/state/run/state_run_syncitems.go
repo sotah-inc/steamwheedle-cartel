@@ -66,6 +66,20 @@ func NewSyncItemsState(config SyncItemsStateConfig) (SyncItemsState, error) {
 		return SyncItemsState{}, err
 	}
 
+	// gathering primary-region
+	regionList, err := sta.bootBase.GetRegions(sta.bootBucket)
+	if err != nil {
+		log.Fatalf("Failed to get regions: %s", err.Error())
+
+		return SyncItemsState{}, err
+	}
+	sta.primaryRegion, err = regionList.GetPrimaryRegion()
+	if err != nil {
+		log.Fatalf("Failed to get primary-region: %s", err.Error())
+
+		return SyncItemsState{}, err
+	}
+
 	// initializing a blizzard client
 	blizzardCredentials, err := sta.bootBase.GetBlizzardCredentials(sta.bootBucket)
 	if err != nil {
