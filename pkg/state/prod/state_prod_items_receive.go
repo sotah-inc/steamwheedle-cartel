@@ -87,6 +87,13 @@ func (itemsState ProdItemsState) ListenForSyncedItems(
 				return
 			}
 
+			// acking the message
+			if _, err := itemsState.IO.BusClient.ReplyTo(busMsg, bus.NewMessage()); err != nil {
+				logging.WithField("error", err.Error()).Error("Failed to reply to message")
+
+				return
+			}
+
 			in <- idNormalizedNameMap
 		},
 		OnReady:   onReady,
