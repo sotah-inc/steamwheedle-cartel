@@ -8,9 +8,11 @@ import (
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/blizzard"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/bus"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/sotah"
+	"github.com/sotah-inc/steamwheedle-cartel/pkg/sotah/gameversions"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/state"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/state/subjects"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/store"
+	"github.com/sotah-inc/steamwheedle-cartel/pkg/store/regions"
 	"github.com/twinj/uuid"
 )
 
@@ -48,6 +50,37 @@ func NewSyncItemsState(config SyncItemsStateConfig) (SyncItemsState, error) {
 		return SyncItemsState{}, err
 	}
 
+	sta.bootBase = store.NewBootBase(sta.IO.StoreClient, regions.USCentral1)
+	sta.bootBucket, err = sta.bootBase.GetFirmBucket()
+	if err != nil {
+		log.Fatalf("Failed to get firm bucket: %s", err.Error())
+
+		return SyncItemsState{}, err
+	}
+
+	sta.itemsBase = store.NewItemsBase(sta.IO.StoreClient, regions.USCentral1, gameversions.Retail)
+	sta.itemsBucket, err = sta.itemsBase.GetFirmBucket()
+	if err != nil {
+		log.Fatalf("Failed to get firm bucket: %s", err.Error())
+
+		return SyncItemsState{}, err
+	}
+
+	// initializing a blizzard client
+	blizzardCredentials, err := sta.bootBase.GetBlizzardCredentials(sta.bootBucket)
+	if err != nil {
+		log.Fatalf("Failed to get blizzard-credentials: %s", err.Error())
+
+		return SyncItemsState{}, err
+	}
+
+	sta.blizzardClient, err = blizzard.NewClient(blizzardCredentials.ClientId, blizzardCredentials.ClientSecret)
+	if err != nil {
+		log.Fatalf("Failed to create blizzard client: %s", err.Error())
+
+		return SyncItemsState{}, err
+	}
+
 	return sta, nil
 }
 
@@ -55,6 +88,9 @@ type SyncItemsState struct {
 	state.State
 
 	receiveSyncedItemsTopic *pubsub.Topic
+
+	bootBase   store.BootBase
+	bootBucket *storage.BucketHandle
 
 	itemsBase   store.ItemsBase
 	itemsBucket *storage.BucketHandle
