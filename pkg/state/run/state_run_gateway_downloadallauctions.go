@@ -137,7 +137,7 @@ func (sta GatewayState) DownloadRegionRealms(
 				"region":      outJob.RegionName,
 				"realm":       outJob.RealmSlug,
 				"status-code": outJob.Data.Code,
-				"data":        fmt.Sprintf("%.25s", string(outJob.Data.Body)),
+				"data":        fmt.Sprintf("%.50s", string(outJob.Data.Body)),
 			}).Error("Response code for act call was invalid")
 		}
 	}
