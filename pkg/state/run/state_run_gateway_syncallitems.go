@@ -2,8 +2,12 @@ package run
 
 import (
 	"errors"
+	"fmt"
+	"net/http"
 	"time"
 
+	"github.com/sirupsen/logrus"
+	"github.com/sotah-inc/steamwheedle-cartel/pkg/act"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/blizzard"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/bus/codes"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/database"
@@ -12,10 +16,38 @@ import (
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/sotah"
 )
 
-func (sta GatewayState) HandleItemIds(ids blizzard.ItemIds) error {
+func (sta GatewayState) HandleItemIds(ids blizzard.ItemIds) error { // generating new act client
+	logging.WithField("endpoint-url", sta.actEndpoints.DownloadAuctions).Info("Producing act client")
+	actClient, err := act.NewClient(sta.actEndpoints.DownloadAuctions)
+	if err != nil {
+		return err
+	}
+
 	// batching items together
 	logging.WithField("ids", len(ids)).Info("Batching ids together")
 	itemIdsBatches := sotah.NewItemIdsBatches(ids, 1000)
+
+	// calling act client with item-ids batches
+	logging.Info("Calling sync-items with act client")
+	for outJob := range actClient.SyncItems(itemIdsBatches) {
+		// validating that no error occurred during act service calls
+		if outJob.Err != nil {
+			logging.WithFields(outJob.ToLogrusFields()).Error("Failed to fetch auctions")
+
+			continue
+		}
+
+		// handling the job
+		switch outJob.Data.Code {
+		case http.StatusCreated:
+			continue
+		default:
+			logging.WithFields(logrus.Fields{
+				"status-code": outJob.Data.Code,
+				"data":        fmt.Sprintf("%.25s", string(outJob.Data.Body)),
+			}).Error("Response code for act call was invalid")
+		}
+	}
 
 	logging.WithField("batches", len(itemIdsBatches)).Info("Handling batches")
 
