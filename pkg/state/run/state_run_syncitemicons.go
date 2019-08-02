@@ -5,9 +5,7 @@ import (
 
 	"cloud.google.com/go/pubsub"
 	"cloud.google.com/go/storage"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/blizzard"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/bus"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/sotah"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/sotah/gameversions"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/state"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/state/subjects"
@@ -50,14 +48,6 @@ func NewSyncItemIconsState(config SyncItemIconsStateConfig) (SyncItemIconsState,
 		return SyncItemIconsState{}, err
 	}
 
-	sta.bootBase = store.NewBootBase(sta.IO.StoreClient, regions.USCentral1)
-	sta.bootBucket, err = sta.bootBase.GetFirmBucket()
-	if err != nil {
-		log.Fatalf("Failed to get firm bucket: %s", err.Error())
-
-		return SyncItemIconsState{}, err
-	}
-
 	sta.itemsBase = store.NewItemsBase(sta.IO.StoreClient, regions.USCentral1, gameversions.Retail)
 	sta.itemsBucket, err = sta.itemsBase.GetFirmBucket()
 	if err != nil {
@@ -66,34 +56,22 @@ func NewSyncItemIconsState(config SyncItemIconsStateConfig) (SyncItemIconsState,
 		return SyncItemIconsState{}, err
 	}
 
-	// gathering primary-region
-	regionList, err := sta.bootBase.GetRegions(sta.bootBucket)
+	sta.itemIconsBase = store.NewItemIconsBase(sta.IO.StoreClient, regions.USCentral1, gameversions.Retail)
+	sta.itemIconsBucket, err = sta.itemIconsBase.GetFirmBucket()
 	if err != nil {
-		log.Fatalf("Failed to get regions: %s", err.Error())
-
-		return SyncItemIconsState{}, err
-	}
-	sta.primaryRegion, err = regionList.GetPrimaryRegion()
-	if err != nil {
-		log.Fatalf("Failed to get primary-region: %s", err.Error())
+		log.Fatalf("Failed to get firm bucket: %s", err.Error())
 
 		return SyncItemIconsState{}, err
 	}
 
-	// initializing a blizzard client
-	blizzardCredentials, err := sta.bootBase.GetBlizzardCredentials(sta.bootBucket)
+	// resolving item-icons bucket name
+	bktAttrs, err := sta.itemIconsBucket.Attrs(sta.IO.StoreClient.Context)
 	if err != nil {
-		log.Fatalf("Failed to get blizzard-credentials: %s", err.Error())
+		log.Fatalf("Failed to get bucket attrs: %s", err.Error())
 
 		return SyncItemIconsState{}, err
 	}
-
-	sta.blizzardClient, err = blizzard.NewClient(blizzardCredentials.ClientId, blizzardCredentials.ClientSecret)
-	if err != nil {
-		log.Fatalf("Failed to create blizzard client: %s", err.Error())
-
-		return SyncItemIconsState{}, err
-	}
+	sta.itemIconsBucketName = bktAttrs.Name
 
 	return sta, nil
 }
@@ -103,13 +81,10 @@ type SyncItemIconsState struct {
 
 	receiveSyncedItemsTopic *pubsub.Topic
 
-	bootBase   store.BootBase
-	bootBucket *storage.BucketHandle
-
 	itemsBase   store.ItemsBase
 	itemsBucket *storage.BucketHandle
 
-	blizzardClient blizzard.Client
-
-	primaryRegion sotah.Region
+	itemIconsBase       store.ItemIconsBase
+	itemIconsBucket     *storage.BucketHandle
+	itemIconsBucketName string
 }
