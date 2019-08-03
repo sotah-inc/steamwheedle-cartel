@@ -228,7 +228,7 @@ func (idBase ItemsDatabase) PersistEncodedItems(
 
 		i := 0
 		for id, normalizedName := range idNameMap {
-			if normalizedName != "" {
+			if normalizedName == "" {
 				continue
 			}
 
