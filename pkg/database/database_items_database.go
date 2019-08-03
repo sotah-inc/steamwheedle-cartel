@@ -228,6 +228,10 @@ func (idBase ItemsDatabase) PersistEncodedItems(
 
 		i := 0
 		for id, normalizedName := range idNameMap {
+			if normalizedName != "" {
+				continue
+			}
+
 			if err := itemNamesBucket.Put(itemNameKeyName(id), []byte(normalizedName)); err != nil {
 				return err
 			}
