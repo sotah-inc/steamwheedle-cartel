@@ -243,9 +243,14 @@ func (sta SyncItemIconsState) HandlePayloads(payloads sotah.IconItemsPayloads) (
 func (sta SyncItemIconsState) Run(payloads sotah.IconItemsPayloads) sotah.Message {
 	logging.WithField("payloads", payloads).Info("Handling")
 
-	idNormalizedNameMap, err := sta.HandlePayloads(payloads)
+	ids, err := sta.HandlePayloads(payloads)
 	if err != nil {
 		return sotah.NewErrorMessage(err)
+	}
+
+	idNormalizedNameMap := sotah.ItemIdNameMap{}
+	for _, id := range ids {
+		idNormalizedNameMap[id] = ""
 	}
 
 	return sta.PublishToReceiveSyncedItems(idNormalizedNameMap)
