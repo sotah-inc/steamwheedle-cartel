@@ -7,6 +7,7 @@ type ActEndpoints struct {
 	CleanupManifests    string `firestore:"cleanup_manifests"`
 	CleanupAuctions     string `firestore:"cleanup_auctions"`
 	SyncItems           string `firestore:"sync_items"`
+	SyncItemIcons       string `firestore:"sync_item_icons"`
 }
 
 func (c Client) GetActEndpoints() (ActEndpoints, error) {
