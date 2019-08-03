@@ -49,18 +49,41 @@ func (sta GatewayState) HandleItemIds(ids blizzard.ItemIds) error { // generatin
 		}
 	}
 
-	logging.WithField("batches", len(itemIdsBatches)).Info("Handling batches")
-
 	return nil
 }
 
 func (sta GatewayState) HandleItemIcons(iconsMap map[string]blizzard.ItemIds) error {
+	logging.WithField("endpoint-url", sta.actEndpoints.SyncItems).Info("Producing act client")
+	actClient, err := act.NewClient(sta.actEndpoints.SyncItems)
+	if err != nil {
+		return err
+	}
+
 	// batching icons together
 	logging.WithField("icons", len(iconsMap)).Info("Batching icons together")
 	iconBatches := sotah.NewIconItemsPayloadsBatches(iconsMap, 100)
 
-	// producing messages
-	logging.WithField("batches", len(iconBatches)).Info("Handling batches")
+	// calling act client with item-icons batches
+	logging.Info("Calling item-icons with act client")
+	for outJob := range actClient.SyncItemIcons(iconBatches) {
+		// validating that no error occurred during act service calls
+		if outJob.Err != nil {
+			logging.WithFields(outJob.ToLogrusFields()).Error("Failed to sync item-icons")
+
+			continue
+		}
+
+		// handling the job
+		switch outJob.Data.Code {
+		case http.StatusCreated:
+			continue
+		default:
+			logging.WithFields(logrus.Fields{
+				"status-code": outJob.Data.Code,
+				"data":        fmt.Sprintf("%.25s", string(outJob.Data.Body)),
+			}).Error("Response code for act call was invalid")
+		}
+	}
 
 	return nil
 }
