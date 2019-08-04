@@ -35,5 +35,3 @@ type DeleteAllResults struct {
 	TotalCount int
 	TotalSize  int64
 }
-
-const itemIconURLFormat = "https://storage.googleapis.com/%s/%s"
