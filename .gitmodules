@@ -34,3 +34,6 @@
 [submodule "extern/steamwheedle-cartel-run-sync-item-icons"]
 	path = extern/steamwheedle-cartel-run-sync-item-icons
 	url = git@github.com:sotah-inc/steamwheedle-cartel-run-sync-item-icons.git
+[submodule "extern/steamwheedle-cartel-run-compute-pricelist-histories"]
+	path = extern/steamwheedle-cartel-run-compute-pricelist-histories
+	url = git@github.com:sotah-inc/steamwheedle-cartel-run-compute-pricelist-histories.git
