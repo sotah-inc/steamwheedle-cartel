@@ -12,6 +12,7 @@ import (
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/logging"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/sotah"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/sotah/gameversions"
+	"github.com/sotah-inc/steamwheedle-cartel/pkg/store"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/util"
 )
 
@@ -339,7 +340,8 @@ func (idBase ItemsDatabase) FilterInItemsToSync(ids blizzard.ItemIds) (ItemsSync
 			if item.Icon != "" {
 				shouldInclude := item.IconURL == "" ||
 					item.IconObjectName == "" ||
-					item.IconObjectName != fmt.Sprintf("%s/%s.jpg", gameversions.Retail, item.Icon)
+					item.IconObjectName != fmt.Sprintf("%s/%s.jpg", gameversions.Retail, item.Icon) ||
+					item.IconURL != fmt.Sprintf(store.ItemIconURLFormat, "sotah-item-icons", item.IconObjectName)
 				if shouldInclude {
 					iconItemIds := func() blizzard.ItemIds {
 						out, ok := iconsToSync[item.Icon]
