@@ -3,6 +3,7 @@ package database
 import (
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	"strconv"
 
 	"github.com/boltdb/bolt"
@@ -10,6 +11,7 @@ import (
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/blizzard"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/logging"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/sotah"
+	"github.com/sotah-inc/steamwheedle-cartel/pkg/sotah/gameversions"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/util"
 )
 
@@ -334,17 +336,22 @@ func (idBase ItemsDatabase) FilterInItemsToSync(ids blizzard.ItemIds) (ItemsSync
 				return err
 			}
 
-			if item.Icon != "" && (item.IconURL == "" || item.IconObjectName == "") {
-				iconItemIds := func() blizzard.ItemIds {
-					out, ok := iconsToSync[item.Icon]
-					if !ok {
-						return blizzard.ItemIds{}
-					}
+			if item.Icon != "" {
+				shouldInclude := item.IconURL == "" ||
+					item.IconObjectName == "" ||
+					item.IconObjectName != fmt.Sprintf("%s/%s.jpg", gameversions.Retail, item.Icon)
+				if shouldInclude {
+					iconItemIds := func() blizzard.ItemIds {
+						out, ok := iconsToSync[item.Icon]
+						if !ok {
+							return blizzard.ItemIds{}
+						}
 
-					return out
-				}()
-				iconItemIds = append(iconItemIds, id)
-				iconsToSync[item.Icon] = iconItemIds
+						return out
+					}()
+					iconItemIds = append(iconItemIds, id)
+					iconsToSync[item.Icon] = iconItemIds
+				}
 			}
 
 			if item.NormalizedName == "" {
