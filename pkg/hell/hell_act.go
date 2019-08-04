@@ -1,13 +1,14 @@
 package hell
 
 type ActEndpoints struct {
-	DownloadAuctions    string `firestore:"download_auctions"`
-	ComputeLiveAuctions string `firestore:"compute_live_auctions"`
-	Gateway             string `firestore:"gateway"`
-	CleanupManifests    string `firestore:"cleanup_manifests"`
-	CleanupAuctions     string `firestore:"cleanup_auctions"`
-	SyncItems           string `firestore:"sync_items"`
-	SyncItemIcons       string `firestore:"sync_item_icons"`
+	DownloadAuctions          string `firestore:"download_auctions"`
+	ComputeLiveAuctions       string `firestore:"compute_live_auctions"`
+	Gateway                   string `firestore:"gateway"`
+	CleanupManifests          string `firestore:"cleanup_manifests"`
+	CleanupAuctions           string `firestore:"cleanup_auctions"`
+	SyncItems                 string `firestore:"sync_items"`
+	SyncItemIcons             string `firestore:"sync_item_icons"`
+	ComputePricelistHistories string `firestore:"compute_pricelist_histories"`
 }
 
 func (c Client) GetActEndpoints() (ActEndpoints, error) {

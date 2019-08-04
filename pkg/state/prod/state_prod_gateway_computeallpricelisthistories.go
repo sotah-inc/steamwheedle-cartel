@@ -1,6 +1,7 @@
 package prod
 
 import (
+	"github.com/sotah-inc/steamwheedle-cartel/pkg/act"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/bus"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/bus/codes"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/logging"
@@ -11,6 +12,18 @@ import (
 func (sta GatewayState) RunComputeAllPricelistHistories(tuples sotah.RegionRealmTimestampTuples) error {
 	// generating an act client
 	logging.WithField("endpoint-url", sta.actEndpoints.Gateway).Info("Producing act client")
+	actClient, err := act.NewClient(sta.actEndpoints.Gateway)
+	if err != nil {
+		return err
+	}
+
+	// calling compute-all-pricelist-histories on gateway service
+	logging.Info("Calling compute-all-pricelist-histories on gateway service")
+	if err := actClient.ComputeAllPricelistHistories(tuples); err != nil {
+		return err
+	}
+
+	logging.Info("Done calling compute-all-pricelist-histories")
 
 	return nil
 }
