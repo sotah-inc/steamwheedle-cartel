@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"cloud.google.com/go/storage"
+	"github.com/sirupsen/logrus"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/blizzard"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/bus/codes"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/logging"
@@ -48,6 +49,11 @@ func (sta SyncItemIconsState) UpdateItem(id blizzard.ItemID, objectUri string, o
 	}
 
 	// updating the icon data with the object uri (for non-cdn usage) and the object name (for cdn usage)
+	logging.WithFields(logrus.Fields{
+		"id":          id,
+		"object-uri":  objectUri,
+		"object-name": objectName,
+	}).Info("Setting item icon fields")
 	item.IconURL = objectUri
 	item.IconObjectName = objectName
 
