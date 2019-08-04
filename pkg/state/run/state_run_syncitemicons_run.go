@@ -129,7 +129,7 @@ func (sta SyncItemIconsState) SyncExistingItemIcon(payload sotah.IconItemsPayloa
 		return err
 	}
 
-	objectUri := fmt.Sprintf(store.ItemIconURLFormat, sta.itemIconsBucketName, objAttrs.Name)
+	objectUri := fmt.Sprintf(store.ItemIconURLFormat, objAttrs.Name)
 
 	return sta.UpdateItems(objectUri, objAttrs.Name, payload.Ids)
 }
@@ -178,7 +178,7 @@ func (sta SyncItemIconsState) SyncItemIcon(payload sotah.IconItemsPayload) error
 		return err
 	}
 
-	objectUri := fmt.Sprintf(store.ItemIconURLFormat, sta.itemIconsBucketName, objAttrs.Name)
+	objectUri := fmt.Sprintf(store.ItemIconURLFormat, objAttrs.Name)
 
 	return sta.UpdateItems(objectUri, objAttrs.Name, payload.Ids)
 }
