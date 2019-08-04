@@ -87,6 +87,26 @@ func (sta GatewayState) PublishToCallComputeAllLiveAuctions(tuples sotah.RegionR
 	return nil
 }
 
+func (sta GatewayState) PublishToCallComputeAllPricelistHistories(tuples sotah.RegionRealmTimestampTuples) error {
+	// encoding the tuples for processing
+	jsonEncoded, err := tuples.EncodeForDelivery()
+	if err != nil {
+		return err
+	}
+
+	logging.Info("Publishing to call-compute-all-pricelist-histories bus endpoint")
+	req, err := sta.IO.BusClient.Request(sta.callComputeAllPricelistHistoriesTopic, jsonEncoded, 10*time.Second)
+	if err != nil {
+		return err
+	}
+
+	if req.Code != bCodes.Ok {
+		return errors.New(req.Err)
+	}
+
+	return nil
+}
+
 func (sta GatewayState) DownloadRegionRealms(
 	regionRealms sotah.RegionRealms,
 ) (sotah.RegionRealmTimestampTuples, error) {
@@ -205,6 +225,12 @@ func (sta GatewayState) DownloadAllAuctions() error {
 	// publishing to call-compute-all-live-auctions
 	logging.Info("Publishing tuples to call-compute-all-live-auctions")
 	if err := sta.PublishToCallComputeAllLiveAuctions(tuples); err != nil {
+		return err
+	}
+
+	// publishing to call-compute-all-pricelist-histories
+	logging.Info("Publishing tuples to call-compute-all-pricelist-histories")
+	if err := sta.PublishToCallComputeAllPricelistHistories(tuples); err != nil {
 		return err
 	}
 
