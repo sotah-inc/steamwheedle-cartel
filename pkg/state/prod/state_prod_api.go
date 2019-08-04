@@ -150,8 +150,10 @@ func NewProdApiState(config ProdApiStateConfig) (ApiState, error) {
 
 			url := fmt.Sprintf(
 				store.ItemIconURLFormat,
-				itemIconsBase.GetBucketName(),
-				itemIconsBase.GetObjectName(prof.Icon),
+				fmt.Sprintf("%s/%s",
+					itemIconsBase.GetBucketName(),
+					itemIconsBase.GetObjectName(prof.Icon),
+				),
 			)
 
 			if exists {
