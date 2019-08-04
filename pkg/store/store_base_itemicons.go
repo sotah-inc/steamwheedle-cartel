@@ -8,7 +8,7 @@ import (
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/store/regions"
 )
 
-const ItemIconURLFormat = "https://storage.googleapis.com/%s/%s"
+const ItemIconURLFormat = "https://storage.googleapis.com/%s"
 
 func NewItemIconsBase(c Client, location regions.Region, version gameversions.GameVersion) ItemIconsBase {
 	return ItemIconsBase{
