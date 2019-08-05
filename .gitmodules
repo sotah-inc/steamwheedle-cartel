@@ -10,9 +10,6 @@
 [submodule "extern/steamwheedle-cartel-server"]
 	path = extern/steamwheedle-cartel-server
 	url = git@github.com:sotah-inc/steamwheedle-cartel-server
-[submodule "extern/steamwheedle-cartel-sync-item-icons"]
-	path = extern/steamwheedle-cartel-sync-item-icons
-	url = git@github.com:sotah-inc/steamwheedle-cartel-sync-item-icons
 [submodule "extern/steamwheedle-cartel-run-gateway"]
 	path = extern/steamwheedle-cartel-run-gateway
 	url = git@github.com:sotah-inc/steamwheedle-cartel-run-gateway.git
