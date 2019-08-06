@@ -11,7 +11,7 @@ import (
 
 func (sta GatewayState) RunSyncAllItems(ids blizzard.ItemIds) error {
 	// generating an act client
-	logging.WithField("endpoint-url", sta.actEndpoints.Gateway).Info("Producing act client")
+	logging.WithField("endpoint-url", sta.actEndpoints.Gateway).Info("Producing act client for gateway act endpoint")
 	actClient, err := act.NewClient(sta.actEndpoints.Gateway)
 	if err != nil {
 		return err

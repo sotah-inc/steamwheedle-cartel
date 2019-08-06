@@ -14,7 +14,10 @@ import (
 
 func (sta GatewayState) CleanupRegionRealmsManifests(regionRealms sotah.RegionRealms) error {
 	// generating new act client
-	logging.WithField("endpoint-url", sta.actEndpoints.CleanupManifests).Info("Producing act client")
+	logging.WithField(
+		"endpoint-url",
+		sta.actEndpoints.CleanupManifests,
+	).Info("Producing act client for cleanup-manifests act endpoint")
 	actClient, err := act.NewClient(sta.actEndpoints.CleanupManifests)
 	if err != nil {
 		return err

@@ -41,7 +41,10 @@ func (sta GatewayState) ComputePricelistHistoriesFromTuples(
 	tuples sotah.RegionRealmTimestampTuples,
 ) (sotah.RegionRealmSummaryTuples, error) {
 	// generating new act client
-	logging.WithField("endpoint-url", sta.actEndpoints.ComputePricelistHistories).Info("Producing act client")
+	logging.WithField(
+		"endpoint-url",
+		sta.actEndpoints.ComputePricelistHistories,
+	).Info("Producing act client for compute-pricelist-histories act endpoint")
 	actClient, err := act.NewClient(sta.actEndpoints.ComputePricelistHistories)
 	if err != nil {
 		return sotah.RegionRealmSummaryTuples{}, err

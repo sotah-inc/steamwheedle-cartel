@@ -17,7 +17,7 @@ import (
 )
 
 func (sta GatewayState) HandleItemIds(ids blizzard.ItemIds) error { // generating new act client
-	logging.WithField("endpoint-url", sta.actEndpoints.SyncItems).Info("Producing act client")
+	logging.WithField("endpoint-url", sta.actEndpoints.SyncItems).Info("Producing act client for sync-items act endpoint")
 	actClient, err := act.NewClient(sta.actEndpoints.SyncItems)
 	if err != nil {
 		return err
@@ -53,7 +53,10 @@ func (sta GatewayState) HandleItemIds(ids blizzard.ItemIds) error { // generatin
 }
 
 func (sta GatewayState) HandleItemIcons(iconsMap map[string]blizzard.ItemIds) error {
-	logging.WithField("endpoint-url", sta.actEndpoints.SyncItemIcons).Info("Producing act client")
+	logging.WithField(
+		"endpoint-url",
+		sta.actEndpoints.SyncItemIcons,
+	).Info("Producing act client for sync-item-icons act endpoint")
 	actClient, err := act.NewClient(sta.actEndpoints.SyncItemIcons)
 	if err != nil {
 		return err

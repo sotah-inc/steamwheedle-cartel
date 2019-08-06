@@ -111,7 +111,10 @@ func (sta GatewayState) DownloadRegionRealms(
 	regionRealms sotah.RegionRealms,
 ) (sotah.RegionRealmTimestampTuples, error) {
 	// generating new act client
-	logging.WithField("endpoint-url", sta.actEndpoints.DownloadAuctions).Info("Producing act client")
+	logging.WithField(
+		"endpoint-url",
+		sta.actEndpoints.DownloadAuctions,
+	).Info("Producing act client for download-auctions act endpoint")
 	actClient, err := act.NewClient(sta.actEndpoints.DownloadAuctions)
 	if err != nil {
 		return sotah.RegionRealmTimestampTuples{}, err

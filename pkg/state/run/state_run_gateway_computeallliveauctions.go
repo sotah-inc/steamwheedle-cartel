@@ -65,7 +65,10 @@ func (sta GatewayState) ComputeLiveAuctionsFromTuples(
 	tuples sotah.RegionRealmTimestampTuples,
 ) (sotah.RegionRealmSummaryTuples, error) {
 	// generating new act client
-	logging.WithField("endpoint-url", sta.actEndpoints.ComputeLiveAuctions).Info("Producing act client")
+	logging.WithField(
+		"endpoint-url",
+		sta.actEndpoints.ComputeLiveAuctions,
+	).Info("Producing act client compute-live-auctions act endpoint")
 	actClient, err := act.NewClient(sta.actEndpoints.ComputeLiveAuctions)
 	if err != nil {
 		return sotah.RegionRealmSummaryTuples{}, err
