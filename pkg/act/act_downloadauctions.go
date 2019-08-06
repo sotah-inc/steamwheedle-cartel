@@ -64,7 +64,7 @@ func (c Client) DownloadAuctions(regionRealms sotah.RegionRealms) chan DownloadA
 	postWork := func() {
 		close(out)
 	}
-	util.Work(64, worker, postWork)
+	util.Work(16, worker, postWork)
 
 	// queueing up the regions
 	go func() {
