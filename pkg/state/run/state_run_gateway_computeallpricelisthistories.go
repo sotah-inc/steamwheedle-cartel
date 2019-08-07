@@ -1,7 +1,6 @@
 package run
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
@@ -10,20 +9,30 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/act"
 	bCodes "github.com/sotah-inc/steamwheedle-cartel/pkg/bus/codes"
+	"github.com/sotah-inc/steamwheedle-cartel/pkg/database"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/logging"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/metric"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/sotah"
 )
 
 func (sta GatewayState) PublishComputedPricelistHistories(tuples sotah.RegionRealmTimestampTuples) error {
+	requests := database.PricelistHistoriesComputeIntakeRequests{}
+	for _, tuple := range tuples {
+		requests = append(requests, database.PricelistHistoriesComputeIntakeRequest{
+			RegionName:                tuple.RegionName,
+			RealmSlug:                 tuple.RealmSlug,
+			NormalizedTargetTimestamp: tuple.TargetTimestamp,
+		})
+	}
+
 	// publishing to receive-computed-pricelist-histories bus endpoint
-	jsonEncoded, err := json.Marshal(tuples)
+	encodedRequests, err := requests.EncodeForDelivery()
 	if err != nil {
 		return err
 	}
 
 	logging.Info("Publishing to receive-computed-pricelist-histories bus endpoint")
-	req, err := sta.IO.BusClient.Request(sta.receiveComputedPricelistHistoriesTopic, string(jsonEncoded), 10*time.Second)
+	req, err := sta.IO.BusClient.Request(sta.receiveComputedPricelistHistoriesTopic, encodedRequests, 10*time.Second)
 	if err != nil {
 		return err
 	}
