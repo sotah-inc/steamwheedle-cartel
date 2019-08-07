@@ -35,16 +35,11 @@ const (
 
 // gcloud fn-related
 const (
-	ReceiveComputedLiveAuctions Subject = "receiveComputedLiveAuctions"
-
-	ComputeAllPricelistHistories      Subject = "computeAllPricelistHistories"
-	ComputePricelistHistories         Subject = "computePricelistHistories"
+	ReceiveRealms                     Subject = "receiveRealms"
+	ReceiveComputedLiveAuctions       Subject = "receiveComputedLiveAuctions"
 	ReceiveComputedPricelistHistories Subject = "receiveComputedPricelistHistories"
 
-	ReceiveRealms Subject = "receiveRealms"
-
 	FilterInItemsToSync Subject = "filterInItemsToSync"
-	SyncItemIcons       Subject = "syncItemIcons"
 	ReceiveSyncedItems  Subject = "receiveSyncedItems"
 
 	CleanupAllPricelistHistories Subject = "cleanupAllPricelistHistories"
