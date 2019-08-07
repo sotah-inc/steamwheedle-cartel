@@ -129,12 +129,6 @@ func (sta GatewayState) ComputeAllPricelistHistories(tuples sotah.RegionRealmTim
 		return err
 	}
 
-	// publishing to sync-items
-	logging.Info("Publishing item-ids to call-sync-all-items")
-	if err := sta.PublishToCallSyncAllItems(nextTuples.ItemIds()); err != nil {
-		return err
-	}
-
 	logging.Info("Finished")
 
 	return nil
