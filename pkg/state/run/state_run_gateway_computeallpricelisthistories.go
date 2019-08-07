@@ -15,7 +15,7 @@ import (
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/sotah"
 )
 
-func (sta GatewayState) PublishComputedPricelistHistories(tuples sotah.RegionRealmTuples) error {
+func (sta GatewayState) PublishComputedPricelistHistories(tuples sotah.RegionRealmTimestampTuples) error {
 	// publishing to receive-computed-pricelist-histories bus endpoint
 	jsonEncoded, err := json.Marshal(tuples)
 	if err != nil {
@@ -39,7 +39,7 @@ func (sta GatewayState) PublishComputedPricelistHistories(tuples sotah.RegionRea
 
 func (sta GatewayState) ComputePricelistHistoriesFromTuples(
 	tuples sotah.RegionRealmTimestampTuples,
-) (sotah.RegionRealmSummaryTuples, error) {
+) (sotah.RegionRealmTimestampTuples, error) {
 	// generating new act client
 	logging.WithField(
 		"endpoint-url",
@@ -47,12 +47,12 @@ func (sta GatewayState) ComputePricelistHistoriesFromTuples(
 	).Info("Producing act client for compute-pricelist-histories act endpoint")
 	actClient, err := act.NewClient(sta.actEndpoints.ComputePricelistHistories)
 	if err != nil {
-		return sotah.RegionRealmSummaryTuples{}, err
+		return sotah.RegionRealmTimestampTuples{}, err
 	}
 
 	// calling act client with region-realms
 	logging.Info("Calling compute-pricelist-histories with act client")
-	nextTuples := sotah.RegionRealmSummaryTuples{}
+	nextTuples := sotah.RegionRealmTimestampTuples{}
 	actStartTime := time.Now()
 	for outJob := range actClient.ComputePricelistHistories(tuples) {
 		// validating that no error occurred during act service calls
@@ -66,7 +66,7 @@ func (sta GatewayState) ComputePricelistHistoriesFromTuples(
 		switch outJob.Data.Code {
 		case http.StatusCreated:
 			// parsing the response body
-			tuple, err := sotah.NewRegionRealmSummaryTuple(string(outJob.Data.Body))
+			tuple, err := sotah.NewRegionRealmTimestampTuple(string(outJob.Data.Body))
 			if err != nil {
 				logging.WithFields(logrus.Fields{
 					"error":  err.Error(),
@@ -101,7 +101,7 @@ func (sta GatewayState) ComputePricelistHistoriesFromTuples(
 		"included_realms":                          len(tuples),
 	}
 	if err := sta.IO.BusClient.PublishMetrics(m); err != nil {
-		return sotah.RegionRealmSummaryTuples{}, err
+		return sotah.RegionRealmTimestampTuples{}, err
 	}
 
 	return nextTuples, nil
@@ -125,7 +125,7 @@ func (sta GatewayState) ComputeAllPricelistHistories(tuples sotah.RegionRealmTim
 
 	// publishing to receive-realms
 	logging.Info("Publishing region-realm tuples to receiver")
-	if err := sta.PublishComputedPricelistHistories(nextTuples.RegionRealmTuples()); err != nil {
+	if err := sta.PublishComputedPricelistHistories(nextTuples); err != nil {
 		return err
 	}
 
