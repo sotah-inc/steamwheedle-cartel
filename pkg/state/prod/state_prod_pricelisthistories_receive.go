@@ -6,6 +6,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/blizzard"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/bus"
+	"github.com/sotah-inc/steamwheedle-cartel/pkg/bus/codes"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/database"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/logging"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/metric"
@@ -106,6 +107,19 @@ func (phState ProdPricelistHistoriesState) ListenForComputedPricelistHistories(
 			requests, err := database.NewPricelistHistoriesComputeIntakeRequests(busMsg.Data)
 			if err != nil {
 				logging.WithField("error", err.Error()).Error("Failed to decode compute-intake requests")
+
+				if err := phState.IO.BusClient.ReplyToWithError(busMsg, err, codes.GenericError); err != nil {
+					logging.WithField("error", err.Error()).Error("Failed to reply to message")
+
+					return
+				}
+
+				return
+			}
+
+			// acking the message
+			if _, err := phState.IO.BusClient.ReplyTo(busMsg, bus.NewMessage()); err != nil {
+				logging.WithField("error", err.Error()).Error("Failed to reply to message")
 
 				return
 			}
