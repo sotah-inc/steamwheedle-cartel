@@ -177,7 +177,7 @@ func (sta GatewayState) DownloadRegionRealms(
 	m := metric.Metrics{
 		"download_all_auctions_duration":   int(int64(time.Since(actStartTime)) / 1000 / 1000 / 1000),
 		"download_all_auctions_size_bytes": totalIngestedBytes,
-		"included_realms":                  len(tuples),
+		"included_realms_downloaded":       len(tuples),
 	}
 	if err := sta.IO.BusClient.PublishMetrics(m); err != nil {
 		return sotah.RegionRealmTimestampTuples{}, err
