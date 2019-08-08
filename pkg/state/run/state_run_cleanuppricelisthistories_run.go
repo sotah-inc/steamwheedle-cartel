@@ -28,7 +28,7 @@ func (sta CleanupPricelistHistoriesState) Run(tuple sotah.RegionRealmTuple) sota
 	}
 	data, err := res.EncodeForDelivery()
 	if err != nil {
-		return sotah.NewErrorMessage()
+		return sotah.NewErrorMessage(err)
 	}
 
 	out := sotah.NewMessage()
