@@ -106,8 +106,8 @@ func (sta GatewayState) ComputePricelistHistoriesFromTuples(
 
 	// reporting metrics
 	m := metric.Metrics{
-		"compute_all_pricelist_histories_duration": int(int64(time.Since(actStartTime)) / 1000 / 1000 / 1000),
-		"included_realms_computed_live_auctions":   len(tuples),
+		"compute_all_pricelist_histories_duration":     int(int64(time.Since(actStartTime)) / 1000 / 1000 / 1000),
+		"included_realms_computed_pricelist_histories": len(tuples),
 	}
 	if err := sta.IO.BusClient.PublishMetrics(m); err != nil {
 		return sotah.RegionRealmTimestampTuples{}, err
