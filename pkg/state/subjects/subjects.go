@@ -54,4 +54,5 @@ const (
 	CallComputeAllLiveAuctions       Subject = "callComputeAllLiveAuctions"
 	CallSyncAllItems                 Subject = "callSyncAllItems"
 	CallComputeAllPricelistHistories Subject = "callComputeAllPricelistHistories"
+	CallCleanupAllPricelistHistories Subject = "callCleanupAllPricelistHistories"
 )
