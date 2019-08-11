@@ -4,6 +4,6 @@ import (
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/sotah"
 )
 
-func (sta CleanupPubsubTopicsState) Run(topicName []string) sotah.Message {
+func (sta CleanupPubsubTopicsState) Run(topicNames []string) sotah.Message {
 	return sotah.NewMessage()
 }
