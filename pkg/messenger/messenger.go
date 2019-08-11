@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"time"
 
-	nats "github.com/nats-io/go-nats"
+	"github.com/nats-io/go-nats"
 	"github.com/sirupsen/logrus"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/logging"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/messenger/codes"
@@ -26,14 +26,6 @@ type Message struct {
 	Data string     `json:"data"`
 	Err  string     `json:"error"`
 	Code codes.Code `json:"code"`
-}
-
-func (m Message) parse() ([]byte, error) {
-	if len(m.Err) > 0 {
-		return []byte{}, errors.New(m.Err)
-	}
-
-	return []byte(m.Data), nil
 }
 
 func NewMessengerFromEnvVars(hostKey string, portKey string) (Messenger, error) {
