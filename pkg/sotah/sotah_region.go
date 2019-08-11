@@ -20,14 +20,14 @@ func (rl RegionList) GetPrimaryRegion() (Region, error) {
 	return Region{}, errors.New("could not find primary region")
 }
 
-func (rl RegionList) GetRegion(name blizzard.RegionName) Region {
+func (rl RegionList) GetRegion(name blizzard.RegionName) (Region, error) {
 	for _, reg := range rl {
 		if reg.Name == name {
-			return reg
+			return reg, nil
 		}
 	}
 
-	return Region{}
+	return Region{}, errors.New("failed to resolve region from name")
 }
 
 func (rl RegionList) EncodeForStorage() ([]byte, error) {

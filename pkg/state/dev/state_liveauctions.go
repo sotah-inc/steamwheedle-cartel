@@ -8,6 +8,7 @@ import (
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/logging"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/messenger"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/metric"
+	"github.com/sotah-inc/steamwheedle-cartel/pkg/sotah"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/state"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/state/subjects"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/util"
@@ -50,7 +51,7 @@ func NewLiveAuctionsState(config LiveAuctionsStateConfig) (LiveAuctionsState, er
 	// gathering statuses
 	logging.Info("Gathering statuses")
 	for _, reg := range laState.Regions {
-		status, err := laState.NewStatus(reg)
+		status, err := laState.IO.Messenger.NewStatus(reg)
 		if err != nil {
 			return LiveAuctionsState{}, err
 		}
@@ -111,4 +112,7 @@ func NewLiveAuctionsState(config LiveAuctionsStateConfig) (LiveAuctionsState, er
 
 type LiveAuctionsState struct {
 	state.State
+
+	Regions  sotah.RegionList
+	Statuses sotah.Statuses
 }

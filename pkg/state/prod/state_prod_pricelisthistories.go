@@ -152,6 +152,8 @@ func NewProdPricelistHistoriesState(config ProdPricelistHistoriesStateConfig) (P
 type ProdPricelistHistoriesState struct {
 	state.State
 
+	Statuses sotah.Statuses
+
 	PricelistHistoriesBase   store.PricelistHistoriesBaseV2
 	PricelistHistoriesBucket *storage.BucketHandle
 }

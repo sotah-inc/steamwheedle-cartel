@@ -159,6 +159,9 @@ func NewAPIState(config APIStateConfig) (APIState, error) {
 type APIState struct {
 	state.State
 
+	Regions  sotah.RegionList
+	Statuses sotah.Statuses
+
 	SessionSecret uuid.UUID
 	ItemClasses   blizzard.ItemClasses
 	Expansions    []sotah.Expansion

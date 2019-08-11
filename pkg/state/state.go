@@ -142,7 +142,7 @@ func (ls Listeners) Stop() {
 
 // state
 func NewState(runId uuid.UUID, useGCloud bool) State {
-	return State{RunID: runId, UseGCloud: useGCloud, Statuses: sotah.Statuses{}}
+	return State{RunID: runId, UseGCloud: useGCloud}
 }
 
 type State struct {
@@ -152,65 +152,6 @@ type State struct {
 	UseGCloud    bool
 
 	IO IO
-
-	Regions  sotah.RegionList
-	Statuses sotah.Statuses
-}
-
-func NewStatusRequest(payload []byte) (StatusRequest, error) {
-	sr := &StatusRequest{}
-	err := json.Unmarshal(payload, &sr)
-	if err != nil {
-		return StatusRequest{}, err
-	}
-
-	return *sr, nil
-}
-
-type StatusRequest struct {
-	RegionName blizzard.RegionName `json:"region_name"`
-}
-
-func (sr StatusRequest) Resolve(sta State) (sotah.Region, error) {
-	reg := func() sotah.Region {
-		for _, r := range sta.Regions {
-			if r.Name == sr.RegionName {
-				return r
-			}
-		}
-
-		return sotah.Region{}
-	}()
-
-	if reg.Name == "" {
-		return sotah.Region{}, errors.New("invalid region")
-	}
-
-	return reg, nil
-}
-
-func (sta State) NewStatus(reg sotah.Region) (sotah.Status, error) {
-	lm := StatusRequest{RegionName: reg.Name}
-	encodedMessage, err := json.Marshal(lm)
-	if err != nil {
-		return sotah.Status{}, err
-	}
-
-	msg, err := sta.IO.Messenger.Request(string(subjects.Status), encodedMessage)
-	if err != nil {
-		return sotah.Status{}, err
-	}
-
-	if msg.Code != mCodes.Ok {
-		return sotah.Status{}, errors.New(msg.Err)
-	}
-
-	stat, err := blizzard.NewStatus([]byte(msg.Data))
-	if err != nil {
-		return sotah.Status{}, err
-	}
-
-	return sotah.NewStatus(reg, stat), nil
 }
 
 type RealmTimeTuple struct {

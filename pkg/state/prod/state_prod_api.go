@@ -214,6 +214,9 @@ func NewProdApiState(config ProdApiStateConfig) (ApiState, error) {
 type ApiState struct {
 	state.State
 
+	Regions  sotah.RegionList
+	Statuses sotah.Statuses
+
 	RealmsBase   store.RealmsBase
 	RealmsBucket *storage.BucketHandle
 

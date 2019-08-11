@@ -160,6 +160,9 @@ func NewProdLiveAuctionsState(config ProdLiveAuctionsStateConfig) (ProdLiveAucti
 type ProdLiveAuctionsState struct {
 	state.State
 
+	Regions  sotah.RegionList
+	Statuses sotah.Statuses
+
 	LiveAuctionsBase   store.LiveAuctionsBase
 	LiveAuctionsBucket *storage.BucketHandle
 

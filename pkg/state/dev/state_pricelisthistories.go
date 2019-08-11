@@ -6,6 +6,7 @@ import (
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/diskstore"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/messenger"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/metric"
+	"github.com/sotah-inc/steamwheedle-cartel/pkg/sotah"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/state"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/util"
 	"github.com/twinj/uuid"
@@ -44,7 +45,7 @@ func NewPricelistHistoriesState(config PricelistHistoriesStateConfig) (Pricelist
 
 	// gathering statuses
 	for _, reg := range phState.Regions {
-		status, err := phState.NewStatus(reg)
+		status, err := phState.IO.Messenger.NewStatus(reg)
 		if err != nil {
 			return PricelistHistoriesState{}, err
 		}
@@ -86,4 +87,7 @@ func NewPricelistHistoriesState(config PricelistHistoriesStateConfig) (Pricelist
 
 type PricelistHistoriesState struct {
 	state.State
+
+	Regions  sotah.RegionList
+	Statuses sotah.Statuses
 }

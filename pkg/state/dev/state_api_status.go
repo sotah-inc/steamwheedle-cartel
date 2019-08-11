@@ -3,7 +3,7 @@ package dev
 import (
 	"encoding/json"
 
-	nats "github.com/nats-io/go-nats"
+	"github.com/nats-io/go-nats"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/messenger"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/messenger/codes"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/state"
@@ -14,7 +14,7 @@ func (sta APIState) ListenForStatus(stop state.ListenStopChan) error {
 	err := sta.IO.Messenger.Subscribe(string(subjects.Status), stop, func(natsMsg nats.Msg) {
 		m := messenger.NewMessage()
 
-		sr, err := state.NewStatusRequest(natsMsg.Data)
+		sr, err := messenger.NewStatusRequest(natsMsg.Data)
 		if err != nil {
 			m.Err = err.Error()
 			m.Code = codes.MsgJSONParseError
@@ -23,7 +23,7 @@ func (sta APIState) ListenForStatus(stop state.ListenStopChan) error {
 			return
 		}
 
-		reg, err := sr.Resolve(sta.State)
+		reg, err := sta.Regions.GetRegion(sr.RegionName)
 		if err != nil {
 			m.Err = err.Error()
 			m.Code = codes.NotFound

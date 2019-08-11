@@ -2,15 +2,13 @@ package prod
 
 import (
 	"encoding/json"
-	"errors"
 
-	nats "github.com/nats-io/go-nats"
+	"github.com/nats-io/go-nats"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/bus"
 	bCodes "github.com/sotah-inc/steamwheedle-cartel/pkg/bus/codes"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/logging"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/messenger"
 	mCodes "github.com/sotah-inc/steamwheedle-cartel/pkg/messenger/codes"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/sotah"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/state"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/state/subjects"
 )
@@ -26,7 +24,7 @@ func (apiState ApiState) ListenForBusStatus(
 		Callback: func(busMsg bus.Message) {
 			reply := bus.NewMessage()
 
-			sr, err := state.NewStatusRequest([]byte(busMsg.Data))
+			sr, err := messenger.NewStatusRequest([]byte(busMsg.Data))
 			if err != nil {
 				reply.Err = err.Error()
 				reply.Code = bCodes.MsgJSONParseError
@@ -39,15 +37,7 @@ func (apiState ApiState) ListenForBusStatus(
 				return
 			}
 
-			reg, err := func() (sotah.Region, error) {
-				for _, r := range apiState.Regions {
-					if r.Name == sr.RegionName {
-						return r, nil
-					}
-				}
-
-				return sotah.Region{}, errors.New("could not find region")
-			}()
+			reg, err := apiState.Regions.GetRegion(sr.RegionName)
 			if err != nil {
 				reply.Err = err.Error()
 				reply.Code = bCodes.NotFound
@@ -109,7 +99,7 @@ func (apiState ApiState) ListenForMessengerStatus(stop state.ListenStopChan) err
 	err := apiState.IO.Messenger.Subscribe(string(subjects.Status), stop, func(natsMsg nats.Msg) {
 		m := messenger.NewMessage()
 
-		sr, err := state.NewStatusRequest(natsMsg.Data)
+		sr, err := messenger.NewStatusRequest(natsMsg.Data)
 		if err != nil {
 			m.Err = err.Error()
 			m.Code = mCodes.MsgJSONParseError
@@ -118,15 +108,7 @@ func (apiState ApiState) ListenForMessengerStatus(stop state.ListenStopChan) err
 			return
 		}
 
-		reg, err := func() (sotah.Region, error) {
-			for _, r := range apiState.Regions {
-				if r.Name == sr.RegionName {
-					return r, nil
-				}
-			}
-
-			return sotah.Region{}, errors.New("could not find region")
-		}()
+		reg, err := apiState.Regions.GetRegion(sr.RegionName)
 		if err != nil {
 			m.Err = err.Error()
 			m.Code = mCodes.NotFound
