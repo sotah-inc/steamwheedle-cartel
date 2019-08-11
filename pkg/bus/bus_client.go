@@ -463,7 +463,7 @@ func (results PruneTopicsResults) EncodeForDelivery() ([]byte, error) {
 	return out, nil
 }
 
-func (c Client) PruneTopics(names []string) (PruneTopicsResults, error) {
+func (c Client) PruneTopics(names []string) PruneTopicsResults {
 	// opening workers and channels
 	in := make(chan string)
 	out := make(chan PruneTopicsOutJob)
@@ -544,5 +544,5 @@ func (c Client) PruneTopics(names []string) (PruneTopicsResults, error) {
 		results.Pruned = append(results.Pruned, outJob.Name)
 	}
 
-	return results, nil
+	return results
 }
