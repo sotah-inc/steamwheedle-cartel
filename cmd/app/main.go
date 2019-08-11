@@ -40,22 +40,32 @@ func main() {
 		cacheDir       = app.Flag("cache-dir", "Directory to cache data files to").Required().String()
 		projectID      = app.Flag("project-id", "GCloud Storage Project ID").Default("").Envar("PROJECT_ID").String()
 
-		apiCommand                = app.Command(string(commands.API), "For running sotah-server.")
-		liveAuctionsCommand       = app.Command(string(commands.LiveAuctions), "For in-memory storage of current auctions.")
-		pricelistHistoriesCommand = app.Command(string(commands.PricelistHistories), "For on-disk storage of pricelist histories.")
+		apiCommand          = app.Command(string(commands.API), "For running sotah-server.")
+		liveAuctionsCommand = app.Command(
+			string(commands.LiveAuctions),
+			"For in-memory storage of current auctions.",
+		)
+		pricelistHistoriesCommand = app.Command(
+			string(commands.PricelistHistories),
+			"For on-disk storage of pricelist histories.",
+		)
 
-		prodApiCommand                = app.Command(string(commands.ProdApi), "For running sotah-server in prod-mode.")
-		prodMetricsCommand            = app.Command(string(commands.ProdMetrics), "For forwarding metrics to a nats channel.")
-		prodLiveAuctionsCommand       = app.Command(string(commands.ProdLiveAuctions), "For managing live-auctions in gcp ce vm.")
-		prodPricelistHistoriesCommand = app.Command(string(commands.ProdPricelistHistories), "For managing pricelist-histories in gcp ce vm.")
-		prodItemsCommand              = app.Command(string(commands.ProdItems), "For managing items in gcp ce vm.")
+		prodApiCommand          = app.Command(string(commands.ProdApi), "For running sotah-server in prod-mode.")
+		prodMetricsCommand      = app.Command(string(commands.ProdMetrics), "For forwarding metrics to a nats channel.")
+		prodLiveAuctionsCommand = app.Command(
+			string(commands.ProdLiveAuctions),
+			"For managing live-auctions in gcp ce vm.",
+		)
+		prodPricelistHistoriesCommand = app.Command(
+			string(commands.ProdPricelistHistories),
+			"For managing pricelist-histories in gcp ce vm.",
+		)
+		prodItemsCommand = app.Command(string(commands.ProdItems), "For managing items in gcp ce vm.")
 
-		fnDownloadAllAuctions          = app.Command(string(commands.FnDownloadAllAuctions), "For enqueueing downloading of auctions in gcp ce vm.")
-		fnComputeAllLiveAuctions       = app.Command(string(commands.FnComputeAllLiveAuctions), "For enqueueing computing of all live-auctions in gcp ce vm.")
-		fnComputeAllPricelistHistories = app.Command(string(commands.FnComputeAllPricelistHistories), "For enqueueing computing of all live-auctions in gcp ce vm.")
-		fnSyncAllItems                 = app.Command(string(commands.FnSyncAllItems), "For enqueueing syncing of items and item-icons in gcp ce vm.")
-		fnCleanupAllExpiredManifests   = app.Command(string(commands.FnCleanupAllExpiredManifests), "For gathering all expired auction-manifests for deletion in gcp ce vm.")
-		fnCleanupPricelistHistories    = app.Command(string(commands.FnCleanupPricelistHistories), "For gathering all expired pricelist-histories for deletion in gcp ce vm.")
+		fnCleanupPricelistHistories = app.Command(
+			string(commands.FnCleanupPricelistHistories),
+			"For gathering all expired pricelist-histories for deletion in gcp ce vm.",
+		)
 	)
 	cmd := kingpin.MustParse(app.Parse(os.Args[1:]))
 
@@ -165,33 +175,6 @@ func main() {
 				MessengerHost:    *natsHost,
 				GCloudProjectID:  *projectID,
 				ItemsDatabaseDir: fmt.Sprintf("%s/databases", *cacheDir),
-			})
-		},
-		fnDownloadAllAuctions.FullCommand(): func() error {
-			return fnCommand.DownloadAllAuctions(fnState.DownloadAllAuctionsStateConfig{
-				ProjectId:     *projectID,
-				MessengerHost: *natsHost,
-				MessengerPort: *natsPort,
-			})
-		},
-		fnComputeAllLiveAuctions.FullCommand(): func() error {
-			return fnCommand.FnComputeAllLiveAuctions(fnState.ComputeAllLiveAuctionsStateConfig{
-				ProjectId: *projectID,
-			})
-		},
-		fnComputeAllPricelistHistories.FullCommand(): func() error {
-			return fnCommand.FnComputeAllPricelistHistories(fnState.ComputeAllPricelistHistoriesStateConfig{
-				ProjectId: *projectID,
-			})
-		},
-		fnSyncAllItems.FullCommand(): func() error {
-			return fnCommand.FnSyncAllItems(fnState.SyncAllItemsStateConfig{
-				ProjectId: *projectID,
-			})
-		},
-		fnCleanupAllExpiredManifests.FullCommand(): func() error {
-			return fnCommand.FnCleanupAllExpiredManifests(fnState.CleanupAllExpiredManifestsStateConfig{
-				ProjectId: *projectID,
 			})
 		},
 		fnCleanupPricelistHistories.FullCommand(): func() error {
