@@ -425,3 +425,124 @@ func (c Client) PublishMetrics(m metric.Metrics) error {
 
 	return nil
 }
+
+type PruneTopicsOutJob struct {
+	Err     error
+	Name    string
+	Existed bool
+}
+
+func (job PruneTopicsOutJob) ToLogrusFields() logrus.Fields {
+	return logrus.Fields{
+		"error": job.Err.Error(),
+		"name":  job.Name,
+	}
+}
+
+func NewPruneTopicsResults(data []byte) (PruneTopicsResults, error) {
+	var out PruneTopicsResults
+	if err := json.Unmarshal(data, &out); err != nil {
+		return PruneTopicsResults{}, err
+	}
+
+	return out, nil
+}
+
+type PruneTopicsResults struct {
+	Pruned      []string
+	NonExistent []string
+	Erroneous   []string
+}
+
+func (results PruneTopicsResults) EncodeForDelivery() ([]byte, error) {
+	out, err := json.Marshal(results)
+	if err != nil {
+		return []byte{}, err
+	}
+
+	return out, nil
+}
+
+func (c Client) PruneTopics(names []string) (PruneTopicsResults, error) {
+	// opening workers and channels
+	in := make(chan string)
+	out := make(chan PruneTopicsOutJob)
+	worker := func() {
+		for name := range in {
+			topic := c.Topic(name)
+
+			exists, err := topic.Exists(c.context)
+			if err != nil {
+				out <- PruneTopicsOutJob{
+					Err:  err,
+					Name: name,
+				}
+
+				continue
+			}
+			if !exists {
+				out <- PruneTopicsOutJob{
+					Err:     nil,
+					Name:    name,
+					Existed: false,
+				}
+
+				continue
+			}
+
+			if err := topic.Delete(c.context); err != nil {
+				out <- PruneTopicsOutJob{
+					Err:  err,
+					Name: name,
+				}
+
+				continue
+			}
+
+			out <- PruneTopicsOutJob{
+				Err:     nil,
+				Name:    name,
+				Existed: true,
+			}
+		}
+	}
+	postWork := func() {
+		close(out)
+	}
+	util.Work(16, worker, postWork)
+
+	// queueing it up
+	go func() {
+		for _, name := range names {
+			in <- name
+		}
+
+		close(in)
+	}()
+
+	// waiting for it to drain out
+	results := PruneTopicsResults{
+		Pruned:      []string{},
+		NonExistent: []string{},
+		Erroneous:   []string{},
+	}
+	for outJob := range out {
+		if outJob.Err != nil {
+			logging.WithFields(outJob.ToLogrusFields()).Error("Failed to prune topic")
+
+			results.Erroneous = append(results.Erroneous, outJob.Name)
+
+			continue
+		}
+
+		if !outJob.Existed {
+			results.NonExistent = append(results.NonExistent, outJob.Name)
+
+			continue
+		}
+
+		results.Pruned = append(results.Pruned, outJob.Name)
+	}
+
+	return results, nil
+}
