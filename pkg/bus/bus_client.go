@@ -47,6 +47,10 @@ func (c Client) Topic(topicName string) *pubsub.Topic {
 	return c.client.Topic(topicName)
 }
 
+func (c Client) TopicNames() *pubsub.TopicIterator {
+	return c.client.Topics(c.context)
+}
+
 func (c Client) FirmTopic(topicName string) (*pubsub.Topic, error) {
 	topic := c.Topic(topicName)
 
