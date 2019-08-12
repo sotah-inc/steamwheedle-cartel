@@ -18,3 +18,7 @@ func pubsubTopicsKeyName(topicName string) []byte {
 func pubsubTopicsDatabasePath(dbDir string) (string, error) {
 	return fmt.Sprintf("%s/pubsub-topics.db", dbDir), nil
 }
+
+func topicNamePrefix(projectID string) string {
+	return fmt.Sprintf("projects/%s/topics/", projectID)
+}
