@@ -1,8 +1,10 @@
 package database
 
 import (
+	"encoding/binary"
 	"fmt"
 	"strconv"
+	"time"
 
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/sotah"
 )
@@ -15,6 +17,13 @@ func databasePubsubTopicsBucketName() []byte {
 // keying
 func pubsubTopicsKeyName(topicName string) []byte {
 	return []byte(topicName)
+}
+
+func pubsubTopicsValueFromTimestamp(t time.Time) []byte {
+	key := make([]byte, 8)
+	binary.LittleEndian.PutUint64(key, uint64(t.Unix()))
+
+	return key
 }
 
 func topicNameFirstSeen(v []byte) (sotah.UnixTimestamp, error) {

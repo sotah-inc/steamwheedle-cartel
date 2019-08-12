@@ -39,6 +39,19 @@ func NewTopicNamesFirstSeen(topicNames []string) TopicNamesFirstSeen {
 
 type TopicNamesFirstSeen map[string]sotah.UnixTimestamp
 
+func (s TopicNamesFirstSeen) NonZero() TopicNamesFirstSeen {
+	out := TopicNamesFirstSeen{}
+	for k, v := range s {
+		if v == 0 {
+			continue
+		}
+
+		out[k] = v
+	}
+
+	return out
+}
+
 func (b PubsubTopicsDatabase) Current(topicNames []string) (TopicNamesFirstSeen, error) {
 	out := NewTopicNamesFirstSeen(topicNames)
 
@@ -72,5 +85,30 @@ func (b PubsubTopicsDatabase) Current(topicNames []string) (TopicNamesFirstSeen,
 }
 
 func (b PubsubTopicsDatabase) Fill(topicNames []string, currentTime time.Time) error {
+	currentSeen, err := b.Current(topicNames)
+	if err != nil {
+		return err
+	}
+
+	logging.WithField("current-seen", len(currentSeen.NonZero())).Info("Topic-names with first-seen")
+
+	err = b.db.Batch(func(tx *bolt.Tx) error {
+		bkt, err := tx.CreateBucketIfNotExists(databasePubsubTopicsBucketName())
+		if err != nil {
+			return err
+		}
+
+		for topicName := range currentSeen {
+			if err := bkt.Put(pubsubTopicsKeyName(topicName), pubsubTopicsValueFromTimestamp(currentTime)); err != nil {
+				return err
+			}
+		}
+
+		return nil
+	})
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
