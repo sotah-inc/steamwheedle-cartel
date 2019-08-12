@@ -54,13 +54,18 @@ func (s TopicNamesFirstSeen) NonZero() TopicNamesFirstSeen {
 }
 
 func (b PubsubTopicsDatabase) Current(topicNames []string) (TopicNamesFirstSeen, error) {
-	out := NewTopicNamesFirstSeen(topicNames)
-
-	err := b.db.View(func(tx *bolt.Tx) error {
-		bkt, err := tx.CreateBucketIfNotExists(databasePubsubTopicsBucketName())
-		if err != nil {
+	err := b.db.Batch(func(tx *bolt.Tx) error {
+		if _, err := tx.CreateBucketIfNotExists(databasePubsubTopicsBucketName()); err != nil {
 			return err
 		}
+
+		return nil
+	})
+
+	out := NewTopicNamesFirstSeen(topicNames)
+
+	err = b.db.View(func(tx *bolt.Tx) error {
+		bkt := tx.Bucket(databasePubsubTopicsBucketName())
 
 		err = bkt.ForEach(func(k, v []byte) error {
 			firstSeenTimestamp, err := topicNameFirstSeen(v)
