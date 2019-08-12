@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/boltdb/bolt"
+	"github.com/sirupsen/logrus"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/logging"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/sotah"
 )
@@ -90,7 +91,10 @@ func (b PubsubTopicsDatabase) Fill(topicNames []string, currentTime time.Time) e
 		return err
 	}
 
-	logging.WithField("current-seen", len(currentSeen.NonZero())).Info("Topic-names with first-seen")
+	logging.WithFields(logrus.Fields{
+		"current-seen": len(currentSeen.NonZero()),
+		"total-seen":   len(currentSeen),
+	}).Info("Topic-names provided")
 
 	err = b.db.Batch(func(tx *bolt.Tx) error {
 		bkt, err := tx.CreateBucketIfNotExists(databasePubsubTopicsBucketName())
