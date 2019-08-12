@@ -31,3 +31,6 @@
 [submodule "extern/steamwheedle-cartel-run-cleanup-pricelist-histories"]
 	path = extern/steamwheedle-cartel-run-cleanup-pricelist-histories
 	url = git@github.com:sotah-inc/steamwheedle-cartel-run-cleanup-pricelist-histories.git
+[submodule "extern/steamwheedle-cartel-fn-compute-pricelist-histories"]
+	path = extern/steamwheedle-cartel-fn-compute-pricelist-histories
+	url = git@github.com:sotah-inc/steamwheedle-cartel-fn-compute-pricelist-histories.git
