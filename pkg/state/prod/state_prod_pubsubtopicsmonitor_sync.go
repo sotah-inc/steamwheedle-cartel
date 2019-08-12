@@ -3,8 +3,10 @@ package prod
 import (
 	"time"
 
+	"github.com/sotah-inc/steamwheedle-cartel/pkg/bus"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/logging"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/metric"
+	"github.com/sotah-inc/steamwheedle-cartel/pkg/state/subjects"
 	"google.golang.org/api/iterator"
 )
 
@@ -32,4 +34,39 @@ func (sta PubsubTopicsMonitorState) Sync() error {
 	})
 
 	return nil
+}
+
+func (sta PubsubTopicsMonitorState) ListenForSyncPubsubTopicsMonitor(
+	onReady chan interface{},
+	stop chan interface{},
+	onStopped chan interface{},
+) {
+	in := make(chan interface{})
+	go func() {
+		for range in {
+			if err := sta.Sync(); err != nil {
+				logging.WithField("error", err.Error()).Error("Failed to call Sync()")
+
+				continue
+			}
+		}
+	}()
+
+	// establishing subscriber config
+	config := bus.SubscribeConfig{
+		Stop: stop,
+		Callback: func(busMsg bus.Message) {
+			logging.WithField("bus-msg", busMsg).Info("Received bus-message")
+			in <- struct{}{}
+		},
+		OnReady:   onReady,
+		OnStopped: onStopped,
+	}
+
+	// starting up worker for the subscription
+	go func() {
+		if err := sta.IO.BusClient.SubscribeToTopic(string(subjects.SyncPubsubTopicsMonitor), config); err != nil {
+			logging.WithField("error", err.Error()).Fatal("Failed to subscribe to topic")
+		}
+	}()
 }

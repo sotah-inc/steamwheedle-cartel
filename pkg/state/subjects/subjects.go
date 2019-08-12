@@ -42,8 +42,7 @@ const (
 	FilterInItemsToSync Subject = "filterInItemsToSync"
 	ReceiveSyncedItems  Subject = "receiveSyncedItems"
 
-	CleanupAllPricelistHistories Subject = "cleanupAllPricelistHistories"
-	CleanupPricelistHistories    Subject = "cleanupPricelistHistories"
+	SyncPubsubTopicsMonitor Subject = "syncPubsubTopicsMonitor"
 )
 
 // gcloud gateway subjects

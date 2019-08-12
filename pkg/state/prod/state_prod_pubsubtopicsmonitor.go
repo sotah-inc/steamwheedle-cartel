@@ -8,6 +8,7 @@ import (
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/messenger"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/metric"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/state"
+	"github.com/sotah-inc/steamwheedle-cartel/pkg/state/subjects"
 	"github.com/twinj/uuid"
 )
 
@@ -67,6 +68,11 @@ func NewPubsubTopicsMonitorState(config PubsubTopicsMonitorStateConfig) (PubsubT
 
 		return PubsubTopicsMonitorState{}, err
 	}
+
+	// establishing bus-listeners
+	sta.BusListeners = state.NewBusListeners(state.SubjectBusListeners{
+		subjects.SyncPubsubTopicsMonitor: sta.ListenForSyncPubsubTopicsMonitor,
+	})
 
 	return sta, nil
 }
