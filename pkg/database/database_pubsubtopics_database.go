@@ -1,6 +1,8 @@
 package database
 
 import (
+	"time"
+
 	"github.com/boltdb/bolt"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/logging"
 )
@@ -23,4 +25,8 @@ func NewPubsubTopicsDatabase(dbDir string) (PubsubTopicsDatabase, error) {
 
 type PubsubTopicsDatabase struct {
 	db *bolt.DB
+}
+
+func (b PubsubTopicsDatabase) Fill(topicNames []string, currentTime time.Time) error {
+	return nil
 }
