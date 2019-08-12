@@ -7,13 +7,11 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/sotah-inc/steamwheedle-cartel/cmd/app/commands"
 	devCommand "github.com/sotah-inc/steamwheedle-cartel/pkg/command/dev"
-	fnCommand "github.com/sotah-inc/steamwheedle-cartel/pkg/command/fn"
 	prodCommand "github.com/sotah-inc/steamwheedle-cartel/pkg/command/prod"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/logging"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/logging/stackdriver"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/sotah"
 	devState "github.com/sotah-inc/steamwheedle-cartel/pkg/state/dev"
-	fnState "github.com/sotah-inc/steamwheedle-cartel/pkg/state/fn"
 	prodState "github.com/sotah-inc/steamwheedle-cartel/pkg/state/prod"
 	"github.com/twinj/uuid"
 	"gopkg.in/alecthomas/kingpin.v2"
@@ -61,11 +59,6 @@ func main() {
 			"For managing pricelist-histories in gcp ce vm.",
 		)
 		prodItemsCommand = app.Command(string(commands.ProdItems), "For managing items in gcp ce vm.")
-
-		fnCleanupPricelistHistories = app.Command(
-			string(commands.FnCleanupPricelistHistories),
-			"For gathering all expired pricelist-histories for deletion in gcp ce vm.",
-		)
 	)
 	cmd := kingpin.MustParse(app.Parse(os.Args[1:]))
 
@@ -175,11 +168,6 @@ func main() {
 				MessengerHost:    *natsHost,
 				GCloudProjectID:  *projectID,
 				ItemsDatabaseDir: fmt.Sprintf("%s/databases", *cacheDir),
-			})
-		},
-		fnCleanupPricelistHistories.FullCommand(): func() error {
-			return fnCommand.FnCleanupPricelistHistories(fnState.CleanupPricelistHistoriesStateConfig{
-				ProjectId: *projectID,
 			})
 		},
 	}

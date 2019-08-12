@@ -15,6 +15,4 @@ var (
 	ProdLiveAuctions       command = "prod-live-auctions"
 	ProdPricelistHistories command = "prod-pricelist-histories"
 	ProdItems              command = "prod-items"
-
-	FnCleanupPricelistHistories command = "fn-cleanup-pricelist-histories"
 )
