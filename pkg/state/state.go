@@ -37,6 +37,7 @@ type Databases struct {
 	LiveAuctionsDatabases     database.LiveAuctionsDatabases
 	ItemsDatabase             database.ItemsDatabase
 	MetaDatabase              database.MetaDatabase
+	PubsubTopicsDatabase      database.PubsubTopicsDatabase
 }
 
 // io bundle
