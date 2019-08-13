@@ -666,7 +666,7 @@ func (c Client) CheckAllSubscriptions() (CheckSubscriptionsResults, error) {
 				continue
 			}
 
-			in <- next.String()
+			in <- next.ID()
 		}
 
 		close(in)
