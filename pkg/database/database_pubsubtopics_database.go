@@ -152,3 +152,25 @@ func (b PubsubTopicsDatabase) Fill(topicNames []string, currentTime time.Time) (
 
 	return currentSeen, nil
 }
+
+func (b PubsubTopicsDatabase) Clean(topicNames []string) error {
+	err := b.db.Batch(func(tx *bolt.Tx) error {
+		bkt, err := tx.CreateBucketIfNotExists(databasePubsubTopicsBucketName())
+		if err != nil {
+			return err
+		}
+
+		for _, topicName := range topicNames {
+			if err := bkt.Delete(pubsubTopicsKeyName(topicName)); err != nil {
+				return err
+			}
+		}
+
+		return nil
+	})
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
