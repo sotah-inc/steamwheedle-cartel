@@ -79,6 +79,8 @@ func (s TopicNamesFirstSeen) Names() []string {
 }
 
 func (b PubsubTopicsDatabase) Current(topicNames []string) (TopicNamesFirstSeen, error) {
+	out := NewTopicNamesFirstSeen(topicNames)
+
 	err := b.db.Batch(func(tx *bolt.Tx) error {
 		if _, err := tx.CreateBucketIfNotExists(databasePubsubTopicsBucketName()); err != nil {
 			return err
@@ -86,8 +88,6 @@ func (b PubsubTopicsDatabase) Current(topicNames []string) (TopicNamesFirstSeen,
 
 		return nil
 	})
-
-	out := NewTopicNamesFirstSeen(topicNames)
 
 	err = b.db.View(func(tx *bolt.Tx) error {
 		bkt := tx.Bucket(databasePubsubTopicsBucketName())
@@ -126,8 +126,10 @@ func (b PubsubTopicsDatabase) Fill(topicNames []string, currentTime time.Time) (
 		"total-seen":   len(currentSeen),
 	}).Info("Topic-names provided")
 
-	for k := range currentSeen {
-		currentSeen[k] = sotah.UnixTimestamp(currentTime.Unix())
+	for k, v := range currentSeen {
+		if v == 0 {
+			currentSeen[k] = sotah.UnixTimestamp(currentTime.Unix())
+		}
 	}
 
 	err = b.db.Batch(func(tx *bolt.Tx) error {
