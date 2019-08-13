@@ -556,11 +556,20 @@ func (c Client) PruneTopics(names []string) PruneTopicsResults {
 	return results
 }
 
-type CheckSubscriptionsResults []CheckSubscriptionsResult
-
 type CheckSubscriptionsResult struct {
 	TopicName        string
 	HasSubscriptions bool
+}
+
+type CheckSubscriptionsResults []CheckSubscriptionsResult
+
+func (r CheckSubscriptionsResults) TopicNames() []string {
+	out := make([]string, len(r))
+	for i, result := range r {
+		out[i] = result.TopicName
+	}
+
+	return out
 }
 
 type CheckSubscriptionsOutJob struct {
