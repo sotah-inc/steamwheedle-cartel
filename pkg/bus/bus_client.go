@@ -598,25 +598,6 @@ func (c Client) CheckAllSubscriptions() (CheckSubscriptionsResults, error) {
 	worker := func() {
 		for topicName := range in {
 			topic := c.Topic(topicName)
-			exists, err := topic.Exists(c.context)
-			if err != nil {
-				out <- CheckSubscriptionsOutJob{
-					Err:       err,
-					TopicName: topicName,
-				}
-
-				continue
-			}
-
-			if !exists {
-				out <- CheckSubscriptionsOutJob{
-					Err:              err,
-					TopicName:        topicName,
-					HasSubscriptions: false,
-				}
-
-				continue
-			}
 
 			hasSubscriptions, err := func() (bool, error) {
 				subsIterator := topic.Subscriptions(c.context)
@@ -649,7 +630,7 @@ func (c Client) CheckAllSubscriptions() (CheckSubscriptionsResults, error) {
 	postWork := func() {
 		close(out)
 	}
-	util.Work(32, worker, postWork)
+	util.Work(4, worker, postWork)
 
 	// queueing it up
 	go func() {
