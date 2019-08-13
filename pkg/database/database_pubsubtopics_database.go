@@ -115,10 +115,10 @@ func (b PubsubTopicsDatabase) Current(topicNames []string) (TopicNamesFirstSeen,
 	return out, nil
 }
 
-func (b PubsubTopicsDatabase) Fill(topicNames []string, currentTime time.Time) error {
+func (b PubsubTopicsDatabase) Fill(topicNames []string, currentTime time.Time) (TopicNamesFirstSeen, error) {
 	currentSeen, err := b.Current(topicNames)
 	if err != nil {
-		return err
+		return TopicNamesFirstSeen{}, err
 	}
 
 	logging.WithFields(logrus.Fields{
@@ -126,14 +126,18 @@ func (b PubsubTopicsDatabase) Fill(topicNames []string, currentTime time.Time) e
 		"total-seen":   len(currentSeen),
 	}).Info("Topic-names provided")
 
+	for k := range currentSeen {
+		currentSeen[k] = sotah.UnixTimestamp(currentTime.Unix())
+	}
+
 	err = b.db.Batch(func(tx *bolt.Tx) error {
 		bkt, err := tx.CreateBucketIfNotExists(databasePubsubTopicsBucketName())
 		if err != nil {
 			return err
 		}
 
-		for topicName := range currentSeen {
-			if err := bkt.Put(pubsubTopicsKeyName(topicName), pubsubTopicsValueFromTimestamp(currentTime)); err != nil {
+		for k, v := range currentSeen {
+			if err := bkt.Put(pubsubTopicsKeyName(k), pubsubTopicsValueFromTimestamp(time.Unix(int64(v), 0))); err != nil {
 				return err
 			}
 		}
@@ -141,8 +145,8 @@ func (b PubsubTopicsDatabase) Fill(topicNames []string, currentTime time.Time) e
 		return nil
 	})
 	if err != nil {
-		return err
+		return TopicNamesFirstSeen{}, err
 	}
 
-	return nil
+	return currentSeen, nil
 }
