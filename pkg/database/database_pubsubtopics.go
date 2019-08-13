@@ -3,7 +3,6 @@ package database
 import (
 	"encoding/binary"
 	"fmt"
-	"strconv"
 	"time"
 
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/sotah"
@@ -27,12 +26,7 @@ func pubsubTopicsValueFromTimestamp(t time.Time) []byte {
 }
 
 func topicNameFirstSeen(v []byte) (sotah.UnixTimestamp, error) {
-	firstSeenTimestamp, err := strconv.Atoi(string(v))
-	if err != nil {
-		return 0, err
-	}
-
-	return sotah.UnixTimestamp(firstSeenTimestamp), nil
+	return sotah.UnixTimestamp(binary.LittleEndian.Uint64(v)), nil
 }
 
 // db
