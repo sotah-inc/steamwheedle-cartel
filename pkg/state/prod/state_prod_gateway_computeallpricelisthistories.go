@@ -1,6 +1,8 @@
 package prod
 
 import (
+	"time"
+
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/act"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/bus"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/bus/codes"
@@ -18,12 +20,13 @@ func (sta GatewayState) RunComputeAllPricelistHistories(tuples sotah.RegionRealm
 	}
 
 	// calling compute-all-pricelist-histories on gateway service
+	startTime := time.Now()
 	logging.Info("Calling compute-all-pricelist-histories on gateway service")
 	if err := actClient.ComputeAllPricelistHistories(tuples); err != nil {
 		return err
 	}
 
-	logging.Info("Done calling compute-all-pricelist-histories")
+	logging.WithField("duration", int(int64(time.Since(startTime))/1000/1000/1000)).Info("Done calling compute-all-pricelist-histories")
 
 	return nil
 }
