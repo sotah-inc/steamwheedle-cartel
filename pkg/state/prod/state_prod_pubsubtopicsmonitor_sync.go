@@ -26,9 +26,29 @@ func (sta PubsubTopicsMonitorState) Sync() error {
 		}
 
 		topicName := next.String()
-		topicNames = append(topicNames, topicName)
 
-		logging.WithField("topic", topicName).Info("Found topic")
+		hasSubscriptions, err := func() (bool, error) {
+			subsIterator := sta.IO.BusClient.Subscriptions(next)
+			if _, err := subsIterator.Next(); err != nil {
+				if err == iterator.Done {
+					return false, nil
+				}
+
+				return false, err
+			}
+
+			return true, nil
+		}()
+		if err != nil {
+			return err
+		}
+
+		logging.WithFields(logrus.Fields{
+			"topic":             topicName,
+			"has-subscriptions": hasSubscriptions,
+		}).Info("Found topic")
+
+		topicNames = append(topicNames, topicName)
 	}
 
 	currentSeen, err := sta.IO.Databases.PubsubTopicsDatabase.Fill(topicNames, time.Now())
