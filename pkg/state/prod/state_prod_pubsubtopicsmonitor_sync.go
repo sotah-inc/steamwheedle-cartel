@@ -14,7 +14,7 @@ import (
 func (sta PubsubTopicsMonitorState) Sync() error {
 	startTime := time.Now()
 	topicNames := []string{}
-	it := sta.IO.BusClient.TopicNames()
+	it := sta.IO.BusClient.Topics()
 	for {
 		next, err := it.Next()
 		if err != nil {

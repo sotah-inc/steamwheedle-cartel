@@ -47,7 +47,7 @@ func (c Client) Topic(topicName string) *pubsub.Topic {
 	return c.client.Topic(topicName)
 }
 
-func (c Client) TopicNames() *pubsub.TopicIterator {
+func (c Client) Topics() *pubsub.TopicIterator {
 	return c.client.Topics(c.context)
 }
 
