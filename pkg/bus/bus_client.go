@@ -572,6 +572,19 @@ func (r CheckSubscriptionsResults) TopicNames() []string {
 	return out
 }
 
+func (r CheckSubscriptionsResults) WithoutSubscriptions() CheckSubscriptionsResults {
+	out := CheckSubscriptionsResults{}
+	for _, result := range r {
+		if result.HasSubscriptions {
+			continue
+		}
+
+		out = append(out, result)
+	}
+
+	return out
+}
+
 type CheckSubscriptionsOutJob struct {
 	Err              error
 	TopicName        string
