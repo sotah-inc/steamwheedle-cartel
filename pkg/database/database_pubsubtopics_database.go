@@ -53,7 +53,7 @@ func (s TopicNamesFirstSeen) NonZero() TopicNamesFirstSeen {
 	return out
 }
 
-func (s TopicNamesFirstSeen) After(limit time.Time) (TopicNamesFirstSeen, error) {
+func (s TopicNamesFirstSeen) After(limit time.Time) TopicNamesFirstSeen {
 	out := TopicNamesFirstSeen{}
 	for k, v := range s {
 		if time.Unix(int64(v), 0).After(limit) {
@@ -63,7 +63,7 @@ func (s TopicNamesFirstSeen) After(limit time.Time) (TopicNamesFirstSeen, error)
 		out[k] = v
 	}
 
-	return out, nil
+	return out
 }
 
 func (s TopicNamesFirstSeen) Names() []string {
