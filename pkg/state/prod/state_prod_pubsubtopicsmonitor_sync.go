@@ -8,48 +8,16 @@ import (
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/logging"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/metric"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/state/subjects"
-	"google.golang.org/api/iterator"
 )
 
 func (sta PubsubTopicsMonitorState) Sync() error {
 	startTime := time.Now()
-	topicNames := []string{}
-	it := sta.IO.BusClient.Topics()
-	for {
-		next, err := it.Next()
-		if err != nil {
-			if err == iterator.Done {
-				break
-			}
-
-			return err
-		}
-
-		topicName := next.String()
-
-		hasSubscriptions, err := func() (bool, error) {
-			subsIterator := sta.IO.BusClient.Subscriptions(next)
-			if _, err := subsIterator.Next(); err != nil {
-				if err == iterator.Done {
-					return false, nil
-				}
-
-				return false, err
-			}
-
-			return true, nil
-		}()
-		if err != nil {
-			return err
-		}
-
-		logging.WithFields(logrus.Fields{
-			"topic":             topicName,
-			"has-subscriptions": hasSubscriptions,
-		}).Info("Found topic")
-
-		topicNames = append(topicNames, topicName)
+	results, err := sta.IO.BusClient.CheckAllSubscriptions()
+	if err != nil {
+		return err
 	}
+
+	topicNames := results.TopicNames()
 
 	currentSeen, err := sta.IO.Databases.PubsubTopicsDatabase.Fill(topicNames, time.Now())
 	if err != nil {
