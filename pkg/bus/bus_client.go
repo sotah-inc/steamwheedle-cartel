@@ -15,6 +15,7 @@ import (
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/state/subjects"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/util"
 	"github.com/twinj/uuid"
+	"google.golang.org/api/iterator"
 )
 
 func NewClient(projectID string, subscriberId string) (Client, error) {
@@ -553,4 +554,114 @@ func (c Client) PruneTopics(names []string) PruneTopicsResults {
 	}
 
 	return results
+}
+
+type CheckSubscriptionsResults []CheckSubscriptionsResult
+
+type CheckSubscriptionsResult struct {
+	TopicName        string
+	HasSubscriptions bool
+}
+
+type CheckSubscriptionsOutJob struct {
+	Err              error
+	TopicName        string
+	HasSubscriptions bool
+}
+
+func (c Client) CheckAllSubscriptions() (CheckSubscriptionsResults, error) {
+	// opening workers and channels
+	in := make(chan string)
+	out := make(chan CheckSubscriptionsOutJob)
+	worker := func() {
+		for topicName := range in {
+			topic := c.Topic(topicName)
+			exists, err := topic.Exists(c.context)
+			if err != nil {
+				out <- CheckSubscriptionsOutJob{
+					Err:       err,
+					TopicName: topicName,
+				}
+
+				continue
+			}
+
+			if !exists {
+				out <- CheckSubscriptionsOutJob{
+					Err:              err,
+					TopicName:        topicName,
+					HasSubscriptions: false,
+				}
+
+				continue
+			}
+
+			hasSubscriptions, err := func() (bool, error) {
+				subsIterator := topic.Subscriptions(c.context)
+				if _, err := subsIterator.Next(); err != nil {
+					if err == iterator.Done {
+						return false, nil
+					}
+
+					return false, err
+				}
+
+				return true, nil
+			}()
+			if err != nil {
+				out <- CheckSubscriptionsOutJob{
+					Err:       err,
+					TopicName: topicName,
+				}
+
+				continue
+			}
+
+			out <- CheckSubscriptionsOutJob{
+				Err:              nil,
+				TopicName:        topicName,
+				HasSubscriptions: hasSubscriptions,
+			}
+		}
+	}
+	postWork := func() {
+		close(out)
+	}
+	util.Work(32, worker, postWork)
+
+	// queueing it up
+	go func() {
+		it := c.Topics()
+		for {
+			next, err := it.Next()
+			if err != nil {
+				if err == iterator.Done {
+					break
+				}
+
+				logging.WithField("error", err.Error()).Error("Failed to iterate to next topic")
+
+				continue
+			}
+
+			in <- next.String()
+		}
+
+		close(in)
+	}()
+
+	// waiting for it to drain out
+	results := CheckSubscriptionsResults{}
+	for outJob := range out {
+		if outJob.Err != nil {
+			return CheckSubscriptionsResults{}, outJob.Err
+		}
+
+		results = append(results, CheckSubscriptionsResult{
+			TopicName:        outJob.TopicName,
+			HasSubscriptions: outJob.HasSubscriptions,
+		})
+	}
+
+	return results, nil
 }
