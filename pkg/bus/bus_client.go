@@ -632,7 +632,7 @@ func (c Client) CheckAllSubscriptions() (CheckSubscriptionsResults, error) {
 	postWork := func() {
 		close(out)
 	}
-	util.Work(4, worker, postWork)
+	util.Work(2, worker, postWork)
 
 	// queueing it up
 	go func() {
