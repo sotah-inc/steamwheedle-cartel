@@ -98,15 +98,15 @@ func (sta GatewayState) ComputePricelistHistoriesFromTuples(
 	}
 
 	// reporting duration to reporter
-	durationInSeconds := int(int64(time.Since(actStartTime)) / 1000 / 1000 / 1000)
+	durationInMs := int(int64(time.Since(actStartTime)) / 1000 / 1000)
 	logging.WithFields(logrus.Fields{
-		"duration-in-ms": durationInSeconds * 1000,
+		"duration-in-ms": durationInMs,
 	},
 	).Info("Finished calling act compute-pricelist-histories")
 
 	// reporting metrics
 	m := metric.Metrics{
-		"compute_all_pricelist_histories_duration":     durationInSeconds,
+		"compute_all_pricelist_histories_duration":     durationInMs / 1000,
 		"included_realms_computed_pricelist_histories": len(tuples),
 	}
 	if err := sta.IO.BusClient.PublishMetrics(m); err != nil {
