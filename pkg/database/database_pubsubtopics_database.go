@@ -66,6 +66,18 @@ func (s TopicNamesFirstSeen) After(limit time.Time) (TopicNamesFirstSeen, error)
 	return out, nil
 }
 
+func (s TopicNamesFirstSeen) Names() []string {
+	out := make([]string, len(s))
+	i := 0
+	for k := range s {
+		out[i] = k
+
+		i++
+	}
+
+	return out
+}
+
 func (b PubsubTopicsDatabase) Current(topicNames []string) (TopicNamesFirstSeen, error) {
 	err := b.db.Batch(func(tx *bolt.Tx) error {
 		if _, err := tx.CreateBucketIfNotExists(databasePubsubTopicsBucketName()); err != nil {
