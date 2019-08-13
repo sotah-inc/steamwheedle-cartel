@@ -620,6 +620,8 @@ func (c Client) CheckAllSubscriptions() (CheckSubscriptionsResults, error) {
 				continue
 			}
 
+			logging.WithField("topic-name", topicName).Info("Checked")
+
 			out <- CheckSubscriptionsOutJob{
 				Err:              nil,
 				TopicName:        topicName,
