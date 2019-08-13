@@ -17,6 +17,11 @@ func (sta PubsubTopicsMonitorState) Sync() error {
 		return err
 	}
 
+	logging.WithFields(logrus.Fields{
+		"total-results":                       len(results),
+		"total-results-without-subscriptions": len(results.WithoutSubscriptions()),
+	})
+
 	topicNames := results.TopicNames()
 
 	currentSeen, err := sta.IO.Databases.PubsubTopicsDatabase.Fill(topicNames, time.Now())
