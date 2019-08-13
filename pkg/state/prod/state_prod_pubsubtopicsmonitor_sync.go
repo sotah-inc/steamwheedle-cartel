@@ -36,9 +36,13 @@ func (sta PubsubTopicsMonitorState) Sync() error {
 		return err
 	}
 
+	retentionLimit := time.Now().Add(-1 * time.Hour * 24)
+
 	logging.WithFields(logrus.Fields{
-		"current-seen": len(currentSeen.NonZero()),
-		"total-seen":   len(currentSeen),
+		"current-seen":    len(currentSeen.NonZero()),
+		"total-seen":      len(currentSeen),
+		"expired-seen":    len(currentSeen.After(retentionLimit)),
+		"retention-limit": retentionLimit.String(),
 	}).Info("Topic-names provided")
 
 	sta.IO.Reporter.Report(metric.Metrics{
