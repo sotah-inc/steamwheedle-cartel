@@ -26,7 +26,10 @@ func (sta GatewayState) RunComputeAllPricelistHistories(tuples sotah.RegionRealm
 		return err
 	}
 
-	logging.WithField("duration", int(int64(time.Since(startTime))/1000/1000/1000)).Info("Done calling compute-all-pricelist-histories")
+	logging.WithField(
+		"duration",
+		int(int64(time.Since(startTime))/1000/1000/1000),
+	).Info("Done calling compute-all-pricelist-histories")
 
 	return nil
 }
