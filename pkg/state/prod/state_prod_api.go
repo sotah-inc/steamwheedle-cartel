@@ -40,6 +40,7 @@ func NewProdApiState(config ProdApiStateConfig) (ApiState, error) {
 	apiState.SessionSecret = uuid.NewV4()
 
 	// setting api-state from config, including filtering in regions based on config whitelist
+	apiState.Statuses = sotah.Statuses{}
 	apiState.Regions = config.SotahConfig.FilterInRegions(config.SotahConfig.Regions)
 	apiState.Expansions = config.SotahConfig.Expansions
 	apiState.Professions = config.SotahConfig.Professions
