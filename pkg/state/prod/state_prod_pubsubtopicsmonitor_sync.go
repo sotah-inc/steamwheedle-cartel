@@ -24,7 +24,7 @@ func (sta PubsubTopicsMonitorState) Sync() error {
 
 	topicNames := results.TopicNames()
 
-	currentSeen, err := sta.IO.Databases.PubsubTopicsDatabase.Fill(topicNames, time.Now())
+	currentSeen, err := sta.IO.Databases.PubsubTopicsDatabase.Fill(results.WithoutSubscriptions().TopicNames(), time.Now())
 	if err != nil {
 		return err
 	}
@@ -32,10 +32,11 @@ func (sta PubsubTopicsMonitorState) Sync() error {
 	retentionLimit := time.Now().Add(-1 * time.Hour * 1)
 
 	logging.WithFields(logrus.Fields{
-		"current-seen":    len(currentSeen.NonZero()),
-		"total-seen":      len(currentSeen),
-		"expired-seen":    len(currentSeen.After(retentionLimit)),
-		"retention-limit": retentionLimit.String(),
+		"total-seen":           len(currentSeen),
+		"current-seen":         len(currentSeen.NonZero()),
+		"expired-seen":         len(currentSeen.After(retentionLimit)),
+		"current-expired-seen": len(currentSeen.NonZero().After(retentionLimit)),
+		"retention-limit":      retentionLimit.String(),
 	}).Info("Topic-names provided")
 
 	sta.IO.Reporter.Report(metric.Metrics{
