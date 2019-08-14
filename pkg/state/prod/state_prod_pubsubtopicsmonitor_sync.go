@@ -36,7 +36,7 @@ func (sta PubsubTopicsMonitorState) Sync() error {
 		"current-seen":         len(currentSeen.NonZero()),
 		"expired-seen":         len(currentSeen.After(retentionLimit)),
 		"current-expired-seen": len(currentSeen.NonZero().After(retentionLimit)),
-		"retention-limit":      retentionLimit.String(),
+		"retention-limit":      retentionLimit.Format(time.UnixDate),
 	}).Info("Topic-names provided")
 
 	sta.IO.Reporter.Report(metric.Metrics{
