@@ -22,8 +22,6 @@ func (sta PubsubTopicsMonitorState) Sync() error {
 		"total-results-without-subscriptions": len(results.WithoutSubscriptions()),
 	}).Info("Results found")
 
-	topicNames := results.TopicNames()
-
 	currentSeen, err := sta.IO.Databases.PubsubTopicsDatabase.Fill(results.WithoutSubscriptions().TopicNames(), time.Now())
 	if err != nil {
 		return err
