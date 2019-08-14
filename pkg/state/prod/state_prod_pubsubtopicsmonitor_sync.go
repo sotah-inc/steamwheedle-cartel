@@ -29,19 +29,17 @@ func (sta PubsubTopicsMonitorState) Sync() error {
 		return err
 	}
 
-	retentionLimit := time.Now().Add(-1 * time.Hour * 1)
+	expiredTopicNames := currentSeen.NonZero().After(time.Now().Add(-1 * time.Hour * 1)).Names()
+	pruneResults := sta.IO.BusClient.PruneTopics(expiredTopicNames)
+	logging.WithField("prune-results", pruneResults).Info("Pruned topics from bus")
 
-	logging.WithFields(logrus.Fields{
-		"total-seen":           len(currentSeen),
-		"current-seen":         len(currentSeen.NonZero()),
-		"expired-seen":         len(currentSeen.After(retentionLimit)),
-		"current-expired-seen": len(currentSeen.NonZero().After(retentionLimit)),
-		"retention-limit":      retentionLimit.Format(time.UnixDate),
-	}).Info("Topic-names provided")
+	if err := sta.IO.Databases.PubsubTopicsDatabase.Clean(expiredTopicNames); err != nil {
+		return err
+	}
 
 	sta.IO.Reporter.Report(metric.Metrics{
 		"pubsub_topics_monitor_sync_duration": int(int64(time.Since(startTime)) / 1000 / 1000 / 1000),
-		"pubsub_topics_monitor_topic_count":   len(topicNames),
+		"pubsub_topics_monitor_topic_count":   len(expiredTopicNames),
 	})
 
 	return nil
