@@ -654,7 +654,7 @@ func (c Client) CheckAllSubscriptions(maxCount int) (CheckSubscriptionsResults, 
 
 			i++
 			if i >= maxCount {
-				continue
+				break
 			}
 		}
 
