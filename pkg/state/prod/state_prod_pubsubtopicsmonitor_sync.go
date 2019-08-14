@@ -12,7 +12,7 @@ import (
 
 func (sta PubsubTopicsMonitorState) Sync() error {
 	startTime := time.Now()
-	results, err := sta.IO.BusClient.CheckAllSubscriptions()
+	results, err := sta.IO.BusClient.CheckAllSubscriptions(1000)
 	if err != nil {
 		return err
 	}

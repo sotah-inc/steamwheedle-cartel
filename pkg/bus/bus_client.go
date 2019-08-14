@@ -591,7 +591,7 @@ type CheckSubscriptionsOutJob struct {
 	HasSubscriptions bool
 }
 
-func (c Client) CheckAllSubscriptions() (CheckSubscriptionsResults, error) {
+func (c Client) CheckAllSubscriptions(maxCount int) (CheckSubscriptionsResults, error) {
 	// opening workers and channels
 	in := make(chan string)
 	out := make(chan CheckSubscriptionsOutJob)
@@ -632,10 +632,11 @@ func (c Client) CheckAllSubscriptions() (CheckSubscriptionsResults, error) {
 	postWork := func() {
 		close(out)
 	}
-	util.Work(2, worker, postWork)
+	util.Work(8, worker, postWork)
 
 	// queueing it up
 	go func() {
+		i := 0
 		it := c.Topics()
 		for {
 			next, err := it.Next()
@@ -650,6 +651,11 @@ func (c Client) CheckAllSubscriptions() (CheckSubscriptionsResults, error) {
 			}
 
 			in <- next.ID()
+
+			i++
+			if i >= maxCount {
+				continue
+			}
 		}
 
 		close(in)
