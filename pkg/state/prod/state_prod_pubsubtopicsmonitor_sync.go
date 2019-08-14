@@ -20,7 +20,7 @@ func (sta PubsubTopicsMonitorState) Sync() error {
 	logging.WithFields(logrus.Fields{
 		"total-results":                       len(results),
 		"total-results-without-subscriptions": len(results.WithoutSubscriptions()),
-	})
+	}).Info("Results found")
 
 	topicNames := results.TopicNames()
 
@@ -29,7 +29,7 @@ func (sta PubsubTopicsMonitorState) Sync() error {
 		return err
 	}
 
-	retentionLimit := time.Now().Add(-1 * time.Hour * 24)
+	retentionLimit := time.Now().Add(-1 * time.Hour * 1)
 
 	logging.WithFields(logrus.Fields{
 		"current-seen":    len(currentSeen.NonZero()),
