@@ -25,6 +25,7 @@ func NewWorkloadState(config WorkloadStateConfig) (WorkloadState, error) {
 
 	var err error
 
+	// store and storage fields
 	sta.IO.StoreClient, err = store.NewClient(config.ProjectId)
 	if err != nil {
 		log.Fatalf("Failed to create new store client: %s", err.Error())
@@ -68,6 +69,27 @@ func NewWorkloadState(config WorkloadStateConfig) (WorkloadState, error) {
 		return WorkloadState{}, err
 	}
 
+	sta.liveAuctionsStoreBase = store.NewLiveAuctionsBase(sta.IO.StoreClient, regions.USCentral1, gameversions.Retail)
+	sta.liveAuctionsBucket, err = sta.liveAuctionsStoreBase.GetFirmBucket()
+	if err != nil {
+		log.Fatalf("Failed to get firm bucket: %s", err.Error())
+
+		return WorkloadState{}, err
+	}
+
+	sta.pricelistHistoriesStoreBase = store.NewPricelistHistoriesBaseV2(
+		sta.IO.StoreClient,
+		regions.USCentral1,
+		gameversions.Retail,
+	)
+	sta.pricelistHistoriesBucket, err = sta.pricelistHistoriesStoreBase.GetFirmBucket()
+	if err != nil {
+		log.Fatalf("Failed to get firm bucket: %s", err.Error())
+
+		return WorkloadState{}, err
+	}
+
+	// sotah fields
 	sta.regions, err = sta.bootBase.GetRegions(sta.bootBucket)
 	if err != nil {
 		log.Fatalf("Failed to get regions: %s", err.Error())
@@ -82,6 +104,7 @@ func NewWorkloadState(config WorkloadStateConfig) (WorkloadState, error) {
 		return WorkloadState{}, err
 	}
 
+	// blizzard fields
 	sta.blizzardClient, err = blizzard.NewClient(blizzardCredentials.ClientId, blizzardCredentials.ClientSecret)
 	if err != nil {
 		log.Fatalf("Failed to create blizzard client: %s", err.Error())
@@ -95,6 +118,7 @@ func NewWorkloadState(config WorkloadStateConfig) (WorkloadState, error) {
 type WorkloadState struct {
 	state.State
 
+	// store and storage fields
 	bootBase   store.BootBase
 	bootBucket *storage.BucketHandle
 
@@ -107,7 +131,15 @@ type WorkloadState struct {
 	auctionManifestStoreBase store.AuctionManifestBaseV2
 	auctionsManifestBucket   *storage.BucketHandle
 
+	liveAuctionsStoreBase store.LiveAuctionsBase
+	liveAuctionsBucket    *storage.BucketHandle
+
+	pricelistHistoriesStoreBase store.PricelistHistoriesBaseV2
+	pricelistHistoriesBucket    *storage.BucketHandle
+
+	// sotah fields
 	regions sotah.RegionList
 
+	// blizzard fields
 	blizzardClient blizzard.Client
 }
