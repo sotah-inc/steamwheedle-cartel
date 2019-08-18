@@ -85,10 +85,12 @@ func (b PricelistHistoriesBaseV2) Handle(
 	targetTimestamp := sotah.UnixTimestamp(targetTime.Unix())
 
 	// gathering an object
+	logging.WithField("normalized-target-date", normalizedTargetDate.Unix()).Info("Gathering object")
 	obj := b.GetObject(normalizedTargetDate, rea, bkt)
 
 	// resolving item-price-histories
 	ipHistories, err := func() (sotah.ItemPriceHistories, error) {
+		logging.Info("Checking that object exists")
 		exists, err := b.ObjectExists(obj)
 		if err != nil {
 			return sotah.ItemPriceHistories{}, err
@@ -98,6 +100,7 @@ func (b PricelistHistoriesBaseV2) Handle(
 			return sotah.ItemPriceHistories{}, nil
 		}
 
+		logging.Info("Reading object")
 		reader, err := obj.NewReader(b.client.Context)
 		if err != nil {
 			return sotah.ItemPriceHistories{}, err
@@ -139,6 +142,7 @@ func (b PricelistHistoriesBaseV2) Handle(
 	}
 
 	// writing it out to the gcloud object
+	logging.Info("Writing object")
 	wc := obj.NewWriter(b.client.Context)
 	wc.ContentType = "text/plain"
 	wc.ContentEncoding = "gzip"
