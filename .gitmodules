@@ -37,3 +37,6 @@
 [submodule "extern/steamwheedle-cartel-run-workload"]
 	path = extern/steamwheedle-cartel-run-workload
 	url = git@github.com:sotah-inc/steamwheedle-cartel-run-workload.git
+[submodule "extern/steamwheedle-cartel-fn-gateway"]
+	path = extern/steamwheedle-cartel-fn-gateway
+	url = git@github.com:sotah-inc/steamwheedle-cartel-fn-gateway.git
