@@ -10,6 +10,7 @@ type ActEndpoints struct {
 	SyncItemIcons             string `firestore:"sync_item_icons"`
 	ComputePricelistHistories string `firestore:"compute_pricelist_histories"`
 	CleanupPricelistHistories string `firestore:"cleanup_pricelist_histories"`
+	Workload                  string `firestore:"workload"`
 }
 
 func (c Client) GetActEndpoints() (ActEndpoints, error) {
