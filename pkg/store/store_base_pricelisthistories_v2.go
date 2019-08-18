@@ -156,6 +156,8 @@ func (b PricelistHistoriesBaseV2) Handle(
 	}
 	wc.Metadata["version_id"] = uuid.NewV4().String()
 	if err := b.Write(wc, gzipEncodedBody); err != nil {
+		entry.WithField("error", err.Error()).Error("Failed to write object")
+
 		return 0, err
 	}
 
