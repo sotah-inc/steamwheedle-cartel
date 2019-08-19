@@ -94,7 +94,7 @@ func WriteErroneousErrorResponse(w http.ResponseWriter, responseBody string, err
 }
 
 func WriteErroneousResponse(w http.ResponseWriter, code int, responseBody string) {
-	if _, err := fmt.Fprint(w, responseBody); err != nil {
+	if _, err := w.Write([]byte(responseBody)); err != nil {
 		logging.WithField("error", err.Error()).Error("Failed to write response")
 
 		return
