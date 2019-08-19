@@ -66,7 +66,7 @@ func (c Client) ComputePricelistHistories(
 	postWork := func() {
 		close(out)
 	}
-	util.Work(16, worker, postWork)
+	util.Work(4, worker, postWork)
 
 	// queueing up the regions
 	go func() {

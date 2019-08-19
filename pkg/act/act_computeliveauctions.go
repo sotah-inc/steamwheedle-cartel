@@ -64,7 +64,7 @@ func (c Client) ComputeLiveAuctions(tuples sotah.RegionRealmTimestampTuples) cha
 	postWork := func() {
 		close(out)
 	}
-	util.Work(8, worker, postWork)
+	util.Work(4, worker, postWork)
 
 	// queueing up the regions
 	go func() {
