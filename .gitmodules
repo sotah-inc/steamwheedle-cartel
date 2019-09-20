@@ -40,3 +40,6 @@
 [submodule "extern/steamwheedle-cartel-fn-gateway"]
 	path = extern/steamwheedle-cartel-fn-gateway
 	url = git@github.com:sotah-inc/steamwheedle-cartel-fn-gateway.git
+[submodule "extern/bilgewater-cartel"]
+	path = extern/bilgewater-cartel
+	url = git@github.com:sotah-inc/bilgewater-cartel.git
