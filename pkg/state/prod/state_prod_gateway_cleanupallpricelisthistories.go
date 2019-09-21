@@ -46,7 +46,7 @@ func (sta GatewayState) ListenForCallCleanupAllPricelistHistories(
 	config := bus.SubscribeConfig{
 		Stop: stop,
 		Callback: func(busMsg bus.Message) {
-			logging.WithField("bus-msg", busMsg).Info("Received bus-message")
+			logging.WithField("bus-msg-code", busMsg.Code).Info("Received bus-message")
 			in <- struct{}{}
 		},
 		OnReady:   onReady,

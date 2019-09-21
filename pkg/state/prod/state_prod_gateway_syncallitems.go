@@ -48,7 +48,7 @@ func (sta GatewayState) ListenForCallSyncAllItems(
 	config := bus.SubscribeConfig{
 		Stop: stop,
 		Callback: func(busMsg bus.Message) {
-			logging.WithField("bus-msg", busMsg).Info("Received bus-message")
+			logging.WithField("bus-msg-code", busMsg.Code).Info("Received bus-message")
 
 			// parsing the message body
 			ids, err := blizzard.NewItemIds(busMsg.Data)

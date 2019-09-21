@@ -48,7 +48,7 @@ func (sta GatewayState) ListenForCallComputeAllLiveAuctions(
 	config := bus.SubscribeConfig{
 		Stop: stop,
 		Callback: func(busMsg bus.Message) {
-			logging.WithField("bus-msg", busMsg).Info("Received bus-message")
+			logging.WithField("bus-msg-code", busMsg.Code).Info("Received bus-message")
 
 			// parsing the message body
 			tuples, err := sotah.NewRegionRealmTimestampTuples(busMsg.Data)
