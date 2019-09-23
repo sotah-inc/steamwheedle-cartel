@@ -18,10 +18,10 @@ func NewConfigFromFilepath(relativePath string) (Config, error) {
 		return Config{}, err
 	}
 
-	return newConfig(body)
+	return NewConfig(body)
 }
 
-func newConfig(body []byte) (Config, error) {
+func NewConfig(body []byte) (Config, error) {
 	c := &Config{}
 	if err := json.Unmarshal(body, &c); err != nil {
 		return Config{}, err
