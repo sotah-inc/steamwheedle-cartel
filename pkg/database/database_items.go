@@ -35,6 +35,6 @@ func itemIdFromItemNameKeyName(key []byte) (blizzard.ItemID, error) {
 }
 
 // db
-func itemsDatabasePath(dbDir string) (string, error) {
+func ItemsDatabasePath(dbDir string) (string, error) {
 	return fmt.Sprintf("%s/items.db", dbDir), nil
 }

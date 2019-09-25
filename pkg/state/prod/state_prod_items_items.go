@@ -8,7 +8,7 @@ import (
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/state/subjects"
 )
 
-func (itemsState ProdItemsState) ListenForItems(stop state.ListenStopChan) error {
+func (itemsState ItemsState) ListenForItems(stop state.ListenStopChan) error {
 	err := itemsState.IO.Messenger.Subscribe(string(subjects.Items), stop, func(natsMsg nats.Msg) {
 		m := messenger.NewMessage()
 

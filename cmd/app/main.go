@@ -14,7 +14,6 @@ import (
 	devState "github.com/sotah-inc/steamwheedle-cartel/pkg/state/dev"
 	prodState "github.com/sotah-inc/steamwheedle-cartel/pkg/state/prod"
 	"github.com/twinj/uuid"
-	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 type commandMap map[string]func() error
@@ -163,7 +162,7 @@ func main() {
 			})
 		},
 		prodItemsCommand.FullCommand(): func() error {
-			return prodCommand.ProdItems(prodState.ProdItemsStateConfig{
+			return prodCommand.Items(prodState.ItemsStateConfig{
 				MessengerPort:    *natsPort,
 				MessengerHost:    *natsHost,
 				GCloudProjectID:  *projectID,

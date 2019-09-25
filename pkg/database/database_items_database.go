@@ -17,7 +17,7 @@ import (
 )
 
 func NewItemsDatabase(dbDir string) (ItemsDatabase, error) {
-	dbFilepath, err := itemsDatabasePath(dbDir)
+	dbFilepath, err := ItemsDatabasePath(dbDir)
 	if err != nil {
 		return ItemsDatabase{}, err
 	}

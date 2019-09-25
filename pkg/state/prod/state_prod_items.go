@@ -15,7 +15,7 @@ import (
 	"github.com/twinj/uuid"
 )
 
-type ProdItemsStateConfig struct {
+type ItemsStateConfig struct {
 	GCloudProjectID string
 
 	MessengerHost string
@@ -24,16 +24,16 @@ type ProdItemsStateConfig struct {
 	ItemsDatabaseDir string
 }
 
-func NewProdItemsState(config ProdItemsStateConfig) (ProdItemsState, error) {
+func NewProdItemsState(config ItemsStateConfig) (ItemsState, error) {
 	// establishing an initial state
-	itemsState := ProdItemsState{
+	itemsState := ItemsState{
 		State: state.NewState(uuid.NewV4(), true),
 	}
 
 	// connecting to the messenger host
 	mess, err := messenger.NewMessenger(config.MessengerHost, config.MessengerPort)
 	if err != nil {
-		return ProdItemsState{}, err
+		return ItemsState{}, err
 	}
 	itemsState.IO.Messenger = mess
 
@@ -41,21 +41,21 @@ func NewProdItemsState(config ProdItemsStateConfig) (ProdItemsState, error) {
 	logging.Info("Connecting bus-client")
 	busClient, err := bus.NewClient(config.GCloudProjectID, "prod-items")
 	if err != nil {
-		return ProdItemsState{}, err
+		return ItemsState{}, err
 	}
 	itemsState.IO.BusClient = busClient
 
 	// establishing a store
 	storeClient, err := store.NewClient(config.GCloudProjectID)
 	if err != nil {
-		return ProdItemsState{}, err
+		return ItemsState{}, err
 	}
 	itemsState.IO.StoreClient = storeClient
 
 	itemsState.ItemsBase = store.NewItemsBase(storeClient, regions.USCentral1, gameversions.Retail)
 	itemsState.ItemsBucket, err = itemsState.ItemsBase.GetFirmBucket()
 	if err != nil {
-		return ProdItemsState{}, err
+		return ItemsState{}, err
 	}
 
 	// initializing a reporter
@@ -65,7 +65,7 @@ func NewProdItemsState(config ProdItemsStateConfig) (ProdItemsState, error) {
 	logging.Info("Connecting to items database")
 	iBase, err := database.NewItemsDatabase(config.ItemsDatabaseDir)
 	if err != nil {
-		return ProdItemsState{}, err
+		return ItemsState{}, err
 	}
 	itemsState.IO.Databases.ItemsDatabase = iBase
 
@@ -84,7 +84,7 @@ func NewProdItemsState(config ProdItemsStateConfig) (ProdItemsState, error) {
 	return itemsState, nil
 }
 
-type ProdItemsState struct {
+type ItemsState struct {
 	state.State
 
 	ItemsBase   store.ItemsBase

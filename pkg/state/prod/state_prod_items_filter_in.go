@@ -11,7 +11,7 @@ import (
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/state/subjects"
 )
 
-func HandleFilterInItemsToSync(busMsg bus.Message, itemsState ProdItemsState, ids blizzard.ItemIds) error {
+func HandleFilterInItemsToSync(busMsg bus.Message, itemsState ItemsState, ids blizzard.ItemIds) error {
 	syncPayload, err := itemsState.IO.Databases.ItemsDatabase.FilterInItemsToSync(ids)
 	if err != nil {
 		return err
@@ -43,7 +43,7 @@ func HandleFilterInItemsToSync(busMsg bus.Message, itemsState ProdItemsState, id
 	return nil
 }
 
-func (itemsState ProdItemsState) ListenForFilterIn(
+func (itemsState ItemsState) ListenForFilterIn(
 	onReady chan interface{},
 	stop chan interface{},
 	onStopped chan interface{},

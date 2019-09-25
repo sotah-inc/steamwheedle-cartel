@@ -12,7 +12,7 @@ import (
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/state/subjects"
 )
 
-func ReceiveSyncedItems(itemsState ProdItemsState, idNameMap sotah.ItemIdNameMap) error {
+func ReceiveSyncedItems(itemsState ItemsState, idNameMap sotah.ItemIdNameMap) error {
 	// declare channels for persisting in
 	encodedIn := make(chan database.PersistEncodedItemsInJob)
 
@@ -40,7 +40,7 @@ func ReceiveSyncedItems(itemsState ProdItemsState, idNameMap sotah.ItemIdNameMap
 	return itemsState.IO.Databases.ItemsDatabase.PersistEncodedItems(encodedIn, idNameMap)
 }
 
-func (itemsState ProdItemsState) ListenForSyncedItems(
+func (itemsState ItemsState) ListenForSyncedItems(
 	onReady chan interface{},
 	stop chan interface{},
 	onStopped chan interface{},

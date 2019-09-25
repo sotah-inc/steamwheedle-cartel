@@ -8,7 +8,7 @@ import (
 	prodState "github.com/sotah-inc/steamwheedle-cartel/pkg/state/prod"
 )
 
-func ProdItems(config prodState.ProdItemsStateConfig) error {
+func Items(config prodState.ItemsStateConfig) error {
 	logging.Info("Starting prod-items")
 
 	// establishing a state
