@@ -1,6 +1,9 @@
 package prod
 
 import (
+	"io/ioutil"
+	"os"
+
 	"cloud.google.com/go/storage"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/bus"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/database"
@@ -12,6 +15,7 @@ import (
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/state/subjects"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/store"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/store/regions"
+	"github.com/sotah-inc/steamwheedle-cartel/pkg/util"
 	"github.com/twinj/uuid"
 )
 
@@ -58,6 +62,10 @@ func NewProdItemsState(config ItemsStateConfig) (ItemsState, error) {
 		return ItemsState{}, err
 	}
 
+	if err := itemsState.resolveDatabaseFile(config.ItemsDatabaseDir, storeClient); err != nil {
+		return ItemsState{}, err
+	}
+
 	// initializing a reporter
 	itemsState.IO.Reporter = metric.NewReporter(mess)
 
@@ -89,4 +97,57 @@ type ItemsState struct {
 
 	ItemsBase   store.ItemsBase
 	ItemsBucket *storage.BucketHandle
+}
+
+func (itemsState ItemsState) resolveDatabaseFile(itemsDatabaseDir string, storeClient store.Client) error {
+	itemsDbFilepath, err := database.ItemsDatabasePath(itemsDatabaseDir)
+	if err != nil {
+		return err
+	}
+
+	exists, err := func() (bool, error) {
+		if _, err = os.Stat(itemsDbFilepath); err != nil {
+			if os.IsNotExist(err) {
+				return false, nil
+			}
+
+			return false, err
+		}
+
+		return true, nil
+	}()
+	if err != nil {
+		return err
+	}
+
+	if exists {
+		return nil
+	}
+
+	bootBase := store.NewBootBase(storeClient, regions.USCentral1)
+	bootBucket, err := bootBase.GetFirmBucket()
+	if err != nil {
+		return err
+	}
+
+	obj, err := bootBase.GetFirmObject("items.db", bootBucket)
+	if err != nil {
+		return err
+	}
+
+	reader, err := obj.ReadCompressed(false).NewReader(storeClient.Context)
+	if err != nil {
+		return err
+	}
+
+	data, err := ioutil.ReadAll(reader)
+	if err != nil {
+		return err
+	}
+
+	if err := util.WriteFile(itemsDbFilepath, data); err != nil {
+		return err
+	}
+
+	return nil
 }
