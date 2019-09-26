@@ -40,3 +40,6 @@
 [submodule "extern/bilgewater-cartel"]
 	path = extern/bilgewater-cartel
 	url = git@github.com:sotah-inc/bilgewater-cartel.git
+[submodule "extern/bilgewater-cartel-telegraf"]
+	path = extern/bilgewater-cartel-telegraf
+	url = git@github.com:sotah-inc/bilgewater-cartel-telegraf.git
