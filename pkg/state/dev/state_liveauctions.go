@@ -28,6 +28,7 @@ func NewLiveAuctionsState(config LiveAuctionsStateConfig) (LiveAuctionsState, er
 	laState := LiveAuctionsState{
 		State: state.NewState(uuid.NewV4(), false),
 	}
+	laState.Statuses = sotah.Statuses{}
 
 	// connecting to the messenger host
 	logging.Info("Connecting messenger")
