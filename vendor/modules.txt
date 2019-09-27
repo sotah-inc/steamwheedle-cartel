@@ -21,7 +21,7 @@ cloud.google.com/go/internal/trace
 # github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
 github.com/alecthomas/template
 github.com/alecthomas/template/parse
-# github.com/alecthomas/units v0.0.0-20190717042225-c3de453c63f4
+# github.com/alecthomas/units v0.0.0-20190924025748-f65c72e2690d
 github.com/alecthomas/units
 # github.com/boltdb/bolt v1.3.1
 github.com/boltdb/bolt
@@ -55,7 +55,7 @@ github.com/nats-io/nuid
 github.com/pmezard/go-difflib/difflib
 # github.com/sirupsen/logrus v1.4.2
 github.com/sirupsen/logrus
-# github.com/stretchr/testify v1.3.0
+# github.com/stretchr/testify v1.4.0
 github.com/stretchr/testify/assert
 # github.com/twinj/uuid v1.0.0
 github.com/twinj/uuid
@@ -181,3 +181,5 @@ google.golang.org/grpc/internal/syscall
 google.golang.org/grpc/credentials/oauth
 # gopkg.in/alecthomas/kingpin.v2 v2.2.6
 gopkg.in/alecthomas/kingpin.v2
+# gopkg.in/yaml.v2 v2.2.2
+gopkg.in/yaml.v2
