@@ -25,6 +25,7 @@ func NewPricelistHistoriesState(config PricelistHistoriesStateConfig) (Pricelist
 	phState := PricelistHistoriesState{
 		State: state.NewState(uuid.NewV4(), false),
 	}
+	phState.Statuses = sotah.Statuses{}
 
 	// connecting to the messenger host
 	mess, err := messenger.NewMessenger(config.MessengerHost, config.MessengerPort)
