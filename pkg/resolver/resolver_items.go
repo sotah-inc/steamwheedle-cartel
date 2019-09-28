@@ -58,11 +58,15 @@ func (r Resolver) GetItems(primaryRegion sotah.Region, IDs []blizzard.ItemID) ch
 	postWork := func() {
 		close(out)
 	}
-	util.Work(32, worker, postWork)
+	util.Work(8, worker, postWork)
 
 	// queueing up the items
 	go func() {
-		for _, ID := range IDs {
+		for i, ID := range IDs {
+			if i > 50 {
+				break
+			}
+
 			in <- ID
 		}
 
