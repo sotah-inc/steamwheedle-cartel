@@ -26,7 +26,7 @@ func PricelistHistories(config devState.PricelistHistoriesStateConfig) error {
 	// pruning old data
 	earliestTime := database.RetentionLimit()
 	for _, reg := range phState.Regions {
-		regionDatabaseDir := fmt.Sprintf("%s/%s", config.PricelistHistoriesDatabaseDir, reg.Name)
+		regionDatabaseDir := fmt.Sprintf("%s/pricelist-histories/%s", config.PricelistHistoriesDatabaseDir, reg.Name)
 
 		for _, rea := range phState.Statuses[reg.Name].Realms {
 			realmDatabaseDir := fmt.Sprintf("%s/%s", regionDatabaseDir, rea.Slug)
