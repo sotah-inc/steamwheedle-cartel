@@ -3,7 +3,6 @@ package dev
 import (
 	"fmt"
 
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/diskstore"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/messenger"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/metric"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/sotah"
@@ -69,19 +68,6 @@ func NewPricelistHistoriesState(config PricelistHistoriesStateConfig) (Pricelist
 	if err := util.EnsureDirsExist(databasePaths); err != nil {
 		return PricelistHistoriesState{}, err
 	}
-
-	// establishing a store
-	cacheDirs := []string{
-		config.DiskStoreCacheDir,
-		fmt.Sprintf("%s/auctions", config.DiskStoreCacheDir),
-	}
-	for _, reg := range phState.Regions {
-		cacheDirs = append(cacheDirs, fmt.Sprintf("%s/auctions/%s", config.DiskStoreCacheDir, reg.Name))
-	}
-	if err := util.EnsureDirsExist(cacheDirs); err != nil {
-		return PricelistHistoriesState{}, err
-	}
-	phState.IO.DiskStore = diskstore.NewDiskStore(config.DiskStoreCacheDir)
 
 	return phState, nil
 }
