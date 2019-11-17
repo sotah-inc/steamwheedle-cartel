@@ -43,3 +43,6 @@
 [submodule "extern/bilgewater-cartel-transit"]
 	path = extern/bilgewater-cartel-transit
 	url = git@github.com:sotah-inc/bilgewater-cartel-transit.git
+[submodule "extern/steamwheedle-cartel-server"]
+	path = extern/steamwheedle-cartel-server
+	url = ssh://adrian@sotah.info@source.developers.google.com:2022/p/sotah-prod/r/steamwheedle-cartel-server
