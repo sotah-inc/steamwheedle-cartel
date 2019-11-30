@@ -4,13 +4,12 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/state"
-
 	"github.com/sirupsen/logrus"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/blizzard"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/logging"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/metric"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/sotah"
+	"github.com/sotah-inc/steamwheedle-cartel/pkg/state"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/state/subjects"
 )
 
@@ -127,7 +126,10 @@ func (sta APIState) collectRegions() {
 				receivedItemIds[itemId] = struct{}{}
 			}
 		}
-		logging.WithField("region", regionName).Debug("Downloaded and persisted region")
+		logging.WithFields(logrus.Fields{
+			"region":                   regionName,
+			"realm-modification-dates": sta.RegionRealmModificationDates,
+		}).Debug("Downloaded and persisted region")
 
 		// resolving items
 		err := func() error {

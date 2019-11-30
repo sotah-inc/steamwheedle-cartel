@@ -3,7 +3,9 @@ package sotah
 import (
 	"encoding/json"
 
+	"github.com/sirupsen/logrus"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/blizzard"
+	"github.com/sotah-inc/steamwheedle-cartel/pkg/logging"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/util"
 )
 
@@ -53,10 +55,20 @@ func (d RegionRealmModificationDates) Set(
 ) RegionRealmModificationDates {
 	realmsModDates, ok := d[regionName]
 	if !ok {
+		logging.WithFields(logrus.Fields{
+			"region": regionName,
+			"realm":  realmSlug,
+		}).Info("Adding new entry to region-realm-mod-dates")
+
 		d[regionName] = map[blizzard.RealmSlug]RealmModificationDates{realmSlug: modDates}
 
 		return d
 	}
+
+	logging.WithFields(logrus.Fields{
+		"region": regionName,
+		"realm":  realmSlug,
+	}).Info("Setting realm value in existing region in region-realm-mod-dates")
 
 	realmsModDates[realmSlug] = modDates
 	d[regionName] = realmsModDates
