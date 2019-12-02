@@ -8,14 +8,14 @@ import (
 	"time"
 
 	"cloud.google.com/go/pubsub"
-	"git.sotah.info/steamwheedle-cartel/pkg/bus/codes"
-	"git.sotah.info/steamwheedle-cartel/pkg/logging"
-	"git.sotah.info/steamwheedle-cartel/pkg/metric"
-	"git.sotah.info/steamwheedle-cartel/pkg/state/subjects"
-	"git.sotah.info/steamwheedle-cartel/pkg/util"
 	"github.com/sirupsen/logrus"
 	"github.com/twinj/uuid"
 	"google.golang.org/api/iterator"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/bus/codes"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/logging"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/metric"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/state/subjects"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/util"
 )
 
 func NewClient(projectID string, subscriberId string) (Client, error) {

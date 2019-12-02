@@ -2,7 +2,7 @@ package store
 
 import (
 	"cloud.google.com/go/storage"
-	"git.sotah.info/steamwheedle-cartel/pkg/store/regions"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/store/regions"
 )
 
 func NewTransferBase(c Client, location regions.Region, bucketName string) TransferBase {

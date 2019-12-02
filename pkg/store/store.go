@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"cloud.google.com/go/storage"
-	"git.sotah.info/steamwheedle-cartel/pkg/sotah"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/sotah"
 )
 
 func NewClient(projectID string) (Client, error) {

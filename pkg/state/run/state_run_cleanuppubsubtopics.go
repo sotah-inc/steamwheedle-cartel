@@ -3,9 +3,9 @@ package run
 import (
 	"log"
 
-	"git.sotah.info/steamwheedle-cartel/pkg/bus"
-	"git.sotah.info/steamwheedle-cartel/pkg/state"
 	"github.com/twinj/uuid"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/bus"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/state"
 )
 
 type CleanupPubsubTopicsStateConfig struct {

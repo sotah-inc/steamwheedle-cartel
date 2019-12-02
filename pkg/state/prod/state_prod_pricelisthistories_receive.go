@@ -3,16 +3,16 @@ package prod
 import (
 	"time"
 
-	"git.sotah.info/steamwheedle-cartel/pkg/blizzard"
-	"git.sotah.info/steamwheedle-cartel/pkg/bus"
-	"git.sotah.info/steamwheedle-cartel/pkg/bus/codes"
-	"git.sotah.info/steamwheedle-cartel/pkg/database"
-	"git.sotah.info/steamwheedle-cartel/pkg/logging"
-	"git.sotah.info/steamwheedle-cartel/pkg/metric"
-	"git.sotah.info/steamwheedle-cartel/pkg/sotah"
-	"git.sotah.info/steamwheedle-cartel/pkg/state/subjects"
-	"git.sotah.info/steamwheedle-cartel/pkg/store"
 	"github.com/sirupsen/logrus"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/blizzard"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/bus"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/bus/codes"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/database"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/logging"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/metric"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/sotah"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/state/subjects"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/store"
 )
 
 func HandleComputedPricelistHistories(

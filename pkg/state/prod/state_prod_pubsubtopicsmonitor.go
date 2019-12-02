@@ -1,15 +1,15 @@
 package prod
 
 import (
-	"git.sotah.info/steamwheedle-cartel/pkg/bus"
-	"git.sotah.info/steamwheedle-cartel/pkg/database"
-	"git.sotah.info/steamwheedle-cartel/pkg/hell"
-	"git.sotah.info/steamwheedle-cartel/pkg/logging"
-	"git.sotah.info/steamwheedle-cartel/pkg/messenger"
-	"git.sotah.info/steamwheedle-cartel/pkg/metric"
-	"git.sotah.info/steamwheedle-cartel/pkg/state"
-	"git.sotah.info/steamwheedle-cartel/pkg/state/subjects"
 	"github.com/twinj/uuid"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/bus"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/database"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/hell"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/logging"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/messenger"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/metric"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/state"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/state/subjects"
 )
 
 type PubsubTopicsMonitorStateConfig struct {

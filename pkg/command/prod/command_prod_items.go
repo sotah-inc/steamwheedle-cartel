@@ -4,8 +4,8 @@ import (
 	"os"
 	"os/signal"
 
-	"git.sotah.info/steamwheedle-cartel/pkg/logging"
-	prodState "git.sotah.info/steamwheedle-cartel/pkg/state/prod"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/logging"
+	prodState "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/state/prod"
 )
 
 func Items(config prodState.ItemsStateConfig) error {

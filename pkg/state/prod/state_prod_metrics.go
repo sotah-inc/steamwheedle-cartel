@@ -3,13 +3,13 @@ package prod
 import (
 	"encoding/json"
 
-	"git.sotah.info/steamwheedle-cartel/pkg/bus"
-	"git.sotah.info/steamwheedle-cartel/pkg/logging"
-	"git.sotah.info/steamwheedle-cartel/pkg/messenger"
-	"git.sotah.info/steamwheedle-cartel/pkg/metric"
-	"git.sotah.info/steamwheedle-cartel/pkg/state"
-	"git.sotah.info/steamwheedle-cartel/pkg/state/subjects"
 	"github.com/twinj/uuid"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/bus"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/logging"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/messenger"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/metric"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/state"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/state/subjects"
 )
 
 type ProdMetricsStateConfig struct {

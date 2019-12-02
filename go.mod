@@ -1,4 +1,4 @@
-module git.sotah.info/steamwheedle-cartel
+module source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel
 
 require (
 	cloud.google.com/go v0.36.0

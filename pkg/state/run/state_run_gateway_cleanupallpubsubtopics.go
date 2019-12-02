@@ -1,7 +1,7 @@
 package run
 
 import (
-	"git.sotah.info/steamwheedle-cartel/pkg/logging"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/logging"
 )
 
 func (sta GatewayState) CleanupAllPubsubTopics() error {

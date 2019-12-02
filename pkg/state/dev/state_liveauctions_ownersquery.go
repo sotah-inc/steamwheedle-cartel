@@ -5,14 +5,14 @@ import (
 	"errors"
 	"sort"
 
-	"git.sotah.info/steamwheedle-cartel/pkg/blizzard"
-	"git.sotah.info/steamwheedle-cartel/pkg/messenger"
-	"git.sotah.info/steamwheedle-cartel/pkg/messenger/codes"
-	"git.sotah.info/steamwheedle-cartel/pkg/sotah"
-	"git.sotah.info/steamwheedle-cartel/pkg/state"
-	"git.sotah.info/steamwheedle-cartel/pkg/state/subjects"
 	"github.com/lithammer/fuzzysearch/fuzzy"
 	nats "github.com/nats-io/go-nats"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/blizzard"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/messenger"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/messenger/codes"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/sotah"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/state"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/state/subjects"
 )
 
 type ownersQueryItem struct {

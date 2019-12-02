@@ -5,10 +5,10 @@ import (
 	"os/signal"
 	"time"
 
-	"git.sotah.info/steamwheedle-cartel/pkg/logging"
-	"git.sotah.info/steamwheedle-cartel/pkg/metric"
-	"git.sotah.info/steamwheedle-cartel/pkg/sotah"
-	prodState "git.sotah.info/steamwheedle-cartel/pkg/state/prod"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/logging"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/metric"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/sotah"
+	prodState "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/state/prod"
 )
 
 func ProdPricelistHistories(config prodState.ProdPricelistHistoriesStateConfig) error {

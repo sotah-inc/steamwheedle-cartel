@@ -3,8 +3,8 @@ package database
 import (
 	"time"
 
-	"git.sotah.info/steamwheedle-cartel/pkg/blizzard"
-	"git.sotah.info/steamwheedle-cartel/pkg/sotah"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/blizzard"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/sotah"
 )
 
 type regionRealmDatabaseShards map[blizzard.RegionName]realmDatabaseShards

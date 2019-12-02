@@ -3,10 +3,10 @@ package database
 import (
 	"time"
 
-	"git.sotah.info/steamwheedle-cartel/pkg/logging"
-	"git.sotah.info/steamwheedle-cartel/pkg/sotah"
 	"github.com/boltdb/bolt"
 	"github.com/sirupsen/logrus"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/logging"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/sotah"
 )
 
 func NewPubsubTopicsDatabase(dbDir string) (PubsubTopicsDatabase, error) {

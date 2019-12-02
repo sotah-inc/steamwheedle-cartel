@@ -4,13 +4,13 @@ import (
 	"log"
 
 	"cloud.google.com/go/storage"
-	"git.sotah.info/steamwheedle-cartel/pkg/blizzard"
-	"git.sotah.info/steamwheedle-cartel/pkg/sotah"
-	"git.sotah.info/steamwheedle-cartel/pkg/sotah/gameversions"
-	"git.sotah.info/steamwheedle-cartel/pkg/state"
-	"git.sotah.info/steamwheedle-cartel/pkg/store"
-	"git.sotah.info/steamwheedle-cartel/pkg/store/regions"
 	"github.com/twinj/uuid"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/blizzard"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/sotah"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/sotah/gameversions"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/state"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/store"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/store/regions"
 )
 
 type DownloadAuctionsStateConfig struct {

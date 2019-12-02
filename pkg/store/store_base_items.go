@@ -5,15 +5,15 @@ import (
 	"fmt"
 	"io/ioutil"
 
-	"git.sotah.info/steamwheedle-cartel/pkg/logging"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/logging"
 
 	"cloud.google.com/go/storage"
-	"git.sotah.info/steamwheedle-cartel/pkg/blizzard"
-	"git.sotah.info/steamwheedle-cartel/pkg/sotah"
-	"git.sotah.info/steamwheedle-cartel/pkg/sotah/gameversions"
-	"git.sotah.info/steamwheedle-cartel/pkg/store/regions"
-	"git.sotah.info/steamwheedle-cartel/pkg/util"
 	"github.com/sirupsen/logrus"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/blizzard"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/sotah"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/sotah/gameversions"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/store/regions"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/util"
 )
 
 func NewItemsBase(c Client, location regions.Region, version gameversions.GameVersion) ItemsBase {

@@ -7,11 +7,11 @@ import (
 	"time"
 
 	"cloud.google.com/go/pubsub"
-	"git.sotah.info/steamwheedle-cartel/pkg/blizzard"
-	"git.sotah.info/steamwheedle-cartel/pkg/database"
-	"git.sotah.info/steamwheedle-cartel/pkg/logging"
 	"github.com/sirupsen/logrus"
 	"github.com/twinj/uuid"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/blizzard"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/database"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/logging"
 )
 
 type MessageResponses struct {

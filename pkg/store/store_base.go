@@ -4,8 +4,8 @@ import (
 	"errors"
 
 	"cloud.google.com/go/storage"
-	"git.sotah.info/steamwheedle-cartel/pkg/sotah"
-	"git.sotah.info/steamwheedle-cartel/pkg/store/regions"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/sotah"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/store/regions"
 )
 
 type base struct {

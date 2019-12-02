@@ -1,12 +1,12 @@
 package prod
 
 import (
-	"git.sotah.info/steamwheedle-cartel/pkg/act"
-	"git.sotah.info/steamwheedle-cartel/pkg/bus"
-	"git.sotah.info/steamwheedle-cartel/pkg/bus/codes"
-	"git.sotah.info/steamwheedle-cartel/pkg/logging"
-	"git.sotah.info/steamwheedle-cartel/pkg/sotah"
-	"git.sotah.info/steamwheedle-cartel/pkg/state/subjects"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/act"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/bus"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/bus/codes"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/logging"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/sotah"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/state/subjects"
 )
 
 func (sta GatewayState) RunComputeAllLiveAuctions(tuples sotah.RegionRealmTimestampTuples) error {

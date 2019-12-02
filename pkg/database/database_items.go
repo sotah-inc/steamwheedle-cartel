@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"git.sotah.info/steamwheedle-cartel/pkg/blizzard"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/blizzard"
 )
 
 // bucketing

@@ -4,7 +4,7 @@ import (
 	"errors"
 	"net/http"
 
-	"git.sotah.info/steamwheedle-cartel/pkg/logging"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/logging"
 )
 
 func (c Client) CleanupAllAuctions() error {

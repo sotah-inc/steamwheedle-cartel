@@ -5,9 +5,9 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"git.sotah.info/steamwheedle-cartel/pkg/util"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/util"
 
-	"git.sotah.info/steamwheedle-cartel/pkg/blizzard"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/blizzard"
 )
 
 func NewRegionRealmTimestampTuples(data string) (RegionRealmTimestampTuples, error) {

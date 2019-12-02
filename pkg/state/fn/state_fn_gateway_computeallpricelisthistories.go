@@ -6,13 +6,13 @@ import (
 	"net/http"
 	"time"
 
-	"git.sotah.info/steamwheedle-cartel/pkg/act"
-	bCodes "git.sotah.info/steamwheedle-cartel/pkg/bus/codes"
-	"git.sotah.info/steamwheedle-cartel/pkg/database"
-	"git.sotah.info/steamwheedle-cartel/pkg/logging"
-	"git.sotah.info/steamwheedle-cartel/pkg/metric"
-	"git.sotah.info/steamwheedle-cartel/pkg/sotah"
 	"github.com/sirupsen/logrus"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/act"
+	bCodes "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/bus/codes"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/database"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/logging"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/metric"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/sotah"
 )
 
 func (sta GatewayState) PublishComputedPricelistHistories(tuples sotah.RegionRealmTimestampTuples) error {

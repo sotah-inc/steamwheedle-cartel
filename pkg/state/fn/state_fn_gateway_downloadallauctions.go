@@ -7,14 +7,14 @@ import (
 	"net/http"
 	"time"
 
-	"git.sotah.info/steamwheedle-cartel/pkg/act"
-	"git.sotah.info/steamwheedle-cartel/pkg/blizzard"
-	bCodes "git.sotah.info/steamwheedle-cartel/pkg/bus/codes"
-	"git.sotah.info/steamwheedle-cartel/pkg/logging"
-	"git.sotah.info/steamwheedle-cartel/pkg/metric"
-	"git.sotah.info/steamwheedle-cartel/pkg/sotah"
-	"git.sotah.info/steamwheedle-cartel/pkg/sotah/gameversions"
 	"github.com/sirupsen/logrus"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/act"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/blizzard"
+	bCodes "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/bus/codes"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/logging"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/metric"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/sotah"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/sotah/gameversions"
 )
 
 func (sta GatewayState) PublishDownloadedRegionRealmTuples(tuples sotah.RegionRealmTimestampTuples) error {

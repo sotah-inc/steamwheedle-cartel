@@ -4,9 +4,9 @@ import (
 	"os"
 	"os/signal"
 
-	"git.sotah.info/steamwheedle-cartel/pkg/logging"
-	"git.sotah.info/steamwheedle-cartel/pkg/sotah"
-	devState "git.sotah.info/steamwheedle-cartel/pkg/state/dev"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/logging"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/sotah"
+	devState "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/state/dev"
 )
 
 func Api(config devState.APIStateConfig) error {

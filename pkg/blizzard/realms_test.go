@@ -3,8 +3,8 @@ package blizzard
 import (
 	"testing"
 
-	"git.sotah.info/steamwheedle-cartel/pkg/utiltest"
 	"github.com/stretchr/testify/assert"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/utiltest"
 )
 
 func TestNewRealmFromFilepath(t *testing.T) {

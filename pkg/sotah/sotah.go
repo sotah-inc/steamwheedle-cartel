@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"time"
 
-	"git.sotah.info/steamwheedle-cartel/pkg/blizzard"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/blizzard"
 )
 
 func NewStatus(reg Region, stat blizzard.Status) Status {

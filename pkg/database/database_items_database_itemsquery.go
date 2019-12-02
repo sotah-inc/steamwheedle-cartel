@@ -4,10 +4,10 @@ import (
 	"encoding/json"
 	"sort"
 
-	"git.sotah.info/steamwheedle-cartel/pkg/blizzard"
-	"git.sotah.info/steamwheedle-cartel/pkg/database/codes"
-	"git.sotah.info/steamwheedle-cartel/pkg/sotah"
 	"github.com/lithammer/fuzzysearch/fuzzy"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/blizzard"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/database/codes"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/sotah"
 )
 
 func NewQueryItemsRequest(data []byte) (QueryItemsRequest, error) {

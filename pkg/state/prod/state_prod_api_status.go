@@ -3,14 +3,14 @@ package prod
 import (
 	"encoding/json"
 
-	"git.sotah.info/steamwheedle-cartel/pkg/bus"
-	bCodes "git.sotah.info/steamwheedle-cartel/pkg/bus/codes"
-	"git.sotah.info/steamwheedle-cartel/pkg/logging"
-	"git.sotah.info/steamwheedle-cartel/pkg/messenger"
-	mCodes "git.sotah.info/steamwheedle-cartel/pkg/messenger/codes"
-	"git.sotah.info/steamwheedle-cartel/pkg/state"
-	"git.sotah.info/steamwheedle-cartel/pkg/state/subjects"
 	nats "github.com/nats-io/go-nats"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/bus"
+	bCodes "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/bus/codes"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/logging"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/messenger"
+	mCodes "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/messenger/codes"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/state"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/state/subjects"
 )
 
 func (apiState ApiState) ListenForBusStatus(

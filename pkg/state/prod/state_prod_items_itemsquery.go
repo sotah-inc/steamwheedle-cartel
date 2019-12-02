@@ -3,15 +3,15 @@ package prod
 import (
 	"time"
 
-	"git.sotah.info/steamwheedle-cartel/pkg/database"
-	dCodes "git.sotah.info/steamwheedle-cartel/pkg/database/codes"
-	"git.sotah.info/steamwheedle-cartel/pkg/logging"
-	"git.sotah.info/steamwheedle-cartel/pkg/messenger"
-	mCodes "git.sotah.info/steamwheedle-cartel/pkg/messenger/codes"
-	"git.sotah.info/steamwheedle-cartel/pkg/state"
-	"git.sotah.info/steamwheedle-cartel/pkg/state/subjects"
 	nats "github.com/nats-io/go-nats"
 	"github.com/sirupsen/logrus"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/database"
+	dCodes "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/database/codes"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/logging"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/messenger"
+	mCodes "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/messenger/codes"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/state"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/state/subjects"
 )
 
 func (itemsState ItemsState) ListenForItemsQuery(stop state.ListenStopChan) error {

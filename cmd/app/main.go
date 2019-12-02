@@ -4,17 +4,17 @@ import (
 	"fmt"
 	"os"
 
-	"git.sotah.info/steamwheedle-cartel/cmd/app/commands"
-	devCommand "git.sotah.info/steamwheedle-cartel/pkg/command/dev"
-	prodCommand "git.sotah.info/steamwheedle-cartel/pkg/command/prod"
-	"git.sotah.info/steamwheedle-cartel/pkg/logging"
-	"git.sotah.info/steamwheedle-cartel/pkg/logging/stackdriver"
-	"git.sotah.info/steamwheedle-cartel/pkg/sotah"
-	devState "git.sotah.info/steamwheedle-cartel/pkg/state/dev"
-	prodState "git.sotah.info/steamwheedle-cartel/pkg/state/prod"
 	"github.com/sirupsen/logrus"
 	"github.com/twinj/uuid"
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/cmd/app/commands"
+	devCommand "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/command/dev"
+	prodCommand "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/command/prod"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/logging"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/logging/stackdriver"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/sotah"
+	devState "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/state/dev"
+	prodState "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/state/prod"
 )
 
 type commandMap map[string]func() error

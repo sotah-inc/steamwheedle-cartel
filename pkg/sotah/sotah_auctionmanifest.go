@@ -3,7 +3,7 @@ package sotah
 import (
 	"encoding/json"
 
-	"git.sotah.info/steamwheedle-cartel/pkg/util"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/util"
 )
 
 func NewAuctionManifestFromMap(am map[UnixTimestamp]interface{}) AuctionManifest {
