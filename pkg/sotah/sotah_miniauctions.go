@@ -4,10 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/blizzard"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/sotah/sortdirections"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/sotah/sortkinds"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/util"
+	"git.sotah.info/steamwheedle-cartel/pkg/blizzard"
+	"git.sotah.info/steamwheedle-cartel/pkg/sotah/sortdirections"
+	"git.sotah.info/steamwheedle-cartel/pkg/sotah/sortkinds"
+	"git.sotah.info/steamwheedle-cartel/pkg/util"
 )
 
 // miniauction

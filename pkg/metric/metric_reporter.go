@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/logging"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/messenger"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/metric/kinds"
+	"git.sotah.info/steamwheedle-cartel/pkg/logging"
+	"git.sotah.info/steamwheedle-cartel/pkg/messenger"
+	"git.sotah.info/steamwheedle-cartel/pkg/metric/kinds"
 )
 
 const (

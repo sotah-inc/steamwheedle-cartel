@@ -6,17 +6,17 @@ import (
 	"io/ioutil"
 	"time"
 
+	"git.sotah.info/steamwheedle-cartel/pkg/blizzard"
+	"git.sotah.info/steamwheedle-cartel/pkg/bus"
+	"git.sotah.info/steamwheedle-cartel/pkg/bus/codes"
+	"git.sotah.info/steamwheedle-cartel/pkg/database"
+	"git.sotah.info/steamwheedle-cartel/pkg/logging"
+	"git.sotah.info/steamwheedle-cartel/pkg/metric"
+	"git.sotah.info/steamwheedle-cartel/pkg/sotah"
+	"git.sotah.info/steamwheedle-cartel/pkg/sotah/gameversions"
+	"git.sotah.info/steamwheedle-cartel/pkg/state/subjects"
+	"git.sotah.info/steamwheedle-cartel/pkg/util"
 	"github.com/sirupsen/logrus"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/blizzard"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/bus"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/bus/codes"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/database"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/logging"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/metric"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/sotah"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/sotah/gameversions"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/state/subjects"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/util"
 )
 
 func HandleComputedLiveAuctions(liveAuctionsState ProdLiveAuctionsState, tuples sotah.RegionRealmTuples) {

@@ -4,17 +4,17 @@ import (
 	"fmt"
 	"os"
 
+	"git.sotah.info/steamwheedle-cartel/cmd/app/commands"
+	devCommand "git.sotah.info/steamwheedle-cartel/pkg/command/dev"
+	prodCommand "git.sotah.info/steamwheedle-cartel/pkg/command/prod"
+	"git.sotah.info/steamwheedle-cartel/pkg/logging"
+	"git.sotah.info/steamwheedle-cartel/pkg/logging/stackdriver"
+	"git.sotah.info/steamwheedle-cartel/pkg/sotah"
+	devState "git.sotah.info/steamwheedle-cartel/pkg/state/dev"
+	prodState "git.sotah.info/steamwheedle-cartel/pkg/state/prod"
 	"github.com/sirupsen/logrus"
-	"github.com/sotah-inc/steamwheedle-cartel/cmd/app/commands"
-	devCommand "github.com/sotah-inc/steamwheedle-cartel/pkg/command/dev"
-	prodCommand "github.com/sotah-inc/steamwheedle-cartel/pkg/command/prod"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/logging"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/logging/stackdriver"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/sotah"
-	devState "github.com/sotah-inc/steamwheedle-cartel/pkg/state/dev"
-	prodState "github.com/sotah-inc/steamwheedle-cartel/pkg/state/prod"
 	"github.com/twinj/uuid"
-	"gopkg.in/alecthomas/kingpin.v2"
+	kingpin "gopkg.in/alecthomas/kingpin.v2"
 )
 
 type commandMap map[string]func() error

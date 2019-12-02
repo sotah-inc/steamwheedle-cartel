@@ -3,7 +3,7 @@ package blizzard
 import (
 	"testing"
 
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/utiltest"
+	"git.sotah.info/steamwheedle-cartel/pkg/utiltest"
 	"github.com/stretchr/testify/assert"
 )
 

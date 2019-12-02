@@ -5,14 +5,14 @@ import (
 
 	"cloud.google.com/go/pubsub"
 	"cloud.google.com/go/storage"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/blizzard"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/bus"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/sotah"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/sotah/gameversions"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/state"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/state/subjects"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/store"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/store/regions"
+	"git.sotah.info/steamwheedle-cartel/pkg/blizzard"
+	"git.sotah.info/steamwheedle-cartel/pkg/bus"
+	"git.sotah.info/steamwheedle-cartel/pkg/sotah"
+	"git.sotah.info/steamwheedle-cartel/pkg/sotah/gameversions"
+	"git.sotah.info/steamwheedle-cartel/pkg/state"
+	"git.sotah.info/steamwheedle-cartel/pkg/state/subjects"
+	"git.sotah.info/steamwheedle-cartel/pkg/store"
+	"git.sotah.info/steamwheedle-cartel/pkg/store/regions"
 	"github.com/twinj/uuid"
 )
 

@@ -4,8 +4,8 @@ import (
 	"encoding/binary"
 	"fmt"
 
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/blizzard"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/sotah"
+	"git.sotah.info/steamwheedle-cartel/pkg/blizzard"
+	"git.sotah.info/steamwheedle-cartel/pkg/sotah"
 )
 
 // keying

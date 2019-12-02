@@ -1,12 +1,12 @@
 package prod
 
 import (
+	"git.sotah.info/steamwheedle-cartel/pkg/blizzard"
+	"git.sotah.info/steamwheedle-cartel/pkg/database"
+	"git.sotah.info/steamwheedle-cartel/pkg/logging"
+	"git.sotah.info/steamwheedle-cartel/pkg/sotah"
+	"git.sotah.info/steamwheedle-cartel/pkg/store"
 	"github.com/sirupsen/logrus"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/blizzard"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/database"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/logging"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/sotah"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/store"
 )
 
 func (phState ProdPricelistHistoriesState) Sync() error {

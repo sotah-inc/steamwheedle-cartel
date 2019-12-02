@@ -4,8 +4,8 @@ import (
 	"os"
 	"os/signal"
 
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/logging"
-	prodState "github.com/sotah-inc/steamwheedle-cartel/pkg/state/prod"
+	"git.sotah.info/steamwheedle-cartel/pkg/logging"
+	prodState "git.sotah.info/steamwheedle-cartel/pkg/state/prod"
 )
 
 func ProdApi(config prodState.ProdApiStateConfig) error {

@@ -9,8 +9,8 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/blizzard/itembinds"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/util"
+	"git.sotah.info/steamwheedle-cartel/pkg/blizzard/itembinds"
+	"git.sotah.info/steamwheedle-cartel/pkg/util"
 )
 
 const itemURLFormat = "https://%s/wow/item/%d"

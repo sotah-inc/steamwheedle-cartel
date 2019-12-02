@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/util"
+	"git.sotah.info/steamwheedle-cartel/pkg/util"
 )
 
 const itemClassesURLFormat = "https://%s/wow/data/item/classes"

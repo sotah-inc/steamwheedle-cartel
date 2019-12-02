@@ -3,7 +3,7 @@ package database
 import (
 	"fmt"
 
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/blizzard"
+	"git.sotah.info/steamwheedle-cartel/pkg/blizzard"
 )
 
 // bucketing

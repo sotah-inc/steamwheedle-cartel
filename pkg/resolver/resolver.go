@@ -1,8 +1,8 @@
 package resolver
 
 import (
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/blizzard"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/metric"
+	"git.sotah.info/steamwheedle-cartel/pkg/blizzard"
+	"git.sotah.info/steamwheedle-cartel/pkg/metric"
 )
 
 func NewResolver(bc blizzard.Client, re metric.Reporter) Resolver {

@@ -6,14 +6,14 @@ import (
 	"fmt"
 	"strconv"
 
+	"git.sotah.info/steamwheedle-cartel/pkg/blizzard"
+	"git.sotah.info/steamwheedle-cartel/pkg/logging"
+	"git.sotah.info/steamwheedle-cartel/pkg/sotah"
+	"git.sotah.info/steamwheedle-cartel/pkg/sotah/gameversions"
+	"git.sotah.info/steamwheedle-cartel/pkg/store"
+	"git.sotah.info/steamwheedle-cartel/pkg/util"
 	"github.com/boltdb/bolt"
 	"github.com/sirupsen/logrus"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/blizzard"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/logging"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/sotah"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/sotah/gameversions"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/store"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/util"
 )
 
 func NewItemsDatabase(dbDir string) (ItemsDatabase, error) {

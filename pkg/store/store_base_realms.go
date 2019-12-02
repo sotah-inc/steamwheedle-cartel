@@ -6,12 +6,12 @@ import (
 	"io/ioutil"
 
 	"cloud.google.com/go/storage"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/blizzard"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/logging"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/sotah"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/sotah/gameversions"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/store/regions"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/util"
+	"git.sotah.info/steamwheedle-cartel/pkg/blizzard"
+	"git.sotah.info/steamwheedle-cartel/pkg/logging"
+	"git.sotah.info/steamwheedle-cartel/pkg/sotah"
+	"git.sotah.info/steamwheedle-cartel/pkg/sotah/gameversions"
+	"git.sotah.info/steamwheedle-cartel/pkg/store/regions"
+	"git.sotah.info/steamwheedle-cartel/pkg/util"
 	"google.golang.org/api/iterator"
 )
 

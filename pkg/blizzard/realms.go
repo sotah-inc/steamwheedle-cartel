@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/blizzard/realmpopulations"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/blizzard/realmtypes"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/util"
+	"git.sotah.info/steamwheedle-cartel/pkg/blizzard/realmpopulations"
+	"git.sotah.info/steamwheedle-cartel/pkg/blizzard/realmtypes"
+	"git.sotah.info/steamwheedle-cartel/pkg/util"
 )
 
 // NewRealmFromFilepath loads a realm from a json file

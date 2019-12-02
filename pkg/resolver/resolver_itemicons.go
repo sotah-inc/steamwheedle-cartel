@@ -1,9 +1,9 @@
 package resolver
 
 import (
+	"git.sotah.info/steamwheedle-cartel/pkg/blizzard"
+	"git.sotah.info/steamwheedle-cartel/pkg/util"
 	"github.com/sirupsen/logrus"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/blizzard"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/util"
 )
 
 func (r Resolver) GetItemIconData(uri string) ([]byte, error) {

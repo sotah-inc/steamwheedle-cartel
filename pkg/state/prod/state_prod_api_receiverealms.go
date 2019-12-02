@@ -3,12 +3,12 @@ package prod
 import (
 	"encoding/json"
 
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/blizzard"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/bus"
-	bCodes "github.com/sotah-inc/steamwheedle-cartel/pkg/bus/codes"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/logging"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/sotah/gameversions"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/state/subjects"
+	"git.sotah.info/steamwheedle-cartel/pkg/blizzard"
+	"git.sotah.info/steamwheedle-cartel/pkg/bus"
+	bCodes "git.sotah.info/steamwheedle-cartel/pkg/bus/codes"
+	"git.sotah.info/steamwheedle-cartel/pkg/logging"
+	"git.sotah.info/steamwheedle-cartel/pkg/sotah/gameversions"
+	"git.sotah.info/steamwheedle-cartel/pkg/state/subjects"
 )
 
 func (apiState ApiState) ListenForReceiveRealms(

@@ -2,9 +2,10 @@ package diskstore
 
 import (
 	"fmt"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/blizzard"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/util"
 	"os"
+
+	"git.sotah.info/steamwheedle-cartel/pkg/blizzard"
+	"git.sotah.info/steamwheedle-cartel/pkg/util"
 )
 
 func (ds DiskStore) resolveItemFilepath(ID blizzard.ItemID) string {

@@ -3,11 +3,11 @@ package dev
 import (
 	"fmt"
 
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/messenger"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/metric"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/sotah"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/state"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/util"
+	"git.sotah.info/steamwheedle-cartel/pkg/messenger"
+	"git.sotah.info/steamwheedle-cartel/pkg/metric"
+	"git.sotah.info/steamwheedle-cartel/pkg/sotah"
+	"git.sotah.info/steamwheedle-cartel/pkg/state"
+	"git.sotah.info/steamwheedle-cartel/pkg/util"
 	"github.com/twinj/uuid"
 )
 

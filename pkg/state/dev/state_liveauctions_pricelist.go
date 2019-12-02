@@ -4,15 +4,15 @@ import (
 	"encoding/base64"
 	"encoding/json"
 
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/state"
+	"git.sotah.info/steamwheedle-cartel/pkg/state"
 
+	"git.sotah.info/steamwheedle-cartel/pkg/blizzard"
+	"git.sotah.info/steamwheedle-cartel/pkg/messenger"
+	"git.sotah.info/steamwheedle-cartel/pkg/messenger/codes"
+	"git.sotah.info/steamwheedle-cartel/pkg/sotah"
+	"git.sotah.info/steamwheedle-cartel/pkg/state/subjects"
+	"git.sotah.info/steamwheedle-cartel/pkg/util"
 	nats "github.com/nats-io/go-nats"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/blizzard"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/messenger"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/messenger/codes"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/sotah"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/state/subjects"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/util"
 )
 
 func newPriceListRequest(payload []byte) (priceListRequest, error) {

@@ -4,9 +4,9 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/sotah"
+	"git.sotah.info/steamwheedle-cartel/pkg/sotah"
 
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/logging"
+	"git.sotah.info/steamwheedle-cartel/pkg/logging"
 )
 
 func (c Client) ComputeAllLiveAuctions(tuples sotah.RegionRealmTimestampTuples) error {

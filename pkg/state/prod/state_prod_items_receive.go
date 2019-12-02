@@ -3,13 +3,13 @@ package prod
 import (
 	"time"
 
+	"git.sotah.info/steamwheedle-cartel/pkg/bus"
+	"git.sotah.info/steamwheedle-cartel/pkg/database"
+	"git.sotah.info/steamwheedle-cartel/pkg/logging"
+	"git.sotah.info/steamwheedle-cartel/pkg/metric"
+	"git.sotah.info/steamwheedle-cartel/pkg/sotah"
+	"git.sotah.info/steamwheedle-cartel/pkg/state/subjects"
 	"github.com/sirupsen/logrus"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/bus"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/database"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/logging"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/metric"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/sotah"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/state/subjects"
 )
 
 func ReceiveSyncedItems(itemsState ItemsState, idNameMap sotah.ItemIdNameMap) error {

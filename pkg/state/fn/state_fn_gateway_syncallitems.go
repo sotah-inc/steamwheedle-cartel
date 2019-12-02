@@ -6,14 +6,14 @@ import (
 	"net/http"
 	"time"
 
+	"git.sotah.info/steamwheedle-cartel/pkg/act"
+	"git.sotah.info/steamwheedle-cartel/pkg/blizzard"
+	"git.sotah.info/steamwheedle-cartel/pkg/bus/codes"
+	"git.sotah.info/steamwheedle-cartel/pkg/database"
+	"git.sotah.info/steamwheedle-cartel/pkg/logging"
+	"git.sotah.info/steamwheedle-cartel/pkg/metric"
+	"git.sotah.info/steamwheedle-cartel/pkg/sotah"
 	"github.com/sirupsen/logrus"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/act"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/blizzard"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/bus/codes"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/database"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/logging"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/metric"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/sotah"
 )
 
 func (sta GatewayState) HandleItemIds(ids blizzard.ItemIds) error { // generating new act client

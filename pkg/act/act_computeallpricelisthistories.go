@@ -4,8 +4,8 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/logging"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/sotah"
+	"git.sotah.info/steamwheedle-cartel/pkg/logging"
+	"git.sotah.info/steamwheedle-cartel/pkg/sotah"
 )
 
 func (c Client) ComputeAllPricelistHistories(tuples sotah.RegionRealmTimestampTuples) error {

@@ -4,11 +4,11 @@ import (
 	"io/ioutil"
 	"time"
 
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/sotah"
+	"git.sotah.info/steamwheedle-cartel/pkg/sotah"
 
+	"git.sotah.info/steamwheedle-cartel/pkg/blizzard"
+	"git.sotah.info/steamwheedle-cartel/pkg/logging"
 	"github.com/sirupsen/logrus"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/blizzard"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/logging"
 )
 
 func (sta ComputeLiveAuctionsState) Handle(tuple sotah.RegionRealmTimestampTuple) sotah.Message {

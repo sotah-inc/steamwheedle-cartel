@@ -5,13 +5,13 @@ import (
 	"os"
 	"os/signal"
 
+	"git.sotah.info/steamwheedle-cartel/pkg/database"
+	"git.sotah.info/steamwheedle-cartel/pkg/logging"
+	"git.sotah.info/steamwheedle-cartel/pkg/sotah"
+	"git.sotah.info/steamwheedle-cartel/pkg/state"
+	devState "git.sotah.info/steamwheedle-cartel/pkg/state/dev"
+	"git.sotah.info/steamwheedle-cartel/pkg/state/subjects"
 	"github.com/sirupsen/logrus"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/database"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/logging"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/sotah"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/state"
-	devState "github.com/sotah-inc/steamwheedle-cartel/pkg/state/dev"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/state/subjects"
 )
 
 func PricelistHistories(config devState.PricelistHistoriesStateConfig) error {

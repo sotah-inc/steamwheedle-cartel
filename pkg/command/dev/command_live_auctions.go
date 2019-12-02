@@ -4,8 +4,8 @@ import (
 	"os"
 	"os/signal"
 
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/logging"
-	devState "github.com/sotah-inc/steamwheedle-cartel/pkg/state/dev"
+	"git.sotah.info/steamwheedle-cartel/pkg/logging"
+	devState "git.sotah.info/steamwheedle-cartel/pkg/state/dev"
 )
 
 func LiveAuctions(config devState.LiveAuctionsStateConfig) error {

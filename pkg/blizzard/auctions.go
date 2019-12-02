@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/util"
+	"git.sotah.info/steamwheedle-cartel/pkg/util"
 )
 
 const auctionInfoURLFormat = "https://%s/wow/auction/data/%s"

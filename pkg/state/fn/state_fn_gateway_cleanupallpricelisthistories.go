@@ -5,11 +5,11 @@ import (
 	"net/http"
 	"time"
 
+	"git.sotah.info/steamwheedle-cartel/pkg/act"
+	"git.sotah.info/steamwheedle-cartel/pkg/logging"
+	"git.sotah.info/steamwheedle-cartel/pkg/metric"
+	"git.sotah.info/steamwheedle-cartel/pkg/sotah"
 	"github.com/sirupsen/logrus"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/act"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/logging"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/metric"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/sotah"
 )
 
 func (sta GatewayState) CleanupRegionRealmsPricelistHistories(regionRealms sotah.RegionRealms) error {

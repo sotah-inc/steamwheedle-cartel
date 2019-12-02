@@ -3,7 +3,7 @@ package bus
 import (
 	"encoding/json"
 
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/sotah"
+	"git.sotah.info/steamwheedle-cartel/pkg/sotah"
 )
 
 func NewCleanupAuctionManifestJobs(regionExpiredTimestamps sotah.RegionRealmTimestamps) CleanupAuctionManifestJobs {

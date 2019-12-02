@@ -1,12 +1,12 @@
 package prod
 
 import (
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/act"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/blizzard"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/bus"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/bus/codes"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/logging"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/state/subjects"
+	"git.sotah.info/steamwheedle-cartel/pkg/act"
+	"git.sotah.info/steamwheedle-cartel/pkg/blizzard"
+	"git.sotah.info/steamwheedle-cartel/pkg/bus"
+	"git.sotah.info/steamwheedle-cartel/pkg/bus/codes"
+	"git.sotah.info/steamwheedle-cartel/pkg/logging"
+	"git.sotah.info/steamwheedle-cartel/pkg/state/subjects"
 )
 
 func (sta GatewayState) RunSyncAllItems(ids blizzard.ItemIds) error {

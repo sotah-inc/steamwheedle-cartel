@@ -3,8 +3,8 @@ package run
 import (
 	"log"
 
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/bus"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/state"
+	"git.sotah.info/steamwheedle-cartel/pkg/bus"
+	"git.sotah.info/steamwheedle-cartel/pkg/state"
 	"github.com/twinj/uuid"
 )
 

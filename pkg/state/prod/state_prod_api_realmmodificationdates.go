@@ -1,11 +1,11 @@
 package prod
 
 import (
+	"git.sotah.info/steamwheedle-cartel/pkg/messenger"
+	mCodes "git.sotah.info/steamwheedle-cartel/pkg/messenger/codes"
+	"git.sotah.info/steamwheedle-cartel/pkg/state"
+	"git.sotah.info/steamwheedle-cartel/pkg/state/subjects"
 	nats "github.com/nats-io/go-nats"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/messenger"
-	mCodes "github.com/sotah-inc/steamwheedle-cartel/pkg/messenger/codes"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/state"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/state/subjects"
 )
 
 func (apiState ApiState) ListenForRealmModificationDates(stop state.ListenStopChan) error {

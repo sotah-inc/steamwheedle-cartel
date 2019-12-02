@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/sotah/sortdirections"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/sotah/sortkinds"
+	"git.sotah.info/steamwheedle-cartel/pkg/sotah/sortdirections"
+	"git.sotah.info/steamwheedle-cartel/pkg/sotah/sortkinds"
 )
 
 type miniAuctionSortFn func(MiniAuctionList)

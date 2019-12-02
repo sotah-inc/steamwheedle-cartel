@@ -1,8 +1,8 @@
 package run
 
 import (
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/blizzard"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/sotah"
+	"git.sotah.info/steamwheedle-cartel/pkg/blizzard"
+	"git.sotah.info/steamwheedle-cartel/pkg/sotah"
 )
 
 func (sta CleanupManifestsState) Handle(regionRealmTuple sotah.RegionRealmTuple) sotah.Message {

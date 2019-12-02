@@ -7,9 +7,9 @@ import (
 	"net/http"
 	"net/url"
 
+	"git.sotah.info/steamwheedle-cartel/pkg/logging"
+	"git.sotah.info/steamwheedle-cartel/pkg/util"
 	"github.com/sirupsen/logrus"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/logging"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/util"
 )
 
 // OAuthTokenEndpoint - http endpoint for gathering new oauth access tokens
@@ -78,7 +78,11 @@ func (c Client) RefreshFromHTTP(uri string) (Client, error) {
 
 	// parsing the body
 	body, isGzipped, err := func() ([]byte, bool, error) {
-		defer resp.Body.Close()
+		defer func() {
+			if err := resp.Body.Close(); err != nil {
+				logging.WithField("error", err.Error()).Error("Failed to close response body")
+			}
+		}()
 
 		isGzipped := resp.Header.Get("Content-Encoding") == "gzip"
 		out, err := ioutil.ReadAll(resp.Body)

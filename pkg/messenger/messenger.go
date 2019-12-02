@@ -8,10 +8,10 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/nats-io/go-nats"
+	"git.sotah.info/steamwheedle-cartel/pkg/logging"
+	"git.sotah.info/steamwheedle-cartel/pkg/messenger/codes"
+	nats "github.com/nats-io/go-nats"
 	"github.com/sirupsen/logrus"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/logging"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/messenger/codes"
 )
 
 type Messenger struct {

@@ -5,7 +5,7 @@ import (
 	"errors"
 
 	"cloud.google.com/go/firestore"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/sotah"
+	"git.sotah.info/steamwheedle-cartel/pkg/sotah"
 )
 
 func NewClient(projectId string) (Client, error) {

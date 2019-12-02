@@ -4,7 +4,7 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/logging"
+	"git.sotah.info/steamwheedle-cartel/pkg/logging"
 )
 
 func (c Client) CleanupAllManifests() error {

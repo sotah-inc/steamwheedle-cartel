@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/sotah"
+	"git.sotah.info/steamwheedle-cartel/pkg/sotah"
 )
 
 // bucketing

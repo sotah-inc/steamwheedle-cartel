@@ -1,12 +1,12 @@
 package dev
 
 import (
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/state"
+	"git.sotah.info/steamwheedle-cartel/pkg/state"
 
+	"git.sotah.info/steamwheedle-cartel/pkg/messenger"
+	"git.sotah.info/steamwheedle-cartel/pkg/messenger/codes"
+	"git.sotah.info/steamwheedle-cartel/pkg/state/subjects"
 	nats "github.com/nats-io/go-nats"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/messenger"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/messenger/codes"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/state/subjects"
 )
 
 func (sta APIState) ListenForItems(stop state.ListenStopChan) error {

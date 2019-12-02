@@ -3,7 +3,7 @@ package database
 import (
 	"fmt"
 
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/sotah"
+	"git.sotah.info/steamwheedle-cartel/pkg/sotah"
 )
 
 func liveAuctionsBucketName() []byte {

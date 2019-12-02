@@ -1,6 +1,6 @@
 package sotah
 
-import "github.com/sotah-inc/steamwheedle-cartel/pkg/sotah/codes"
+import "git.sotah.info/steamwheedle-cartel/pkg/sotah/codes"
 
 func NewErrorMessage(err error) Message {
 	out := NewMessage()

@@ -5,8 +5,8 @@ import (
 	"io/ioutil"
 
 	"cloud.google.com/go/storage"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/sotah"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/store/regions"
+	"git.sotah.info/steamwheedle-cartel/pkg/sotah"
+	"git.sotah.info/steamwheedle-cartel/pkg/store/regions"
 )
 
 func NewBootBase(c Client, location regions.Region) BootBase {
