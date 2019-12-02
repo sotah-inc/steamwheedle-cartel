@@ -4,15 +4,15 @@ import (
 	"fmt"
 
 	"github.com/twinj/uuid"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/database"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/diskstore"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/logging"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/messenger"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/metric"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/sotah"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/state"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/state/subjects"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/util"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/diskstore"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/metric"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state/subjects"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 )
 
 type LiveAuctionsStateConfig struct {

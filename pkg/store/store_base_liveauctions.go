@@ -4,10 +4,10 @@ import (
 	"fmt"
 
 	"cloud.google.com/go/storage"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/blizzard"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/sotah"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/sotah/gameversions"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/store/regions"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzard"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah/gameversions"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/store/regions"
 )
 
 func NewLiveAuctionsBase(c Client, location regions.Region, version gameversions.GameVersion) LiveAuctionsBase {

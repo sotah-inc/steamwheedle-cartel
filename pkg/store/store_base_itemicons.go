@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	"cloud.google.com/go/storage"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/sotah/gameversions"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/store/regions"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah/gameversions"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/store/regions"
 )
 
 const ItemIconURLFormat = "https://storage.googleapis.com/%s/%s"

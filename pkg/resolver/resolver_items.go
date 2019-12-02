@@ -3,9 +3,9 @@ package resolver
 import (
 	"net/http"
 
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/blizzard"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/sotah"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/util"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzard"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 )
 
 func (r Resolver) NewItem(primaryRegion sotah.Region, ID blizzard.ItemID) (blizzard.Item, error) {

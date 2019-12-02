@@ -2,10 +2,10 @@ package dev
 
 import (
 	nats "github.com/nats-io/go-nats"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/messenger"
-	mCodes "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/messenger/codes"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/state"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/state/subjects"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
+	mCodes "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger/codes"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state/subjects"
 )
 
 func (sta APIState) ListenForRealmModificationDates(stop state.ListenStopChan) error {

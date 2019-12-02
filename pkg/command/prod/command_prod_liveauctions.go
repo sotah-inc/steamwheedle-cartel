@@ -4,8 +4,8 @@ import (
 	"os"
 	"os/signal"
 
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/logging"
-	prodState "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/state/prod"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
+	prodState "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state/prod"
 )
 
 func ProdLiveAuctions(config prodState.ProdLiveAuctionsStateConfig) error {

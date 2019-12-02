@@ -7,14 +7,14 @@ import (
 	"net/http"
 	"time"
 
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/blizzard"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzard"
 
 	"github.com/sirupsen/logrus"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/act"
-	bCodes "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/bus/codes"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/logging"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/metric"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/sotah"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/act"
+	bCodes "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/bus/codes"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/metric"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 )
 
 func (sta GatewayState) PublishComputedLiveAuctions(tuples sotah.RegionRealmTuples) error {

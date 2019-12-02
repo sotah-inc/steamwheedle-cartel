@@ -8,9 +8,9 @@ import (
 	"net/http"
 
 	"cloud.google.com/go/compute/metadata"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/logging"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/sotah"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/sotah/codes"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah/codes"
 )
 
 func GetToken(serviceURL string) (string, error) {

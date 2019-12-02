@@ -7,16 +7,16 @@ import (
 	"time"
 
 	"github.com/sirupsen/logrus"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/blizzard"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/bus"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/bus/codes"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/database"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/logging"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/metric"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/sotah"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/sotah/gameversions"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/state/subjects"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/util"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzard"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/bus"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/bus/codes"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/metric"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah/gameversions"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state/subjects"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 )
 
 func HandleComputedLiveAuctions(liveAuctionsState ProdLiveAuctionsState, tuples sotah.RegionRealmTuples) {

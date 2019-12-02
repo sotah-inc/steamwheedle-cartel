@@ -1,7 +1,7 @@
 package run
 
 import (
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/sotah"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 )
 
 func (sta CleanupPubsubTopicsState) Run(topicNames []string) sotah.Message {

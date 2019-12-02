@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/utiltest"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/utiltest"
 )
 
 func validateAuctions(a Auctions) bool {

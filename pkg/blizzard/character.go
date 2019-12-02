@@ -1,10 +1,10 @@
 package blizzard
 
 import (
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/blizzard/characterclass"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/blizzard/characterfaction"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/blizzard/charactergender"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel/pkg/blizzard/characterrace"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzard/characterclass"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzard/characterfaction"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzard/charactergender"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzard/characterrace"
 )
 
 type Character struct {
