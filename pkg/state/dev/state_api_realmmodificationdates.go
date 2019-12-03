@@ -2,6 +2,7 @@ package dev
 
 import (
 	nats "github.com/nats-io/go-nats"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
 	mCodes "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger/codes"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state"
@@ -11,6 +12,8 @@ import (
 func (sta APIState) ListenForRealmModificationDates(stop state.ListenStopChan) error {
 	err := sta.IO.Messenger.Subscribe(string(subjects.RealmModificationDates), stop, func(natsMsg nats.Msg) {
 		m := messenger.NewMessage()
+
+		logging.WithField("realm-modification-dates", sta.RegionRealmModificationDates).Info("Received request")
 
 		encodedData, err := sta.RegionRealmModificationDates.EncodeForDelivery()
 		if err != nil {
