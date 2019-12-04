@@ -82,11 +82,14 @@ func TestListenForRealmModificationDates(t *testing.T) {
 	}
 
 	// modifying state and checking the result
-	nextTargetDates := sotah.RealmModificationDates{Downloaded: 2, LiveAuctionsReceived: 2, PricelistHistoriesReceived: 2}
 	apiState.RegionRealmModificationDates = apiState.RegionRealmModificationDates.Set(
 		"us",
 		"earthen-ring",
-		nextTargetDates,
+		sotah.RealmModificationDates{
+			Downloaded:                 2,
+			LiveAuctionsReceived:       2,
+			PricelistHistoriesReceived: 2,
+		},
 	)
 
 	// checking that request works against the expected subject
@@ -103,7 +106,7 @@ func TestListenForRealmModificationDates(t *testing.T) {
 		return
 	}
 
-	if !assert.Equal(t, nextTargetDates, nextResult.Get("us", "earthen-ring")) {
+	if !assert.Equal(t, apiState.RegionRealmModificationDates, nextResult) {
 		return
 	}
 
