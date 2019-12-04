@@ -1,6 +1,7 @@
 package dev_test
 
 import (
+	"encoding/json"
 	"os"
 	"testing"
 
@@ -43,11 +44,26 @@ func TestListenForRealmModificationDates(t *testing.T) {
 		return
 	}
 
+	// misc
+	targetDates := sotah.RealmModificationDates{Downloaded: 1, LiveAuctionsReceived: 1, PricelistHistoriesReceived: 1}
+
+	// checking that set works
+	apiState.RegionRealmModificationDates = apiState.RegionRealmModificationDates.Set(
+		"us",
+		"earthen-ring",
+		targetDates,
+	)
+	if !assert.Equal(t, targetDates, apiState.RegionRealmModificationDates.Get("us", "earthen-ring")) {
+		return
+	}
+
+	// starting up the listener
 	stopChan := make(state.ListenStopChan)
 	if !assert.Nil(t, apiState.ListenForRealmModificationDates(stopChan)) {
 		return
 	}
 
+	// checking that request works against the expected subject
 	msg, err := apiState.IO.Messenger.Request(string(subjects.RealmModificationDates), nil)
 	if !assert.Nil(t, err) {
 		return
@@ -56,5 +72,41 @@ func TestListenForRealmModificationDates(t *testing.T) {
 		return
 	}
 
+	var result sotah.RegionRealmModificationDates
+	if err := json.Unmarshal([]byte(msg.Data), &result); !assert.Nil(t, err) {
+		return
+	}
+
+	if !assert.Equal(t, targetDates, result.Get("us", "earthen-ring")) {
+		return
+	}
+
+	// modifying state and checking the result
+	nextTargetDates := sotah.RealmModificationDates{Downloaded: 2, LiveAuctionsReceived: 2, PricelistHistoriesReceived: 2}
+	apiState.RegionRealmModificationDates = apiState.RegionRealmModificationDates.Set(
+		"us",
+		"earthen-ring",
+		nextTargetDates,
+	)
+
+	// checking that request works against the expected subject
+	msg, err = apiState.IO.Messenger.Request(string(subjects.RealmModificationDates), nil)
+	if !assert.Nil(t, err) {
+		return
+	}
+	if !assert.Equal(t, codes.Ok, msg.Code) {
+		return
+	}
+
+	var nextResult sotah.RegionRealmModificationDates
+	if err := json.Unmarshal([]byte(msg.Data), &nextResult); !assert.Nil(t, err) {
+		return
+	}
+
+	if !assert.Equal(t, nextTargetDates, nextResult.Get("us", "earthen-ring")) {
+		return
+	}
+
+	// cleaning up
 	stopChan <- struct{}{}
 }
