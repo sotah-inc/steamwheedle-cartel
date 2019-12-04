@@ -1,6 +1,7 @@
 package dev
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/sirupsen/logrus"
@@ -67,6 +68,10 @@ func NewAPIState(config APIStateConfig) (APIState, error) {
 		}
 		apiState.IO.BusClient = busClient
 	} else {
+		if config.DiskStoreCacheDir == "" {
+			return APIState{}, errors.New("disk-store-cache-dir should not be blank")
+		}
+
 		cacheDirs := []string{
 			config.DiskStoreCacheDir,
 			fmt.Sprintf("%s/items", config.DiskStoreCacheDir),
