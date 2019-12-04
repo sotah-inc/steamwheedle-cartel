@@ -6,9 +6,11 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzard"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger/codes"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state"
 	devState "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state/dev"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state/subjects"
 )
 
 func TestListenForRealmModificationDates(t *testing.T) {
@@ -43,6 +45,14 @@ func TestListenForRealmModificationDates(t *testing.T) {
 
 	stopChan := make(state.ListenStopChan)
 	if !assert.Nil(t, apiState.ListenForRealmModificationDates(stopChan)) {
+		return
+	}
+
+	msg, err := apiState.IO.Messenger.Request(string(subjects.RealmModificationDates), nil)
+	if !assert.Nil(t, err) {
+		return
+	}
+	if !assert.Equal(t, codes.Ok, msg.Code) {
 		return
 	}
 
