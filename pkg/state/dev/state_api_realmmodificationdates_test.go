@@ -7,13 +7,14 @@ import (
 	"github.com/stretchr/testify/assert"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzard"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state"
 	devState "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state/dev"
 )
 
 func TestListenForRealmModificationDates(t *testing.T) {
 	assert.Equal(t, 1, 1, "Testing")
 
-	_, err := devState.NewAPIState(devState.APIStateConfig{
+	apiState, err := devState.NewAPIState(devState.APIStateConfig{
 		SotahConfig: sotah.Config{
 			Regions: sotah.RegionList{
 				{
@@ -39,4 +40,11 @@ func TestListenForRealmModificationDates(t *testing.T) {
 	if !assert.Nil(t, err) {
 		return
 	}
+
+	stopChan := make(state.ListenStopChan)
+	if !assert.Nil(t, apiState.ListenForRealmModificationDates(stopChan)) {
+		return
+	}
+
+	stopChan <- struct{}{}
 }
