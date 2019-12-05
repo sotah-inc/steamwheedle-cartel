@@ -13,7 +13,7 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state/subjects"
 )
 
-func (sta APIState) StartCollector(stopChan sotah.WorkerStopChan) sotah.WorkerStopChan {
+func (sta *APIState) StartCollector(stopChan sotah.WorkerStopChan) sotah.WorkerStopChan {
 	sta.collectRegions()
 
 	onStop := make(sotah.WorkerStopChan)
@@ -48,7 +48,7 @@ func (sta APIState) StartCollector(stopChan sotah.WorkerStopChan) sotah.WorkerSt
 	return onStop
 }
 
-func (sta APIState) collectRegions() {
+func (sta *APIState) collectRegions() {
 	logging.Info("Collecting regions")
 
 	// for subsequently pushing to the live-auctions-intake listener

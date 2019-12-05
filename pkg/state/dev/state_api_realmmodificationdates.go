@@ -10,7 +10,7 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state/subjects"
 )
 
-func (sta APIState) ListenForRealmModificationDates(stop state.ListenStopChan) error {
+func (sta *APIState) ListenForRealmModificationDates(stop state.ListenStopChan) error {
 	err := sta.IO.Messenger.Subscribe(string(subjects.RealmModificationDates), stop, func(natsMsg nats.Msg) {
 		m := messenger.NewMessage()
 
@@ -35,6 +35,6 @@ func (sta APIState) ListenForRealmModificationDates(stop state.ListenStopChan) e
 	return nil
 }
 
-func (sta APIState) SetRegionRealmModificationDates(dates sotah.RegionRealmModificationDates) {
+func (sta *APIState) SetRegionRealmModificationDates(dates sotah.RegionRealmModificationDates) {
 	sta.RegionRealmModificationDates = dates
 }

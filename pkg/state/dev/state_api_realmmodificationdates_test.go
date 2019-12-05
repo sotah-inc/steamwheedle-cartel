@@ -275,7 +275,7 @@ func TestListenForRealmModificationDatesAfterIndirectModification(t *testing.T) 
 	}
 
 	// expected dates
-	expectedDates := map[blizzard.RegionName]map[blizzard.RealmSlug]sotah.RealmModificationDates{
+	expectedDates := sotah.RegionRealmModificationDates{
 		"us": {"earthen-ring": {Downloaded: 2, LiveAuctionsReceived: 2, PricelistHistoriesReceived: 2}},
 	}
 

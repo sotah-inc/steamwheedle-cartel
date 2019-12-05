@@ -37,7 +37,7 @@ type APIStateConfig struct {
 	ItemsDatabaseDir string
 }
 
-func NewAPIState(config APIStateConfig) (APIState, error) {
+func NewAPIState(config APIStateConfig) (*APIState, error) {
 	// establishing an initial state
 	apiState := APIState{
 		State: state.NewState(uuid.NewV4(), config.SotahConfig.UseGCloud),
@@ -55,7 +55,7 @@ func NewAPIState(config APIStateConfig) (APIState, error) {
 	if config.SotahConfig.UseGCloud {
 		stor, err := store.NewClient(config.GCloudProjectID)
 		if err != nil {
-			return APIState{}, err
+			return nil, err
 		}
 
 		apiState.IO.StoreClient = stor
@@ -64,12 +64,12 @@ func NewAPIState(config APIStateConfig) (APIState, error) {
 		logging.Info("Connecting bus-client")
 		busClient, err := bus.NewClient(config.GCloudProjectID, "api")
 		if err != nil {
-			return APIState{}, err
+			return nil, err
 		}
 		apiState.IO.BusClient = busClient
 	} else {
 		if config.DiskStoreCacheDir == "" {
-			return APIState{}, errors.New("disk-store-cache-dir should not be blank")
+			return nil, errors.New("disk-store-cache-dir should not be blank")
 		}
 
 		cacheDirs := []string{
@@ -82,7 +82,7 @@ func NewAPIState(config APIStateConfig) (APIState, error) {
 			cacheDirs = append(cacheDirs, fmt.Sprintf("%s/auctions/%s", config.DiskStoreCacheDir, reg.Name))
 		}
 		if err := util.EnsureDirsExist(cacheDirs); err != nil {
-			return APIState{}, err
+			return nil, err
 		}
 
 		apiState.IO.DiskStore = diskstore.NewDiskStore(config.DiskStoreCacheDir)
@@ -91,7 +91,7 @@ func NewAPIState(config APIStateConfig) (APIState, error) {
 	// connecting to the messenger host
 	mess, err := messenger.NewMessenger(config.MessengerHost, config.MessengerPort)
 	if err != nil {
-		return APIState{}, err
+		return nil, err
 	}
 	apiState.IO.Messenger = mess
 
@@ -101,14 +101,14 @@ func NewAPIState(config APIStateConfig) (APIState, error) {
 	// connecting a new blizzard client
 	blizzardClient, err := blizzard.NewClient(config.BlizzardClientId, config.BlizzardClientSecret)
 	if err != nil {
-		return APIState{}, err
+		return nil, err
 	}
 	apiState.IO.Resolver = resolver.NewResolver(blizzardClient, apiState.IO.Reporter)
 
 	// filling state with region statuses
 	for job := range apiState.IO.Resolver.GetStatuses(apiState.Regions) {
 		if job.Err != nil {
-			return APIState{}, job.Err
+			return nil, job.Err
 		}
 
 		job.Status.Realms = config.SotahConfig.FilterInRealms(job.Region, job.Status.Realms)
@@ -123,22 +123,22 @@ func NewAPIState(config APIStateConfig) (APIState, error) {
 			"regions": apiState.Regions,
 		}).Error("Failed to retrieve primary region")
 
-		return APIState{}, err
+		return nil, err
 	}
 	uri, err := apiState.IO.Resolver.AppendAccessToken(apiState.IO.Resolver.GetItemClassesURL(primaryRegion.Hostname))
 	if err != nil {
-		return APIState{}, err
+		return nil, err
 	}
 	itemClasses, _, err := blizzard.NewItemClassesFromHTTP(uri)
 	if err != nil {
-		return APIState{}, err
+		return nil, err
 	}
 	apiState.ItemClasses = itemClasses
 
 	// loading the items database
 	itemsDatabase, err := database.NewItemsDatabase(config.ItemsDatabaseDir)
 	if err != nil {
-		return APIState{}, err
+		return nil, err
 	}
 	apiState.IO.Databases.ItemsDatabase = itemsDatabase
 
@@ -160,7 +160,7 @@ func NewAPIState(config APIStateConfig) (APIState, error) {
 
 	apiState.RegionRealmModificationDates = sotah.RegionRealmModificationDates{}
 
-	return apiState, nil
+	return &apiState, nil
 }
 
 type APIState struct {

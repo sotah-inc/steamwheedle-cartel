@@ -12,7 +12,7 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state/subjects"
 )
 
-func (sta APIState) ListenForQueryRealmModificationDates(stop state.ListenStopChan) error {
+func (sta *APIState) ListenForQueryRealmModificationDates(stop state.ListenStopChan) error {
 	err := sta.IO.Messenger.Subscribe(string(subjects.QueryRealmModificationDates), stop, func(natsMsg nats.Msg) {
 		m := messenger.NewMessage()
 
