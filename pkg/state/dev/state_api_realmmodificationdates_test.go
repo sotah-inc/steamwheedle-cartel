@@ -237,3 +237,69 @@ func TestListenForRealmModificationDatesAfterModification(t *testing.T) {
 	// cleaning up
 	stopChan <- struct{}{}
 }
+
+func TestListenForRealmModificationDatesAfterIndirectModification(t *testing.T) {
+	assert.Equal(t, 1, 1, "Testing")
+
+	apiState, err := devState.NewAPIState(devState.APIStateConfig{
+		SotahConfig: sotah.Config{
+			Regions: sotah.RegionList{
+				{
+					Name:     "us",
+					Hostname: "us.api.blizzard.com",
+					Primary:  true,
+				},
+			},
+			Whitelist:     map[blizzard.RegionName][]blizzard.RealmSlug{"us": {"earthen-ring"}},
+			UseGCloud:     false,
+			Expansions:    nil,
+			Professions:   nil,
+			ItemBlacklist: nil,
+		},
+		GCloudProjectID:      "",
+		MessengerHost:        "localhost",
+		MessengerPort:        4222,
+		DiskStoreCacheDir:    "/tmp/api-test",
+		BlizzardClientId:     os.Getenv("CLIENT_ID"),
+		BlizzardClientSecret: os.Getenv("CLIENT_SECRET"),
+		ItemsDatabaseDir:     "/tmp/api-test/items",
+	})
+	if !assert.Nil(t, err) {
+		return
+	}
+
+	// starting up the listener
+	stopChan := make(state.ListenStopChan)
+	if !assert.Nil(t, apiState.ListenForRealmModificationDates(stopChan)) {
+		return
+	}
+
+	// expected dates
+	expectedDates := map[blizzard.RegionName]map[blizzard.RealmSlug]sotah.RealmModificationDates{
+		"us": {"earthen-ring": {Downloaded: 2, LiveAuctionsReceived: 2, PricelistHistoriesReceived: 2}},
+	}
+
+	// modifying state *after* listener is on and checking the result
+	apiState.SetRegionRealmModificationDates(expectedDates)
+
+	// checking that request works against the expected subject
+	msg, err := apiState.IO.Messenger.Request(string(subjects.RealmModificationDates), nil)
+	if !assert.Nil(t, err) {
+		return
+	}
+	if !assert.Equal(t, codes.Ok, msg.Code) {
+		return
+	}
+
+	var nextResult sotah.RegionRealmModificationDates
+	if err := json.Unmarshal([]byte(msg.Data), &nextResult); !assert.Nil(t, err) {
+		return
+	}
+
+	if !assert.Equal(t, expectedDates, nextResult) {
+		return
+	}
+
+	// cleaning up
+	stopChan <- struct{}{}
+}
