@@ -5,6 +5,7 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
 	mCodes "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger/codes"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state/subjects"
 )
@@ -32,4 +33,8 @@ func (sta APIState) ListenForRealmModificationDates(stop state.ListenStopChan) e
 	}
 
 	return nil
+}
+
+func (sta APIState) SetRegionRealmModificationDates(dates sotah.RegionRealmModificationDates) {
+	sta.RegionRealmModificationDates = dates
 }
