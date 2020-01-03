@@ -2,8 +2,9 @@ package dev
 
 import (
 	"fmt"
-
 	"github.com/twinj/uuid"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/diskstore"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/metric"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
@@ -68,6 +69,20 @@ func NewPricelistHistoriesState(config PricelistHistoriesStateConfig) (Pricelist
 	if err := util.EnsureDirsExist(databasePaths); err != nil {
 		return PricelistHistoriesState{}, err
 	}
+
+	// establishing a store
+	logging.Info("Connecting to disk store")
+	cacheDirs := []string{
+		config.DiskStoreCacheDir,
+		fmt.Sprintf("%s/pricelist-histories", config.DiskStoreCacheDir),
+	}
+	for _, reg := range phState.Regions {
+		cacheDirs = append(cacheDirs, fmt.Sprintf("%s/pricelist-histories/%s", config.DiskStoreCacheDir, reg.Name))
+	}
+	if err := util.EnsureDirsExist(cacheDirs); err != nil {
+		return PricelistHistoriesState{}, err
+	}
+	phState.IO.DiskStore = diskstore.NewDiskStore(config.DiskStoreCacheDir)
 
 	return phState, nil
 }
