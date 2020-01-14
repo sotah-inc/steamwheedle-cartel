@@ -105,3 +105,41 @@ func (tBase TokensDatabase) PersistHistory(rtHistory RegionTokenHistory) error {
 
 	return nil
 }
+
+// pruning
+func (tBase TokensDatabase) Prune(regionNames []blizzard.RegionName) error {
+	earliestUnixTimestamp := RetentionLimit().Unix()
+
+	err := tBase.db.Update(func(tx *bolt.Tx) error {
+		for _, regionName := range regionNames {
+			bkt := tx.Bucket(databaseTokensBucketName(regionName))
+			if bkt == nil {
+				continue
+			}
+
+			c := bkt.Cursor()
+
+			for k, _ := c.First(); k != nil; k, _ = c.Next() {
+				lastUpdated, err := lastUpdatedFromTokenKeyName(k)
+				if err != nil {
+					return err
+				}
+
+				if lastUpdated > earliestUnixTimestamp {
+					continue
+				}
+
+				if err := bkt.Delete(k); err != nil {
+					return err
+				}
+			}
+		}
+
+		return nil
+	})
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
