@@ -18,15 +18,24 @@ func tokenKeyName(lastUpdated int64) []byte {
 }
 
 func lastUpdatedFromTokenKeyName(key []byte) (int64, error) {
-	unparsedLastUpdated, err := strconv.Atoi(string(key)[len("last-updated-"):])
+	decodedLastUpdated, err := strconv.Atoi(string(key)[len("last-updated-"):])
 	if err != nil {
 		return int64(0), err
 	}
 
-	return int64(unparsedLastUpdated), nil
+	return int64(decodedLastUpdated), nil
+}
+
+func priceFromTokenValue(v []byte) (int64, error) {
+	decodedValue, err := strconv.Atoi(string(v))
+	if err != nil {
+		return int64(0), err
+	}
+
+	return int64(decodedValue), nil
 }
 
 // db
-func TokenDatabasePath(dbDir string) (string, error) {
+func TokensDatabasePath(dbDir string) (string, error) {
 	return fmt.Sprintf("%s/tokens.db", dbDir), nil
 }
