@@ -17,3 +17,5 @@ require (
 	google.golang.org/api v0.1.0
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
 )
+
+go 1.13
