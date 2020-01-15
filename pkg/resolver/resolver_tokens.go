@@ -6,6 +6,7 @@ import (
 
 	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzard"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 )
 
@@ -35,12 +36,23 @@ func (job GetTokensJob) ToLogrusFields() logrus.Fields {
 	}
 }
 
+func NewRegionHostnameTuples(regions sotah.RegionList) RegionHostnameTuples {
+	out := RegionHostnameTuples{}
+	for _, region := range regions {
+		out = append(out, RegionHostnameTuple{region.Name, region.Hostname})
+	}
+
+	return out
+}
+
+type RegionHostnameTuples []RegionHostnameTuple
+
 type RegionHostnameTuple struct {
 	RegionName blizzard.RegionName
 	Hostname   string
 }
 
-func (r Resolver) GetTokens(tuples []RegionHostnameTuple) chan GetTokensJob {
+func (r Resolver) GetTokens(tuples RegionHostnameTuples) chan GetTokensJob {
 	// establishing channels
 	out := make(chan GetTokensJob)
 	in := make(chan RegionHostnameTuple)
