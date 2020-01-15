@@ -9,11 +9,11 @@ import (
 
 const tokenInfoURLFormat = "https://%s/data/wow/token/index?namespace=dynamic-us"
 
-func DefaultGetTokenInfoURL(regionHostname RegionName) string {
+func DefaultGetTokenInfoURL(regionHostname string) string {
 	return fmt.Sprintf(tokenInfoURLFormat, regionHostname)
 }
 
-type GetTokenInfoURLFunc func(RegionName) string
+type GetTokenInfoURLFunc func(string) string
 
 func NewTokenInfoFromHTTP(uri string) (TokenInfo, ResponseMeta, error) {
 	resp, err := Download(uri)
