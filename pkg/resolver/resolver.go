@@ -16,6 +16,7 @@ func NewResolver(bc blizzard.Client, re metric.Reporter) Resolver {
 		GetItemURL:        blizzard.DefaultGetItemURL,
 		GetItemIconURL:    blizzard.DefaultGetItemIconURL,
 		GetItemClassesURL: blizzard.DefaultGetItemClassesURL,
+		GetTokenInfoURL:   blizzard.DefaultGetTokenInfoURL,
 	}
 }
 
@@ -29,6 +30,7 @@ type Resolver struct {
 	GetItemURL        blizzard.GetItemURLFunc
 	GetItemIconURL    blizzard.GetItemIconURLFunc
 	GetItemClassesURL blizzard.GetItemClassesURLFunc
+	GetTokenInfoURL   blizzard.GetTokenInfoURLFunc
 }
 
 func (r Resolver) AppendAccessToken(destination string) (string, error) {
