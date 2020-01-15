@@ -13,7 +13,7 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state/subjects"
 )
 
-func (sta *APIState) collectRegions() {
+func (sta *APIState) collectRegionAuctions() {
 	logging.Info("Collecting regions")
 
 	// for subsequently pushing to the live-auctions-intake listener

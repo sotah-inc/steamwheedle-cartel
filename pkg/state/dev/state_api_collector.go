@@ -9,7 +9,8 @@ import (
 )
 
 func (sta *APIState) StartCollector(stopChan sotah.WorkerStopChan) sotah.WorkerStopChan {
-	sta.collectRegions()
+	sta.collectRegionAuctions()
+	sta.collectRegionTokens()
 
 	onStop := make(sotah.WorkerStopChan)
 	go func() {
@@ -29,7 +30,8 @@ func (sta *APIState) StartCollector(stopChan sotah.WorkerStopChan) sotah.WorkerS
 				}
 				sta.IO.Resolver.BlizzardClient = nextClient
 
-				sta.collectRegions()
+				sta.collectRegionAuctions()
+				sta.collectRegionTokens()
 			case <-stopChan:
 				ticker.Stop()
 
