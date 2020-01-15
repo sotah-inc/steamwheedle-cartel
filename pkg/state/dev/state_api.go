@@ -34,7 +34,8 @@ type APIStateConfig struct {
 	BlizzardClientId     string
 	BlizzardClientSecret string
 
-	ItemsDatabaseDir string
+	ItemsDatabaseDir  string
+	TokensDatabaseDir string
 }
 
 func NewAPIState(config APIStateConfig) (*APIState, error) {
@@ -141,6 +142,13 @@ func NewAPIState(config APIStateConfig) (*APIState, error) {
 		return nil, err
 	}
 	apiState.IO.Databases.ItemsDatabase = itemsDatabase
+
+	// loading the tokens database
+	tokensDatabase, err := database.NewTokensDatabase(config.TokensDatabaseDir)
+	if err != nil {
+		return nil, err
+	}
+	apiState.IO.Databases.TokensDatabase = tokensDatabase
 
 	// gathering profession icons
 	for i, prof := range apiState.Professions {

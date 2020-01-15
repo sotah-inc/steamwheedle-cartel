@@ -36,6 +36,7 @@ type Databases struct {
 	PricelistHistoryDatabases database.PricelistHistoryDatabases
 	LiveAuctionsDatabases     database.LiveAuctionsDatabases
 	ItemsDatabase             database.ItemsDatabase
+	TokensDatabase            database.TokensDatabase
 	MetaDatabase              database.MetaDatabase
 	PubsubTopicsDatabase      database.PubsubTopicsDatabase
 }
