@@ -7,13 +7,13 @@ import (
 	"net/http"
 )
 
-const tokenInfoURLFormat = "https://%s/data/wow/token/index?namespace=dynamic-us"
+const tokenInfoURLFormat = "https://%s/data/wow/token/index?namespace=dynamic-%s"
 
-func DefaultGetTokenInfoURL(regionHostname string) string {
-	return fmt.Sprintf(tokenInfoURLFormat, regionHostname)
+func DefaultGetTokenInfoURL(regionHostname string, regionName RegionName) string {
+	return fmt.Sprintf(tokenInfoURLFormat, regionHostname, regionName)
 }
 
-type GetTokenInfoURLFunc func(string) string
+type GetTokenInfoURLFunc func(string, RegionName) string
 
 func NewTokenInfoFromHTTP(uri string) (TokenInfo, ResponseMeta, error) {
 	resp, err := Download(uri)

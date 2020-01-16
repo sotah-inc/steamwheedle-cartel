@@ -10,8 +10,8 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 )
 
-func (r Resolver) NewTokenInfo(regionHostname string) (blizzard.TokenInfo, error) {
-	resp, err := r.Download(r.GetTokenInfoURL(regionHostname), true)
+func (r Resolver) NewTokenInfo(regionHostname string, name blizzard.RegionName) (blizzard.TokenInfo, error) {
+	resp, err := r.Download(r.GetTokenInfoURL(regionHostname, name), true)
 	if err != nil {
 		return blizzard.TokenInfo{}, err
 	}
@@ -60,7 +60,7 @@ func (r Resolver) GetTokens(tuples RegionHostnameTuples) chan GetTokensJob {
 	// spinning up the workers for fetching items
 	worker := func() {
 		for tuple := range in {
-			tInfo, err := r.NewTokenInfo(tuple.Hostname)
+			tInfo, err := r.NewTokenInfo(tuple.Hostname, tuple.RegionName)
 			out <- GetTokensJob{err, tuple, tInfo}
 		}
 	}
