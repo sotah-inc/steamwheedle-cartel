@@ -19,8 +19,6 @@ func newMiniAuction(auc blizzard.Auction) miniAuction {
 
 	return miniAuction{
 		auc.Item,
-		OwnerName(auc.Owner),
-		auc.OwnerRealm,
 		auc.Bid,
 		auc.Buyout,
 		buyoutPer,
@@ -31,15 +29,13 @@ func newMiniAuction(auc blizzard.Auction) miniAuction {
 }
 
 type miniAuction struct {
-	ItemID     blizzard.ItemID `json:"itemId"`
-	Owner      OwnerName       `json:"owner"`
-	OwnerRealm string          `json:"ownerRealm"`
-	Bid        int64           `json:"bid"`
-	Buyout     int64           `json:"buyout"`
-	BuyoutPer  float32         `json:"buyoutPer"`
-	Quantity   int64           `json:"quantity"`
-	TimeLeft   string          `json:"timeLeft"`
-	AucList    []int64         `json:"aucList"`
+	ItemID    blizzard.ItemID `json:"itemId"`
+	Bid       int64           `json:"bid"`
+	Buyout    int64           `json:"buyout"`
+	BuyoutPer float32         `json:"buyoutPer"`
+	Quantity  int64           `json:"quantity"`
+	TimeLeft  string          `json:"timeLeft"`
+	AucList   []int64         `json:"aucList"`
 }
 
 // miniauction-list
@@ -96,19 +92,6 @@ func (maList MiniAuctionList) Sort(kind sortkinds.SortKind, direction sortdirect
 	return mas.sort(kind, direction, maList)
 }
 
-func (maList MiniAuctionList) FilterByOwnerNames(ownerNameFilters []OwnerName) MiniAuctionList {
-	out := MiniAuctionList{}
-	for _, ma := range maList {
-		for _, ownerNameFilter := range ownerNameFilters {
-			if ma.Owner == ownerNameFilter {
-				out = append(out, ma)
-			}
-		}
-	}
-
-	return out
-}
-
 func (maList MiniAuctionList) FilterByItemIDs(itemIDFilters []blizzard.ItemID) MiniAuctionList {
 	out := MiniAuctionList{}
 	for _, ma := range maList {
@@ -129,20 +112,6 @@ func (maList MiniAuctionList) ItemIds() []blizzard.ItemID {
 	}
 
 	out := []blizzard.ItemID{}
-	for v := range result {
-		out = append(out, v)
-	}
-
-	return out
-}
-
-func (maList MiniAuctionList) OwnerNames() []OwnerName {
-	result := map[OwnerName]struct{}{}
-	for _, ma := range maList {
-		result[ma.Owner] = struct{}{}
-	}
-
-	out := []OwnerName{}
 	for v := range result {
 		out = append(out, v)
 	}
@@ -231,10 +200,8 @@ type MiniAuctions map[miniAuctionHash]miniAuction
 
 func newMiniAuctionHash(auc blizzard.Auction) miniAuctionHash {
 	return miniAuctionHash(fmt.Sprintf(
-		"%d-%s-%s-%d-%d-%d-%s",
+		"%d-%d-%d-%d-%s",
 		auc.Item,
-		auc.Owner,
-		auc.OwnerRealm,
 		auc.Bid,
 		auc.Buyout,
 		auc.Quantity,

@@ -103,9 +103,6 @@ func NewLiveAuctionsState(config LiveAuctionsStateConfig) (LiveAuctionsState, er
 		subjects.Auctions:           laState.ListenForAuctions,
 		subjects.LiveAuctionsIntake: laState.ListenForLiveAuctionsIntake,
 		subjects.PriceList:          laState.ListenForPriceList,
-		subjects.Owners:             laState.ListenForOwners,
-		subjects.OwnersQuery:        laState.ListenForOwnersQuery,
-		subjects.OwnersQueryByItems: laState.ListenForOwnersQueryByItems,
 	})
 
 	return laState, nil

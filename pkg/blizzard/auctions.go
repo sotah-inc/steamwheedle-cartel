@@ -155,21 +155,6 @@ type Auctions struct {
 	Auctions []Auction      `json:"auctions"`
 }
 
-// OwnerNames returns all owners in this auctions dump
-func (aucs Auctions) OwnerNames() []string {
-	result := map[string]struct{}{}
-	for _, auc := range aucs.Auctions {
-		result[auc.Owner] = struct{}{}
-	}
-
-	out := []string{}
-	for v := range result {
-		out = append(out, v)
-	}
-
-	return out
-}
-
 func (aucs Auctions) ItemIds() ItemIds {
 	itemIdsMap := map[ItemID]interface{}{}
 	for _, auc := range aucs.Auctions {
@@ -192,15 +177,13 @@ type AuctionRealm struct {
 
 // Auction describes a single auction
 type Auction struct {
-	Auc        int64  `json:"auc"`
-	Item       ItemID `json:"item"`
-	Owner      string `json:"owner"`
-	OwnerRealm string `json:"ownerRealm"`
-	Bid        int64  `json:"bid"`
-	Buyout     int64  `json:"buyout"`
-	Quantity   int64  `json:"quantity"`
-	TimeLeft   string `json:"timeLeft"`
-	Rand       int64  `json:"rand"`
-	Seed       int64  `json:"seed"`
-	Context    int64  `json:"context"`
+	Auc      int64  `json:"auc"`
+	Item     ItemID `json:"item"`
+	Bid      int64  `json:"bid"`
+	Buyout   int64  `json:"buyout"`
+	Quantity int64  `json:"quantity"`
+	TimeLeft string `json:"timeLeft"`
+	Rand     int64  `json:"rand"`
+	Seed     int64  `json:"seed"`
+	Context  int64  `json:"context"`
 }

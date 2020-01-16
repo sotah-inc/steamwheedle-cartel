@@ -111,7 +111,6 @@ type miniAuctionListStats struct {
 	TotalAuctions int
 	TotalQuantity int
 	TotalBuyout   int
-	OwnerNames    []sotah.OwnerName
 	ItemIds       []blizzard.ItemID
 	AuctionIds    []int64
 }
@@ -126,7 +125,6 @@ func (ladBase liveAuctionsDatabase) stats() (miniAuctionListStats, error) {
 		TotalAuctions: maList.TotalAuctions(),
 		TotalQuantity: maList.TotalQuantity(),
 		TotalBuyout:   int(maList.TotalBuyout()),
-		OwnerNames:    maList.OwnerNames(),
 		ItemIds:       maList.ItemIds(),
 		AuctionIds:    maList.AuctionIds(),
 	}

@@ -35,7 +35,6 @@ type AuctionsRequest struct {
 	Count         int                          `json:"count"`
 	SortDirection sortdirections.SortDirection `json:"sort_direction"`
 	SortKind      sortkinds.SortKind           `json:"sort_kind"`
-	OwnerFilters  []sotah.OwnerName            `json:"owner_filters"`
 	ItemFilters   []blizzard.ItemID            `json:"item_filters"`
 }
 
@@ -114,10 +113,7 @@ func (laState LiveAuctionsState) ListenForAuctions(stop state.ListenStopChan) er
 		// initial response format
 		aResponse := auctionsResponse{Total: -1, TotalCount: -1, AuctionList: realmAuctions}
 
-		// filtering in auctions by owners or items
-		if len(aRequest.OwnerFilters) > 0 {
-			aResponse.AuctionList = aResponse.AuctionList.FilterByOwnerNames(aRequest.OwnerFilters)
-		}
+		// filtering in auctions by items
 		if len(aRequest.ItemFilters) > 0 {
 			aResponse.AuctionList = aResponse.AuctionList.FilterByItemIDs(aRequest.ItemFilters)
 		}

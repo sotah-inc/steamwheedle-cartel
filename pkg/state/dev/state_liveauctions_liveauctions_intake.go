@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 	"time"
 
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state"
-
 	nats "github.com/nats-io/go-nats"
 	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database"
@@ -13,6 +11,7 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/metric"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/metric/kinds"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state/subjects"
 )
 
@@ -98,7 +97,6 @@ func (iRequest liveAuctionsIntakeRequest) handle(laState LiveAuctionsState) {
 	// gathering stats for further data gathering
 	totalPreviousAuctions := 0
 	totalAuctions := 0
-	totalOwners := 0
 	itemIdsMap := sotah.ItemIdsMap{}
 	for _, realmsMap := range excluded {
 		for getStatsJob := range laState.IO.Databases.LiveAuctionsDatabases.GetStats(realmsMap.ToRealms()) {
@@ -110,7 +108,6 @@ func (iRequest liveAuctionsIntakeRequest) handle(laState LiveAuctionsState) {
 
 			totalPreviousAuctions += getStatsJob.Stats.TotalAuctions
 			totalAuctions += getStatsJob.Stats.TotalAuctions
-			totalOwners += len(getStatsJob.Stats.OwnerNames)
 			for _, itemId := range getStatsJob.Stats.ItemIds {
 				itemIdsMap[itemId] = struct{}{}
 			}
@@ -127,7 +124,6 @@ func (iRequest liveAuctionsIntakeRequest) handle(laState LiveAuctionsState) {
 			}
 
 			totalAuctions += len(getAuctionsFromTimesJob.Auctions.Auctions)
-			totalOwners += len(getAuctionsFromTimesJob.Auctions.OwnerNames())
 			for _, auc := range getAuctionsFromTimesJob.Auctions.Auctions {
 				itemIdsMap[auc.Item] = struct{}{}
 			}
@@ -195,7 +191,6 @@ func (iRequest liveAuctionsIntakeRequest) handle(laState LiveAuctionsState) {
 		"total_realms":                 includedRealmCount + excludedRealmCount,
 		"total_auctions":               totalAuctions,
 		"total_previous_auctions":      totalPreviousAuctions,
-		"total_owners":                 totalOwners,
 		"total_items":                  len(itemIdsMap),
 		"total_new_auctions":           totalNewAuctions,
 		"total_removed_auctions":       totalRemovedAuctions,
