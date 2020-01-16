@@ -164,6 +164,7 @@ func NewAPIState(config APIStateConfig) (*APIState, error) {
 		subjects.ItemsQuery:                  apiState.ListenForItemsQuery,
 		subjects.QueryRealmModificationDates: apiState.ListenForQueryRealmModificationDates,
 		subjects.RealmModificationDates:      apiState.ListenForRealmModificationDates,
+		subjects.TokenHistory:                apiState.ListenForTokenHistory,
 	})
 
 	apiState.RegionRealmModificationDates = sotah.RegionRealmModificationDates{}

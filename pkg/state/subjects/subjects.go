@@ -14,6 +14,7 @@ const (
 	OwnersQueryByItems              Subject = "ownersQueryByItems"
 	OwnersQuery                     Subject = "ownersQuery"
 	ItemsQuery                      Subject = "itemsQuery"
+	TokenHistory                    Subject = "tokenHistory"
 	PriceList                       Subject = "priceList"
 	PriceListHistory                Subject = "priceListHistory"
 	PriceListHistoryV2              Subject = "priceListHistoryV2"
