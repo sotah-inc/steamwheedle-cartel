@@ -5,9 +5,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzard"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 )
 
 // bucketing
@@ -23,12 +21,6 @@ func tokenKeyName(lastUpdated int64) []byte {
 func lastUpdatedFromTokenKeyName(key []byte) (int64, error) {
 	decodedLastUpdated, err := strconv.Atoi(string(key)[len("last-updated-"):])
 	if err != nil {
-		logging.WithFields(logrus.Fields{
-			"error":      err.Error(),
-			"key":        key,
-			"key-string": string(key),
-		}).Error("Failed to convert last-updated key to integer")
-
 		return int64(0), err
 	}
 
