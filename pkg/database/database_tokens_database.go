@@ -57,12 +57,7 @@ func (tBase TokensDatabase) GetHistory(regionName blizzard.RegionName) (TokenHis
 				return err
 			}
 
-			price, err := priceFromTokenValue(v)
-			if err != nil {
-				return err
-			}
-
-			out[lastUpdated] = price
+			out[lastUpdated] = priceFromTokenValue(v)
 
 			return nil
 		})
@@ -91,7 +86,7 @@ func (tBase TokensDatabase) PersistHistory(rtHistory RegionTokenHistory) error {
 			}
 
 			for lastUpdated, price := range tHistory {
-				if err := bkt.Put(tokenKeyName(lastUpdated), []byte(string(price))); err != nil {
+				if err := bkt.Put(tokenKeyName(lastUpdated), priceToTokenValue(price)); err != nil {
 					return err
 				}
 			}

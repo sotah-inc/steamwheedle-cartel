@@ -1,6 +1,7 @@
 package database
 
 import (
+	"encoding/binary"
 	"fmt"
 	"strconv"
 
@@ -26,13 +27,15 @@ func lastUpdatedFromTokenKeyName(key []byte) (int64, error) {
 	return int64(decodedLastUpdated), nil
 }
 
-func priceFromTokenValue(v []byte) (int64, error) {
-	decodedValue, err := strconv.Atoi(string(v))
-	if err != nil {
-		return int64(0), err
-	}
+func priceToTokenValue(v int64) []byte {
+	b := make([]byte, 8)
+	binary.LittleEndian.PutUint64(b, uint64(v))
 
-	return int64(decodedValue), nil
+	return b
+}
+
+func priceFromTokenValue(v []byte) int64 {
+	return int64(binary.LittleEndian.Uint64(v))
 }
 
 // db
