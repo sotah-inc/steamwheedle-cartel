@@ -41,7 +41,7 @@ type liveAuctionsLoadOutJob struct {
 	Err                  error
 	Realm                sotah.Realm
 	LastModified         time.Time
-	Stats                miniAuctionListStats
+	Stats                MiniAuctionListStats
 	TotalRemovedAuctions int
 	TotalNewAuctions     int
 }
@@ -76,7 +76,7 @@ func (ladBases LiveAuctionsDatabases) Load(in chan LoadInJob) chan liveAuctionsL
 					Err:                  err,
 					Realm:                job.Realm,
 					LastModified:         job.TargetTime,
-					Stats:                miniAuctionListStats{},
+					Stats:                MiniAuctionListStats{},
 					TotalRemovedAuctions: 0,
 					TotalNewAuctions:     0,
 				}
@@ -119,7 +119,7 @@ func (ladBases LiveAuctionsDatabases) Load(in chan LoadInJob) chan liveAuctionsL
 					Err:                  err,
 					Realm:                job.Realm,
 					LastModified:         job.TargetTime,
-					Stats:                miniAuctionListStats{},
+					Stats:                MiniAuctionListStats{},
 					TotalRemovedAuctions: 0,
 					TotalNewAuctions:     0,
 				}
@@ -211,7 +211,7 @@ func (ladBases LiveAuctionsDatabases) LoadEncodedData(
 type GetStatsJob struct {
 	Err   error
 	Realm sotah.Realm
-	Stats miniAuctionListStats
+	Stats MiniAuctionListStats
 }
 
 func (job GetStatsJob) ToLogrusFields() logrus.Fields {

@@ -1,11 +1,14 @@
 package database
 
 import (
+	"encoding/json"
+
 	"github.com/boltdb/bolt"
 	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzard"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 )
 
 func newLiveAuctionsDatabase(dirPath string, rea sotah.Realm) (liveAuctionsDatabase, error) {
@@ -40,7 +43,7 @@ func (ladBase liveAuctionsDatabase) persistMiniAuctionList(maList sotah.MiniAuct
 			return err
 		}
 
-		if err := bkt.Put(liveAuctionsKeyName(), encodedData); err != nil {
+		if err := bkt.Put(liveAuctionsMainKeyName(), encodedData); err != nil {
 			return err
 		}
 
@@ -65,7 +68,7 @@ func (ladBase liveAuctionsDatabase) persistEncodedData(encodedData []byte) error
 			return err
 		}
 
-		if err := bkt.Put(liveAuctionsKeyName(), encodedData); err != nil {
+		if err := bkt.Put(liveAuctionsMainKeyName(), encodedData); err != nil {
 			return err
 		}
 
@@ -93,7 +96,7 @@ func (ladBase liveAuctionsDatabase) GetMiniAuctionList() (sotah.MiniAuctionList,
 		}
 
 		var err error
-		out, err = sotah.NewMiniAuctionListFromGzipped(bkt.Get(liveAuctionsKeyName()))
+		out, err = sotah.NewMiniAuctionListFromGzipped(bkt.Get(liveAuctionsMainKeyName()))
 		if err != nil {
 			return err
 		}
@@ -107,7 +110,21 @@ func (ladBase liveAuctionsDatabase) GetMiniAuctionList() (sotah.MiniAuctionList,
 	return out, nil
 }
 
-type miniAuctionListStats struct {
+func NewMiniAuctionListStats(gzipEncoded []byte) (MiniAuctionListStats, error) {
+	gzipDecoded, err := util.GzipDecode(gzipEncoded)
+	if err != nil {
+		return MiniAuctionListStats{}, err
+	}
+
+	var jsonDecoded MiniAuctionListStats
+	if err := json.Unmarshal(gzipDecoded, &jsonDecoded); err != nil {
+		return MiniAuctionListStats{}, err
+	}
+
+	return jsonDecoded, nil
+}
+
+type MiniAuctionListStats struct {
 	TotalAuctions int
 	TotalQuantity int
 	TotalBuyout   int
@@ -115,13 +132,22 @@ type miniAuctionListStats struct {
 	AuctionIds    []int64
 }
 
-func (ladBase liveAuctionsDatabase) stats() (miniAuctionListStats, error) {
-	maList, err := ladBase.GetMiniAuctionList()
+func (s MiniAuctionListStats) EncodeForStorage() ([]byte, error) {
+	jsonEncoded, err := json.Marshal(s)
 	if err != nil {
-		return miniAuctionListStats{}, err
+		return []byte{}, err
 	}
 
-	out := miniAuctionListStats{
+	return util.GzipEncode(jsonEncoded)
+}
+
+func (ladBase liveAuctionsDatabase) stats() (MiniAuctionListStats, error) {
+	maList, err := ladBase.GetMiniAuctionList()
+	if err != nil {
+		return MiniAuctionListStats{}, err
+	}
+
+	out := MiniAuctionListStats{
 		TotalAuctions: maList.TotalAuctions(),
 		TotalQuantity: maList.TotalQuantity(),
 		TotalBuyout:   int(maList.TotalBuyout()),
