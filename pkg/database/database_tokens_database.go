@@ -9,7 +9,7 @@ import (
 )
 
 func NewTokensDatabase(dbDir string) (TokensDatabase, error) {
-	dbFilepath, err := ItemsDatabasePath(dbDir)
+	dbFilepath, err := TokensDatabasePath(dbDir)
 	if err != nil {
 		return TokensDatabase{}, err
 	}
