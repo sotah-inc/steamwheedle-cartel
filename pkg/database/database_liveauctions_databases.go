@@ -249,11 +249,19 @@ func (ladBases LiveAuctionsDatabases) GetStats(realms sotah.Realms) chan GetStat
 }
 
 type PersistRealmStatsJob struct {
-	err   error
-	realm sotah.Realm
+	Err   error
+	Realm sotah.Realm
 }
 
-func (ladBases LiveAuctionsDatabases) PersistRealmStats(realms sotah.Realms) chan PersistRealmStatsJob {
+func (job PersistRealmStatsJob) ToLogrusFields() logrus.Fields {
+	return logrus.Fields{
+		"error":  job.Err.Error(),
+		"region": job.Realm.Region.Name,
+		"realm":  job.Realm.Slug,
+	}
+}
+
+func (ladBases LiveAuctionsDatabases) PersistRealmStats(statuses sotah.Statuses) chan PersistRealmStatsJob {
 	in := make(chan sotah.Realm)
 	out := make(chan PersistRealmStatsJob)
 
@@ -271,8 +279,10 @@ func (ladBases LiveAuctionsDatabases) PersistRealmStats(realms sotah.Realms) cha
 	util.Work(4, worker, postWork)
 
 	go func() {
-		for _, rea := range realms {
-			in <- rea
+		for _, status := range statuses {
+			for _, realm := range status.Realms {
+				in <- realm
+			}
 		}
 
 		close(in)
