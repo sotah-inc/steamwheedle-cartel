@@ -5,6 +5,7 @@ import (
 	"os/signal"
 
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 	devState "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state/dev"
 )
 
@@ -22,6 +23,11 @@ func LiveAuctions(config devState.LiveAuctionsStateConfig) error {
 		return err
 	}
 
+	// starting up a collector
+	collectorStop := make(sotah.WorkerStopChan)
+	onCollectorStop := make(sotah.WorkerStopChan)
+	onCollectorStop = laState.StartCollector(collectorStop)
+
 	// catching SIGINT
 	logging.Info("Waiting for SIGINT")
 	sigIn := make(chan os.Signal, 1)
@@ -32,6 +38,13 @@ func LiveAuctions(config devState.LiveAuctionsStateConfig) error {
 
 	// stopping listeners
 	laState.Listeners.Stop()
+
+	// stopping collector
+	logging.Info("Stopping collector")
+	collectorStop <- struct{}{}
+
+	logging.Info("Waiting for collector to stop")
+	<-onCollectorStop
 
 	logging.Info("Exiting")
 	return nil
