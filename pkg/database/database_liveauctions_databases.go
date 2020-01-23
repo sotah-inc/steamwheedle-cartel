@@ -248,6 +248,39 @@ func (ladBases LiveAuctionsDatabases) GetStats(realms sotah.Realms) chan GetStat
 	return out
 }
 
+type PersistRealmStatsJob struct {
+	err   error
+	realm sotah.Realm
+}
+
+func (ladBases LiveAuctionsDatabases) PersistRealmStats(realms sotah.Realms) chan PersistRealmStatsJob {
+	in := make(chan sotah.Realm)
+	out := make(chan PersistRealmStatsJob)
+
+	currentTime := time.Now()
+
+	worker := func() {
+		for rea := range in {
+			err := ladBases[rea.Region.Name][rea.Slug].persistStats(currentTime)
+			out <- PersistRealmStatsJob{err, rea}
+		}
+	}
+	postWork := func() {
+		close(out)
+	}
+	util.Work(4, worker, postWork)
+
+	go func() {
+		for _, rea := range realms {
+			in <- rea
+		}
+
+		close(in)
+	}()
+
+	return out
+}
+
 func NewQueryRequest(data []byte) (QueryAuctionsRequest, error) {
 	ar := &QueryAuctionsRequest{}
 	err := json.Unmarshal(data, &ar)

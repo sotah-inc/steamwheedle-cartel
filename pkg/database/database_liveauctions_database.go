@@ -2,6 +2,7 @@ package database
 
 import (
 	"encoding/json"
+	"time"
 
 	"github.com/boltdb/bolt"
 	"github.com/sirupsen/logrus"
@@ -156,4 +157,39 @@ func (ladBase liveAuctionsDatabase) stats() (MiniAuctionListStats, error) {
 	}
 
 	return out, nil
+}
+
+func (ladBase liveAuctionsDatabase) persistStats(currentTime time.Time) error {
+	stats, err := ladBase.stats()
+	if err != nil {
+		return err
+	}
+
+	encodedData, err := stats.EncodeForStorage()
+	if err != nil {
+		return err
+	}
+
+	logging.WithFields(logrus.Fields{
+		"db":           ladBase.db.Path(),
+		"encoded-data": len(encodedData),
+	}).Debug("Persisting mini-auction-stats via encoded-data")
+
+	err = ladBase.db.Update(func(tx *bolt.Tx) error {
+		bkt, err := tx.CreateBucketIfNotExists(liveAuctionsStatsBucketName())
+		if err != nil {
+			return err
+		}
+
+		if err := bkt.Put(liveAuctionsStatsKeyName(currentTime.Unix()), encodedData); err != nil {
+			return err
+		}
+
+		return nil
+	})
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
