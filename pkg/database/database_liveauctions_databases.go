@@ -4,6 +4,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/sirupsen/logrus"
@@ -64,7 +65,7 @@ func (ladBases LiveAuctionsDatabases) Load(in chan LoadInJob) chan liveAuctionsL
 		for job := range in {
 			// resolving the live-auctions database and gathering current Stats
 			ladBase := ladBases[job.Realm.Region.Name][job.Realm.Slug]
-			malStats, err := ladBase.stats()
+			malStats, err := ladBase.Stats()
 			if err != nil {
 				logging.WithFields(logrus.Fields{
 					"error":  err.Error(),
@@ -228,7 +229,29 @@ func (ladBases LiveAuctionsDatabases) GetStats(realms sotah.Realms) chan GetStat
 
 	worker := func() {
 		for rea := range in {
-			stats, err := ladBases[rea.Region.Name][rea.Slug].stats()
+			regionShards, ok := ladBases[rea.Region.Name]
+			if !ok {
+				out <- GetStatsJob{
+					Err:   fmt.Errorf("region %s not found in shards", rea.Region.Name),
+					Realm: rea,
+					Stats: MiniAuctionListStats{},
+				}
+
+				continue
+			}
+
+			realmDb, ok := regionShards[rea.Slug]
+			if !ok {
+				out <- GetStatsJob{
+					Err:   fmt.Errorf("realm %s not found in %s shards", rea.Slug, rea.Region.Name),
+					Realm: rea,
+					Stats: MiniAuctionListStats{},
+				}
+
+				continue
+			}
+
+			stats, err := realmDb.Stats()
 			out <- GetStatsJob{err, rea, stats}
 		}
 	}

@@ -158,7 +158,7 @@ func (s MiniAuctionListStats) EncodeForStorage() ([]byte, error) {
 	return util.GzipEncode(jsonEncoded)
 }
 
-func (ladBase liveAuctionsDatabase) stats() (MiniAuctionListStats, error) {
+func (ladBase liveAuctionsDatabase) Stats() (MiniAuctionListStats, error) {
 	maList, err := ladBase.GetMiniAuctionList()
 	if err != nil {
 		return MiniAuctionListStats{}, err
@@ -178,7 +178,7 @@ func (ladBase liveAuctionsDatabase) stats() (MiniAuctionListStats, error) {
 }
 
 func (ladBase liveAuctionsDatabase) persistStats(currentTime time.Time) error {
-	stats, err := ladBase.stats()
+	stats, err := ladBase.Stats()
 	if err != nil {
 		return err
 	}
