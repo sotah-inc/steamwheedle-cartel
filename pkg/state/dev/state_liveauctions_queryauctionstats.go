@@ -25,6 +25,7 @@ func (laState LiveAuctionsState) ListenForQueryAuctionStats(stop state.ListenSto
 			return
 		}
 
+		// fetching aggregated stats across all regions and realms
 		if req.RegionName == "" {
 			totalStats := database.MiniAuctionListGeneralStats{}
 
@@ -56,6 +57,7 @@ func (laState LiveAuctionsState) ListenForQueryAuctionStats(stop state.ListenSto
 			return
 		}
 
+		// fetching aggregated status across one region
 		if req.RealmSlug == "" {
 			totalStats := database.MiniAuctionListGeneralStats{}
 
@@ -76,6 +78,7 @@ func (laState LiveAuctionsState) ListenForQueryAuctionStats(stop state.ListenSto
 			return
 		}
 
+		// fetching stats for one realm
 		realmDb, err := laState.IO.Databases.LiveAuctionsDatabases.GetDatabase(
 			blizzard.RegionName(req.RegionName),
 			blizzard.RealmSlug(req.RealmSlug),
