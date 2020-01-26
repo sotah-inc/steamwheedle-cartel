@@ -21,7 +21,7 @@ func NewLiveAuctionsDatabases(dirPath string, stas sotah.Statuses) (LiveAuctions
 	ladBases := LiveAuctionsDatabases{}
 
 	for regionName, status := range stas {
-		ladBases[regionName] = map[blizzard.RealmSlug]liveAuctionsDatabase{}
+		ladBases[regionName] = map[blizzard.RealmSlug]LiveAuctionsDatabase{}
 
 		for _, rea := range status.Realms {
 			ladBase, err := newLiveAuctionsDatabase(dirPath, rea)
@@ -36,7 +36,7 @@ func NewLiveAuctionsDatabases(dirPath string, stas sotah.Statuses) (LiveAuctions
 	return ladBases, nil
 }
 
-type LiveAuctionsDatabases map[blizzard.RegionName]map[blizzard.RealmSlug]liveAuctionsDatabase
+type LiveAuctionsDatabases map[blizzard.RegionName]LiveAuctionsDatabaseShards
 
 type liveAuctionsLoadOutJob struct {
 	Err                  error
@@ -479,4 +479,33 @@ func (ladBases LiveAuctionsDatabases) GetPricelist(
 	}
 
 	return GetPricelistResponse{Pricelist: responseItemPrices}, codes.Ok, nil
+}
+
+func (ladBases LiveAuctionsDatabases) GetShards(regionName blizzard.RegionName) (LiveAuctionsDatabaseShards, error) {
+	shards, ok := ladBases[regionName]
+	if !ok {
+		return LiveAuctionsDatabaseShards{}, fmt.Errorf("shard not found for region %s", regionName)
+	}
+
+	return shards, nil
+}
+
+func (ladBases LiveAuctionsDatabases) GetDatabase(regionName blizzard.RegionName, realmSlug blizzard.RealmSlug) (LiveAuctionsDatabase, error) {
+	shards, err := ladBases.GetShards(regionName)
+	if err != nil {
+		return LiveAuctionsDatabase{}, err
+	}
+
+	return shards.Get(realmSlug)
+}
+
+type LiveAuctionsDatabaseShards map[blizzard.RealmSlug]LiveAuctionsDatabase
+
+func (ladBaseShards LiveAuctionsDatabaseShards) Get(realmSlug blizzard.RealmSlug) (LiveAuctionsDatabase, error) {
+	db, ok := ladBaseShards[realmSlug]
+	if !ok {
+		return LiveAuctionsDatabase{}, fmt.Errorf("db not found for realm %s", realmSlug)
+	}
+
+	return db, nil
 }

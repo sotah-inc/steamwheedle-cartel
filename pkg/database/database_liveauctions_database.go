@@ -12,22 +12,22 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 )
 
-func newLiveAuctionsDatabase(dirPath string, rea sotah.Realm) (liveAuctionsDatabase, error) {
+func newLiveAuctionsDatabase(dirPath string, rea sotah.Realm) (LiveAuctionsDatabase, error) {
 	dbFilepath := liveAuctionsDatabasePath(dirPath, rea)
 	db, err := bolt.Open(dbFilepath, 0600, nil)
 	if err != nil {
-		return liveAuctionsDatabase{}, err
+		return LiveAuctionsDatabase{}, err
 	}
 
-	return liveAuctionsDatabase{db, rea}, nil
+	return LiveAuctionsDatabase{db, rea}, nil
 }
 
-type liveAuctionsDatabase struct {
+type LiveAuctionsDatabase struct {
 	db    *bolt.DB
 	realm sotah.Realm
 }
 
-func (ladBase liveAuctionsDatabase) persistMiniAuctionList(maList sotah.MiniAuctionList) error {
+func (ladBase LiveAuctionsDatabase) persistMiniAuctionList(maList sotah.MiniAuctionList) error {
 	logging.WithFields(logrus.Fields{
 		"db":                 ladBase.db.Path(),
 		"mini-auctions-list": len(maList),
@@ -57,7 +57,7 @@ func (ladBase liveAuctionsDatabase) persistMiniAuctionList(maList sotah.MiniAuct
 	return nil
 }
 
-func (ladBase liveAuctionsDatabase) persistEncodedData(encodedData []byte) error {
+func (ladBase LiveAuctionsDatabase) persistEncodedData(encodedData []byte) error {
 	logging.WithFields(logrus.Fields{
 		"db":           ladBase.db.Path(),
 		"encoded-data": len(encodedData),
@@ -82,7 +82,7 @@ func (ladBase liveAuctionsDatabase) persistEncodedData(encodedData []byte) error
 	return nil
 }
 
-func (ladBase liveAuctionsDatabase) GetMiniAuctionList() (sotah.MiniAuctionList, error) {
+func (ladBase LiveAuctionsDatabase) GetMiniAuctionList() (sotah.MiniAuctionList, error) {
 	out := sotah.MiniAuctionList{}
 
 	err := ladBase.db.View(func(tx *bolt.Tx) error {
@@ -158,7 +158,7 @@ func (s MiniAuctionListStats) EncodeForStorage() ([]byte, error) {
 	return util.GzipEncode(jsonEncoded)
 }
 
-func (ladBase liveAuctionsDatabase) Stats() (MiniAuctionListStats, error) {
+func (ladBase LiveAuctionsDatabase) Stats() (MiniAuctionListStats, error) {
 	maList, err := ladBase.GetMiniAuctionList()
 	if err != nil {
 		return MiniAuctionListStats{}, err
@@ -177,7 +177,7 @@ func (ladBase liveAuctionsDatabase) Stats() (MiniAuctionListStats, error) {
 	return out, nil
 }
 
-func (ladBase liveAuctionsDatabase) persistStats(currentTime time.Time) error {
+func (ladBase LiveAuctionsDatabase) persistStats(currentTime time.Time) error {
 	stats, err := ladBase.Stats()
 	if err != nil {
 		return err
