@@ -76,20 +76,16 @@ func (laState LiveAuctionsState) ListenForQueryAuctionStats(stop state.ListenSto
 			return
 		}
 
-		regionShards, ok := laState.IO.Databases.LiveAuctionsDatabases[blizzard.RegionName(req.RegionName)]
-		if !ok {
-			m.Err = fmt.Sprintf("region %s not found in shards", req.RegionName)
+		realmDb, err := laState.IO.Databases.LiveAuctionsDatabases.GetDatabase(
+			blizzard.RegionName(req.RegionName),
+			blizzard.RealmSlug(req.RealmSlug),
+		)
+		if err != nil {
+			m.Err = err.Error()
 			m.Code = mCodes.GenericError
 			laState.IO.Messenger.ReplyTo(natsMsg, m)
 
 			return
-		}
-
-		realmDb, ok := regionShards[blizzard.RealmSlug(req.RealmSlug)]
-		if !ok {
-			m.Err = fmt.Sprintf("realm %s not found in %s shards", req.RealmSlug, req.RegionName)
-			m.Code = mCodes.GenericError
-			laState.IO.Messenger.ReplyTo(natsMsg, m)
 		}
 
 		stats, err := realmDb.Stats()

@@ -39,14 +39,12 @@ type AuctionsRequest struct {
 }
 
 func (ar AuctionsRequest) resolve(laState LiveAuctionsState) (sotah.MiniAuctionList, state.RequestError) {
-	regionLadBases, ok := laState.IO.Databases.LiveAuctionsDatabases[ar.RegionName]
-	if !ok {
-		return sotah.MiniAuctionList{}, state.RequestError{Code: codes.NotFound, Message: "Invalid region"}
-	}
-
-	realmLadbase, ok := regionLadBases[ar.RealmSlug]
-	if !ok {
-		return sotah.MiniAuctionList{}, state.RequestError{Code: codes.NotFound, Message: "Invalid Realm"}
+	realmLadbase, err := laState.IO.Databases.LiveAuctionsDatabases.GetDatabase(
+		ar.RegionName,
+		ar.RealmSlug,
+	)
+	if err != nil {
+		return sotah.MiniAuctionList{}, state.RequestError{Code: codes.NotFound, Message: err.Error()}
 	}
 
 	if ar.Page < 0 {
