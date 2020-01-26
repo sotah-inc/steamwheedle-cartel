@@ -195,7 +195,22 @@ func (ladBases LiveAuctionsDatabases) LoadEncodedData(
 	worker := func() {
 		for job := range in {
 			// resolving the live-auctions database and gathering current Stats
-			ladBase := ladBases[job.RegionName][job.RealmSlug]
+			ladBase, err := ladBases.GetDatabase(job.RegionName, job.RealmSlug)
+			if err != nil {
+				logging.WithFields(logrus.Fields{
+					"error":  err.Error(),
+					"region": job.RegionName,
+					"realm":  job.RealmSlug,
+				}).Error("Failed to find database by region and realm")
+
+				out <- LiveAuctionsLoadEncodedDataOutJob{
+					Err:        err,
+					RegionName: job.RegionName,
+					RealmSlug:  job.RealmSlug,
+				}
+
+				continue
+			}
 
 			if err := ladBase.persistEncodedData(job.EncodedData); err != nil {
 				logging.WithFields(logrus.Fields{
@@ -248,10 +263,10 @@ func (ladBases LiveAuctionsDatabases) GetStats(realms sotah.Realms) chan GetStat
 
 	worker := func() {
 		for rea := range in {
-			regionShards, ok := ladBases[rea.Region.Name]
-			if !ok {
+			ladBase, err := ladBases.GetDatabase(rea.Region.Name, rea.Slug)
+			if err != nil {
 				out <- GetStatsJob{
-					Err:   fmt.Errorf("region %s not found in shards", rea.Region.Name),
+					Err:   err,
 					Realm: rea,
 					Stats: MiniAuctionListStats{},
 				}
@@ -259,18 +274,7 @@ func (ladBases LiveAuctionsDatabases) GetStats(realms sotah.Realms) chan GetStat
 				continue
 			}
 
-			realmDb, ok := regionShards[rea.Slug]
-			if !ok {
-				out <- GetStatsJob{
-					Err:   fmt.Errorf("realm %s not found in %s shards", rea.Slug, rea.Region.Name),
-					Realm: rea,
-					Stats: MiniAuctionListStats{},
-				}
-
-				continue
-			}
-
-			stats, err := realmDb.Stats()
+			stats, err := ladBase.Stats()
 			out <- GetStatsJob{err, rea, stats}
 		}
 	}
@@ -311,7 +315,14 @@ func (ladBases LiveAuctionsDatabases) PersistRealmStats(statuses sotah.Statuses)
 
 	worker := func() {
 		for rea := range in {
-			err := ladBases[rea.Region.Name][rea.Slug].persistStats(currentTime)
+			ladBase, err := ladBases.GetDatabase(rea.Region.Name, rea.Slug)
+			if err != nil {
+				out <- PersistRealmStatsJob{err, rea}
+
+				continue
+			}
+
+			err = ladBase.persistStats(currentTime)
 			out <- PersistRealmStatsJob{err, rea}
 		}
 	}
@@ -376,14 +387,9 @@ func (qr QueryAuctionsResponse) EncodeForDelivery() (string, error) {
 func (ladBases LiveAuctionsDatabases) QueryAuctions(
 	qr QueryAuctionsRequest,
 ) (QueryAuctionsResponse, codes.Code, error) {
-	regionLadBases, ok := ladBases[qr.RegionName]
-	if !ok {
-		return QueryAuctionsResponse{}, codes.UserError, errors.New("invalid region")
-	}
-
-	realmLadbase, ok := regionLadBases[qr.RealmSlug]
-	if !ok {
-		return QueryAuctionsResponse{}, codes.UserError, errors.New("invalid realm")
+	realmLadbase, err := ladBases.GetDatabase(qr.RegionName, qr.RealmSlug)
+	if err != nil {
+		return QueryAuctionsResponse{}, codes.UserError, err
 	}
 
 	if qr.Page < 0 {
@@ -472,14 +478,9 @@ func (plResponse GetPricelistResponse) EncodeForDelivery() (string, error) {
 func (ladBases LiveAuctionsDatabases) GetPricelist(
 	plRequest GetPricelistRequest,
 ) (GetPricelistResponse, codes.Code, error) {
-	regionLadBases, ok := ladBases[plRequest.RegionName]
-	if !ok {
-		return GetPricelistResponse{}, codes.UserError, errors.New("invalid region")
-	}
-
-	ladBase, ok := regionLadBases[plRequest.RealmSlug]
-	if !ok {
-		return GetPricelistResponse{}, codes.UserError, errors.New("invalid realm")
+	ladBase, err := ladBases.GetDatabase(plRequest.RegionName, plRequest.RealmSlug)
+	if err != nil {
+		return GetPricelistResponse{}, codes.UserError, err
 	}
 
 	maList, err := ladBase.GetMiniAuctionList()
