@@ -63,8 +63,27 @@ func (ladBases LiveAuctionsDatabases) Load(in chan LoadInJob) chan liveAuctionsL
 	// spinning up workers for receiving auctions and persisting them
 	worker := func() {
 		for job := range in {
-			// resolving the live-auctions database and gathering current Stats
-			ladBase := ladBases[job.Realm.Region.Name][job.Realm.Slug]
+			// resolving the live-auctions database and gathering current stats
+			ladBase, err := ladBases.GetDatabase(job.Realm.Region.Name, job.Realm.Slug)
+			if err != nil {
+				logging.WithFields(logrus.Fields{
+					"error":  err.Error(),
+					"region": job.Realm.Region.Name,
+					"realm":  job.Realm.Slug,
+				}).Error("Failed to find database by region and realm")
+
+				out <- liveAuctionsLoadOutJob{
+					Err:                  err,
+					Realm:                job.Realm,
+					LastModified:         job.TargetTime,
+					Stats:                MiniAuctionListStats{},
+					TotalRemovedAuctions: 0,
+					TotalNewAuctions:     0,
+				}
+
+				continue
+			}
+
 			malStats, err := ladBase.Stats()
 			if err != nil {
 				logging.WithFields(logrus.Fields{
