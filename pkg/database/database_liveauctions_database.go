@@ -125,12 +125,28 @@ func NewMiniAuctionListStats(gzipEncoded []byte) (MiniAuctionListStats, error) {
 	return jsonDecoded, nil
 }
 
-type MiniAuctionListStats struct {
+type MiniAuctionListGeneralStats struct {
 	TotalAuctions int
 	TotalQuantity int
 	TotalBuyout   int
-	ItemIds       []blizzard.ItemID
-	AuctionIds    []int64
+}
+
+func (s MiniAuctionListGeneralStats) Add(v MiniAuctionListGeneralStats) MiniAuctionListGeneralStats {
+	s.TotalQuantity += v.TotalQuantity
+	s.TotalBuyout += v.TotalBuyout
+	s.TotalAuctions += v.TotalAuctions
+
+	return s
+}
+
+func (s MiniAuctionListGeneralStats) EncodeForDelivery() ([]byte, error) {
+	return json.Marshal(s)
+}
+
+type MiniAuctionListStats struct {
+	MiniAuctionListGeneralStats
+	ItemIds    []blizzard.ItemID
+	AuctionIds []int64
 }
 
 func (s MiniAuctionListStats) EncodeForStorage() ([]byte, error) {
@@ -149,11 +165,13 @@ func (ladBase liveAuctionsDatabase) stats() (MiniAuctionListStats, error) {
 	}
 
 	out := MiniAuctionListStats{
-		TotalAuctions: maList.TotalAuctions(),
-		TotalQuantity: maList.TotalQuantity(),
-		TotalBuyout:   int(maList.TotalBuyout()),
-		ItemIds:       maList.ItemIds(),
-		AuctionIds:    maList.AuctionIds(),
+		MiniAuctionListGeneralStats: MiniAuctionListGeneralStats{
+			TotalAuctions: maList.TotalAuctions(),
+			TotalQuantity: maList.TotalQuantity(),
+			TotalBuyout:   int(maList.TotalBuyout()),
+		},
+		ItemIds:    maList.ItemIds(),
+		AuctionIds: maList.AuctionIds(),
 	}
 
 	return out, nil
