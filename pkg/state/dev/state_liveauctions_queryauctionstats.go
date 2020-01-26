@@ -9,7 +9,7 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state/subjects"
 )
 
-func (laState LiveAuctionsState) ListenForQueryRealmModificationDates(stop state.ListenStopChan) error {
+func (laState LiveAuctionsState) ListenForQueryAuctionStats(stop state.ListenStopChan) error {
 	err := laState.IO.Messenger.Subscribe(string(subjects.QueryAuctionStats), stop, func(natsMsg nats.Msg) {
 		m := messenger.NewMessage()
 
@@ -39,17 +39,7 @@ func (laState LiveAuctionsState) ListenForQueryRealmModificationDates(stop state
 				}
 			}
 
-			encoded, err := totalStats.EncodeForDelivery()
-			if err != nil {
-				m.Err = err.Error()
-				m.Code = mCodes.GenericError
-				laState.IO.Messenger.ReplyTo(natsMsg, m)
-
-				return
-			}
-
-			m.Data = string(encoded)
-			laState.IO.Messenger.ReplyTo(natsMsg, m)
+			laState.sendQueryAuctionStatsResponse(natsMsg, m, totalStats)
 
 			return
 		}
@@ -61,4 +51,18 @@ func (laState LiveAuctionsState) ListenForQueryRealmModificationDates(stop state
 	}
 
 	return nil
+}
+
+func (laState LiveAuctionsState) sendQueryAuctionStatsResponse(natsMsg nats.Msg, m messenger.Message, totalStats database.MiniAuctionListGeneralStats) {
+	encoded, err := totalStats.EncodeForDelivery()
+	if err != nil {
+		m.Err = err.Error()
+		m.Code = mCodes.GenericError
+		laState.IO.Messenger.ReplyTo(natsMsg, m)
+
+		return
+	}
+
+	m.Data = string(encoded)
+	laState.IO.Messenger.ReplyTo(natsMsg, m)
 }
