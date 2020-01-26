@@ -29,6 +29,7 @@ const (
 	AuctionsQuery                   Subject = "auctionsQuery"
 	QueryRealmModificationDates     Subject = "queryRealmModificationDates"
 	RealmModificationDates          Subject = "realmModificationDates"
+	QueryAuctionStats               Subject = "queryAuctionStats"
 )
 
 // gcloud fn-related

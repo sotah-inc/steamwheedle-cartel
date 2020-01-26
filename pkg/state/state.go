@@ -301,3 +301,30 @@ func (iResponse ItemsResponse) EncodeForMessage() (string, error) {
 
 	return base64.StdEncoding.EncodeToString(gzippedResult), nil
 }
+
+func NewTokenHistoryRequest(data []byte) (TokenHistoryRequest, error) {
+	var out TokenHistoryRequest
+	if err := json.Unmarshal(data, &out); err != nil {
+		return TokenHistoryRequest{}, err
+	}
+
+	return out, nil
+}
+
+type TokenHistoryRequest struct {
+	RegionName string `json:"region_name"`
+}
+
+func NewAuctionsStatsRequest(data []byte) (AuctionsStatsRequest, error) {
+	var out AuctionsStatsRequest
+	if err := json.Unmarshal(data, &out); err != nil {
+		return AuctionsStatsRequest{}, err
+	}
+
+	return out, nil
+}
+
+type AuctionsStatsRequest struct {
+	RegionName string `json:"region_name"`
+	RealmSlug string `json:"realm_slug"`
+}
