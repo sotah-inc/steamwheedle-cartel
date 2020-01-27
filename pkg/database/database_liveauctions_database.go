@@ -126,9 +126,9 @@ func NewMiniAuctionListStats(gzipEncoded []byte) (MiniAuctionListStats, error) {
 }
 
 type MiniAuctionListGeneralStats struct {
-	TotalAuctions int
-	TotalQuantity int
-	TotalBuyout   int
+	TotalAuctions int `json:"total_auctions"`
+	TotalQuantity int `json:"total_quantity"`
+	TotalBuyout   int `json:"total_buyout"`
 }
 
 func (s MiniAuctionListGeneralStats) Add(v MiniAuctionListGeneralStats) MiniAuctionListGeneralStats {
