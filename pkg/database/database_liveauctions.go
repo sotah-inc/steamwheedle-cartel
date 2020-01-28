@@ -3,6 +3,7 @@ package database
 import (
 	"fmt"
 	"strconv"
+	"time"
 
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 )
@@ -23,6 +24,13 @@ func liveAuctionsStatsBucketName() []byte {
 
 func liveAuctionsStatsKeyName(lastUpdated int64) []byte {
 	return []byte(fmt.Sprintf("live-auctions-stats-%d", lastUpdated))
+}
+
+func normalizeLiveAuctionsStatsLastUpdated(lastUpdatedTimestamp int64) int64 {
+	lastUpdated := time.Unix(lastUpdatedTimestamp, 0)
+	nearestHourOffset := lastUpdated.Second() + lastUpdated.Minute()*60
+
+	return time.Unix(lastUpdatedTimestamp-int64(nearestHourOffset), 0).Unix()
 }
 
 func unixTimestampFromLiveAuctionsStatsKeyName(key []byte) (int64, error) {
