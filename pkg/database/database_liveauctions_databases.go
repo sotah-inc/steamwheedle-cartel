@@ -243,13 +243,13 @@ func (ladBases LiveAuctionsDatabases) LoadEncodedData(
 	return out
 }
 
-type GetStatsJob struct {
-	Err   error
-	Realm sotah.Realm
-	Stats MiniAuctionListStats
+type GetAuctionStatsJob struct {
+	Err          error
+	Realm        sotah.Realm
+	AuctionStats AuctionStats
 }
 
-func (job GetStatsJob) ToLogrusFields() logrus.Fields {
+func (job GetAuctionStatsJob) ToLogrusFields() logrus.Fields {
 	return logrus.Fields{
 		"error":  job.Err.Error(),
 		"region": job.Realm.Region.Name,
@@ -257,25 +257,25 @@ func (job GetStatsJob) ToLogrusFields() logrus.Fields {
 	}
 }
 
-func (ladBases LiveAuctionsDatabases) GetStats(realms sotah.Realms) chan GetStatsJob {
+func (ladBases LiveAuctionsDatabases) GetAuctionStats(realms sotah.Realms) chan GetAuctionStatsJob {
 	in := make(chan sotah.Realm)
-	out := make(chan GetStatsJob)
+	out := make(chan GetAuctionStatsJob)
 
 	worker := func() {
 		for rea := range in {
 			ladBase, err := ladBases.GetDatabase(rea.Region.Name, rea.Slug)
 			if err != nil {
-				out <- GetStatsJob{
-					Err:   err,
-					Realm: rea,
-					Stats: MiniAuctionListStats{},
+				out <- GetAuctionStatsJob{
+					Err:          err,
+					Realm:        rea,
+					AuctionStats: AuctionStats{},
 				}
 
 				continue
 			}
 
-			stats, err := ladBase.Stats()
-			out <- GetStatsJob{err, rea, stats}
+			auctionStats, err := ladBase.GetAuctionStats()
+			out <- GetAuctionStatsJob{err, rea, auctionStats}
 		}
 	}
 	postWork := func() {

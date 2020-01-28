@@ -27,10 +27,10 @@ func (laState LiveAuctionsState) ListenForQueryAuctionStats(stop state.ListenSto
 
 		// fetching aggregated stats across all regions and realms
 		if req.RegionName == "" {
-			totalStats := database.MiniAuctionListGeneralStats{}
+			totalStats := database.AuctionStats{}
 
 			for _, status := range laState.Statuses {
-				for job := range laState.IO.Databases.LiveAuctionsDatabases.GetStats(status.Realms) {
+				for job := range laState.IO.Databases.LiveAuctionsDatabases.GetAuctionStats(status.Realms) {
 					if job.Err != nil {
 						m.Err = job.Err.Error()
 						m.Code = mCodes.GenericError
@@ -39,7 +39,7 @@ func (laState LiveAuctionsState) ListenForQueryAuctionStats(stop state.ListenSto
 						return
 					}
 
-					totalStats = totalStats.Add(job.Stats.MiniAuctionListGeneralStats)
+					totalStats = totalStats.Append(job.AuctionStats)
 				}
 			}
 
@@ -59,9 +59,9 @@ func (laState LiveAuctionsState) ListenForQueryAuctionStats(stop state.ListenSto
 
 		// fetching aggregated status across one region
 		if req.RealmSlug == "" {
-			totalStats := database.MiniAuctionListGeneralStats{}
+			totalStats := database.AuctionStats{}
 
-			for job := range laState.IO.Databases.LiveAuctionsDatabases.GetStats(statuses.Realms) {
+			for job := range laState.IO.Databases.LiveAuctionsDatabases.GetAuctionStats(statuses.Realms) {
 				if job.Err != nil {
 					m.Err = job.Err.Error()
 					m.Code = mCodes.GenericError
@@ -70,7 +70,7 @@ func (laState LiveAuctionsState) ListenForQueryAuctionStats(stop state.ListenSto
 					return
 				}
 
-				totalStats = totalStats.Add(job.Stats.MiniAuctionListGeneralStats)
+				totalStats = totalStats.Append(job.AuctionStats)
 			}
 
 			laState.sendQueryAuctionStatsResponse(natsMsg, m, totalStats)
@@ -91,7 +91,7 @@ func (laState LiveAuctionsState) ListenForQueryAuctionStats(stop state.ListenSto
 			return
 		}
 
-		stats, err := realmDb.Stats()
+		auctionStats, err := realmDb.GetAuctionStats()
 		if err != nil {
 			m.Err = err.Error()
 			m.Code = mCodes.GenericError
@@ -100,7 +100,7 @@ func (laState LiveAuctionsState) ListenForQueryAuctionStats(stop state.ListenSto
 			return
 		}
 
-		laState.sendQueryAuctionStatsResponse(natsMsg, m, stats.MiniAuctionListGeneralStats)
+		laState.sendQueryAuctionStatsResponse(natsMsg, m, auctionStats)
 
 		return
 	})
@@ -111,8 +111,8 @@ func (laState LiveAuctionsState) ListenForQueryAuctionStats(stop state.ListenSto
 	return nil
 }
 
-func (laState LiveAuctionsState) sendQueryAuctionStatsResponse(natsMsg nats.Msg, m messenger.Message, totalStats database.MiniAuctionListGeneralStats) {
-	encoded, err := totalStats.EncodeForDelivery()
+func (laState LiveAuctionsState) sendQueryAuctionStatsResponse(natsMsg nats.Msg, m messenger.Message, auctionStats database.AuctionStats) {
+	encoded, err := auctionStats.EncodeForDelivery()
 	if err != nil {
 		m.Err = err.Error()
 		m.Code = mCodes.GenericError

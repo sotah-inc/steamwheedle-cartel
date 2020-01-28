@@ -237,7 +237,7 @@ func (ladBase LiveAuctionsDatabase) persistStats(currentTime time.Time) error {
 	return nil
 }
 
-func (ladBase LiveAuctionsDatabase) GetStats() (AuctionStats, error) {
+func (ladBase LiveAuctionsDatabase) GetAuctionStats() (AuctionStats, error) {
 	out := AuctionStats{}
 
 	err := ladBase.db.View(func(tx *bolt.Tx) error {
