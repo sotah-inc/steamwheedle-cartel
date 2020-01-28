@@ -99,7 +99,7 @@ func (iRequest liveAuctionsIntakeRequest) handle(laState LiveAuctionsState) {
 	totalAuctions := 0
 	itemIdsMap := sotah.ItemIdsMap{}
 	for _, realmsMap := range excluded {
-		for getStatsJob := range laState.IO.Databases.LiveAuctionsDatabases.GetAuctionStats(realmsMap.ToRealms()) {
+		for getStatsJob := range laState.IO.Databases.LiveAuctionsDatabases.GetStats(realmsMap.ToRealms()) {
 			if getStatsJob.Err != nil {
 				logrus.WithFields(getStatsJob.ToLogrusFields()).Error("Failed to get live-auction stats")
 
