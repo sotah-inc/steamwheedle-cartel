@@ -326,5 +326,5 @@ func NewAuctionsStatsRequest(data []byte) (AuctionsStatsRequest, error) {
 
 type AuctionsStatsRequest struct {
 	RegionName string `json:"region_name"`
-	RealmSlug string `json:"realm_slug"`
+	RealmSlug  string `json:"realm_slug"`
 }
