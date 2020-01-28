@@ -125,6 +125,12 @@ func NewMiniAuctionListStats(gzipEncoded []byte) (MiniAuctionListStats, error) {
 	return jsonDecoded, nil
 }
 
+type AuctionStats map[int64]MiniAuctionListGeneralStats
+
+func (s AuctionStats) EncodeForDelivery() ([]byte, error) {
+	return json.Marshal(s)
+}
+
 type MiniAuctionListGeneralStats struct {
 	TotalAuctions int `json:"total_auctions"`
 	TotalQuantity int `json:"total_quantity"`
@@ -137,10 +143,6 @@ func (s MiniAuctionListGeneralStats) Add(v MiniAuctionListGeneralStats) MiniAuct
 	s.TotalAuctions += v.TotalAuctions
 
 	return s
-}
-
-func (s MiniAuctionListGeneralStats) EncodeForDelivery() ([]byte, error) {
-	return json.Marshal(s)
 }
 
 type MiniAuctionListStats struct {
@@ -210,4 +212,41 @@ func (ladBase LiveAuctionsDatabase) persistStats(currentTime time.Time) error {
 	}
 
 	return nil
+}
+
+func (ladBase LiveAuctionsDatabase) GetStats() (AuctionStats, error) {
+	out := AuctionStats{}
+
+	err := ladBase.db.View(func(tx *bolt.Tx) error {
+		bkt := tx.Bucket(liveAuctionsStatsBucketName())
+		if bkt == nil {
+			return nil
+		}
+
+		err := bkt.ForEach(func(k, v []byte) error {
+			lastUpdated, err := lastUpdatedFromTokenKeyName(k)
+			if err != nil {
+				return err
+			}
+
+			stats, err := NewMiniAuctionListStats(v)
+			if err != nil {
+				return err
+			}
+
+			out[lastUpdated] = stats.MiniAuctionListGeneralStats
+
+			return nil
+		})
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
+	if err != nil {
+		return AuctionStats{}, err
+	}
+
+	return out, nil
 }
