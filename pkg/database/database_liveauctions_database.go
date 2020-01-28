@@ -131,6 +131,29 @@ func (s AuctionStats) EncodeForDelivery() ([]byte, error) {
 	return json.Marshal(s)
 }
 
+func (s AuctionStats) Set(lastUpdatedTimestamp int64, stats MiniAuctionListStats) AuctionStats {
+	s[normalizeLiveAuctionsStatsLastUpdated(lastUpdatedTimestamp)] = stats.MiniAuctionListGeneralStats
+
+	return s
+}
+
+func (s AuctionStats) Append(nextStats AuctionStats) AuctionStats {
+	for k, v := range nextStats {
+		next := func() MiniAuctionListGeneralStats {
+			found, ok := s[k]
+			if !ok {
+				return v
+			}
+
+			return v.Add(found)
+		}()
+
+		s[k] = next
+	}
+
+	return s
+}
+
 type MiniAuctionListGeneralStats struct {
 	TotalAuctions int `json:"total_auctions"`
 	TotalQuantity int `json:"total_quantity"`
@@ -234,7 +257,7 @@ func (ladBase LiveAuctionsDatabase) GetStats() (AuctionStats, error) {
 				return err
 			}
 
-			out[lastUpdated] = stats.MiniAuctionListGeneralStats
+			out = out.Set(lastUpdated, stats)
 
 			return nil
 		})
