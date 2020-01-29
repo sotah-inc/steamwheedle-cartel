@@ -281,7 +281,7 @@ func (ladBases LiveAuctionsDatabases) GetAuctionStats(realms sotah.Realms) chan 
 	postWork := func() {
 		close(out)
 	}
-	util.Work(4, worker, postWork)
+	util.Work(8, worker, postWork)
 
 	go func() {
 		for _, rea := range realms {
