@@ -247,7 +247,7 @@ func (ladBase LiveAuctionsDatabase) GetAuctionStats() (AuctionStats, error) {
 		}
 
 		err := bkt.ForEach(func(k, v []byte) error {
-			lastUpdated, err := lastUpdatedFromTokenKeyName(k)
+			lastUpdated, err := unixTimestampFromLiveAuctionsStatsKeyName(k)
 			if err != nil {
 				return err
 			}
