@@ -12,6 +12,7 @@ const (
 	GenericTestErrors               Subject = "genericTestErrors"
 	ItemsQuery                      Subject = "itemsQuery"
 	TokenHistory                    Subject = "tokenHistory"
+	ValidateRegionRealm             Subject = "validateRegionRealm"
 	PriceList                       Subject = "priceList"
 	PriceListHistory                Subject = "priceListHistory"
 	PriceListHistoryV2              Subject = "priceListHistoryV2"
