@@ -328,3 +328,30 @@ type AuctionsStatsRequest struct {
 	RegionName string `json:"region_name"`
 	RealmSlug  string `json:"realm_slug"`
 }
+
+func NewValidateRegionRealmRequest(data []byte) (AuctionsStatsRequest, error) {
+	var out AuctionsStatsRequest
+	if err := json.Unmarshal(data, &out); err != nil {
+		return AuctionsStatsRequest{}, err
+	}
+
+	return out, nil
+}
+
+type ValidateRegionRealmRequest struct {
+	RegionName string `json:"region_name"`
+	RealmSlug  string `json:"realm_slug"`
+}
+
+type ValidateRegionRealmResponse struct {
+	IsValid bool `json:"is_valid"`
+}
+
+func (res ValidateRegionRealmResponse) EncodeForMessage() (string, error) {
+	encodedResult, err := json.Marshal(res)
+	if err != nil {
+		return "", err
+	}
+
+	return string(encodedResult), nil
+}
