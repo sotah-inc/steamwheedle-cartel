@@ -2,6 +2,7 @@ package dev
 
 import (
 	nats "github.com/nats-io/go-nats"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzard"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
 	mCodes "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger/codes"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state"
@@ -48,6 +49,34 @@ func (sta *APIState) ListenForValidateRegionRealm(stop state.ListenStopChan) err
 
 			return
 		}
+
+		hasRealm := func() bool {
+			status, ok := sta.Statuses[blizzard.RegionName(request.RegionName)]
+			if !ok {
+				return false
+			}
+
+			_, ok = status.Realms.ToRealmMap()[blizzard.RealmSlug(request.RealmSlug)]
+
+			return ok
+		}()
+		if !hasRealm {
+			encodedMessage, err := res.EncodeForMessage()
+			if err != nil {
+				m.Err = err.Error()
+				m.Code = mCodes.MsgJSONParseError
+				sta.IO.Messenger.ReplyTo(natsMsg, m)
+
+				return
+			}
+
+			m.Data = encodedMessage
+			sta.IO.Messenger.ReplyTo(natsMsg, m)
+
+			return
+		}
+
+		res.IsValid = true
 
 		// marshalling for messenger
 		encodedMessage, err := res.EncodeForMessage()

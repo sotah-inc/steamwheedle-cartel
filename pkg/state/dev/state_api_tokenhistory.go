@@ -9,7 +9,6 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state/subjects"
 )
 
-
 func (sta *APIState) ListenForTokenHistory(stop state.ListenStopChan) error {
 	err := sta.IO.Messenger.Subscribe(string(subjects.TokenHistory), stop, func(natsMsg nats.Msg) {
 		m := messenger.NewMessage()
