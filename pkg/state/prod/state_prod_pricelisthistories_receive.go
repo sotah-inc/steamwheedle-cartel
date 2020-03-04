@@ -68,30 +68,12 @@ func HandleComputedPricelistHistories(
 	}()
 
 	// waiting for the results to drain out
-	versionsToSet := sotah.PricelistHistoryVersions{}
 	for job := range loadOutJobs {
 		if job.Err != nil {
 			logging.WithFields(job.ToLogrusFields()).Error("Failed to load job")
 
 			continue
 		}
-
-		logging.WithFields(logrus.Fields{
-			"region": job.RegionName,
-			"realm":  job.RealmSlug,
-		}).Info("Loaded job")
-
-		versionsToSet = versionsToSet.Insert(
-			job.RegionName,
-			job.RealmSlug,
-			job.NormalizedTargetTimestamp,
-			job.VersionId,
-		)
-	}
-
-	// setting versions
-	if err := phState.IO.Databases.MetaDatabase.SetPricelistHistoriesVersions(versionsToSet); err != nil {
-		logging.WithField("error", err.Error()).Error("Failed to persist pricelist-histories versions")
 	}
 }
 

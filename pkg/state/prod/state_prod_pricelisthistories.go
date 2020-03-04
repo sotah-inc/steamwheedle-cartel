@@ -128,14 +128,6 @@ func NewProdPricelistHistoriesState(config ProdPricelistHistoriesStateConfig) (P
 	}
 	phState.IO.Databases.PricelistHistoryDatabases = phdBases
 
-	// loading the meta database
-	logging.Info("Connecting to the meta database")
-	metaDatabase, err := database.NewMetaDatabase(config.PricelistHistoriesDatabaseDir)
-	if err != nil {
-		return ProdPricelistHistoriesState{}, err
-	}
-	phState.IO.Databases.MetaDatabase = metaDatabase
-
 	// establishing bus-listeners
 	phState.BusListeners = state.NewBusListeners(state.SubjectBusListeners{
 		subjects.ReceiveComputedPricelistHistories: phState.ListenForComputedPricelistHistories,

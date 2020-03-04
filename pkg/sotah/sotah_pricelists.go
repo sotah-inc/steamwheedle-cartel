@@ -298,26 +298,6 @@ func (pHistory PriceHistory) EncodeForPersistence() ([]byte, error) {
 	return gzipEncoded, nil
 }
 
-type PricelistHistoryVersions map[blizzard.RegionName]map[blizzard.RealmSlug]map[UnixTimestamp]string
-
-func (v PricelistHistoryVersions) Insert(
-	regionName blizzard.RegionName,
-	realmSlug blizzard.RealmSlug,
-	targetTimestamp UnixTimestamp,
-	version string,
-) PricelistHistoryVersions {
-	if _, ok := v[regionName]; !ok {
-		v[regionName] = map[blizzard.RealmSlug]map[UnixTimestamp]string{}
-	}
-	if _, ok := v[regionName][realmSlug]; !ok {
-		v[regionName][realmSlug] = map[UnixTimestamp]string{}
-	}
-
-	v[regionName][realmSlug][targetTimestamp] = version
-
-	return v
-}
-
 func NewCleanupPricelistPayloads(regionRealmMap map[blizzard.RegionName]Realms) CleanupPricelistPayloads {
 	out := CleanupPricelistPayloads{}
 	for regionName, realms := range regionRealmMap {
