@@ -1,8 +1,12 @@
 package store
 
 import (
+	"encoding/csv"
 	"encoding/json"
+	"fmt"
+	"io"
 	"io/ioutil"
+	"log"
 
 	"cloud.google.com/go/storage"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
@@ -100,4 +104,33 @@ func (b BootBase) Guard(objName string, contents string, bkt *storage.BucketHand
 	}
 
 	return string(data) == contents, nil
+}
+
+func (b BootBase) GetParentZoneIds() ([]int, error) {
+	out := []int{}
+
+	obj, err := b.GetFirmObject("areatable-retail.csv", b.GetBucket())
+	if err != nil {
+		return []int{}, err
+	}
+
+	objReader, err := obj.NewReader(b.client.Context)
+	if err != nil {
+		return []int{}, err
+	}
+
+	csvReader := csv.NewReader(objReader)
+	for {
+		record, err := csvReader.Read()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		fmt.Println(record)
+	}
+
+	return out, nil
 }
