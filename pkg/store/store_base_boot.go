@@ -3,10 +3,10 @@ package store
 import (
 	"encoding/csv"
 	"encoding/json"
-	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
+	"strconv"
 
 	"cloud.google.com/go/storage"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
@@ -107,7 +107,6 @@ func (b BootBase) Guard(objName string, contents string, bkt *storage.BucketHand
 }
 
 func (b BootBase) GetParentZoneIds() ([]int, error) {
-	out := []int{}
 
 	obj, err := b.GetFirmObject("areatable-retail.csv", b.GetBucket())
 	if err != nil {
@@ -119,6 +118,7 @@ func (b BootBase) GetParentZoneIds() ([]int, error) {
 		return []int{}, err
 	}
 
+	out := []int{}
 	csvReader := csv.NewReader(objReader)
 	for {
 		record, err := csvReader.Read()
@@ -129,7 +129,16 @@ func (b BootBase) GetParentZoneIds() ([]int, error) {
 			log.Fatal(err)
 		}
 
-		fmt.Println(record)
+		if record[4] != "0" {
+			continue
+		}
+
+		parentZoneId, err := strconv.Atoi(record[4])
+		if err != nil {
+			return []int{}, err
+		}
+
+		out = append(out, parentZoneId)
 	}
 
 	return out, nil
