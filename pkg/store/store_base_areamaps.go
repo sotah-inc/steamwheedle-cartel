@@ -97,7 +97,7 @@ func (b AreaMapsBase) LoadAreaMaps(in chan LoadAreaMapsInJob, bkt *storage.Bucke
 	postWork := func() {
 		close(out)
 	}
-	util.Work(4, worker, postWork)
+	util.Work(2, worker, postWork)
 
 	return out, nil
 }
