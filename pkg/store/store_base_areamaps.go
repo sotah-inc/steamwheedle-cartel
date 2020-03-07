@@ -41,3 +41,13 @@ func (b AreaMapsBase) GetObject(areaId int, bkt *storage.BucketHandle) *storage.
 func (b AreaMapsBase) GetFirmObject(areaId int, bkt *storage.BucketHandle) (*storage.ObjectHandle, error) {
 	return b.base.getFirmObject(b.getObjectName(areaId), bkt)
 }
+
+func (b AreaMapsBase) WriteObject(areaId int, data []byte, bkt *storage.BucketHandle) error {
+	wc := b.GetObject(areaId, bkt).NewWriter(b.client.Context)
+	wc.ContentType = "image/jpeg"
+	if _, err := wc.Write(data); err != nil {
+		return err
+	}
+
+	return wc.Close()
+}
