@@ -56,3 +56,7 @@ type LoadAreaMapsState struct {
 	bootBase   store.BootBase
 	bootBucket *storage.BucketHandle
 }
+
+func (sta LoadAreaMapsState) Run() error {
+	return nil
+}
