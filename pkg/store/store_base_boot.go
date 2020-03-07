@@ -107,7 +107,6 @@ func (b BootBase) Guard(objName string, contents string, bkt *storage.BucketHand
 }
 
 func (b BootBase) GetParentZoneIds() ([]int, error) {
-
 	obj, err := b.GetFirmObject("areatable-retail.csv", b.GetBucket())
 	if err != nil {
 		return []int{}, err
