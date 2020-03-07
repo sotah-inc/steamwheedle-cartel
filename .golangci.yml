@@ -1,8 +1,9 @@
 run:
   concurrency: 8
-linter-settings:
+linters-settings:
   lll:
     line-length: 120
-  gocyclo:
-    min-complexity: 10
+  gocognit:
+    min-complexity: 50
   unconvert:
+  prealloc:

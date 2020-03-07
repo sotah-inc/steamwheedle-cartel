@@ -15,6 +15,7 @@ require (
 	github.com/stretchr/testify v1.4.0
 	github.com/twinj/uuid v1.0.0
 	google.golang.org/api v0.1.0
+	google.golang.org/grpc v1.17.0
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
 )
 
