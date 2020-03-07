@@ -75,7 +75,6 @@ func (c Client) FilterInNonExist(gameVersion gameversions.GameVersion, ids []int
 				Id:  id,
 				Err: err,
 			}
-
 		}
 	}
 	postWork := func() {
