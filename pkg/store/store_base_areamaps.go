@@ -75,7 +75,7 @@ func (job LoadAreaMapsOutJob) ToLogrusFields() logrus.Fields {
 func (b AreaMapsBase) LoadAreaMaps(
 	in chan LoadAreaMapsInJob,
 	bkt *storage.BucketHandle,
-) (chan LoadAreaMapsOutJob, error) {
+) chan LoadAreaMapsOutJob {
 	// establishing channels
 	out := make(chan LoadAreaMapsOutJob)
 
@@ -100,7 +100,7 @@ func (b AreaMapsBase) LoadAreaMaps(
 	postWork := func() {
 		close(out)
 	}
-	util.Work(2, worker, postWork)
+	util.Work(4, worker, postWork)
 
-	return out, nil
+	return out
 }

@@ -117,7 +117,7 @@ func (b BootBase) GetParentZoneIds() ([]int, error) {
 		return []int{}, err
 	}
 
-	out := []int{}
+	found := map[int]interface{}{}
 	csvReader := csv.NewReader(objReader)
 	for {
 		record, err := csvReader.Read()
@@ -137,7 +137,15 @@ func (b BootBase) GetParentZoneIds() ([]int, error) {
 			return []int{}, err
 		}
 
-		out = append(out, parentZoneId)
+		found[parentZoneId] = struct{}{}
+	}
+
+	out := make([]int, len(found))
+	i := 0
+	for parentZoneId := range found {
+		out[i] = parentZoneId
+
+		i += 1
 	}
 
 	return out, nil
