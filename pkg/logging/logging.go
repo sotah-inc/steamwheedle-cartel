@@ -38,6 +38,11 @@ func Error(args ...interface{}) {
 	logger.Error(args...)
 }
 
+// Errorf logs
+func Errorf(format string, args ...interface{}) {
+	logger.Errorf(format, args...)
+}
+
 // Fatal logs
 func Fatal(args ...interface{}) {
 	logger.Fatal(args...)
