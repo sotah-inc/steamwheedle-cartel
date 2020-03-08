@@ -3,6 +3,7 @@ package wowhead
 import (
 	"fmt"
 
+	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 )
 
@@ -16,6 +17,13 @@ type DownloadAreaMapsJob struct {
 	Err  error
 	Id   int
 	Data []byte
+}
+
+func (job DownloadAreaMapsJob) ToLogrusFields() logrus.Fields {
+	return logrus.Fields{
+		"error": job.Err.Error(),
+		"id":    job.Id,
+	}
 }
 
 func DownloadAreaMaps(ids []int) chan DownloadAreaMapsJob {
