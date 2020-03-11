@@ -9,7 +9,7 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 )
 
-const AreaMapUrlFormat = "https://wow.zamimg.com/images/wow/classic/maps/enus/original/%d.jpg"
+const AreaMapUrlFormat = "https://wow.zamimg.com/images/wow/maps/enus/original/%d.jpg"
 
 func DownloadAreaMap(id int) ([]byte, error) {
 	return util.Download(fmt.Sprintf(AreaMapUrlFormat, id))
