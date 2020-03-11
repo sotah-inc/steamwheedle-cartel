@@ -84,23 +84,7 @@ func (sta LoadAreaMapsState) Run() error {
 
 	logging.WithField("parent-zone-ids", len(parentZoneIds)).Info("Found parent-zone-ids")
 
-	filteredZoneIds, err := func() ([]int, error) {
-		result, err := sta.IO.HellClient.FilterInNonExist(gameversions.Retail, parentZoneIds)
-		if err != nil {
-			return []int{}, err
-		}
-
-		var out []int
-		for _, id := range result {
-			if len(out) >= 100 {
-				break
-			}
-
-			out = append(out, id)
-		}
-
-		return out, nil
-	}()
+	filteredZoneIds, err := sta.IO.HellClient.FilterInNonExist(gameversions.Retail, parentZoneIds)
 	if err != nil {
 		return err
 	}
