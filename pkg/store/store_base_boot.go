@@ -135,12 +135,6 @@ func (b BootBase) GetParentZoneIds() ([]int, error) {
 			return []int{}, err
 		}
 
-		logging.WithFields(logrus.Fields{
-			"record":         record,
-			"record[4]":      record[4],
-			"record[4] != 0": record[4] != "0",
-		}).Info("using record")
-
 		if record[4] != "0" {
 			continue
 		}
@@ -156,6 +150,11 @@ func (b BootBase) GetParentZoneIds() ([]int, error) {
 	out := make([]int, len(found))
 	i := 0
 	for parentZoneId := range found {
+		logging.WithFields(logrus.Fields{
+			"i":              i,
+			"parent-zone-id": parentZoneId,
+		}).Info("putting into out")
+
 		out[i] = parentZoneId
 
 		i += 1
