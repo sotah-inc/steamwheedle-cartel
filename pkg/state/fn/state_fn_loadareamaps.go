@@ -52,7 +52,7 @@ func NewLoadAreaMapsState(config LoadAreaMapsStateConfig) (LoadAreaMapsState, er
 		return LoadAreaMapsState{}, err
 	}
 
-	sta.areaMapsBase = store.NewAreaMapsBase(sta.IO.StoreClient, regions.USCentral1, gameversions.Classic)
+	sta.areaMapsBase = store.NewAreaMapsBase(sta.IO.StoreClient, regions.USCentral1, gameversions.Retail)
 	sta.areaMapsBucket, err = sta.areaMapsBase.GetFirmBucket()
 	if err != nil {
 		logging.WithFields(logrus.Fields{
