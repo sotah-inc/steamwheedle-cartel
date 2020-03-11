@@ -139,13 +139,19 @@ func (b BootBase) GetParentZoneIds() ([]int, error) {
 			continue
 		}
 
+		logging.WithField("record[4]", record[4]).Info("translating to integer")
+
 		parentZoneId, err := strconv.Atoi(record[4])
 		if err != nil {
 			return []int{}, err
 		}
 
+		logging.WithField("parentZoneId", parentZoneId).Info("putting into found")
+
 		found[parentZoneId] = struct{}{}
 	}
+
+	logging.WithField("found", found).Info("resolved found")
 
 	out := make([]int, len(found))
 	i := 0
