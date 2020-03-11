@@ -139,29 +139,29 @@ func (b BootBase) GetParentZoneIds() ([]int, error) {
 			continue
 		}
 
-		logging.WithField("record[4]", record[4]).Info("translating to integer")
+		logging.WithField("record[0]", record[0]).Info("translating to integer")
 
-		parentZoneId, err := strconv.Atoi(record[4])
+		foundZoneId, err := strconv.Atoi(record[0])
 		if err != nil {
 			return []int{}, err
 		}
 
-		logging.WithField("parentZoneId", parentZoneId).Info("putting into found")
+		logging.WithField("parentZoneId", foundZoneId).Info("putting into found")
 
-		found[parentZoneId] = struct{}{}
+		found[foundZoneId] = struct{}{}
 	}
 
 	logging.WithField("found", found).Info("resolved found")
 
 	out := make([]int, len(found))
 	i := 0
-	for parentZoneId := range found {
+	for foundZoneId := range found {
 		logging.WithFields(logrus.Fields{
-			"i":              i,
-			"parent-zone-id": parentZoneId,
+			"i":             i,
+			"found-zone-id": foundZoneId,
 		}).Info("putting into out")
 
-		out[i] = parentZoneId
+		out[i] = foundZoneId
 
 		i += 1
 	}
