@@ -90,7 +90,7 @@ func (c Client) LoadAreaMaps(version gameversions.GameVersion, in chan LoadAreaM
 	postWork := func() {
 		close(out)
 	}
-	util.Work(8, worker, postWork)
+	util.Work(4, worker, postWork)
 
 	return out
 }

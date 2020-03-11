@@ -7,8 +7,6 @@ import (
 	"io/ioutil"
 	"strconv"
 
-	"github.com/sirupsen/logrus"
-
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 
 	"cloud.google.com/go/storage"
@@ -125,7 +123,7 @@ func (b BootBase) GetParentZoneIds() ([]int, error) {
 	for {
 		record, err := csvReader.Read()
 		if err == io.EOF {
-			logging.Info("Finished reading csv")
+			logging.Info("finished reading csv")
 
 			break
 		}
@@ -139,28 +137,17 @@ func (b BootBase) GetParentZoneIds() ([]int, error) {
 			continue
 		}
 
-		logging.WithField("record[0]", record[0]).Info("translating to integer")
-
 		foundZoneId, err := strconv.Atoi(record[0])
 		if err != nil {
 			return []int{}, err
 		}
 
-		logging.WithField("parentZoneId", foundZoneId).Info("putting into found")
-
 		found[foundZoneId] = struct{}{}
 	}
-
-	logging.WithField("found", found).Info("resolved found")
 
 	out := make([]int, len(found))
 	i := 0
 	for foundZoneId := range found {
-		logging.WithFields(logrus.Fields{
-			"i":             i,
-			"found-zone-id": foundZoneId,
-		}).Info("putting into out")
-
 		out[i] = foundZoneId
 
 		i += 1
