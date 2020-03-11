@@ -2,6 +2,7 @@ package fn
 
 import (
 	"cloud.google.com/go/storage"
+	"github.com/sirupsen/logrus"
 	"github.com/twinj/uuid"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/hell"
 	HellState "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/hell/state"
@@ -44,7 +45,9 @@ func NewLoadAreaMapsState(config LoadAreaMapsStateConfig) (LoadAreaMapsState, er
 	sta.bootBase = store.NewBootBase(sta.IO.StoreClient, regions.USCentral1)
 	sta.bootBucket, err = sta.bootBase.GetFirmBucket()
 	if err != nil {
-		logging.Fatalf("Failed to get firm bucket: %s", err.Error())
+		logging.WithFields(logrus.Fields{
+			"error": err.Error(),
+		}).Fatal("failed to get firm bucket for boot-base")
 
 		return LoadAreaMapsState{}, err
 	}
@@ -52,7 +55,9 @@ func NewLoadAreaMapsState(config LoadAreaMapsStateConfig) (LoadAreaMapsState, er
 	sta.areaMapsBase = store.NewAreaMapsBase(sta.IO.StoreClient, regions.USCentral1, gameversions.Classic)
 	sta.areaMapsBucket, err = sta.areaMapsBase.GetFirmBucket()
 	if err != nil {
-		logging.Fatalf("Failed to get firm bucket: %s", err.Error())
+		logging.WithFields(logrus.Fields{
+			"error": err.Error(),
+		}).Fatal("failed to get firm bucket for area-maps-base")
 
 		return LoadAreaMapsState{}, err
 	}
@@ -109,7 +114,7 @@ func (sta LoadAreaMapsState) Run() error {
 		downloadOut := wowhead.DownloadAreaMaps(filteredZoneIds)
 		for downloadOutJob := range downloadOut {
 			if downloadOutJob.Err != nil {
-				logging.WithFields(downloadOutJob.ToLogrusFields()).Error("failed to get firm bucket")
+				logging.WithFields(downloadOutJob.ToLogrusFields()).Error("failed to download area-map from wowhead")
 
 				hellLoadAreaMapsIn <- hell.LoadAreaMapsInJob{
 					Id:    downloadOutJob.Id,

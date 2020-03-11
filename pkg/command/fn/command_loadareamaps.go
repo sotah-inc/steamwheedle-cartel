@@ -6,7 +6,7 @@ import (
 )
 
 func LoadAreaMaps(config fnState.LoadAreaMapsStateConfig) error {
-	logging.Info("Starting api")
+	logging.Info("Starting load-area-maps")
 
 	// establishing a state
 	sta, err := fnState.NewLoadAreaMapsState(config)
