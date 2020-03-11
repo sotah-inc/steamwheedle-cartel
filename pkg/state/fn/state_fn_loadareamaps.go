@@ -105,7 +105,7 @@ func (sta LoadAreaMapsState) Run() error {
 		return err
 	}
 
-	logging.WithField("filtered-zone-ids", len(parentZoneIds)).Info("Found filtered-zone-ids")
+	logging.WithField("filtered-zone-ids", len(filteredZoneIds)).Info("Found filtered-zone-ids")
 
 	// initializing loaders
 	baseLoadAreaMapsIn := make(chan store.LoadAreaMapsInJob)

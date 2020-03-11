@@ -5,8 +5,9 @@ import (
 	"encoding/json"
 	"io"
 	"io/ioutil"
-	"log"
 	"strconv"
+
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 
 	"cloud.google.com/go/storage"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
@@ -125,8 +126,12 @@ func (b BootBase) GetParentZoneIds() ([]int, error) {
 			break
 		}
 		if err != nil {
-			log.Fatal(err)
+			logging.WithField("error", err.Error()).Error("failed to read from csv file")
+
+			return []int{}, err
 		}
+
+		logging.WithField("record", record).Info("using record")
 
 		if record[4] != "0" {
 			continue
@@ -138,6 +143,8 @@ func (b BootBase) GetParentZoneIds() ([]int, error) {
 		}
 
 		found[parentZoneId] = struct{}{}
+
+		break
 	}
 
 	out := make([]int, len(found))
