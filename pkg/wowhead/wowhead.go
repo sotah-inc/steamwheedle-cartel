@@ -3,6 +3,8 @@ package wowhead
 import (
 	"fmt"
 
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
+
 	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 )
@@ -58,6 +60,8 @@ func DownloadAreaMaps(ids []int) chan DownloadAreaMapsJob {
 	// spinning it up
 	go func() {
 		for _, id := range ids {
+			logging.WithField("id", id).Info("Enqueueing for wowhead download")
+
 			in <- id
 		}
 

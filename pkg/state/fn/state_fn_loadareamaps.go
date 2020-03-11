@@ -82,6 +82,8 @@ func (sta LoadAreaMapsState) Run() error {
 		return err
 	}
 
+	logging.WithField("parent-zone-ids", len(parentZoneIds)).Info("Found parent-zone-ids")
+
 	filteredZoneIds, err := func() ([]int, error) {
 		result, err := sta.IO.HellClient.FilterInNonExist(gameversions.Retail, parentZoneIds)
 		if err != nil {
@@ -102,6 +104,8 @@ func (sta LoadAreaMapsState) Run() error {
 	if err != nil {
 		return err
 	}
+
+	logging.WithField("filtered-zone-ids", len(parentZoneIds)).Info("Found filtered-zone-ids")
 
 	// initializing loaders
 	baseLoadAreaMapsIn := make(chan store.LoadAreaMapsInJob)
