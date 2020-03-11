@@ -92,7 +92,7 @@ func (sta LoadAreaMapsState) Run() error {
 
 		var out []int
 		for _, id := range result {
-			if len(out) >= 20 {
+			if len(out) >= 100 {
 				break
 			}
 
