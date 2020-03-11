@@ -70,7 +70,34 @@ type LoadAreaMapsState struct {
 	areaMapsBucket *storage.BucketHandle
 }
 
-func (sta LoadAreaMapsState) Run(filteredZoneIds []int) error {
+func (sta LoadAreaMapsState) Run() error {
+	// gathering parent-zone-ids
+	parentZoneIds, err := sta.bootBase.GetParentZoneIds()
+	if err != nil {
+		return err
+	}
+
+	filteredZoneIds, err := func() ([]int, error) {
+		result, err := sta.IO.HellClient.FilterInNonExist(gameversions.Retail, parentZoneIds)
+		if err != nil {
+			return []int{}, err
+		}
+
+		var out []int
+		for _, id := range result {
+			if len(out) >= 20 {
+				break
+			}
+
+			out = append(out, id)
+		}
+
+		return out, nil
+	}()
+	if err != nil {
+		return err
+	}
+
 	// initializing loaders
 	baseLoadAreaMapsIn := make(chan store.LoadAreaMapsInJob)
 	baseLoadAreaMapsOut := sta.areaMapsBase.LoadAreaMaps(baseLoadAreaMapsIn, sta.areaMapsBucket)
