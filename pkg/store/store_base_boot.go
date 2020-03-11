@@ -7,6 +7,8 @@ import (
 	"io/ioutil"
 	"strconv"
 
+	"github.com/sirupsen/logrus"
+
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 
 	"cloud.google.com/go/storage"
@@ -123,6 +125,8 @@ func (b BootBase) GetParentZoneIds() ([]int, error) {
 	for {
 		record, err := csvReader.Read()
 		if err == io.EOF {
+			logging.Info("Finished reading csv")
+
 			break
 		}
 		if err != nil {
@@ -131,7 +135,11 @@ func (b BootBase) GetParentZoneIds() ([]int, error) {
 			return []int{}, err
 		}
 
-		logging.WithField("record", record).Info("using record")
+		logging.WithFields(logrus.Fields{
+			"record":         record,
+			"record[4]":      record[4],
+			"record[4] != 0": record[4] != "0",
+		}).Info("using record")
 
 		if record[4] != "0" {
 			continue
@@ -143,8 +151,6 @@ func (b BootBase) GetParentZoneIds() ([]int, error) {
 		}
 
 		found[parentZoneId] = struct{}{}
-
-		break
 	}
 
 	out := make([]int, len(found))
