@@ -19,23 +19,24 @@ type AreaMap struct {
 	State state.State `firestore:"state"`
 }
 
-func (c Client) GetAreaMap(gameVersion gameversions.GameVersion, id int) (AreaMap, error) {
-	areaMapRef, err := c.FirmDocument(getAreaMapDocumentName(gameVersion, id))
-	if err != nil {
-		return AreaMap{}, err
-	}
+func (c Client) GetAreaMap(gameVersion gameversions.GameVersion, id int) (*AreaMap, error) {
+	areaMapRef := c.Doc(getAreaMapDocumentName(gameVersion, id))
 
 	docsnap, err := areaMapRef.Get(c.Context)
 	if err != nil {
-		return AreaMap{}, err
+		if status.Code(err) == codes.NotFound {
+			return nil, nil
+		}
+
+		return nil, err
 	}
 
 	var areaMap AreaMap
 	if err := docsnap.DataTo(&areaMap); err != nil {
-		return AreaMap{}, err
+		return nil, err
 	}
 
-	return areaMap, nil
+	return &areaMap, nil
 }
 
 func (c Client) WriteAreaMap(version gameversions.GameVersion, id int, state state.State) error {
