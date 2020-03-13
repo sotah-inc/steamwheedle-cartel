@@ -3,15 +3,17 @@ package hell
 import (
 	"fmt"
 
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
+
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/hell/state"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah/gameversions"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah/state"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 )
 
-func getAreaMapDocumentName(version gameversions.GameVersion, id int) string {
+func getAreaMapDocumentName(version gameversions.GameVersion, id sotah.AreaMapId) string {
 	return fmt.Sprintf("games/%s/areamaps/%d", version, id)
 }
 
@@ -19,7 +21,7 @@ type AreaMap struct {
 	State state.State `firestore:"state"`
 }
 
-func (c Client) GetAreaMap(gameVersion gameversions.GameVersion, id int) (*AreaMap, error) {
+func (c Client) GetAreaMap(gameVersion gameversions.GameVersion, id sotah.AreaMapId) (*AreaMap, error) {
 	areaMapRef := c.Doc(getAreaMapDocumentName(gameVersion, id))
 
 	docsnap, err := areaMapRef.Get(c.Context)
@@ -39,7 +41,7 @@ func (c Client) GetAreaMap(gameVersion gameversions.GameVersion, id int) (*AreaM
 	return &areaMap, nil
 }
 
-func (c Client) WriteAreaMap(version gameversions.GameVersion, id int, state state.State) error {
+func (c Client) WriteAreaMap(version gameversions.GameVersion, id sotah.AreaMapId, state state.State) error {
 	areaMapRef := c.Doc(getAreaMapDocumentName(version, id))
 
 	if _, err := areaMapRef.Set(c.Context, AreaMap{state}); err != nil {
@@ -50,13 +52,13 @@ func (c Client) WriteAreaMap(version gameversions.GameVersion, id int, state sta
 }
 
 type LoadAreaMapsInJob struct {
-	Id    int
+	Id    sotah.AreaMapId
 	State state.State
 }
 
 type LoadAreaMapsOutJob struct {
 	Err error
-	Id  int
+	Id  sotah.AreaMapId
 }
 
 func (job LoadAreaMapsOutJob) ToLogrusFields() logrus.Fields {
@@ -97,7 +99,7 @@ func (c Client) LoadAreaMaps(version gameversions.GameVersion, in chan LoadAreaM
 }
 
 type FilterInNonExistJob struct {
-	Id  int
+	Id  sotah.AreaMapId
 	Err error
 }
 
@@ -108,9 +110,12 @@ func (job FilterInNonExistJob) ToLogrusFields() logrus.Fields {
 	}
 }
 
-func (c Client) FilterInNonExist(gameVersion gameversions.GameVersion, ids []int) ([]int, error) {
+func (c Client) FilterInNonExist(
+	gameVersion gameversions.GameVersion,
+	ids []sotah.AreaMapId,
+) ([]sotah.AreaMapId, error) {
 	// spawning workers
-	in := make(chan int)
+	in := make(chan sotah.AreaMapId)
 	out := make(chan FilterInNonExistJob)
 	worker := func() {
 		for id := range in {
@@ -150,13 +155,16 @@ func (c Client) FilterInNonExist(gameVersion gameversions.GameVersion, ids []int
 	}()
 
 	// waiting for results to drain out
-	var results []int
+	results := make([]sotah.AreaMapId, len(ids))
+	i := 0
 	for job := range out {
 		if job.Err != nil {
-			return []int{}, job.Err
+			return []sotah.AreaMapId{}, job.Err
 		}
 
-		results = append(results, job.Id)
+		results[i] = job.Id
+
+		i += 1
 	}
 
 	return results, nil

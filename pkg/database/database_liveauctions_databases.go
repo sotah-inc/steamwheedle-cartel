@@ -112,16 +112,11 @@ func (ladBases LiveAuctionsDatabases) Load(in chan LoadInJob) chan liveAuctionsL
 				}
 				newAuctionIds := map[int64]struct{}{}
 				for _, auc := range job.Auctions.Auctions {
-					if _, ok := removedAuctionIds[auc.Auc]; ok {
-						delete(removedAuctionIds, auc.Auc)
-					}
-
+					delete(removedAuctionIds, auc.Auc)
 					newAuctionIds[auc.Auc] = struct{}{}
 				}
 				for _, auc := range malStats.AuctionIds {
-					if _, ok := newAuctionIds[auc]; ok {
-						delete(newAuctionIds, auc)
-					}
+					delete(newAuctionIds, auc)
 				}
 
 				return len(newAuctionIds), len(removedAuctionIds)

@@ -3,6 +3,8 @@ package database
 import (
 	"fmt"
 	"strconv"
+
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 )
 
 // bucketing
@@ -15,21 +17,21 @@ func databaseAreaMapNamesBucketName() []byte {
 }
 
 // keying
-func areaMapsKeyName(id int) []byte {
+func areaMapsKeyName(id sotah.AreaMapId) []byte {
 	return []byte(fmt.Sprintf("area-map-%d", id))
 }
 
-func areaMapNameKeyName(id int) []byte {
+func areaMapNameKeyName(id sotah.AreaMapId) []byte {
 	return []byte(fmt.Sprintf("area-map-name-%d", id))
 }
 
-func areaMapIdFromAreaMapNameKeyName(key []byte) (int, error) {
-	unparsedItemId, err := strconv.Atoi(string(key)[len("area-map-name-"):])
+func areaMapIdFromAreaMapNameKeyName(key []byte) (sotah.AreaMapId, error) {
+	unparsedAreaMapId, err := strconv.Atoi(string(key)[len("area-map-name-"):])
 	if err != nil {
 		return 0, err
 	}
 
-	return unparsedItemId, nil
+	return sotah.AreaMapId(unparsedAreaMapId), nil
 }
 
 // db
