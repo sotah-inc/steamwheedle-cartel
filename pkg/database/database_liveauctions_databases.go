@@ -561,7 +561,10 @@ func (ladBases LiveAuctionsDatabases) GetShards(regionName blizzard.RegionName) 
 	return shards, nil
 }
 
-func (ladBases LiveAuctionsDatabases) GetDatabase(regionName blizzard.RegionName, realmSlug blizzard.RealmSlug) (LiveAuctionsDatabase, error) {
+func (ladBases LiveAuctionsDatabases) GetDatabase(
+	regionName blizzard.RegionName,
+	realmSlug blizzard.RealmSlug,
+) (LiveAuctionsDatabase, error) {
 	shards, err := ladBases.GetShards(regionName)
 	if err != nil {
 		return LiveAuctionsDatabase{}, err

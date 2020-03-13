@@ -19,7 +19,6 @@ func areaMapsKeyName(id int) []byte {
 	return []byte(fmt.Sprintf("area-map-%d", id))
 }
 
-
 func areaMapNameKeyName(id int) []byte {
 	return []byte(fmt.Sprintf("area-map-name-%d", id))
 }
