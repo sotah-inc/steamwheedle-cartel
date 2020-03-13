@@ -67,6 +67,38 @@ func (amBase AreaMapsDatabase) GetAreaMaps() (sotah.AreaMapMap, error) {
 	return out, nil
 }
 
+func (amBase AreaMapsDatabase) GetIdNormalizedNameMap() (sotah.AreaMapIdNameMap, error) {
+	out := sotah.AreaMapIdNameMap{}
+
+	err := amBase.db.View(func(tx *bolt.Tx) error {
+		bkt := tx.Bucket(databaseAreaMapNamesBucketName())
+		if bkt == nil {
+			return nil
+		}
+
+		err := bkt.ForEach(func(k, v []byte) error {
+			areaMapId, err := areaMapIdFromAreaMapNameKeyName(k)
+			if err != nil {
+				return err
+			}
+
+			out[areaMapId] = string(v)
+
+			return nil
+		})
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
+	if err != nil {
+		return sotah.AreaMapIdNameMap{}, err
+	}
+
+	return out, nil
+}
+
 func (amBase AreaMapsDatabase) FindAreaMaps(areaMapIds []sotah.AreaMapId) (sotah.AreaMapMap, error) {
 	out := sotah.AreaMapMap{}
 	err := amBase.db.View(func(tx *bolt.Tx) error {

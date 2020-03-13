@@ -29,3 +29,5 @@ type AreaMap struct {
 func (aMap AreaMap) EncodeForStorage() ([]byte, error) {
 	return json.Marshal(aMap)
 }
+
+type AreaMapIdNameMap map[AreaMapId]string
