@@ -3,6 +3,8 @@ package wowhead
 import (
 	"fmt"
 
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
+
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 
 	"github.com/sirupsen/logrus"
@@ -11,13 +13,13 @@ import (
 
 const AreaMapUrlFormat = "https://wow.zamimg.com/images/wow/maps/enus/original/%d.jpg"
 
-func DownloadAreaMap(id int) ([]byte, error) {
+func DownloadAreaMap(id sotah.AreaMapId) ([]byte, error) {
 	return util.Download(fmt.Sprintf(AreaMapUrlFormat, id))
 }
 
 type DownloadAreaMapsJob struct {
 	Err  error
-	Id   int
+	Id   sotah.AreaMapId
 	Data []byte
 }
 
@@ -28,9 +30,9 @@ func (job DownloadAreaMapsJob) ToLogrusFields() logrus.Fields {
 	}
 }
 
-func DownloadAreaMaps(ids []int) chan DownloadAreaMapsJob {
+func DownloadAreaMaps(ids []sotah.AreaMapId) chan DownloadAreaMapsJob {
 	// spawning workers
-	in := make(chan int)
+	in := make(chan sotah.AreaMapId)
 	out := make(chan DownloadAreaMapsJob)
 	worker := func() {
 		for id := range in {

@@ -107,18 +107,18 @@ func (b BootBase) Guard(objName string, contents string, bkt *storage.BucketHand
 	return string(data) == contents, nil
 }
 
-func (b BootBase) GetParentZoneIds() ([]int, error) {
+func (b BootBase) GetParentZoneIds() ([]sotah.AreaMapId, error) {
 	obj, err := b.GetFirmObject("areatable-retail.csv", b.GetBucket())
 	if err != nil {
-		return []int{}, err
+		return []sotah.AreaMapId{}, err
 	}
 
 	objReader, err := obj.NewReader(b.client.Context)
 	if err != nil {
-		return []int{}, err
+		return []sotah.AreaMapId{}, err
 	}
 
-	found := map[int]interface{}{}
+	found := map[sotah.AreaMapId]interface{}{}
 	csvReader := csv.NewReader(objReader)
 	for {
 		record, err := csvReader.Read()
@@ -130,7 +130,7 @@ func (b BootBase) GetParentZoneIds() ([]int, error) {
 		if err != nil {
 			logging.WithField("error", err.Error()).Error("failed to read from csv file")
 
-			return []int{}, err
+			return []sotah.AreaMapId{}, err
 		}
 
 		if record[4] != "0" {
@@ -139,13 +139,13 @@ func (b BootBase) GetParentZoneIds() ([]int, error) {
 
 		foundZoneId, err := strconv.Atoi(record[0])
 		if err != nil {
-			return []int{}, err
+			return []sotah.AreaMapId{}, err
 		}
 
-		found[foundZoneId] = struct{}{}
+		found[sotah.AreaMapId(foundZoneId)] = struct{}{}
 	}
 
-	out := make([]int, len(found))
+	out := make([]sotah.AreaMapId, len(found))
 	i := 0
 	for foundZoneId := range found {
 		out[i] = foundZoneId
