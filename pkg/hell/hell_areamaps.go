@@ -10,8 +10,12 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah/state"
 )
 
+func getAreaMapCollectionName(version gameversions.GameVersion) string {
+	return fmt.Sprintf("games/%s/areamaps", version)
+}
+
 func getAreaMapDocumentName(version gameversions.GameVersion, id sotah.AreaMapId) string {
-	return fmt.Sprintf("games/%s/areamaps/%d", version, id)
+	return fmt.Sprintf("%s/%d", getAreaMapCollectionName(version), id)
 }
 
 type AreaMap struct {
