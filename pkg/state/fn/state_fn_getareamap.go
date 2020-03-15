@@ -4,6 +4,7 @@ import (
 	"github.com/twinj/uuid"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/hell"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah/gameversions"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state"
 )
@@ -36,7 +37,7 @@ type GetAreaMapState struct {
 }
 
 func (sta GetAreaMapState) Run(id int) (bool, error) {
-	areaMap, err := sta.IO.HellClient.GetAreaMap(gameversions.Retail, id)
+	areaMap, err := sta.IO.HellClient.GetAreaMap(gameversions.Retail, sotah.AreaMapId(id))
 	if err != nil {
 		return false, err
 	}
