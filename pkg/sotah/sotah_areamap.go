@@ -2,9 +2,14 @@ package sotah
 
 import (
 	"encoding/json"
+	"fmt"
+
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah/gameversions"
 
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah/state"
 )
+
+const gcsAreaMapUrlFormat = "https://storage.googleapis.com/sotah-areamaps/%s/%d.jpg"
 
 type AreaMapId int
 
@@ -28,6 +33,10 @@ type AreaMap struct {
 
 func (aMap AreaMap) EncodeForStorage() ([]byte, error) {
 	return json.Marshal(aMap)
+}
+
+func (aMap AreaMap) GenerateUrl(version gameversions.GameVersion) string {
+	return fmt.Sprintf(gcsAreaMapUrlFormat, version, aMap.Id)
 }
 
 type AreaMapIdNameMap map[AreaMapId]string
