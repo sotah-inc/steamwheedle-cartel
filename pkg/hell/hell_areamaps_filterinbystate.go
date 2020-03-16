@@ -43,5 +43,5 @@ func (c Client) FilterInByState(version gameversions.GameVersion, sotahState sta
 		}
 	}
 
-	return sotah.AreaMapMap{}, nil
+	return out, nil
 }
