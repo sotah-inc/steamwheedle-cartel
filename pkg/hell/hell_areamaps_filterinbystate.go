@@ -13,7 +13,7 @@ func (c Client) FilterInByState(version gameversions.GameVersion, sotahState sta
 	colRef := c.Collection(getAreaMapCollectionName(version))
 
 	out := sotah.AreaMapMap{}
-	docIter := colRef.Where("state", "=", sotahState).Documents(c.Context)
+	docIter := colRef.Where("state", "==", sotahState).Documents(c.Context)
 	defer docIter.Stop()
 	for {
 		docSnap, err := docIter.Next()
