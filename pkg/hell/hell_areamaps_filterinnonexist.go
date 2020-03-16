@@ -66,16 +66,13 @@ func (c Client) FilterInNonExist(
 	}()
 
 	// waiting for results to drain out
-	results := make([]sotah.AreaMapId, len(ids))
-	i := 0
+	var results []sotah.AreaMapId
 	for job := range out {
 		if job.Err != nil {
 			return []sotah.AreaMapId{}, job.Err
 		}
 
-		results[i] = job.Id
-
-		i += 1
+		results = append(results, job.Id)
 	}
 
 	return results, nil
