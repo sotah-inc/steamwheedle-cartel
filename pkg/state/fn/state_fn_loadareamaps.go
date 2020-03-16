@@ -74,5 +74,5 @@ type LoadAreaMapsState struct {
 }
 
 func (sta LoadAreaMapsState) Run() error {
-	return sta.Load()
+	return sta.Reset()
 }
