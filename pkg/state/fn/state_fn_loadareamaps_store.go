@@ -40,12 +40,19 @@ func (sta LoadAreaMapsState) Store() error {
 		return err
 	}
 
-	found, err := sta.areaMapsDb.AreaMapsQuery(database.AreaMapsQueryRequest{Query: "the"})
+	queryResponse, err := sta.areaMapsDb.AreaMapsQuery(database.AreaMapsQueryRequest{Query: "the"})
 	if err != nil {
 		return err
 	}
 
-	logging.WithField("found", found).Info("Found results")
+	logging.WithField("queryResponse", queryResponse).Info("found queryResponse")
+
+	foundAreaMaps, err := sta.areaMapsDb.FindAreaMaps(queryResponse.Ids())
+	if err != nil {
+		return err
+	}
+
+	logging.WithField("foundAreaMaps", foundAreaMaps).Info("found foundAreaMaps")
 
 	return nil
 }

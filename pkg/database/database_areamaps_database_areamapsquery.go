@@ -92,6 +92,18 @@ func (r AreaMapsQueryResponse) EncodeForDelivery() ([]byte, error) {
 	return json.Marshal(r)
 }
 
+func (r AreaMapsQueryResponse) Ids() []sotah.AreaMapId {
+	out := make([]sotah.AreaMapId, len(r.Results))
+	i := 0
+	for _, result := range r.Results {
+		out[i] = result.AreaMapId
+
+		i += 1
+	}
+
+	return out
+}
+
 func (amBase AreaMapsDatabase) AreaMapsQuery(req AreaMapsQueryRequest) (AreaMapsQueryResponse, error) {
 	// gathering area-maps
 	idNormalizedNameMap, err := amBase.GetIdNormalizedNameMap()

@@ -15,6 +15,21 @@ type AreaMapId int
 
 type AreaMapMap map[AreaMapId]AreaMap
 
+func (aMapMap AreaMapMap) SetUrls(version gameversions.GameVersion) AreaMapMap {
+	out := AreaMapMap{}
+	for id, aMap := range aMapMap {
+		aMap.Url = aMap.GenerateUrl(version)
+
+		out[id] = aMap
+	}
+
+	return out
+}
+
+func (aMapMap AreaMapMap) EncodeForDelivery() ([]byte, error) {
+	return json.Marshal(aMapMap)
+}
+
 func NewAreaMap(body []byte) (AreaMap, error) {
 	areaMap := &AreaMap{}
 	if err := json.Unmarshal(body, areaMap); err != nil {
@@ -25,10 +40,11 @@ func NewAreaMap(body []byte) (AreaMap, error) {
 }
 
 type AreaMap struct {
-	Id             AreaMapId
-	State          state.State
-	Name           string
-	NormalizedName string
+	Id             AreaMapId   `json:"id"`
+	State          state.State `json:"state"`
+	Name           string      `json:"name"`
+	NormalizedName string      `json:"normalized_name"`
+	Url            string      `json:"-"`
 }
 
 func (aMap AreaMap) EncodeForStorage() ([]byte, error) {
