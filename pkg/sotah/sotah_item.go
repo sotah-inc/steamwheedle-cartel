@@ -3,20 +3,13 @@ package sotah
 import (
 	"encoding/base64"
 	"encoding/json"
-	"regexp"
-	"strings"
 
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzard"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 )
 
 func NormalizeName(in string) (string, error) {
-	reg, err := regexp.Compile("[^a-z0-9 ]+")
-	if err != nil {
-		return "", err
-	}
-
-	return reg.ReplaceAllString(strings.ToLower(in), ""), nil
+	return NormalizeString(in)
 }
 
 // item

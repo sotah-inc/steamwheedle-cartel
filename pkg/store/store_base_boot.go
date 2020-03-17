@@ -7,6 +7,8 @@ import (
 	"io/ioutil"
 	"strconv"
 
+	sotahState "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah/state"
+
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 
 	"cloud.google.com/go/storage"
@@ -105,6 +107,64 @@ func (b BootBase) Guard(objName string, contents string, bkt *storage.BucketHand
 	}
 
 	return string(data) == contents, nil
+}
+
+func (b BootBase) GetParentAreaMaps() (sotah.AreaMapMap, error) {
+	obj, err := b.GetFirmObject("areatable-retail.csv", b.GetBucket())
+	if err != nil {
+		return sotah.AreaMapMap{}, err
+	}
+
+	objReader, err := obj.NewReader(b.client.Context)
+	if err != nil {
+		return sotah.AreaMapMap{}, err
+	}
+
+	result := sotah.AreaMapMap{}
+	csvReader := csv.NewReader(objReader)
+	for {
+		// reading the next record
+		record, err := csvReader.Read()
+		if err == io.EOF {
+			logging.Info("finished reading csv")
+
+			break
+		}
+		if err != nil {
+			logging.WithField("error", err.Error()).Error("failed to read from csv file")
+
+			return sotah.AreaMapMap{}, err
+		}
+
+		// validating the record is a parent-areamap
+		isParentAreaMap := record[4] == "0"
+		if !isParentAreaMap {
+			continue
+		}
+
+		// reading the record
+		foundZoneId, err := strconv.Atoi(record[0])
+		if err != nil {
+			return sotah.AreaMapMap{}, err
+		}
+
+		areaName := record[2]
+
+		normalizedAreaName, err := sotah.NormalizeString(areaName)
+		if err != nil {
+			return sotah.AreaMapMap{}, err
+		}
+
+		// writing it out to the result
+		result[sotah.AreaMapId(foundZoneId)] = sotah.AreaMap{
+			Id:             sotah.AreaMapId(foundZoneId),
+			State:          sotahState.None,
+			Name:           areaName,
+			NormalizedName: normalizedAreaName,
+		}
+	}
+
+	return result, nil
 }
 
 func (b BootBase) GetParentZoneIds() ([]sotah.AreaMapId, error) {

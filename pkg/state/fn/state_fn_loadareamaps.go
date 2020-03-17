@@ -4,6 +4,7 @@ import (
 	"cloud.google.com/go/storage"
 	"github.com/sirupsen/logrus"
 	"github.com/twinj/uuid"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/hell"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah/gameversions"
@@ -13,7 +14,8 @@ import (
 )
 
 type LoadAreaMapsStateConfig struct {
-	ProjectId string
+	ProjectId           string
+	AreaMapsDatabaseDir string
 }
 
 func NewLoadAreaMapsState(config LoadAreaMapsStateConfig) (LoadAreaMapsState, error) {
@@ -60,6 +62,16 @@ func NewLoadAreaMapsState(config LoadAreaMapsStateConfig) (LoadAreaMapsState, er
 		return LoadAreaMapsState{}, err
 	}
 
+	sta.areaMapsDb, err = database.NewAreaMapsDatabase(config.AreaMapsDatabaseDir)
+	if err != nil {
+		logging.WithFields(logrus.Fields{
+			"error":            err.Error(),
+			"area-maps-db-dir": config.AreaMapsDatabaseDir,
+		}).Fatal("failed to get area-maps database")
+
+		return LoadAreaMapsState{}, err
+	}
+
 	return sta, nil
 }
 
@@ -71,8 +83,10 @@ type LoadAreaMapsState struct {
 
 	areaMapsBase   store.AreaMapsBase
 	areaMapsBucket *storage.BucketHandle
+
+	areaMapsDb database.AreaMapsDatabase
 }
 
 func (sta LoadAreaMapsState) Run() error {
-	return sta.Reset()
+	return sta.Store()
 }

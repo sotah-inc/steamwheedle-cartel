@@ -2,6 +2,8 @@ package sotah
 
 import (
 	"encoding/json"
+	"regexp"
+	"strings"
 	"time"
 
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzard"
@@ -72,4 +74,13 @@ type BlizzardCredentials struct {
 
 func (c BlizzardCredentials) EncodeForStorage() ([]byte, error) {
 	return json.Marshal(c)
+}
+
+func NormalizeString(input string) (string, error) {
+	reg, err := regexp.Compile("[^a-z0-9 ]+")
+	if err != nil {
+		return "", err
+	}
+
+	return reg.ReplaceAllString(strings.ToLower(input), ""), nil
 }
