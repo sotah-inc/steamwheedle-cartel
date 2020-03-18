@@ -52,7 +52,7 @@ type GetStatusURLFunc func(string, string) string
 
 // DefaultGetStatusURL returns a formatted uri
 func DefaultGetStatusURL(regionHostname string, regionName string) string {
-	return fmt.Sprintf(statusURLFormat, regionHostname)
+	return fmt.Sprintf(statusURLFormat, regionHostname, regionName)
 }
 
 // NewStatusFromHTTP loads a status from a uri
