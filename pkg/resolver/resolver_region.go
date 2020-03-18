@@ -2,23 +2,23 @@ package resolver
 
 import (
 	"errors"
-	"github.com/sirupsen/logrus"
 	"net/http"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 
+	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzard"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 )
 
 func (r Resolver) NewStatus(reg sotah.Region) (sotah.Status, error) {
-	appendedUrl, err := r.AppendAccessToken(r.GetStatusURL(reg.Hostname, string(reg.Name))
+	appendedUrl, err := r.AppendAccessToken(r.GetStatusURL(reg.Hostname, string(reg.Name)))
 	if err != nil {
 		return sotah.Status{}, err
 	}
 
 	logging.WithFields(logrus.Fields{
-		"url": r.GetStatusURL(reg.Hostname, string(reg.Name)),
+		"url":               r.GetStatusURL(reg.Hostname, string(reg.Name)),
 		"url-with-appended": appendedUrl,
 	})
 
