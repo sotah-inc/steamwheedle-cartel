@@ -4,12 +4,22 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/sirupsen/logrus"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
+
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzard"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 )
 
 func (r Resolver) NewStatus(reg sotah.Region) (sotah.Status, error) {
+	url := r.GetStatusURL(reg.Hostname)
+
+	logging.WithFields(logrus.Fields{
+		"url":    url,
+		"region": reg.Name,
+	}).Info("gathering status for region")
+
 	resp, err := r.Download(r.GetStatusURL(reg.Hostname), true)
 	if err != nil {
 		return sotah.Status{}, err
