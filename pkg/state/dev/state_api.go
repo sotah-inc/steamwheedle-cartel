@@ -110,6 +110,8 @@ func NewAPIState(config APIStateConfig) (*APIState, error) {
 	// filling state with region statuses
 	for job := range apiState.IO.Resolver.GetStatuses(apiState.Regions) {
 		if job.Err != nil {
+			logging.WithFields(job.ToLogrusFields()).Error("failed to fetch status for region")
+
 			return nil, job.Err
 		}
 
@@ -123,16 +125,26 @@ func NewAPIState(config APIStateConfig) (*APIState, error) {
 		logging.WithFields(logrus.Fields{
 			"error":   err.Error(),
 			"regions": apiState.Regions,
-		}).Error("Failed to retrieve primary region")
+		}).Error("failed to retrieve primary region")
 
 		return nil, err
 	}
 	uri, err := apiState.IO.Resolver.AppendAccessToken(apiState.IO.Resolver.GetItemClassesURL(primaryRegion.Hostname))
 	if err != nil {
+		logging.WithFields(logrus.Fields{
+			"error":                   err.Error(),
+			"primary-region-hostname": primaryRegion.Hostname,
+		}).Error("failed to append access-token to get-item-classes url")
+
 		return nil, err
 	}
 	itemClasses, _, err := blizzard.NewItemClassesFromHTTP(uri)
 	if err != nil {
+		logging.WithFields(logrus.Fields{
+			"error": err.Error(),
+			"uri":   uri,
+		}).Error("failed to get item-classes via http")
+
 		return nil, err
 	}
 	apiState.ItemClasses = itemClasses

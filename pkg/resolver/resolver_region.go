@@ -44,6 +44,13 @@ type GetStatusesJob struct {
 	Status sotah.Status
 }
 
+func (job GetStatusesJob) ToLogrusFields() logrus.Fields {
+	return logrus.Fields{
+		"error":  job.Err.Error(),
+		"region": job.Region.Name,
+	}
+}
+
 func (r Resolver) GetStatuses(regions sotah.RegionList) chan GetStatusesJob {
 	// establishing channels
 	out := make(chan GetStatusesJob)
