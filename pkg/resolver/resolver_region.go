@@ -14,13 +14,18 @@ import (
 
 func (r Resolver) NewStatus(reg sotah.Region) (sotah.Status, error) {
 	url := r.GetStatusURL(reg.Hostname)
+	appendedUrl, err := r.AppendAccessToken(url)
+	if err != nil {
+		return sotah.Status{}, err
+	}
 
 	logging.WithFields(logrus.Fields{
-		"url":    url,
-		"region": reg.Name,
+		"url":                   url,
+		"url-with-access-token": appendedUrl,
+		"region":                reg.Name,
 	}).Info("gathering status for region")
 
-	resp, err := r.Download(r.GetStatusURL(reg.Hostname), true)
+	resp, err := r.Download(url, true)
 	if err != nil {
 		return sotah.Status{}, err
 	}
