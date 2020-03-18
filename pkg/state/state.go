@@ -265,6 +265,33 @@ type SessionSecretData struct {
 	SessionSecret string `json:"session_secret"`
 }
 
+func NewAreaMapsRequest(payload []byte) (AreaMapsRequest, error) {
+	amRequest := &AreaMapsRequest{}
+	err := json.Unmarshal(payload, &amRequest)
+	if err != nil {
+		return AreaMapsRequest{}, err
+	}
+
+	return *amRequest, nil
+}
+
+type AreaMapsRequest struct {
+	AreaMapIds []sotah.AreaMapId `json:"areaMapIds"`
+}
+
+type AreaMapsResponse struct {
+	AreaMaps sotah.AreaMapMap `json:"areaMaps"`
+}
+
+func (amRes AreaMapsResponse) EncodeForMessage() (string, error) {
+	result, err := json.Marshal(amRes)
+	if err != nil {
+		return "", err
+	}
+
+	return string(result), err
+}
+
 func NewItemsRequest(payload []byte) (ItemsRequest, error) {
 	iRequest := &ItemsRequest{}
 	err := json.Unmarshal(payload, &iRequest)

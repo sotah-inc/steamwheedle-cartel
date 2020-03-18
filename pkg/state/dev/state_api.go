@@ -151,6 +151,13 @@ func NewAPIState(config APIStateConfig) (*APIState, error) {
 	}
 	apiState.IO.Databases.TokensDatabase = tokensDatabase
 
+	// loading the area-maps database
+	areaMapsDatabase, err := database.NewAreaMapsDatabase(config.AreaMapsDatabaseDir)
+	if err != nil {
+		return &APIState{}, err
+	}
+	apiState.AreaMapsDatabase = areaMapsDatabase
+
 	// gathering profession icons
 	for i, prof := range apiState.Professions {
 		apiState.Professions[i].IconURL = blizzard.DefaultGetItemIconURL(prof.Icon)
@@ -167,6 +174,8 @@ func NewAPIState(config APIStateConfig) (*APIState, error) {
 		subjects.RealmModificationDates:      apiState.ListenForRealmModificationDates,
 		subjects.TokenHistory:                apiState.ListenForTokenHistory,
 		subjects.ValidateRegionRealm:         apiState.ListenForValidateRegionRealm,
+		subjects.AreaMapsQuery:               apiState.ListenForAreaMapsQuery,
+		subjects.AreaMaps:                    apiState.ListenForAreaMaps,
 	})
 
 	apiState.RegionRealmModificationDates = sotah.RegionRealmModificationDates{}
@@ -187,4 +196,6 @@ type APIState struct {
 	ItemBlacklist state.ItemBlacklist
 
 	RegionRealmModificationDates sotah.RegionRealmModificationDates
+
+	AreaMapsDatabase database.AreaMapsDatabase
 }
