@@ -45,13 +45,13 @@ type Realm struct {
 	Slug RealmSlug `json:"slug"`
 }
 
-const statusURLFormat = "https://%s/data/wow/realm/index?namespace=dynamic-us&locale=en_US"
+const statusURLFormat = "https://%s/data/wow/realm/index?namespace=dynamic-%s&locale=en_US"
 
 // GetStatusURLFunc defines the expected func signature for generating a status uri
-type GetStatusURLFunc func(string) string
+type GetStatusURLFunc func(string, string) string
 
 // DefaultGetStatusURL returns a formatted uri
-func DefaultGetStatusURL(regionHostname string) string {
+func DefaultGetStatusURL(regionHostname string, regionName string) string {
 	return fmt.Sprintf(statusURLFormat, regionHostname)
 }
 
