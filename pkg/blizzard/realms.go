@@ -6,8 +6,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzard/realmpopulations"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzard/realmtypes"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 )
 
@@ -33,21 +31,21 @@ func newRealm(body []byte) (Realm, error) {
 // RealmSlug is the region-specific unique identifier
 type RealmSlug string
 
-// Realm represents a given realm
-type Realm struct {
-	Type            realmtypes.RealmType             `json:"type"`
-	Population      realmpopulations.RealmPopulation `json:"population"`
-	Queue           bool                             `json:"queue"`
-	Status          bool                             `json:"status"`
-	Name            string                           `json:"name"`
-	Slug            RealmSlug                        `json:"slug"`
-	Battlegroup     string                           `json:"battlegroup"`
-	Locale          string                           `json:"locale"`
-	Timezone        string                           `json:"timezone"`
-	ConnectedRealms []RealmSlug                      `json:"connected_realms"`
+type RealmKey struct {
+	Href string `json:"href"`
 }
 
-const statusURLFormat = "https://%s/wow/realm/status?locale=en_US"
+type RealmId int
+
+// Realm represents a given realm
+type Realm struct {
+	Key  RealmKey  `json:"key"`
+	Name string    `json:"name"`
+	Id   RealmId   `json:"id"`
+	Slug RealmSlug `json:"slug"`
+}
+
+const statusURLFormat = "https://%s/data/wow/realm/index?namespace=dynamic-us&locale=en_US"
 
 // GetStatusURLFunc defines the expected func signature for generating a status uri
 type GetStatusURLFunc func(string) string
