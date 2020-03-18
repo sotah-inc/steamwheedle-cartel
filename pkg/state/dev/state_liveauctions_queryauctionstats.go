@@ -101,8 +101,6 @@ func (laState LiveAuctionsState) ListenForQueryAuctionStats(stop state.ListenSto
 		}
 
 		laState.sendQueryAuctionStatsResponse(natsMsg, m, auctionStats)
-
-		return
 	})
 	if err != nil {
 		return err
@@ -111,7 +109,11 @@ func (laState LiveAuctionsState) ListenForQueryAuctionStats(stop state.ListenSto
 	return nil
 }
 
-func (laState LiveAuctionsState) sendQueryAuctionStatsResponse(natsMsg nats.Msg, m messenger.Message, auctionStats database.AuctionStats) {
+func (laState LiveAuctionsState) sendQueryAuctionStatsResponse(
+	natsMsg nats.Msg,
+	m messenger.Message,
+	auctionStats database.AuctionStats,
+) {
 	encoded, err := auctionStats.EncodeForDelivery()
 	if err != nil {
 		m.Err = err.Error()

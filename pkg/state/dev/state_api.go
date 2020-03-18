@@ -34,8 +34,9 @@ type APIStateConfig struct {
 	BlizzardClientId     string
 	BlizzardClientSecret string
 
-	ItemsDatabaseDir  string
-	TokensDatabaseDir string
+	ItemsDatabaseDir    string
+	TokensDatabaseDir   string
+	AreaMapsDatabaseDir string
 }
 
 func NewAPIState(config APIStateConfig) (*APIState, error) {
