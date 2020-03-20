@@ -129,25 +129,14 @@ func NewAPIState(config APIStateConfig) (*APIState, error) {
 
 		return nil, err
 	}
-	uri, err := apiState.IO.Resolver.AppendAccessToken(apiState.IO.Resolver.GetItemClassesURL(primaryRegion.Hostname))
-	if err != nil {
-		logging.WithFields(logrus.Fields{
-			"error":                   err.Error(),
-			"primary-region-hostname": primaryRegion.Hostname,
-		}).Error("failed to append access-token to get-item-classes url")
-
-		return nil, err
-	}
-	itemClasses, _, err := blizzard.NewItemClassesFromHTTP(uri)
+	iClasses, err := apiState.ResolveItemClasses(primaryRegion.Hostname)
 	if err != nil {
 		logging.WithFields(logrus.Fields{
 			"error": err.Error(),
-			"uri":   uri,
-		}).Error("failed to get item-classes via http")
-
-		return nil, err
+			"uri":   primaryRegion.Hostname,
+		}).Error("failed to resolve item-classes")
 	}
-	apiState.ItemClasses = itemClasses
+	apiState.ItemClasses = iClasses
 
 	// loading the items database
 	itemsDatabase, err := database.NewItemsDatabase(config.ItemsDatabaseDir)

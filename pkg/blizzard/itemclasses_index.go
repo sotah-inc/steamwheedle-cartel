@@ -12,11 +12,11 @@ import (
 
 const itemClassIndexURLFormat = "https://%s/data/wow/item-class/index"
 
-func DefaultGetItemClassIndexURL(regionHostname string) string {
-	return fmt.Sprintf(itemClassIndexURLFormat, regionHostname)
+func DefaultGetItemClassIndexURL(regionHostname string) (string, error) {
+	return fmt.Sprintf(itemClassIndexURLFormat, regionHostname), nil
 }
 
-type GetItemClassIndexURLFunc func(string) string
+type GetItemClassIndexURLFunc func(string) (string, error)
 
 type ItemClassId int
 

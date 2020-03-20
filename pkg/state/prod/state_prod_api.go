@@ -222,8 +222,7 @@ type ApiState struct {
 	RealmsBucket *storage.BucketHandle
 
 	SessionSecret uuid.UUID
-	ItemClasses   blizzard.ItemClasses
-	Expansions    []sotah.Expansion
+	ItemClasses   sotah.Expansion
 	Professions   []sotah.Profession
 	ItemBlacklist state.ItemBlacklist
 

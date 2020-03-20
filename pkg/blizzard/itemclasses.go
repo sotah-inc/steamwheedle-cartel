@@ -38,7 +38,12 @@ func (job GetAllItemClassesJob) ToLogrusFields() logrus.Fields {
 
 func GetAllItemClasses(opts GetAllItemClassesOptions) ([]ItemClassComposite, error) {
 	// querying index
-	icIndex, _, err := NewItemClassIndexFromHTTP(opts.GetItemClassIndexURL(opts.RegionHostname))
+	uri, err := opts.GetItemClassIndexURL(opts.RegionHostname)
+	if err != nil {
+		return []ItemClassComposite{}, err
+	}
+
+	icIndex, _, err := NewItemClassIndexFromHTTP(uri)
 	if err != nil {
 		logging.WithField("error", err.Error()).Error("failed to get item-class-index")
 
@@ -50,7 +55,18 @@ func GetAllItemClasses(opts GetAllItemClassesOptions) ([]ItemClassComposite, err
 	out := make(chan GetAllItemClassesJob)
 	worker := func() {
 		for id := range in {
-			iClass, _, err := NewItemClassFromHTTP(opts.GetItemClassURL(opts.RegionHostname, id))
+			getClassUri, err := opts.GetItemClassURL(opts.RegionHostname, id)
+			if err != nil {
+				out <- GetAllItemClassesJob{
+					Err:                err,
+					Id:                 id,
+					ItemClassComposite: ItemClassComposite{},
+				}
+
+				continue
+			}
+
+			iClass, _, err := NewItemClassFromHTTP(getClassUri)
 			if err != nil {
 				out <- GetAllItemClassesJob{
 					Err:                err,
