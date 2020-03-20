@@ -61,13 +61,21 @@ func GetAllItemClasses(opts GetAllItemClassesOptions) ([]ItemClassComposite, err
 				continue
 			}
 
+			isClasses := make([]ItemSubClassComposite, len(iClass.ItemSubClasses))
+			for i := 0; i < len(iClass.ItemSubClasses); i += 1 {
+				isClasses[i] = ItemSubClassComposite{
+					Name: iClass.ItemSubClasses[i].Name,
+					Id:   iClass.ItemSubClasses[i].Id,
+				}
+			}
+
 			out <- GetAllItemClassesJob{
 				Err: nil,
 				Id:  id,
 				ItemClassComposite: ItemClassComposite{
 					Name:           iClass.Name,
 					Id:             iClass.ClassId,
-					ItemSubClasses: []ItemSubClassComposite{},
+					ItemSubClasses: isClasses,
 				},
 			}
 		}
