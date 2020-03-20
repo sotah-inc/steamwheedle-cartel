@@ -10,6 +10,10 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 )
 
+type HrefReference struct {
+	Href string `json:"href"`
+}
+
 type timedTransport struct {
 	rtp       http.RoundTripper
 	dialer    *net.Dialer

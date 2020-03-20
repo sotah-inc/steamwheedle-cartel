@@ -202,7 +202,7 @@ type APIState struct {
 	Statuses sotah.Statuses
 
 	SessionSecret uuid.UUID
-	ItemClasses   blizzard.ItemClasses
+	ItemClasses   sotah.ItemClasses
 	Expansions    []sotah.Expansion
 	Professions   []sotah.Profession
 	ItemBlacklist state.ItemBlacklist

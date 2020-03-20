@@ -172,8 +172,8 @@ type Item struct {
 	NormalizedName string             `json:"normalized_name"`
 	Icon           string             `json:"icon"`
 	ItemLevel      int                `json:"itemLevel"`
-	ItemClass      ItemClassClass     `json:"itemClass"`
-	ItemSubClass   ItemSubClassClass  `json:"itemSubClass"`
+	ItemClass      ItemClassId        `json:"itemClass"`
+	ItemSubClass   ItemSubClassId     `json:"itemSubClass"`
 	InventoryType  inventoryType      `json:"inventoryType"`
 	ItemBind       itembinds.ItemBind `json:"itemBind"`
 	RequiredLevel  int                `json:"requiredLevel"`
