@@ -125,11 +125,7 @@ func NewProdApiState(config ProdApiStateConfig) (ApiState, error) {
 
 		return ApiState{}, err
 	}
-	uri, err := apiState.IO.Resolver.AppendAccessToken(apiState.IO.Resolver.GetItemClassesURL(primaryRegion.Hostname))
-	if err != nil {
-		return ApiState{}, err
-	}
-	itemClasses, _, err := blizzard.NewItemClassesFromHTTP(uri)
+	itemClasses, err := apiState.ResolveItemClasses(primaryRegion.Hostname)
 	if err != nil {
 		return ApiState{}, err
 	}
@@ -222,7 +218,8 @@ type ApiState struct {
 	RealmsBucket *storage.BucketHandle
 
 	SessionSecret uuid.UUID
-	ItemClasses   sotah.Expansion
+	Expansions    []sotah.Expansion
+	ItemClasses   sotah.ItemClasses
 	Professions   []sotah.Profession
 	ItemBlacklist state.ItemBlacklist
 
