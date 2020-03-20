@@ -87,13 +87,15 @@ func GetAllItemClasses(opts GetAllItemClassesOptions) ([]ItemClassComposite, err
 	}()
 
 	// waiting for it all to drain out
-	result := []ItemClassComposite{}
+	result := make([]ItemClassComposite, len(icIndex.ItemClasses))
+	i := 0
 	for outJob := range out {
 		if outJob.Err != nil {
 			return []ItemClassComposite{}, outJob.Err
 		}
 
-		result = append(result, outJob.ItemClassComposite)
+		result[i] = outJob.ItemClassComposite
+		i += 1
 	}
 
 	return result, nil
