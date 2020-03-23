@@ -27,10 +27,8 @@ type ItemClass struct {
 }
 
 type ItemClassIndexResponse struct {
-	Links struct {
-		Self HrefReference `json:"self"`
-	} `json:"_links"`
-	ItemClasses []ItemClass `json:"item_classes"`
+	Links       SelfReference `json:"_links"`
+	ItemClasses []ItemClass   `json:"item_classes"`
 }
 
 func NewItemClassIndexFromHTTP(uri string) (ItemClassIndexResponse, ResponseMeta, error) {
