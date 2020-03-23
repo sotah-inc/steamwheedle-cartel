@@ -1,4 +1,4 @@
-package blizzard
+package blizzardv2
 
 import (
 	"github.com/sirupsen/logrus"

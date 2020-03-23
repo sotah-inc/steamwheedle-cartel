@@ -8,11 +8,7 @@ import (
 )
 
 func validateAuctions(a Auctions) bool {
-	if len(a.Realms) == 0 {
-		return false
-	}
-
-	return true
+	return len(a.Realms) != 0
 }
 
 func TestNewAuctionInfoFromHTTP(t *testing.T) {

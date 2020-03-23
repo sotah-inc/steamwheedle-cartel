@@ -1,10 +1,12 @@
-package blizzard
+package blizzardv2
 
 import (
 	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
+
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzard"
 
 	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
@@ -27,12 +29,12 @@ type ItemClass struct {
 }
 
 type ItemClassIndexResponse struct {
-	Links       SelfReference `json:"_links"`
-	ItemClasses []ItemClass   `json:"item_classes"`
+	LinksBase
+	ItemClasses []ItemClass `json:"item_classes"`
 }
 
-func NewItemClassIndexFromHTTP(uri string) (ItemClassIndexResponse, ResponseMeta, error) {
-	resp, err := Download(uri)
+func NewItemClassIndexFromHTTP(uri string) (ItemClassIndexResponse, blizzard.ResponseMeta, error) {
+	resp, err := blizzard.Download(uri)
 	if err != nil {
 		logging.WithFields(logrus.Fields{
 			"error": err.Error(),

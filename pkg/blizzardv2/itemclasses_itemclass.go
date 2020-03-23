@@ -1,4 +1,4 @@
-package blizzard
+package blizzardv2
 
 import (
 	"encoding/json"
@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/sirupsen/logrus"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzard"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 )
 
@@ -27,9 +28,7 @@ type ItemSubClass struct {
 }
 
 type ItemClassResponse struct {
-	Links struct {
-		Self HrefReference `json:"self"`
-	} `json:"_links"`
+	LinksBase
 	ClassId        ItemClassId    `json:"class_id"`
 	Name           string         `json:"name"`
 	ItemSubClasses []ItemSubClass `json:"item_subclasses"`
@@ -44,8 +43,8 @@ func NewItemClassResponse(body []byte) (ItemClassResponse, error) {
 	return *iClass, nil
 }
 
-func NewItemClassFromHTTP(uri string) (ItemClassResponse, ResponseMeta, error) {
-	resp, err := Download(uri)
+func NewItemClassFromHTTP(uri string) (ItemClassResponse, blizzard.ResponseMeta, error) {
+	resp, err := blizzard.Download(uri)
 	if err != nil {
 		logging.WithFields(logrus.Fields{
 			"error": err.Error(),

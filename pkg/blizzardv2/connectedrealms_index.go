@@ -1,4 +1,4 @@
-package blizzard
+package blizzardv2
 
 import (
 	"encoding/json"
@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/sirupsen/logrus"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzard"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 )
 
@@ -19,12 +20,12 @@ func DefaultConnectedRealmIndexURL(regionHostname string) (string, error) {
 type GetConnectedRealmIndexURLFunc func(string) (string, error)
 
 type ConnectedRealmIndexResponse struct {
-	Links           SelfReference   `json:"_links"`
+	LinksBase
 	ConnectedRealms []HrefReference `json:"connected_realms"`
 }
 
-func NewConnectedRealmIndexFromHTTP(uri string) (ConnectedRealmIndexResponse, ResponseMeta, error) {
-	resp, err := Download(uri)
+func NewConnectedRealmIndexFromHTTP(uri string) (ConnectedRealmIndexResponse, blizzard.ResponseMeta, error) {
+	resp, err := blizzard.Download(uri)
 	if err != nil {
 		logging.WithFields(logrus.Fields{
 			"error": err.Error(),
