@@ -80,7 +80,7 @@ func GetAllItemClasses(opts GetAllItemClassesOptions) ([]ItemClassComposite, err
 			isClasses := make([]ItemSubClassComposite, len(iClass.ItemSubClasses))
 			for i := 0; i < len(iClass.ItemSubClasses); i += 1 {
 				isClasses[i] = ItemSubClassComposite{
-					Name: iClass.ItemSubClasses[i].Name,
+					Name: iClass.ItemSubClasses[i].Name.ResolveDefaultName(),
 					Id:   iClass.ItemSubClasses[i].Id,
 				}
 			}
@@ -89,7 +89,7 @@ func GetAllItemClasses(opts GetAllItemClassesOptions) ([]ItemClassComposite, err
 				Err: nil,
 				Id:  id,
 				ItemClassComposite: ItemClassComposite{
-					Name:           iClass.Name,
+					Name:           iClass.Name.ResolveDefaultName(),
 					Id:             iClass.ClassId,
 					ItemSubClasses: isClasses,
 				},

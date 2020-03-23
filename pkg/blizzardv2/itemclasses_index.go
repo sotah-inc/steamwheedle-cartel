@@ -6,13 +6,13 @@ import (
 	"fmt"
 	"net/http"
 
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzard"
-
 	"github.com/sirupsen/logrus"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzard"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/locale"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 )
 
-const itemClassIndexURLFormat = "https://%s/data/wow/item-class/index"
+const itemClassIndexURLFormat = "https://%s/data/wow/item-class/index?namespace=static-us"
 
 func DefaultGetItemClassIndexURL(regionHostname string) (string, error) {
 	return fmt.Sprintf(itemClassIndexURLFormat, regionHostname), nil
@@ -23,9 +23,9 @@ type GetItemClassIndexURLFunc func(string) (string, error)
 type ItemClassId int
 
 type ItemClass struct {
-	Key  HrefReference `json:"key"`
-	Name string        `json:"string"`
-	Id   ItemClassId   `json:"id"`
+	Key  HrefReference  `json:"key"`
+	Name locale.Mapping `json:"string"`
+	Id   ItemClassId    `json:"id"`
 }
 
 type ItemClassIndexResponse struct {

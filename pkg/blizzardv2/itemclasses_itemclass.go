@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"net/http"
 
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/locale"
+
 	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzard"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
@@ -23,14 +25,14 @@ type ItemSubClassId int
 
 type ItemSubClass struct {
 	Key  HrefReference  `json:"key"`
-	Name string         `json:"name"`
+	Name locale.Mapping `json:"name"`
 	Id   ItemSubClassId `json:"id"`
 }
 
 type ItemClassResponse struct {
 	LinksBase
 	ClassId        ItemClassId    `json:"class_id"`
-	Name           string         `json:"name"`
+	Name           locale.Mapping `json:"name"`
 	ItemSubClasses []ItemSubClass `json:"item_subclasses"`
 }
 
