@@ -1,6 +1,24 @@
 package blizzardv2
 
-import "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/locale"
+import (
+	"encoding/json"
+	"errors"
+	"fmt"
+	"net/http"
+
+	"github.com/sirupsen/logrus"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzard"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/locale"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
+)
+
+const connectedRealmURLFormat = "https://%s/data/wow/connected-realm/%d?namespace=dynamic-us"
+
+func DefaultConnectedRealmURL(regionHostname string, id ConnectedRealmId) (string, error) {
+	return fmt.Sprintf(connectedRealmURLFormat, regionHostname, id), nil
+}
+
+type GetConnectedRealmURLFunc func(string) (string, error)
 
 type ConnectedRealmId int
 
@@ -13,10 +31,52 @@ type ConnectedRealmResponse struct {
 		Name locale.Mapping `json:"name"`
 	} `json:"status"`
 	Population struct {
-		Type string `json:"type"`
-		Name string `json:"name"`
+		Type string         `json:"type"`
+		Name locale.Mapping `json:"name"`
 	} `json:"population"`
+	Realms             []RealmResponse `json:"realms"`
+	MythicLeaderboards HrefReference   `json:"mythic_leaderboards"`
+	Auctions           HrefReference   `json:"auctions"`
+}
 
-	MythicLeaderboards HrefReference `json:"mythic_leaderboards"`
-	Auctions           HrefReference `json:"auctions"`
+func NewConnectedRealmFromHTTP(uri string) (ConnectedRealmResponse, blizzard.ResponseMeta, error) {
+	resp, err := blizzard.Download(uri)
+	if err != nil {
+		logging.WithFields(logrus.Fields{
+			"error": err.Error(),
+			"uri":   uri,
+		}).Error("failed to download connected-realm")
+
+		return ConnectedRealmResponse{}, resp, err
+	}
+
+	if resp.Status != http.StatusOK {
+		logging.WithFields(logrus.Fields{
+			"status": resp.Status,
+			"uri":    uri,
+		}).Error("resp from connected-realm was not 200")
+
+		return ConnectedRealmResponse{}, resp, errors.New("status was not 200")
+	}
+
+	cRealm, err := NewConnectedRealmResponse(resp.Body)
+	if err != nil {
+		logging.WithFields(logrus.Fields{
+			"error": err.Error(),
+			"uri":   uri,
+		}).Error("failed to parse connected-realm response")
+
+		return ConnectedRealmResponse{}, resp, err
+	}
+
+	return cRealm, resp, nil
+}
+
+func NewConnectedRealmResponse(body []byte) (ConnectedRealmResponse, error) {
+	cRealm := &ConnectedRealmResponse{}
+	if err := json.Unmarshal(body, cRealm); err != nil {
+		return ConnectedRealmResponse{}, err
+	}
+
+	return *cRealm, nil
 }

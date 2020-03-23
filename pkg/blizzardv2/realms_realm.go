@@ -4,7 +4,7 @@ import "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/
 
 type RealmId int
 
-type Realm struct {
+type RealmResponse struct {
 	LinksBase
 	Id     RealmId `json:"id"`
 	Region struct {
