@@ -1,6 +1,24 @@
 package blizzardv2
 
-import "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/locale"
+import (
+	"encoding/json"
+	"errors"
+	"fmt"
+	"net/http"
+
+	"github.com/sirupsen/logrus"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzard"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/locale"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
+)
+
+const itemURLFormat = "https://%s/data/wow/item/%d?namespace=static-us"
+
+func DefaultGetItemURL(regionHostname string, id ItemId) (string, error) {
+	return fmt.Sprintf(itemURLFormat, regionHostname, id), nil
+}
+
+type GetItemURLFunc func(string, ItemId) (string, error)
 
 type ItemId int
 
@@ -28,7 +46,7 @@ type ItemSpell struct {
 	Description locale.Mapping `json:"description"`
 }
 
-type Item struct {
+type ItemResponse struct {
 	LinksBase
 	Id            ItemId            `json:"id"`
 	Name          locale.Mapping    `json:"name"`
@@ -78,4 +96,46 @@ type Item struct {
 			} `json:"color"`
 		} `json:"name_description"`
 	} `json:"preview_item"`
+}
+
+func NewItemFromHTTP(uri string) (ItemResponse, blizzard.ResponseMeta, error) {
+	resp, err := blizzard.Download(uri)
+	if err != nil {
+		logging.WithFields(logrus.Fields{
+			"error": err.Error(),
+			"uri":   uri,
+		}).Error("failed to download item")
+
+		return ItemResponse{}, resp, err
+	}
+
+	if resp.Status != http.StatusOK {
+		logging.WithFields(logrus.Fields{
+			"status": resp.Status,
+			"uri":    uri,
+		}).Error("resp from item was not 200")
+
+		return ItemResponse{}, resp, errors.New("status was not 200")
+	}
+
+	item, err := NewItemResponse(resp.Body)
+	if err != nil {
+		logging.WithFields(logrus.Fields{
+			"error": err.Error(),
+			"uri":   uri,
+		}).Error("failed to parse item response")
+
+		return ItemResponse{}, resp, err
+	}
+
+	return item, resp, nil
+}
+
+func NewItemResponse(body []byte) (ItemResponse, error) {
+	item := &ItemResponse{}
+	if err := json.Unmarshal(body, item); err != nil {
+		return ItemResponse{}, err
+	}
+
+	return *item, nil
 }
