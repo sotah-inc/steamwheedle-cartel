@@ -14,7 +14,7 @@ type GetAllItemClassesOptions struct {
 
 type GetAllItemClassesJob struct {
 	Err               error
-	Id                int
+	Id                ItemClassId
 	ItemClassResponse ItemClassResponse
 }
 
@@ -40,7 +40,7 @@ func GetAllItemClasses(opts GetAllItemClassesOptions) ([]ItemClassResponse, erro
 	}
 
 	// starting up workers for gathering individual item-classes
-	in := make(chan int)
+	in := make(chan ItemClassId)
 	out := make(chan GetAllItemClassesJob)
 	worker := func() {
 		for id := range in {
@@ -81,7 +81,7 @@ func GetAllItemClasses(opts GetAllItemClassesOptions) ([]ItemClassResponse, erro
 	// queueing it up
 	go func() {
 		for _, iClass := range icIndex.ItemClasses {
-			in <- int(iClass.Id)
+			in <- iClass.Id
 		}
 
 		close(in)

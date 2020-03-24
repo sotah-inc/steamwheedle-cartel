@@ -18,7 +18,7 @@ func DefaultConnectedRealmURL(regionHostname string, id ConnectedRealmId) (strin
 	return fmt.Sprintf(connectedRealmURLFormat, regionHostname, id), nil
 }
 
-type GetConnectedRealmURLFunc func(string) (string, error)
+type GetConnectedRealmURLFunc func(string, ConnectedRealmId) (string, error)
 
 type ConnectedRealmId int
 
