@@ -12,21 +12,10 @@ type GetAllItemClassesOptions struct {
 	GetItemClassURL      GetItemClassURLFunc
 }
 
-type ItemSubClassComposite struct {
-	Name string
-	Id   ItemSubClassId
-}
-
-type ItemClassComposite struct {
-	Name           string
-	Id             ItemClassId
-	ItemSubClasses []ItemSubClassComposite
-}
-
 type GetAllItemClassesJob struct {
-	Err                error
-	Id                 int
-	ItemClassComposite ItemClassComposite
+	Err               error
+	Id                int
+	ItemClassResponse ItemClassResponse
 }
 
 func (job GetAllItemClassesJob) ToLogrusFields() logrus.Fields {
@@ -36,18 +25,18 @@ func (job GetAllItemClassesJob) ToLogrusFields() logrus.Fields {
 	}
 }
 
-func GetAllItemClasses(opts GetAllItemClassesOptions) ([]ItemClassComposite, error) {
+func GetAllItemClasses(opts GetAllItemClassesOptions) ([]ItemClassResponse, error) {
 	// querying index
 	uri, err := opts.GetItemClassIndexURL(opts.RegionHostname)
 	if err != nil {
-		return []ItemClassComposite{}, err
+		return []ItemClassResponse{}, err
 	}
 
 	icIndex, _, err := NewItemClassIndexFromHTTP(uri)
 	if err != nil {
 		logging.WithField("error", err.Error()).Error("failed to get item-class-index")
 
-		return []ItemClassComposite{}, err
+		return []ItemClassResponse{}, err
 	}
 
 	// starting up workers for gathering individual item-classes
@@ -58,9 +47,9 @@ func GetAllItemClasses(opts GetAllItemClassesOptions) ([]ItemClassComposite, err
 			getClassUri, err := opts.GetItemClassURL(opts.RegionHostname, id)
 			if err != nil {
 				out <- GetAllItemClassesJob{
-					Err:                err,
-					Id:                 id,
-					ItemClassComposite: ItemClassComposite{},
+					Err:               err,
+					Id:                id,
+					ItemClassResponse: ItemClassResponse{},
 				}
 
 				continue
@@ -69,30 +58,18 @@ func GetAllItemClasses(opts GetAllItemClassesOptions) ([]ItemClassComposite, err
 			iClass, _, err := NewItemClassFromHTTP(getClassUri)
 			if err != nil {
 				out <- GetAllItemClassesJob{
-					Err:                err,
-					Id:                 id,
-					ItemClassComposite: ItemClassComposite{},
+					Err:               err,
+					Id:                id,
+					ItemClassResponse: ItemClassResponse{},
 				}
 
 				continue
 			}
 
-			isClasses := make([]ItemSubClassComposite, len(iClass.ItemSubClasses))
-			for i := 0; i < len(iClass.ItemSubClasses); i += 1 {
-				isClasses[i] = ItemSubClassComposite{
-					Name: iClass.ItemSubClasses[i].Name.ResolveDefaultName(),
-					Id:   iClass.ItemSubClasses[i].Id,
-				}
-			}
-
 			out <- GetAllItemClassesJob{
-				Err: nil,
-				Id:  id,
-				ItemClassComposite: ItemClassComposite{
-					Name:           iClass.Name.ResolveDefaultName(),
-					Id:             iClass.ClassId,
-					ItemSubClasses: isClasses,
-				},
+				Err:               nil,
+				Id:                id,
+				ItemClassResponse: iClass,
 			}
 		}
 	}
@@ -111,14 +88,14 @@ func GetAllItemClasses(opts GetAllItemClassesOptions) ([]ItemClassComposite, err
 	}()
 
 	// waiting for it all to drain out
-	result := make([]ItemClassComposite, len(icIndex.ItemClasses))
+	result := make([]ItemClassResponse, len(icIndex.ItemClasses))
 	i := 0
 	for outJob := range out {
 		if outJob.Err != nil {
-			return []ItemClassComposite{}, outJob.Err
+			return []ItemClassResponse{}, outJob.Err
 		}
 
-		result[i] = outJob.ItemClassComposite
+		result[i] = outJob.ItemClassResponse
 		i += 1
 	}
 
