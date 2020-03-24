@@ -12,17 +12,22 @@ import (
 
 type AuctionId int64
 
+type AuctionItemModifier struct {
+	Type  int `json:"type"`
+	Value int `json:"value"`
+}
+
 type Auction struct {
 	Id   AuctionId `json:"id"`
 	Item struct {
-		Id           ItemId         `json:"id"`
-		Context      int            `json:"context"`
-		BonusLists   []int          `json:"bonus_lists"`
-		Modifiers    []ItemModifier `json:"modifiers"`
-		PetBreedId   int            `json:"pet_breed_id"`
-		PetLevel     int            `json:"pet_level"`
-		PetQualityId int            `json:"pet_quality_id"`
-		PetSpeciesId int            `json:"pet_species_id"`
+		Id           ItemId                `json:"id"`
+		Context      int                   `json:"context"`
+		BonusLists   []int                 `json:"bonus_lists"`
+		Modifiers    []AuctionItemModifier `json:"modifiers"`
+		PetBreedId   int                   `json:"pet_breed_id"`
+		PetLevel     int                   `json:"pet_level"`
+		PetQualityId int                   `json:"pet_quality_id"`
+		PetSpeciesId int                   `json:"pet_species_id"`
 	} `json:"item"`
 	Buyout   int64  `json:"buyout"`
 	Quantity int    `json:"quantity"`
