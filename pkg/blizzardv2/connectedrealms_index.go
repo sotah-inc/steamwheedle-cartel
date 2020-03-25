@@ -11,10 +11,10 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 )
 
-const connectedRealmIndexURLFormat = "https://%s/data/wow/connected-realm/index?namespace=dynamic-us"
+const connectedRealmIndexURLFormat = "https://%s/data/wow/connected-realm/index?namespace=dynamic-%s"
 
-func DefaultConnectedRealmIndexURL(regionHostname string) (string, error) {
-	return fmt.Sprintf(connectedRealmIndexURLFormat, regionHostname), nil
+func DefaultConnectedRealmIndexURL(regionHostname string, regionName RegionName) (string, error) {
+	return fmt.Sprintf(connectedRealmIndexURLFormat, regionHostname, regionName), nil
 }
 
 type GetConnectedRealmIndexURLFunc func(string) (string, error)

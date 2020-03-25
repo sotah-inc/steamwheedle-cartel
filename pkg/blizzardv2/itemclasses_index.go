@@ -12,13 +12,13 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 )
 
-const itemClassIndexURLFormat = "https://%s/data/wow/item-class/index?namespace=static-us"
+const itemClassIndexURLFormat = "https://%s/data/wow/item-class/index?namespace=static-%s"
 
-func DefaultGetItemClassIndexURL(regionHostname string) (string, error) {
-	return fmt.Sprintf(itemClassIndexURLFormat, regionHostname), nil
+func DefaultGetItemClassIndexURL(regionHostname string, regionName RegionName) (string, error) {
+	return fmt.Sprintf(itemClassIndexURLFormat, regionHostname, regionName), nil
 }
 
-type GetItemClassIndexURLFunc func(string) (string, error)
+type GetItemClassIndexURLFunc func(string, RegionName) (string, error)
 
 type ItemClassId int
 

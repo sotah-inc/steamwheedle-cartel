@@ -8,6 +8,7 @@ import (
 
 type GetAllConnectedRealmsOptions struct {
 	RegionHostname            string
+	RegionName                RegionName
 	GetConnectedRealmIndexURL GetConnectedRealmIndexURLFunc
 	GetConnectedRealmURL      func(string) (string, error)
 }

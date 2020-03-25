@@ -20,13 +20,17 @@ func (job GetItemsOutJob) ToLogrusFields() logrus.Fields {
 	}
 }
 
-func (response ItemResponses) GetItems(regionHostname string, getItemURL GetItemURLFunc) chan GetItemsOutJob {
+func (response ItemResponses) GetItems(
+	regionHostname string,
+	regionName RegionName,
+	getItemURL GetItemURLFunc,
+) chan GetItemsOutJob {
 	// starting up workers for gathering individual items
 	in := make(chan ItemId)
 	out := make(chan GetItemsOutJob)
 	worker := func() {
 		for id := range in {
-			getItemUri, err := getItemURL(regionHostname, id)
+			getItemUri, err := getItemURL(regionHostname, id, regionName)
 			if err != nil {
 				out <- GetItemsOutJob{
 					Err:          err,

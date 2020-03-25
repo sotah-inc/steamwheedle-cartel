@@ -8,6 +8,7 @@ import (
 
 type GetAllItemClassesOptions struct {
 	RegionHostname       string
+	RegionName           RegionName
 	GetItemClassIndexURL GetItemClassIndexURLFunc
 	GetItemClassURL      GetItemClassURLFunc
 }
@@ -27,7 +28,7 @@ func (job GetAllItemClassesJob) ToLogrusFields() logrus.Fields {
 
 func GetAllItemClasses(opts GetAllItemClassesOptions) ([]ItemClassResponse, error) {
 	// querying index
-	uri, err := opts.GetItemClassIndexURL(opts.RegionHostname)
+	uri, err := opts.GetItemClassIndexURL(opts.RegionHostname, opts.RegionName)
 	if err != nil {
 		return []ItemClassResponse{}, err
 	}
@@ -44,7 +45,7 @@ func GetAllItemClasses(opts GetAllItemClassesOptions) ([]ItemClassResponse, erro
 	out := make(chan GetAllItemClassesJob)
 	worker := func() {
 		for id := range in {
-			getClassUri, err := opts.GetItemClassURL(opts.RegionHostname, id)
+			getClassUri, err := opts.GetItemClassURL(opts.RegionHostname, opts.RegionName, id)
 			if err != nil {
 				out <- GetAllItemClassesJob{
 					Err:               err,

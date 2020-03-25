@@ -12,13 +12,13 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 )
 
-const itemURLFormat = "https://%s/data/wow/item/%d?namespace=static-us"
+const itemURLFormat = "https://%s/data/wow/item/%d?namespace=static-%s"
 
-func DefaultGetItemURL(regionHostname string, id ItemId) (string, error) {
-	return fmt.Sprintf(itemURLFormat, regionHostname, id), nil
+func DefaultGetItemURL(regionHostname string, regionName RegionName, id ItemId) (string, error) {
+	return fmt.Sprintf(itemURLFormat, regionHostname, id, regionName), nil
 }
 
-type GetItemURLFunc func(string, ItemId) (string, error)
+type GetItemURLFunc func(string, ItemId, RegionName) (string, error)
 
 type ItemId int
 
