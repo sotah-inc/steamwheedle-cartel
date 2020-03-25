@@ -4,6 +4,8 @@ import "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/
 
 type RegionId int
 
+type RegionName string
+
 type Region struct {
 	LinksBase
 	Id   RegionId       `json:"id"`
