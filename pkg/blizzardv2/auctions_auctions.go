@@ -34,6 +34,25 @@ type Auction struct {
 	TimeLeft string `json:"time_left"`
 }
 
+type Auctions []Auction
+
+func (aucs Auctions) ItemIds() []ItemId {
+	itemIdsMap := map[ItemId]interface{}{}
+	for _, auc := range aucs {
+		itemIdsMap[auc.Item.Id] = struct{}{}
+	}
+
+	out := make([]ItemId, len(itemIdsMap))
+	i := 0
+	for id := range itemIdsMap {
+		out[i] = id
+
+		i += 1
+	}
+
+	return out
+}
+
 type AuctionsResponse struct {
 	LinksBase
 	ConnectedRealm HrefReference `json:"connected_realm"`
