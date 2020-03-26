@@ -1,4 +1,4 @@
-package blizzard
+package blizzardv2
 
 import (
 	"encoding/json"
@@ -12,10 +12,8 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 )
 
-// OAuthTokenEndpoint - http endpoint for gathering new oauth access tokens
 const OAuthTokenEndpoint = "https://us.battle.net/oauth/token?grant_type=client_credentials"
 
-// NewClient - generates a client used for querying blizz api
 func NewClient(id string, secret string) (Client, error) {
 	if len(id) == 0 {
 		return Client{}, errors.New("client id is blank")
@@ -33,7 +31,6 @@ func NewClient(id string, secret string) (Client, error) {
 	return client, nil
 }
 
-// Client - used for querying blizz api
 type Client struct {
 	id          string
 	secret      string
@@ -46,7 +43,6 @@ type refreshResponse struct {
 	ExpiresIn   int    `json:"expires_in"`
 }
 
-// RefreshFromHTTP - gathers an access token from the oauth token endpoint
 func (c Client) RefreshFromHTTP(uri string) (Client, error) {
 	// forming a request
 	req, err := http.NewRequest("GET", uri, nil)
@@ -119,7 +115,6 @@ func (c Client) RefreshFromHTTP(uri string) (Client, error) {
 	return c, nil
 }
 
-// AppendAccessToken - appends access token used for making authenticated requests
 func (c Client) AppendAccessToken(destination string) (string, error) {
 	if c.accessToken == "" {
 		return "", errors.New("could not append access token, access token is blank")
