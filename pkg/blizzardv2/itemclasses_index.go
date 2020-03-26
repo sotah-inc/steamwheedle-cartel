@@ -7,7 +7,6 @@ import (
 	"net/http"
 
 	"github.com/sirupsen/logrus"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzard"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/locale"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 )
@@ -33,8 +32,8 @@ type ItemClassIndexResponse struct {
 	ItemClasses []ItemClass `json:"item_classes"`
 }
 
-func NewItemClassIndexFromHTTP(uri string) (ItemClassIndexResponse, blizzard.ResponseMeta, error) {
-	resp, err := blizzard.Download(uri)
+func NewItemClassIndexFromHTTP(uri string) (ItemClassIndexResponse, ResponseMeta, error) {
+	resp, err := Download(DownloadOptions{Uri: uri})
 	if err != nil {
 		logging.WithFields(logrus.Fields{
 			"error": err.Error(),

@@ -6,10 +6,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/locale"
-
 	"github.com/sirupsen/logrus"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzard"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/locale"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 )
 
@@ -45,8 +43,8 @@ func NewItemClassResponse(body []byte) (ItemClassResponse, error) {
 	return *iClass, nil
 }
 
-func NewItemClassFromHTTP(uri string) (ItemClassResponse, blizzard.ResponseMeta, error) {
-	resp, err := blizzard.Download(uri)
+func NewItemClassFromHTTP(uri string) (ItemClassResponse, ResponseMeta, error) {
+	resp, err := Download(DownloadOptions{Uri: uri})
 	if err != nil {
 		logging.WithFields(logrus.Fields{
 			"error": err.Error(),

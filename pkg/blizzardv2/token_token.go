@@ -5,8 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzard"
 )
 
 const tokenInfoURLFormat = "https://%s/data/wow/token/index?namespace=dynamic-%s"
@@ -17,8 +15,8 @@ func DefaultGetTokenInfoURL(regionHostname string, regionName RegionName) string
 
 type GetTokenInfoURLFunc func(string, RegionName) string
 
-func NewTokenInfoFromHTTP(uri string) (TokenInfo, blizzard.ResponseMeta, error) {
-	resp, err := blizzard.Download(uri)
+func NewTokenInfoFromHTTP(uri string) (TokenInfo, ResponseMeta, error) {
+	resp, err := Download(DownloadOptions{Uri: uri})
 	if err != nil {
 		return TokenInfo{}, resp, err
 	}

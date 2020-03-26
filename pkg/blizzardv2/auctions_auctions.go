@@ -6,7 +6,6 @@ import (
 	"net/http"
 
 	"github.com/sirupsen/logrus"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzard"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 )
 
@@ -59,8 +58,8 @@ type AuctionsResponse struct {
 	Auctions       []Auction     `json:"auctions"`
 }
 
-func NewAuctionsFromHTTP(uri string) (AuctionsResponse, blizzard.ResponseMeta, error) {
-	resp, err := blizzard.Download(uri)
+func NewAuctionsFromHTTP(uri string) (AuctionsResponse, ResponseMeta, error) {
+	resp, err := Download(DownloadOptions{Uri: uri})
 	if err != nil {
 		logging.WithFields(logrus.Fields{
 			"error": err.Error(),

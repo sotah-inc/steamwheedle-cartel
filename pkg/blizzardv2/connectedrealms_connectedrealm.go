@@ -7,7 +7,6 @@ import (
 	"net/http"
 
 	"github.com/sirupsen/logrus"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzard"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/locale"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 )
@@ -39,8 +38,8 @@ type ConnectedRealmResponse struct {
 	Auctions           HrefReference   `json:"auctions"`
 }
 
-func NewConnectedRealmFromHTTP(uri string) (ConnectedRealmResponse, blizzard.ResponseMeta, error) {
-	resp, err := blizzard.Download(uri)
+func NewConnectedRealmFromHTTP(uri string) (ConnectedRealmResponse, ResponseMeta, error) {
+	resp, err := Download(DownloadOptions{Uri: uri})
 	if err != nil {
 		logging.WithFields(logrus.Fields{
 			"error": err.Error(),

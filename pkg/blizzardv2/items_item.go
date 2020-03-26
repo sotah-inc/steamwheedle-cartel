@@ -7,7 +7,6 @@ import (
 	"net/http"
 
 	"github.com/sirupsen/logrus"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzard"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/locale"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 )
@@ -98,8 +97,8 @@ type ItemResponse struct {
 	} `json:"preview_item"`
 }
 
-func NewItemFromHTTP(uri string) (ItemResponse, blizzard.ResponseMeta, error) {
-	resp, err := blizzard.Download(uri)
+func NewItemFromHTTP(uri string) (ItemResponse, ResponseMeta, error) {
+	resp, err := Download(DownloadOptions{Uri: uri})
 	if err != nil {
 		logging.WithFields(logrus.Fields{
 			"error": err.Error(),
