@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzard"
+
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 )
 
@@ -23,15 +25,16 @@ func NewItem(body []byte) (Item, error) {
 }
 
 type Item struct {
-	blizzard.Item
-
-	IconURL        string `json:"icon_url"`
-	IconObjectName string `json:"icon_object_name"`
-	LastModified   int    `json:"last_modified"`
+	BlizzardMeta blizzardv2.ItemResponse `json:"blizzard_meta"`
+	SotahMeta    struct {
+		IconURL        string `json:"icon_url"`
+		IconObjectName string `json:"icon_object_name"`
+		LastModified   int    `json:"last_modified"`
+	} `json:"sotah_meta"`
 }
 
 // item-icon-item-ids map
-type ItemIconItemIdsMap map[string][]blizzard.ItemID
+type ItemIconItemIdsMap map[string][]blizzardv2.ItemId
 
 func (iconsMap ItemIconItemIdsMap) GetItemIcons() []string {
 	iconNames := make([]string, len(iconsMap))
@@ -46,47 +49,19 @@ func (iconsMap ItemIconItemIdsMap) GetItemIcons() []string {
 }
 
 // item-ids map
-func NewItemIdsMap(IDs []blizzard.ItemID) ItemIdsMap {
-	out := ItemIdsMap{}
-
-	for _, ID := range IDs {
-		out[ID] = struct{}{}
-	}
-
-	return out
-}
-
-type ItemIdsMap map[blizzard.ItemID]struct{}
+type ItemIdsMap map[blizzardv2.ItemId]struct{}
 
 // items-map
-func NewItemsMapFromGzipped(body []byte) (ItemsMap, error) {
-	gzipDecodedData, err := util.GzipDecode(body)
-	if err != nil {
-		return ItemsMap{}, err
-	}
-
-	return newItemsMap(gzipDecodedData)
-}
-
-func newItemsMap(body []byte) (ItemsMap, error) {
-	iMap := &ItemsMap{}
-	if err := json.Unmarshal(body, iMap); err != nil {
-		return nil, err
-	}
-
-	return *iMap, nil
-}
-
-type ItemsMap map[blizzard.ItemID]Item
+type ItemsMap map[blizzardv2.ItemId]Item
 
 func (iMap ItemsMap) GetItemIconsMap(excludeWithURL bool) ItemIconItemIdsMap {
 	out := ItemIconItemIdsMap{}
 	for itemId, iValue := range iMap {
-		if excludeWithURL && iValue.IconURL != "" {
+		if excludeWithURL && iValue.SotahMeta.IconURL != "" {
 			continue
 		}
 
-		if iValue.Icon == "" {
+		if iValue.ItemResponse == "" {
 			continue
 		}
 
