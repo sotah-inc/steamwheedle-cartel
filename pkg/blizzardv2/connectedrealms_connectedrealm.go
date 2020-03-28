@@ -13,11 +13,11 @@ import (
 
 const connectedRealmURLFormat = "https://%s/data/wow/connected-realm/%d?namespace=dynamic-%s"
 
-func DefaultConnectedRealmURL(regionHostname string, regionName RegionName, id ConnectedRealmId) (string, error) {
-	return fmt.Sprintf(connectedRealmURLFormat, regionHostname, id, regionName), nil
+func DefaultConnectedRealmURL(regionHostname string, regionName RegionName, id ConnectedRealmId) string {
+	return fmt.Sprintf(connectedRealmURLFormat, regionHostname, id, regionName)
 }
 
-type GetConnectedRealmURLFunc func(string, RegionName, ConnectedRealmId) (string, error)
+type GetConnectedRealmURLFunc func(string, RegionName, ConnectedRealmId) string
 
 type ConnectedRealmId int
 

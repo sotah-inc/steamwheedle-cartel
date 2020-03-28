@@ -7,9 +7,7 @@ import (
 )
 
 type GetAllConnectedRealmsOptions struct {
-	RegionHostname            string
-	RegionName                RegionName
-	GetConnectedRealmIndexURL GetConnectedRealmIndexURLFunc
+	GetConnectedRealmIndexURL func() (string, error)
 	GetConnectedRealmURL      func(string) (string, error)
 }
 
@@ -28,7 +26,7 @@ func (job GetAllConnectedRealmsJob) ToLogrusFields() logrus.Fields {
 
 func GetAllConnectedRealms(opts GetAllConnectedRealmsOptions) (ConnectedRealmResponses, error) {
 	// querying index
-	uri, err := opts.GetConnectedRealmIndexURL(opts.RegionHostname)
+	uri, err := opts.GetConnectedRealmIndexURL()
 	if err != nil {
 		return ConnectedRealmResponses{}, err
 	}

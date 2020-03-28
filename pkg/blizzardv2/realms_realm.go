@@ -4,6 +4,8 @@ import "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/
 
 type RealmId int
 
+type RealmSlug string
+
 type RealmResponse struct {
 	LinksBase
 	Id     RealmId `json:"id"`
@@ -21,6 +23,6 @@ type RealmResponse struct {
 		Type string         `json:"type"`
 		Name locale.Mapping `json:"string"`
 	} `json:"type"`
-	IsTournament bool   `json:"is_tournament"`
-	Slug         string `json:"slug"`
+	IsTournament bool      `json:"is_tournament"`
+	Slug         RealmSlug `json:"slug"`
 }

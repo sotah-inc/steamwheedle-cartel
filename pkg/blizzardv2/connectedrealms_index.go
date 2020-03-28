@@ -12,11 +12,11 @@ import (
 
 const connectedRealmIndexURLFormat = "https://%s/data/wow/connected-realm/index?namespace=dynamic-%s"
 
-func DefaultConnectedRealmIndexURL(regionHostname string, regionName RegionName) (string, error) {
-	return fmt.Sprintf(connectedRealmIndexURLFormat, regionHostname, regionName), nil
+func DefaultConnectedRealmIndexURL(regionHostname string, regionName RegionName) string {
+	return fmt.Sprintf(connectedRealmIndexURLFormat, regionHostname, regionName)
 }
 
-type GetConnectedRealmIndexURLFunc func(string) (string, error)
+type GetConnectedRealmIndexURLFunc func(string) string
 
 type ConnectedRealmIndexResponse struct {
 	LinksBase
