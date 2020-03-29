@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/sirupsen/logrus"
 	"github.com/twinj/uuid"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database"
@@ -37,17 +38,25 @@ type APIStateConfig struct {
 
 func NewAPIState(config APIStateConfig) (*APIState, error) {
 	// establishing an initial state
-	apiState := APIState{
+	sta := APIState{
 		State:         state.NewState(uuid.NewV4(), false),
 		sessionSecret: uuid.NewV4(),
 		regions:       config.SotahConfig.FilterInRegions(config.SotahConfig.Regions),
 		expansions:    config.SotahConfig.Expansions,
-		professions:   config.SotahConfig.Professions,
+		professions: func() []sotah.Profession {
+			out := make([]sotah.Profession, len(config.SotahConfig.Professions))
+			for i, prof := range config.SotahConfig.Professions {
+				prof.IconURL = blizzardv2.DefaultGetItemIconURL(config.SotahConfig.Professions[i].Icon)
+				out[i] = prof
+			}
+
+			return out
+		}(),
 		itemBlacklist: config.SotahConfig.ItemBlacklist,
 	}
 
 	var err error
-	apiState.diskStore, err = func() (diskstore.DiskStore, error) {
+	sta.diskStore, err = func() (diskstore.DiskStore, error) {
 		if config.DiskStoreCacheDir == "" {
 			logging.WithField("disk-store-cache-dir", config.DiskStoreCacheDir).Error("disk-store-cache-dir was blank")
 
@@ -60,7 +69,7 @@ func NewAPIState(config APIStateConfig) (*APIState, error) {
 			fmt.Sprintf("%s/auctions", config.DiskStoreCacheDir),
 			fmt.Sprintf("%s/databases", config.DiskStoreCacheDir),
 		}
-		for _, reg := range apiState.regions {
+		for _, reg := range sta.regions {
 			cacheDirs = append(cacheDirs, fmt.Sprintf("%s/auctions/%s", config.DiskStoreCacheDir, reg.Name))
 		}
 
@@ -77,7 +86,7 @@ func NewAPIState(config APIStateConfig) (*APIState, error) {
 	}
 
 	// connecting to the messenger host
-	apiState.messenger, err = messenger.NewMessenger(config.MessengerConfig.Hostname, config.MessengerConfig.Port)
+	sta.messenger, err = messenger.NewMessenger(config.MessengerConfig.Hostname, config.MessengerConfig.Port)
 	if err != nil {
 		logging.WithField("error", err.Error()).Error("failed to connect to messenger")
 
@@ -85,10 +94,10 @@ func NewAPIState(config APIStateConfig) (*APIState, error) {
 	}
 
 	// initializing a reporter
-	apiState.reporter = metric.NewReporter(apiState.messenger)
+	sta.reporter = metric.NewReporter(sta.messenger)
 
 	// connecting a new blizzard client
-	apiState.blizzardClient, err = blizzardv2.NewClient(config.BlizzardConfig.ClientId, config.BlizzardConfig.ClientSecret)
+	sta.BlizzardState.BlizzardClient, err = blizzardv2.NewClient(config.BlizzardConfig.ClientId, config.BlizzardConfig.ClientSecret)
 	if err != nil {
 		logging.WithField("error", err.Error()).Error("failed to initialise blizzard-client")
 
@@ -96,47 +105,17 @@ func NewAPIState(config APIStateConfig) (*APIState, error) {
 	}
 
 	// gathering connected-realms
-	apiState.connectedRealms, err = func() (blizzardv2.ConnectedRealmResponses, error) {
-		primaryRegion, err := apiState.regions.GetPrimaryRegion()
-		if err != nil {
-			return blizzardv2.ConnectedRealmResponses{}, err
-		}
-
-		return blizzardv2.GetAllConnectedRealms(blizzardv2.GetAllConnectedRealmsOptions{
-			GetConnectedRealmIndexURL: func() (string, error) {
-				return apiState.blizzardClient.AppendAccessToken(
-					blizzardv2.DefaultConnectedRealmIndexURL(primaryRegion.Hostname, primaryRegion.Name),
-				)
-			},
-			GetConnectedRealmURL: apiState.blizzardClient.AppendAccessToken,
-		})
-	}()
+	sta.regionConnectedRealms, err = sta.ResolveRegionConnectedRealms(sta.regions)
 	if err != nil {
-		logging.WithField("error", err.Error()).Error("failed to get connected-realms")
+		logging.WithFields(logrus.Fields{
+			"error": err.Error(),
+		}).Error("failed to resolve region connected-realms")
 
 		return nil, err
 	}
 
 	// gathering item-classes
-	apiState.itemClasses, err = func() ([]blizzardv2.ItemClassResponse, error) {
-		primaryRegion, err := apiState.regions.GetPrimaryRegion()
-		if err != nil {
-			return []blizzardv2.ItemClassResponse{}, err
-		}
-
-		return blizzardv2.GetAllItemClasses(blizzardv2.GetAllItemClassesOptions{
-			GetItemClassIndexURL: func() (string, error) {
-				return apiState.blizzardClient.AppendAccessToken(
-					blizzardv2.DefaultGetItemClassIndexURL(primaryRegion.Hostname, primaryRegion.Name),
-				)
-			},
-			GetItemClassURL: func(id blizzardv2.ItemClassId) (string, error) {
-				return apiState.blizzardClient.AppendAccessToken(
-					blizzardv2.DefaultGetItemClassURL(primaryRegion.Hostname, primaryRegion.Name, id),
-				)
-			},
-		})
-	}()
+	sta.itemClasses, err = sta.ResolveItemClasses(sta.regions)
 	if err != nil {
 		logging.WithField("error", err.Error()).Error("failed to get item-classes")
 
@@ -144,7 +123,7 @@ func NewAPIState(config APIStateConfig) (*APIState, error) {
 	}
 
 	// loading the items database
-	apiState.itemsDatabase, err = database.NewItemsDatabase(config.DatabaseConfig.ItemsDir)
+	sta.itemsDatabase, err = database.NewItemsDatabase(config.DatabaseConfig.ItemsDir)
 	if err != nil {
 		logging.WithField("error", err.Error()).Error("failed to initialise items-database")
 
@@ -152,7 +131,7 @@ func NewAPIState(config APIStateConfig) (*APIState, error) {
 	}
 
 	// loading the tokens database
-	apiState.tokensDatabase, err = database.NewTokensDatabase(config.DatabaseConfig.TokensDir)
+	sta.tokensDatabase, err = database.NewTokensDatabase(config.DatabaseConfig.TokensDir)
 	if err != nil {
 		logging.WithField("error", err.Error()).Error("failed to initialise tokens-database")
 
@@ -160,43 +139,39 @@ func NewAPIState(config APIStateConfig) (*APIState, error) {
 	}
 
 	// loading the area-maps database
-	apiState.areaMapsDatabase, err = database.NewAreaMapsDatabase(config.DatabaseConfig.AreaMapsDir)
+	sta.areaMapsDatabase, err = database.NewAreaMapsDatabase(config.DatabaseConfig.AreaMapsDir)
 	if err != nil {
 		logging.WithField("error", err.Error()).Error("failed to initialise area-maps-database")
 
 		return nil, err
 	}
 
-	// gathering profession icons
-	for i, prof := range apiState.professions {
-		apiState.professions[i].IconURL = blizzardv2.DefaultGetItemIconURL(prof.Icon)
-	}
-
 	// establishing listeners
-	apiState.Listeners = state.NewListeners(state.SubjectListeners{
-		subjects.Boot:                        apiState.ListenForBoot,
-		subjects.SessionSecret:               apiState.ListenForSessionSecret,
-		subjects.Status:                      apiState.ListenForStatus,
-		subjects.Items:                       apiState.ListenForItems,
-		subjects.ItemsQuery:                  apiState.ListenForItemsQuery,
-		subjects.QueryRealmModificationDates: apiState.ListenForQueryRealmModificationDates,
-		subjects.RealmModificationDates:      apiState.ListenForRealmModificationDates,
-		subjects.TokenHistory:                apiState.ListenForTokenHistory,
-		subjects.ValidateRegionRealm:         apiState.ListenForValidateRegionRealm,
-		subjects.AreaMapsQuery:               apiState.ListenForAreaMapsQuery,
-		subjects.AreaMaps:                    apiState.ListenForAreaMaps,
+	sta.Listeners = state.NewListeners(state.SubjectListeners{
+		subjects.Boot:                        sta.ListenForBoot,
+		subjects.SessionSecret:               sta.ListenForSessionSecret,
+		subjects.Status:                      sta.ListenForStatus,
+		subjects.Items:                       sta.ListenForItems,
+		subjects.ItemsQuery:                  sta.ListenForItemsQuery,
+		subjects.QueryRealmModificationDates: sta.ListenForQueryRealmModificationDates,
+		subjects.RealmModificationDates:      sta.ListenForRealmModificationDates,
+		subjects.TokenHistory:                sta.ListenForTokenHistory,
+		subjects.ValidateRegionRealm:         sta.ListenForValidateRegionRealm,
+		subjects.AreaMapsQuery:               sta.ListenForAreaMapsQuery,
+		subjects.AreaMaps:                    sta.ListenForAreaMaps,
 	})
 
-	return &apiState, nil
+	return &sta, nil
 }
 
 type APIState struct {
 	state.State
+	state.BlizzardState
 
 	// set at run-time
-	sessionSecret   uuid.UUID
-	connectedRealms blizzardv2.ConnectedRealmResponses
-	itemClasses     []blizzardv2.ItemClassResponse
+	sessionSecret         uuid.UUID
+	regionConnectedRealms map[blizzardv2.RegionName]blizzardv2.ConnectedRealmResponses
+	itemClasses           []blizzardv2.ItemClassResponse
 
 	// derived from config file
 	regions       sotah.RegionList
@@ -211,5 +186,4 @@ type APIState struct {
 	diskStore        diskstore.DiskStore
 	messenger        messenger.Messenger
 	reporter         metric.Reporter
-	blizzardClient   blizzardv2.Client
 }
