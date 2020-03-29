@@ -7,49 +7,23 @@ import (
 	"fmt"
 	"time"
 
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
+
 	"github.com/sirupsen/logrus"
 	"github.com/twinj/uuid"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzard"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/bus"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database"
 	dCodes "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database/codes"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/diskstore"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/hell"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
 	mCodes "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger/codes"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/metric"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/resolver"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state/subjects"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/store"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 )
 
 type RequestError struct {
 	Code    mCodes.Code
 	Message string
-}
-
-// databases
-type Databases struct {
-	PricelistHistoryDatabases database.PricelistHistoryDatabases
-	LiveAuctionsDatabases     database.LiveAuctionsDatabases
-	ItemsDatabase             database.ItemsDatabase
-	TokensDatabase            database.TokensDatabase
-	PubsubTopicsDatabase      database.PubsubTopicsDatabase
-}
-
-// io bundle
-type IO struct {
-	Resolver    resolver.Resolver
-	Databases   Databases
-	Messenger   messenger.Messenger
-	StoreClient store.Client
-	DiskStore   diskstore.DiskStore
-	Reporter    metric.Reporter
-	BusClient   bus.Client
-	HellClient  hell.Client
 }
 
 // bus-listener functionality
@@ -151,8 +125,6 @@ type State struct {
 	Listeners    Listeners
 	BusListeners BusListeners
 	UseGCloud    bool
-
-	IO IO
 }
 
 type RealmTimeTuple struct {
@@ -160,9 +132,9 @@ type RealmTimeTuple struct {
 	TargetTime time.Time
 }
 
-type RealmTimes map[blizzard.RealmSlug]RealmTimeTuple
+type RealmTimes map[blizzardv2.RealmSlug]RealmTimeTuple
 
-type RegionRealmTimes map[blizzard.RegionName]RealmTimes
+type RegionRealmTimes map[blizzardv2.RegionName]RealmTimes
 
 func DatabaseCodeToMessengerCode(dCode dCodes.Code) mCodes.Code {
 	switch dCode {

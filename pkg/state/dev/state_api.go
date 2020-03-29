@@ -4,74 +4,54 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/sirupsen/logrus"
 	"github.com/twinj/uuid"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzard"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/bus"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/diskstore"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/metric"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/resolver"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state/subjects"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/store"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 )
 
 type APIStateConfig struct {
-	SotahConfig sotah.Config
-
-	GCloudProjectID string
-
-	MessengerHost string
-	MessengerPort int
-
+	SotahConfig     sotah.Config
+	MessengerConfig struct {
+		Hostname string
+		Port     int
+	}
 	DiskStoreCacheDir string
-
-	BlizzardClientId     string
-	BlizzardClientSecret string
-
-	ItemsDatabaseDir    string
-	TokensDatabaseDir   string
-	AreaMapsDatabaseDir string
+	BlizzardConfig    struct {
+		ClientId     string
+		ClientSecret string
+	}
+	DatabaseConfig struct {
+		ItemsDir    string
+		TokensDir   string
+		AreaMapsDir string
+	}
 }
 
 func NewAPIState(config APIStateConfig) (*APIState, error) {
 	// establishing an initial state
 	apiState := APIState{
-		State: state.NewState(uuid.NewV4(), config.SotahConfig.UseGCloud),
+		State:         state.NewState(uuid.NewV4(), false),
+		sessionSecret: uuid.NewV4(),
+		regions:       config.SotahConfig.FilterInRegions(config.SotahConfig.Regions),
+		expansions:    config.SotahConfig.Expansions,
+		professions:   config.SotahConfig.Professions,
+		itemBlacklist: config.SotahConfig.ItemBlacklist,
 	}
-	apiState.SessionSecret = uuid.NewV4()
 
-	// setting api-state from config, including filtering in regions based on config whitelist
-	apiState.Statuses = sotah.Statuses{}
-	apiState.Regions = config.SotahConfig.FilterInRegions(config.SotahConfig.Regions)
-	apiState.Expansions = config.SotahConfig.Expansions
-	apiState.Professions = config.SotahConfig.Professions
-	apiState.ItemBlacklist = config.SotahConfig.ItemBlacklist
-
-	// establishing a store (gcloud store or disk store)
-	if config.SotahConfig.UseGCloud {
-		stor, err := store.NewClient(config.GCloudProjectID)
-		if err != nil {
-			return nil, err
-		}
-
-		apiState.IO.StoreClient = stor
-
-		// establishing a bus
-		logging.Info("Connecting bus-client")
-		busClient, err := bus.NewClient(config.GCloudProjectID, "api")
-		if err != nil {
-			return nil, err
-		}
-		apiState.IO.BusClient = busClient
-	} else {
+	var err error
+	apiState.diskStore, err = func() (diskstore.DiskStore, error) {
 		if config.DiskStoreCacheDir == "" {
-			return nil, errors.New("disk-store-cache-dir should not be blank")
+			logging.WithField("disk-store-cache-dir", config.DiskStoreCacheDir).Error("disk-store-cache-dir was blank")
+
+			return diskstore.DiskStore{}, errors.New("disk-store-cache-dir should not be blank")
 		}
 
 		cacheDirs := []string{
@@ -80,88 +60,116 @@ func NewAPIState(config APIStateConfig) (*APIState, error) {
 			fmt.Sprintf("%s/auctions", config.DiskStoreCacheDir),
 			fmt.Sprintf("%s/databases", config.DiskStoreCacheDir),
 		}
-		for _, reg := range apiState.Regions {
+		for _, reg := range apiState.regions {
 			cacheDirs = append(cacheDirs, fmt.Sprintf("%s/auctions/%s", config.DiskStoreCacheDir, reg.Name))
 		}
+
 		if err := util.EnsureDirsExist(cacheDirs); err != nil {
-			return nil, err
+			return diskstore.DiskStore{}, err
 		}
 
-		apiState.IO.DiskStore = diskstore.NewDiskStore(config.DiskStoreCacheDir)
+		return diskstore.NewDiskStore(config.DiskStoreCacheDir), nil
+	}()
+	if err != nil {
+		logging.WithField("error", err.Error()).Error("failed to initialise disk-store")
+
+		return nil, err
 	}
 
 	// connecting to the messenger host
-	mess, err := messenger.NewMessenger(config.MessengerHost, config.MessengerPort)
+	apiState.messenger, err = messenger.NewMessenger(config.MessengerConfig.Hostname, config.MessengerConfig.Port)
 	if err != nil {
+		logging.WithField("error", err.Error()).Error("failed to connect to messenger")
+
 		return nil, err
 	}
-	apiState.IO.Messenger = mess
 
 	// initializing a reporter
-	apiState.IO.Reporter = metric.NewReporter(mess)
+	apiState.reporter = metric.NewReporter(apiState.messenger)
 
 	// connecting a new blizzard client
-	blizzardClient, err := blizzard.NewClient(config.BlizzardClientId, config.BlizzardClientSecret)
+	apiState.blizzardClient, err = blizzardv2.NewClient(config.BlizzardConfig.ClientId, config.BlizzardConfig.ClientSecret)
 	if err != nil {
+		logging.WithField("error", err.Error()).Error("failed to initialise blizzard-client")
+
 		return nil, err
 	}
-	apiState.IO.Resolver = resolver.NewResolver(blizzardClient, apiState.IO.Reporter)
 
-	// filling state with region statuses
-	for job := range apiState.IO.Resolver.GetStatuses(apiState.Regions) {
-		if job.Err != nil {
-			logging.WithFields(job.ToLogrusFields()).Error("failed to fetch status for region")
-
-			return nil, job.Err
+	// gathering connected-realms
+	apiState.connectedRealms, err = func() (blizzardv2.ConnectedRealmResponses, error) {
+		primaryRegion, err := apiState.regions.GetPrimaryRegion()
+		if err != nil {
+			return blizzardv2.ConnectedRealmResponses{}, err
 		}
 
-		job.Status.Realms = config.SotahConfig.FilterInRealms(job.Region, job.Status.Realms)
-		apiState.Statuses[job.Region.Name] = job.Status
-	}
-
-	// filling state with item-classes
-	primaryRegion, err := apiState.Regions.GetPrimaryRegion()
+		return blizzardv2.GetAllConnectedRealms(blizzardv2.GetAllConnectedRealmsOptions{
+			GetConnectedRealmIndexURL: func() (string, error) {
+				return apiState.blizzardClient.AppendAccessToken(
+					blizzardv2.DefaultConnectedRealmIndexURL(primaryRegion.Hostname, primaryRegion.Name),
+				)
+			},
+			GetConnectedRealmURL: apiState.blizzardClient.AppendAccessToken,
+		})
+	}()
 	if err != nil {
-		logging.WithFields(logrus.Fields{
-			"error":   err.Error(),
-			"regions": apiState.Regions,
-		}).Error("failed to retrieve primary region")
+		logging.WithField("error", err.Error()).Error("failed to get connected-realms")
 
 		return nil, err
 	}
-	iClasses, err := apiState.ResolveItemClasses(primaryRegion.Hostname)
+
+	// gathering item-classes
+	apiState.itemClasses, err = func() ([]blizzardv2.ItemClassResponse, error) {
+		primaryRegion, err := apiState.regions.GetPrimaryRegion()
+		if err != nil {
+			return []blizzardv2.ItemClassResponse{}, err
+		}
+
+		return blizzardv2.GetAllItemClasses(blizzardv2.GetAllItemClassesOptions{
+			GetItemClassIndexURL: func() (string, error) {
+				return apiState.blizzardClient.AppendAccessToken(
+					blizzardv2.DefaultGetItemClassIndexURL(primaryRegion.Hostname, primaryRegion.Name),
+				)
+			},
+			GetItemClassURL: func(id blizzardv2.ItemClassId) (string, error) {
+				return apiState.blizzardClient.AppendAccessToken(
+					blizzardv2.DefaultGetItemClassURL(primaryRegion.Hostname, primaryRegion.Name, id),
+				)
+			},
+		})
+	}()
 	if err != nil {
-		logging.WithFields(logrus.Fields{
-			"error": err.Error(),
-			"uri":   primaryRegion.Hostname,
-		}).Error("failed to resolve item-classes")
+		logging.WithField("error", err.Error()).Error("failed to get item-classes")
+
+		return nil, err
 	}
-	apiState.ItemClasses = iClasses
 
 	// loading the items database
-	itemsDatabase, err := database.NewItemsDatabase(config.ItemsDatabaseDir)
+	apiState.itemsDatabase, err = database.NewItemsDatabase(config.DatabaseConfig.ItemsDir)
 	if err != nil {
+		logging.WithField("error", err.Error()).Error("failed to initialise items-database")
+
 		return nil, err
 	}
-	apiState.IO.Databases.ItemsDatabase = itemsDatabase
 
 	// loading the tokens database
-	tokensDatabase, err := database.NewTokensDatabase(config.TokensDatabaseDir)
+	apiState.tokensDatabase, err = database.NewTokensDatabase(config.DatabaseConfig.TokensDir)
 	if err != nil {
+		logging.WithField("error", err.Error()).Error("failed to initialise tokens-database")
+
 		return nil, err
 	}
-	apiState.IO.Databases.TokensDatabase = tokensDatabase
 
 	// loading the area-maps database
-	areaMapsDatabase, err := database.NewAreaMapsDatabase(config.AreaMapsDatabaseDir)
+	apiState.areaMapsDatabase, err = database.NewAreaMapsDatabase(config.DatabaseConfig.AreaMapsDir)
 	if err != nil {
-		return &APIState{}, err
+		logging.WithField("error", err.Error()).Error("failed to initialise area-maps-database")
+
+		return nil, err
 	}
-	apiState.AreaMapsDatabase = areaMapsDatabase
 
 	// gathering profession icons
-	for i, prof := range apiState.Professions {
-		apiState.Professions[i].IconURL = blizzard.DefaultGetItemIconURL(prof.Icon)
+	for i, prof := range apiState.professions {
+		apiState.professions[i].IconURL = blizzardv2.DefaultGetItemIconURL(prof.Icon)
 	}
 
 	// establishing listeners
@@ -179,24 +187,29 @@ func NewAPIState(config APIStateConfig) (*APIState, error) {
 		subjects.AreaMaps:                    apiState.ListenForAreaMaps,
 	})
 
-	apiState.RegionRealmModificationDates = sotah.RegionRealmModificationDates{}
-
 	return &apiState, nil
 }
 
 type APIState struct {
 	state.State
 
-	Regions  sotah.RegionList
-	Statuses sotah.Statuses
+	// set at run-time
+	sessionSecret   uuid.UUID
+	connectedRealms blizzardv2.ConnectedRealmResponses
+	itemClasses     []blizzardv2.ItemClassResponse
 
-	SessionSecret uuid.UUID
-	ItemClasses   sotah.ItemClasses
-	Expansions    []sotah.Expansion
-	Professions   []sotah.Profession
-	ItemBlacklist state.ItemBlacklist
+	// derived from config file
+	regions       sotah.RegionList
+	expansions    []sotah.Expansion
+	professions   []sotah.Profession
+	itemBlacklist state.ItemBlacklist
 
-	RegionRealmModificationDates sotah.RegionRealmModificationDates
-
-	AreaMapsDatabase database.AreaMapsDatabase
+	// io
+	areaMapsDatabase database.AreaMapsDatabase
+	itemsDatabase    database.ItemsDatabase
+	tokensDatabase   database.TokensDatabase
+	diskStore        diskstore.DiskStore
+	messenger        messenger.Messenger
+	reporter         metric.Reporter
+	blizzardClient   blizzardv2.Client
 }
