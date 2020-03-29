@@ -1,45 +1,39 @@
 package resolver
 
 import (
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzard"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/metric"
 )
 
-func NewResolver(bc blizzard.Client, re metric.Reporter) Resolver {
+func NewResolver(bc blizzardv2.Client, re metric.Reporter) Resolver {
 	return Resolver{
 		BlizzardClient: bc,
 		Reporter:       re,
 
-		GetStatusURL:         blizzard.DefaultGetStatusURL,
-		GetAuctionInfoURL:    blizzard.DefaultGetAuctionInfoURL,
-		GetAuctionsURL:       blizzard.DefaultGetAuctionsURL,
-		GetItemURL:           blizzard.DefaultGetItemURL,
-		GetItemIconURL:       blizzard.DefaultGetItemIconURL,
-		GetItemClassIndexURL: blizzard.DefaultGetItemClassIndexURL,
-		GetItemClassURL:      blizzard.DefaultGetItemClassURL,
-		GetTokenInfoURL:      blizzard.DefaultGetTokenInfoURL,
+		GetItemURL:           blizzardv2.DefaultGetItemURL,
+		GetItemIconURL:       blizzardv2.DefaultGetItemIconURL,
+		GetItemClassIndexURL: blizzardv2.DefaultGetItemClassIndexURL,
+		GetItemClassURL:      blizzardv2.DefaultGetItemClassURL,
+		GetTokenInfoURL:      blizzardv2.DefaultGetTokenInfoURL,
 	}
 }
 
 type Resolver struct {
-	BlizzardClient blizzard.Client
+	BlizzardClient blizzardv2.Client
 	Reporter       metric.Reporter
 
-	GetStatusURL         blizzard.GetStatusURLFunc
-	GetAuctionInfoURL    blizzard.GetAuctionInfoURLFunc
-	GetAuctionsURL       blizzard.GetAuctionsURLFunc
-	GetItemURL           blizzard.GetItemURLFunc
-	GetItemIconURL       blizzard.GetItemIconURLFunc
-	GetItemClassIndexURL blizzard.GetItemClassIndexURLFunc
-	GetItemClassURL      blizzard.GetItemClassURLFunc
-	GetTokenInfoURL      blizzard.GetTokenInfoURLFunc
+	GetItemURL           blizzardv2.GetItemURLFunc
+	GetItemIconURL       blizzardv2.GetItemIconURLFunc
+	GetItemClassIndexURL blizzardv2.GetItemClassIndexURLFunc
+	GetItemClassURL      blizzardv2.GetItemClassURLFunc
+	GetTokenInfoURL      blizzardv2.GetTokenInfoURLFunc
 }
 
 func (r Resolver) AppendAccessToken(destination string) (string, error) {
 	return r.BlizzardClient.AppendAccessToken(destination)
 }
 
-func (r Resolver) Download(uri string, shouldAppendAccessToken bool) (blizzard.ResponseMeta, error) {
+func (r Resolver) Download(uri string, shouldAppendAccessToken bool) (blizzardv2.ResponseMeta, error) {
 	uri, err := func() (string, error) {
 		if !shouldAppendAccessToken {
 			return uri, nil
@@ -48,10 +42,10 @@ func (r Resolver) Download(uri string, shouldAppendAccessToken bool) (blizzard.R
 		return r.AppendAccessToken(uri)
 	}()
 	if err != nil {
-		return blizzard.ResponseMeta{}, err
+		return blizzardv2.ResponseMeta{}, err
 	}
 
-	resp, err := blizzard.Download(uri)
+	resp, err := blizzardv2.Download(blizzardv2.DownloadOptions{Uri: uri})
 	if resp.RequestDuration > 0 || resp.ConnectionDuration > 0 {
 		r.Reporter.Report(metric.Metrics{
 			"conn_duration":    int(resp.ConnectionDuration / 1000 / 1000),
@@ -60,7 +54,7 @@ func (r Resolver) Download(uri string, shouldAppendAccessToken bool) (blizzard.R
 	}
 
 	if err != nil {
-		return blizzard.ResponseMeta{}, err
+		return blizzardv2.ResponseMeta{}, err
 	}
 
 	return resp, nil

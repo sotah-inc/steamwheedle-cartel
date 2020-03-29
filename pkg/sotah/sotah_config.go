@@ -3,6 +3,8 @@ package sotah
 import (
 	"encoding/json"
 
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
+
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzard"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
@@ -31,12 +33,12 @@ func NewConfig(body []byte) (Config, error) {
 }
 
 type Config struct {
-	Regions       RegionList                                   `json:"regions"`
-	Whitelist     map[blizzard.RegionName][]blizzard.RealmSlug `json:"whitelist"`
-	UseGCloud     bool                                         `json:"use_gcloud"`
-	Expansions    []Expansion                                  `json:"expansions"`
-	Professions   []Profession                                 `json:"professions"`
-	ItemBlacklist []blizzard.ItemID                            `json:"item_blacklist"`
+	Regions       RegionList                                       `json:"regions"`
+	Whitelist     map[blizzardv2.RegionName][]blizzardv2.RealmSlug `json:"whitelist"`
+	UseGCloud     bool                                             `json:"use_gcloud"`
+	Expansions    []Expansion                                      `json:"expansions"`
+	Professions   []Profession                                     `json:"professions"`
+	ItemBlacklist []blizzardv2.ItemId                              `json:"item_blacklist"`
 }
 
 func (c Config) FilterInRegions(regs RegionList) RegionList {
