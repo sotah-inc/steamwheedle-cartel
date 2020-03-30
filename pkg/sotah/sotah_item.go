@@ -1,10 +1,9 @@
 package sotah
 
 import (
-	"encoding/base64"
 	"encoding/json"
 
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzard"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/locale"
 
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
@@ -27,9 +26,10 @@ func NewItem(body []byte) (Item, error) {
 type Item struct {
 	BlizzardMeta blizzardv2.ItemResponse `json:"blizzard_meta"`
 	SotahMeta    struct {
-		IconURL        string `json:"icon_url"`
-		IconObjectName string `json:"icon_object_name"`
-		LastModified   int    `json:"last_modified"`
+		IconURL        string         `json:"icon_url"`
+		IconObjectName string         `json:"icon_object_name"`
+		LastModified   int            `json:"last_modified"`
+		NormalizedName locale.Mapping `json:"normalized_name"`
 	} `json:"sotah_meta"`
 }
 
@@ -54,29 +54,6 @@ type ItemIdsMap map[blizzardv2.ItemId]struct{}
 // items-map
 type ItemsMap map[blizzardv2.ItemId]Item
 
-func (iMap ItemsMap) GetItemIconsMap(excludeWithURL bool) ItemIconItemIdsMap {
-	out := ItemIconItemIdsMap{}
-	for itemId, iValue := range iMap {
-		if excludeWithURL && iValue.SotahMeta.IconURL != "" {
-			continue
-		}
-
-		if iValue.ItemResponse == "" {
-			continue
-		}
-
-		if _, ok := out[iValue.Icon]; !ok {
-			out[iValue.Icon] = []blizzard.ItemID{itemId}
-
-			continue
-		}
-
-		out[iValue.Icon] = append(out[iValue.Icon], itemId)
-	}
-
-	return out
-}
-
 func (iMap ItemsMap) EncodeForDatabase() ([]byte, error) {
 	jsonEncodedData, err := json.Marshal(iMap)
 	if err != nil {
@@ -91,13 +68,8 @@ func (iMap ItemsMap) EncodeForDatabase() ([]byte, error) {
 	return gzipEncodedData, nil
 }
 
-func NewItemIdNameMap(data string) (ItemIdNameMap, error) {
-	base64Decoded, err := base64.StdEncoding.DecodeString(data)
-	if err != nil {
-		return ItemIdNameMap{}, err
-	}
-
-	gzipDecoded, err := util.GzipDecode(base64Decoded)
+func NewItemIdNameMap(data []byte) (ItemIdNameMap, error) {
+	gzipDecoded, err := util.GzipDecode(data)
 	if err != nil {
 		return ItemIdNameMap{}, err
 	}
@@ -110,24 +82,19 @@ func NewItemIdNameMap(data string) (ItemIdNameMap, error) {
 	return out, nil
 }
 
-type ItemIdNameMap map[blizzard.ItemID]string
+type ItemIdNameMap map[blizzardv2.ItemId]locale.Mapping
 
-func (idNameMap ItemIdNameMap) EncodeForDelivery() (string, error) {
+func (idNameMap ItemIdNameMap) EncodeForDelivery() ([]byte, error) {
 	jsonEncodedData, err := json.Marshal(idNameMap)
 	if err != nil {
-		return "", err
+		return []byte{}, err
 	}
 
-	gzipEncodedData, err := util.GzipEncode(jsonEncodedData)
-	if err != nil {
-		return "", err
-	}
-
-	return base64.StdEncoding.EncodeToString(gzipEncodedData), nil
+	return util.GzipEncode(jsonEncodedData)
 }
 
-func (idNameMap ItemIdNameMap) ItemIds() blizzard.ItemIds {
-	out := make(blizzard.ItemIds, len(idNameMap))
+func (idNameMap ItemIdNameMap) ItemIds() []blizzardv2.ItemId {
+	out := make([]blizzardv2.ItemId, len(idNameMap))
 	i := 0
 	for id := range idNameMap {
 		out[i] = id
@@ -138,14 +105,14 @@ func (idNameMap ItemIdNameMap) ItemIds() blizzard.ItemIds {
 	return out
 }
 
-func NewItemIdsBatches(ids blizzard.ItemIds, batchSize int) ItemIdBatches {
+func NewItemIdsBatches(ids []blizzardv2.ItemId, batchSize int) ItemIdBatches {
 	batches := ItemIdBatches{}
 	for i, id := range ids {
 		key := (i - (i % batchSize)) / batchSize
-		batch := func() blizzard.ItemIds {
+		batch := func() []blizzardv2.ItemId {
 			out, ok := batches[key]
 			if !ok {
-				return blizzard.ItemIds{}
+				return []blizzardv2.ItemId{}
 			}
 
 			return out
@@ -158,9 +125,9 @@ func NewItemIdsBatches(ids blizzard.ItemIds, batchSize int) ItemIdBatches {
 	return batches
 }
 
-type ItemIdBatches map[int]blizzard.ItemIds
+type ItemIdBatches map[int][]blizzardv2.ItemId
 
-func NewIconItemsPayloadsBatches(iconIdsMap map[string]blizzard.ItemIds, batchSize int) IconItemsPayloadsBatches {
+func NewIconItemsPayloadsBatches(iconIdsMap map[string][]blizzardv2.ItemId, batchSize int) IconItemsPayloadsBatches {
 	batches := IconItemsPayloadsBatches{}
 	i := 0
 	for iconName, itemIds := range iconIdsMap {
@@ -207,5 +174,5 @@ func (d IconItemsPayloads) EncodeForDelivery() (string, error) {
 
 type IconItemsPayload struct {
 	Name string
-	Ids  blizzard.ItemIds
+	Ids  []blizzardv2.ItemId
 }

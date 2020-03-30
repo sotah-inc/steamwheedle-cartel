@@ -1,6 +1,18 @@
 package locale
 
+import "encoding/json"
+
 type Locale string
+
+func NewMapping(data []byte) (Mapping, error) {
+	out := Mapping{}
+	if err := json.Unmarshal(data, &out); err != nil {
+		return Mapping{}, err
+	}
+
+	return out, nil
+}
+
 type Mapping map[Locale]string
 
 func (m Mapping) ResolveDefaultName() string {
@@ -10,6 +22,14 @@ func (m Mapping) ResolveDefaultName() string {
 	}
 
 	return found
+}
+
+func (m Mapping) IsZero() bool {
+	return m.ResolveDefaultName() == ""
+}
+
+func (m Mapping) EncodeForStorage() ([]byte, error) {
+	return json.Marshal(m)
 }
 
 const (

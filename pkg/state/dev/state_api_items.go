@@ -10,7 +10,7 @@ import (
 )
 
 func (sta *APIState) ListenForItems(stop state.ListenStopChan) error {
-	err := sta.IO.Messenger.Subscribe(string(subjects.Items), stop, func(natsMsg nats.Msg) {
+	err := sta.messenger.Subscribe(string(subjects.Items), stop, func(natsMsg nats.Msg) {
 		m := messenger.NewMessage()
 
 		// resolving the request
@@ -18,16 +18,16 @@ func (sta *APIState) ListenForItems(stop state.ListenStopChan) error {
 		if err != nil {
 			m.Err = err.Error()
 			m.Code = codes.MsgJSONParseError
-			sta.IO.Messenger.ReplyTo(natsMsg, m)
+			sta.messenger.ReplyTo(natsMsg, m)
 
 			return
 		}
 
-		iMap, err := iRequest.Resolve(sta.State)
+		iMap, err := sta.itemsDatabase.FindItems(iRequest.ItemIds)
 		if err != nil {
 			m.Err = err.Error()
 			m.Code = codes.GenericError
-			sta.IO.Messenger.ReplyTo(natsMsg, m)
+			sta.messenger.ReplyTo(natsMsg, m)
 
 			return
 		}
@@ -37,13 +37,13 @@ func (sta *APIState) ListenForItems(stop state.ListenStopChan) error {
 		if err != nil {
 			m.Err = err.Error()
 			m.Code = codes.MsgJSONParseError
-			sta.IO.Messenger.ReplyTo(natsMsg, m)
+			sta.messenger.ReplyTo(natsMsg, m)
 
 			return
 		}
 
 		m.Data = data
-		sta.IO.Messenger.ReplyTo(natsMsg, m)
+		sta.messenger.ReplyTo(natsMsg, m)
 	})
 	if err != nil {
 		return err

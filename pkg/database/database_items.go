@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzard"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 )
 
 // bucketing
@@ -17,21 +17,21 @@ func databaseItemNamesBucketName() []byte {
 }
 
 // keying
-func itemsKeyName(id blizzard.ItemID) []byte {
+func itemsKeyName(id blizzardv2.ItemId) []byte {
 	return []byte(fmt.Sprintf("item-%d", id))
 }
 
-func itemNameKeyName(id blizzard.ItemID) []byte {
+func itemNameKeyName(id blizzardv2.ItemId) []byte {
 	return []byte(fmt.Sprintf("item-name-%d", id))
 }
 
-func itemIdFromItemNameKeyName(key []byte) (blizzard.ItemID, error) {
+func itemIdFromItemNameKeyName(key []byte) (blizzardv2.ItemId, error) {
 	unparsedItemId, err := strconv.Atoi(string(key)[len("item-name-"):])
 	if err != nil {
-		return blizzard.ItemID(0), err
+		return blizzardv2.ItemId(0), err
 	}
 
-	return blizzard.ItemID(unparsedItemId), nil
+	return blizzardv2.ItemId(unparsedItemId), nil
 }
 
 // db

@@ -6,6 +6,10 @@ import (
 	"fmt"
 	"strconv"
 
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/locale"
+
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
+
 	"github.com/boltdb/bolt"
 	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzard"
@@ -51,7 +55,7 @@ func (idBase ItemsDatabase) GetItems() (sotah.ItemsMap, error) {
 			if err != nil {
 				return err
 			}
-			itemId := blizzard.ItemID(parsedId)
+			itemId := blizzardv2.ItemId(parsedId)
 
 			gzipDecoded, err := util.GzipDecode(v)
 			if err != nil {
@@ -95,7 +99,10 @@ func (idBase ItemsDatabase) GetIdNormalizedNameMap() (sotah.ItemIdNameMap, error
 				return err
 			}
 
-			out[itemId] = string(v)
+			out[itemId], err = locale.NewMapping(v)
+			if err != nil {
+				return err
+			}
 
 			return nil
 		})
@@ -112,7 +119,7 @@ func (idBase ItemsDatabase) GetIdNormalizedNameMap() (sotah.ItemIdNameMap, error
 	return out, nil
 }
 
-func (idBase ItemsDatabase) FindItems(itemIds []blizzard.ItemID) (sotah.ItemsMap, error) {
+func (idBase ItemsDatabase) FindItems(itemIds []blizzardv2.ItemId) (sotah.ItemsMap, error) {
 	out := sotah.ItemsMap{}
 	err := idBase.db.View(func(tx *bolt.Tx) error {
 		bkt := tx.Bucket(databaseItemsBucketName())
@@ -178,12 +185,12 @@ func (idBase ItemsDatabase) PersistItems(iMap sotah.ItemsMap) error {
 				return err
 			}
 
-			normalizedName, err := sotah.NormalizeName(item.NormalizedName)
+			encodedNormalizedName, err := item.SotahMeta.NormalizedName.EncodeForStorage()
 			if err != nil {
 				return err
 			}
 
-			if err := itemNamesBucket.Put(itemNameKeyName(id), []byte(normalizedName)); err != nil {
+			if err := itemNamesBucket.Put(itemNameKeyName(id), encodedNormalizedName); err != nil {
 				return err
 			}
 		}
@@ -198,11 +205,11 @@ func (idBase ItemsDatabase) PersistItems(iMap sotah.ItemsMap) error {
 }
 
 type ReceiveSyncedItemsData struct {
-	ItemIdNamesMap map[blizzard.ItemID]string
+	ItemIdNamesMap map[blizzardv2.ItemId]string
 }
 
 type PersistEncodedItemsInJob struct {
-	Id              blizzard.ItemID
+	Id              blizzardv2.ItemId
 	GzipEncodedData []byte
 }
 
@@ -231,7 +238,7 @@ func (idBase ItemsDatabase) PersistEncodedItems(
 
 		i := 0
 		for id, normalizedName := range idNameMap {
-			if normalizedName == "" {
+			if normalizedName.IsZero() {
 				continue
 			}
 
@@ -298,7 +305,7 @@ func (p ItemsSyncPayload) EncodeForDelivery() (string, error) {
 
 func (idBase ItemsDatabase) FilterInItemsToSync(ids blizzard.ItemIds) (ItemsSyncPayload, error) {
 	// producing a blank whitelist
-	syncWhitelist := map[blizzard.ItemID]bool{}
+	syncWhitelist := map[blizzardv2.ItemId]bool{}
 	for _, id := range ids {
 		syncWhitelist[id] = false
 	}

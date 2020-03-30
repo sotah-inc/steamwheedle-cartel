@@ -275,11 +275,7 @@ func NewItemsRequest(payload []byte) (ItemsRequest, error) {
 }
 
 type ItemsRequest struct {
-	ItemIds []blizzard.ItemID `json:"itemIds"`
-}
-
-func (iRequest ItemsRequest) Resolve(sta State) (sotah.ItemsMap, error) {
-	return sta.IO.Databases.ItemsDatabase.FindItems(iRequest.ItemIds)
+	ItemIds []blizzardv2.ItemId `json:"itemIds"`
 }
 
 type ItemsResponse struct {
