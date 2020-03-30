@@ -227,10 +227,10 @@ func (sta State) NewRegions() (sotah.RegionList, error) {
 }
 
 type BootResponse struct {
-	Regions     sotah.RegionList   `json:"regions"`
-	ItemClasses sotah.ItemClasses  `json:"item_classes"`
-	Expansions  []sotah.Expansion  `json:"expansions"`
-	Professions []sotah.Profession `json:"professions"`
+	Regions     sotah.RegionList               `json:"regions"`
+	ItemClasses []blizzardv2.ItemClassResponse `json:"item_classes"`
+	Expansions  []sotah.Expansion              `json:"expansions"`
+	Professions []sotah.Profession             `json:"professions"`
 }
 
 type SessionSecretData struct {

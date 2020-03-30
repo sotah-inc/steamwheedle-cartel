@@ -2,6 +2,11 @@ package dev
 
 import (
 	"encoding/json"
+	"fmt"
+
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
+
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 
 	nats "github.com/nats-io/go-nats"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
@@ -10,48 +15,60 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state/subjects"
 )
 
+func NewStatusRequest(payload []byte) (StatusRequest, error) {
+	sr := &StatusRequest{}
+	err := json.Unmarshal(payload, &sr)
+	if err != nil {
+		return StatusRequest{}, err
+	}
+
+	return *sr, nil
+}
+
+type StatusRequest struct {
+	RegionName blizzardv2.RegionName `json:"region_name"`
+}
+
 func (sta *APIState) ListenForStatus(stop state.ListenStopChan) error {
-	err := sta.IO.Messenger.Subscribe(string(subjects.Status), stop, func(natsMsg nats.Msg) {
+	err := sta.messenger.Subscribe(string(subjects.Status), stop, func(natsMsg nats.Msg) {
 		m := messenger.NewMessage()
 
-		sr, err := messenger.NewStatusRequest(natsMsg.Data)
+		sRequest, err := NewStatusRequest(natsMsg.Data)
 		if err != nil {
 			m.Err = err.Error()
 			m.Code = codes.MsgJSONParseError
-			sta.IO.Messenger.ReplyTo(natsMsg, m)
+			sta.messenger.ReplyTo(natsMsg, m)
 
 			return
 		}
 
-		reg, err := sta.Regions.GetRegion(sr.RegionName)
-		if err != nil {
-			m.Err = err.Error()
-			m.Code = codes.NotFound
-			sta.IO.Messenger.ReplyTo(natsMsg, m)
-
-			return
-		}
-
-		regionStatus, ok := sta.Statuses[reg.Name]
+		foundConnectedRealms, ok := sta.regionConnectedRealms[sRequest.RegionName]
 		if !ok {
-			m.Err = "Region found but not in Statuses"
-			m.Code = codes.NotFound
-			sta.IO.Messenger.ReplyTo(natsMsg, m)
+			m.Err = fmt.Sprintf("invalid region name: %s", sRequest.RegionName)
+			m.Code = codes.UserError
+			sta.messenger.ReplyTo(natsMsg, m)
 
 			return
 		}
 
-		encodedStatus, err := json.Marshal(regionStatus)
+		encodedStatus, err := func() ([]byte, error) {
+			jsonEncoded, err := json.Marshal(foundConnectedRealms)
+			if err != nil {
+				return []byte{}, err
+			}
+
+			return util.GzipEncode(jsonEncoded)
+		}()
 		if err != nil {
 			m.Err = err.Error()
 			m.Code = codes.GenericError
-			sta.IO.Messenger.ReplyTo(natsMsg, m)
+			sta.messenger.ReplyTo(natsMsg, m)
 
 			return
 		}
 
 		m.Data = string(encodedStatus)
-		sta.IO.Messenger.ReplyTo(natsMsg, m)
+		sta.messenger.ReplyTo(natsMsg, m)
 	})
 	if err != nil {
 		return err

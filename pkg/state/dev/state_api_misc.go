@@ -11,25 +11,25 @@ import (
 )
 
 func (sta *APIState) ListenForBoot(stop state.ListenStopChan) error {
-	err := sta.IO.Messenger.Subscribe(string(subjects.Boot), stop, func(natsMsg nats.Msg) {
+	err := sta.messenger.Subscribe(string(subjects.Boot), stop, func(natsMsg nats.Msg) {
 		m := messenger.NewMessage()
 
 		encodedResponse, err := json.Marshal(state.BootResponse{
-			Regions:     sta.Regions,
-			ItemClasses: sta.ItemClasses,
-			Expansions:  sta.Expansions,
-			Professions: sta.Professions,
+			Regions:     sta.regions,
+			ItemClasses: sta.itemClasses,
+			Expansions:  sta.expansions,
+			Professions: sta.professions,
 		})
 		if err != nil {
 			m.Err = err.Error()
 			m.Code = codes.MsgJSONParseError
-			sta.IO.Messenger.ReplyTo(natsMsg, m)
+			sta.messenger.ReplyTo(natsMsg, m)
 
 			return
 		}
 
 		m.Data = string(encodedResponse)
-		sta.IO.Messenger.ReplyTo(natsMsg, m)
+		sta.messenger.ReplyTo(natsMsg, m)
 	})
 	if err != nil {
 		return err
