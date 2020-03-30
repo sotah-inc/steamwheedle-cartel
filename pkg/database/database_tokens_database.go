@@ -3,8 +3,9 @@ package database
 import (
 	"encoding/json"
 
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
+
 	"github.com/boltdb/bolt"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzard"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 )
 
@@ -28,7 +29,7 @@ type TokensDatabase struct {
 	db *bolt.DB
 }
 
-type RegionTokenHistory map[blizzard.RegionName]TokenHistory
+type RegionTokenHistory map[blizzardv2.RegionName]TokenHistory
 
 type TokenHistory map[int64]int64
 
@@ -42,7 +43,7 @@ func (tHistory TokenHistory) EncodeForDelivery() ([]byte, error) {
 }
 
 // gathering token history
-func (tBase TokensDatabase) GetHistory(regionName blizzard.RegionName) (TokenHistory, error) {
+func (tBase TokensDatabase) GetHistory(regionName blizzardv2.RegionName) (TokenHistory, error) {
 	out := TokenHistory{}
 
 	err := tBase.db.View(func(tx *bolt.Tx) error {
@@ -102,7 +103,7 @@ func (tBase TokensDatabase) PersistHistory(rtHistory RegionTokenHistory) error {
 }
 
 // pruning
-func (tBase TokensDatabase) Prune(regionNames []blizzard.RegionName) error {
+func (tBase TokensDatabase) Prune(regionNames []blizzardv2.RegionName) error {
 	earliestUnixTimestamp := RetentionLimit().Unix()
 
 	err := tBase.db.Update(func(tx *bolt.Tx) error {

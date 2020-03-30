@@ -54,3 +54,24 @@ func (sta BlizzardState) ResolveItemClasses(regions sotah.RegionList) ([]blizzar
 		},
 	})
 }
+
+func (sta BlizzardState) ResolveTokens(regions sotah.RegionList) (map[blizzardv2.RegionName]blizzardv2.TokenResponse, error) {
+	return blizzardv2.GetTokens(blizzardv2.GetTokensOptions{
+		Tuples: func() []blizzardv2.RegionHostnameTuple {
+			out := make([]blizzardv2.RegionHostnameTuple, len(regions))
+			for i, region := range regions {
+				out[i] = blizzardv2.RegionHostnameTuple{
+					RegionName:     region.Name,
+					RegionHostname: region.Hostname,
+				}
+			}
+
+			return out
+		}(),
+		GetTokenInfoURL: func(regionHostname string, regionName blizzardv2.RegionName) (string, error) {
+			return sta.BlizzardClient.AppendAccessToken(
+				blizzardv2.DefaultGetTokenURL(regionHostname, regionName),
+			)
+		},
+	})
+}
