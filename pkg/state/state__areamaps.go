@@ -41,12 +41,19 @@ func (amRes AreaMapsResponse) EncodeForMessage() (string, error) {
 }
 
 type AreaMapsState struct {
-	messenger        messenger.Messenger
-	areaMapsDatabase database.AreaMapsDatabase
+	Messenger        messenger.Messenger
+	AreaMapsDatabase database.AreaMapsDatabase
+}
+
+func (sta AreaMapsState) GetListeners() SubjectListeners {
+	return SubjectListeners{
+		subjects.AreaMaps:      sta.ListenForAreaMaps,
+		subjects.AreaMapsQuery: sta.ListenForAreaMapsQuery,
+	}
 }
 
 func (sta AreaMapsState) ListenForAreaMaps(stop ListenStopChan) error {
-	err := sta.messenger.Subscribe(string(subjects.AreaMaps), stop, func(natsMsg nats.Msg) {
+	err := sta.Messenger.Subscribe(string(subjects.AreaMaps), stop, func(natsMsg nats.Msg) {
 		m := messenger.NewMessage()
 
 		// resolving the request
@@ -54,16 +61,16 @@ func (sta AreaMapsState) ListenForAreaMaps(stop ListenStopChan) error {
 		if err != nil {
 			m.Err = err.Error()
 			m.Code = codes.MsgJSONParseError
-			sta.messenger.ReplyTo(natsMsg, m)
+			sta.Messenger.ReplyTo(natsMsg, m)
 
 			return
 		}
 
-		resolved, err := sta.areaMapsDatabase.FindAreaMaps(amRequest.AreaMapIds)
+		resolved, err := sta.AreaMapsDatabase.FindAreaMaps(amRequest.AreaMapIds)
 		if err != nil {
 			m.Err = err.Error()
 			m.Code = codes.GenericError
-			sta.messenger.ReplyTo(natsMsg, m)
+			sta.Messenger.ReplyTo(natsMsg, m)
 
 			return
 		}
@@ -73,13 +80,13 @@ func (sta AreaMapsState) ListenForAreaMaps(stop ListenStopChan) error {
 		if err != nil {
 			m.Err = err.Error()
 			m.Code = codes.MsgJSONParseError
-			sta.messenger.ReplyTo(natsMsg, m)
+			sta.Messenger.ReplyTo(natsMsg, m)
 
 			return
 		}
 
 		m.Data = data
-		sta.messenger.ReplyTo(natsMsg, m)
+		sta.Messenger.ReplyTo(natsMsg, m)
 	})
 	if err != nil {
 		return err
@@ -89,7 +96,7 @@ func (sta AreaMapsState) ListenForAreaMaps(stop ListenStopChan) error {
 }
 
 func (sta AreaMapsState) ListenForAreaMapsQuery(stop ListenStopChan) error {
-	err := sta.messenger.Subscribe(string(subjects.AreaMapsQuery), stop, func(natsMsg nats.Msg) {
+	err := sta.Messenger.Subscribe(string(subjects.AreaMapsQuery), stop, func(natsMsg nats.Msg) {
 		m := messenger.NewMessage()
 
 		// resolving the request
@@ -97,17 +104,17 @@ func (sta AreaMapsState) ListenForAreaMapsQuery(stop ListenStopChan) error {
 		if err != nil {
 			m.Err = err.Error()
 			m.Code = mCodes.MsgJSONParseError
-			sta.messenger.ReplyTo(natsMsg, m)
+			sta.Messenger.ReplyTo(natsMsg, m)
 
 			return
 		}
 
 		// querying the area-maps-database
-		resp, err := sta.areaMapsDatabase.AreaMapsQuery(request)
+		resp, err := sta.AreaMapsDatabase.AreaMapsQuery(request)
 		if err != nil {
 			m.Err = err.Error()
 			m.Code = mCodes.GenericError
-			sta.messenger.ReplyTo(natsMsg, m)
+			sta.Messenger.ReplyTo(natsMsg, m)
 
 			return
 		}
@@ -117,14 +124,14 @@ func (sta AreaMapsState) ListenForAreaMapsQuery(stop ListenStopChan) error {
 		if err != nil {
 			m.Err = err.Error()
 			m.Code = mCodes.GenericError
-			sta.messenger.ReplyTo(natsMsg, m)
+			sta.Messenger.ReplyTo(natsMsg, m)
 
 			return
 		}
 
 		// dumping it out
 		m.Data = string(encodedMessage)
-		sta.messenger.ReplyTo(natsMsg, m)
+		sta.Messenger.ReplyTo(natsMsg, m)
 	})
 	if err != nil {
 		return err

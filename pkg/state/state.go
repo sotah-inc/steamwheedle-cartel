@@ -79,6 +79,17 @@ type listener struct {
 	stopChan ListenStopChan
 }
 
+func NewSubjectListeners(sListenersList []SubjectListeners) SubjectListeners {
+	out := SubjectListeners{}
+	for _, sListeners := range sListenersList {
+		for lSubject, lFunc := range sListeners {
+			out[lSubject] = lFunc
+		}
+	}
+
+	return out
+}
+
 type SubjectListeners map[subjects.Subject]listenFunc
 
 func NewListeners(sListeners SubjectListeners) Listeners {

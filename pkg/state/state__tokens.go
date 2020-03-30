@@ -23,6 +23,12 @@ type TokensState struct {
 	reporter       metric.Reporter
 }
 
+func (sta TokensState) GetListeners() SubjectListeners {
+	return SubjectListeners{
+		subjects.TokenHistory: sta.ListenForTokenHistory,
+	}
+}
+
 func (sta TokensState) ListenForTokenHistory(stop ListenStopChan) error {
 	err := sta.messenger.Subscribe(string(subjects.TokenHistory), stop, func(natsMsg nats.Msg) {
 		m := messenger.NewMessage()

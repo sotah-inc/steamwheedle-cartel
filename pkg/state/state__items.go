@@ -49,12 +49,19 @@ func (iResponse ItemsResponse) EncodeForMessage() (string, error) {
 }
 
 type ItemsState struct {
-	messenger     messenger.Messenger
-	itemsDatabase database.ItemsDatabase
+	Messenger     messenger.Messenger
+	ItemsDatabase database.ItemsDatabase
+}
+
+func (sta ItemsState) GetListeners() SubjectListeners {
+	return SubjectListeners{
+		subjects.Items:      sta.ListenForItems,
+		subjects.ItemsQuery: sta.ListenForItemsQuery,
+	}
 }
 
 func (sta ItemsState) ListenForItems(stop ListenStopChan) error {
-	err := sta.messenger.Subscribe(string(subjects.Items), stop, func(natsMsg nats.Msg) {
+	err := sta.Messenger.Subscribe(string(subjects.Items), stop, func(natsMsg nats.Msg) {
 		m := messenger.NewMessage()
 
 		// resolving the request
@@ -62,16 +69,16 @@ func (sta ItemsState) ListenForItems(stop ListenStopChan) error {
 		if err != nil {
 			m.Err = err.Error()
 			m.Code = codes.MsgJSONParseError
-			sta.messenger.ReplyTo(natsMsg, m)
+			sta.Messenger.ReplyTo(natsMsg, m)
 
 			return
 		}
 
-		iMap, err := sta.itemsDatabase.FindItems(iRequest.ItemIds)
+		iMap, err := sta.ItemsDatabase.FindItems(iRequest.ItemIds)
 		if err != nil {
 			m.Err = err.Error()
 			m.Code = codes.GenericError
-			sta.messenger.ReplyTo(natsMsg, m)
+			sta.Messenger.ReplyTo(natsMsg, m)
 
 			return
 		}
@@ -81,13 +88,13 @@ func (sta ItemsState) ListenForItems(stop ListenStopChan) error {
 		if err != nil {
 			m.Err = err.Error()
 			m.Code = codes.MsgJSONParseError
-			sta.messenger.ReplyTo(natsMsg, m)
+			sta.Messenger.ReplyTo(natsMsg, m)
 
 			return
 		}
 
 		m.Data = data
-		sta.messenger.ReplyTo(natsMsg, m)
+		sta.Messenger.ReplyTo(natsMsg, m)
 	})
 	if err != nil {
 		return err
@@ -97,7 +104,7 @@ func (sta ItemsState) ListenForItems(stop ListenStopChan) error {
 }
 
 func (sta ItemsState) ListenForItemsQuery(stop ListenStopChan) error {
-	err := sta.messenger.Subscribe(string(subjects.ItemsQuery), stop, func(natsMsg nats.Msg) {
+	err := sta.Messenger.Subscribe(string(subjects.ItemsQuery), stop, func(natsMsg nats.Msg) {
 		m := messenger.NewMessage()
 
 		// resolving the request
@@ -105,24 +112,24 @@ func (sta ItemsState) ListenForItemsQuery(stop ListenStopChan) error {
 		if err != nil {
 			m.Err = err.Error()
 			m.Code = mCodes.MsgJSONParseError
-			sta.messenger.ReplyTo(natsMsg, m)
+			sta.Messenger.ReplyTo(natsMsg, m)
 
 			return
 		}
 
 		// querying the items-database
-		resp, respCode, err := sta.itemsDatabase.QueryItems(request)
+		resp, respCode, err := sta.ItemsDatabase.QueryItems(request)
 		if err != nil {
 			m.Err = err.Error()
 			m.Code = DatabaseCodeToMessengerCode(respCode)
-			sta.messenger.ReplyTo(natsMsg, m)
+			sta.Messenger.ReplyTo(natsMsg, m)
 
 			return
 		}
 		if respCode != dCodes.Ok {
 			m.Err = "response code was not ok but error was nil"
 			m.Code = DatabaseCodeToMessengerCode(respCode)
-			sta.messenger.ReplyTo(natsMsg, m)
+			sta.Messenger.ReplyTo(natsMsg, m)
 
 			return
 		}
@@ -132,14 +139,14 @@ func (sta ItemsState) ListenForItemsQuery(stop ListenStopChan) error {
 		if err != nil {
 			m.Err = err.Error()
 			m.Code = mCodes.GenericError
-			sta.messenger.ReplyTo(natsMsg, m)
+			sta.Messenger.ReplyTo(natsMsg, m)
 
 			return
 		}
 
 		// dumping it out
 		m.Data = string(encodedMessage)
-		sta.messenger.ReplyTo(natsMsg, m)
+		sta.Messenger.ReplyTo(natsMsg, m)
 	})
 	if err != nil {
 		return err

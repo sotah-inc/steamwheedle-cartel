@@ -97,6 +97,7 @@ func NewAPIState(config APIStateConfig) (*APIState, error) {
 	sta.reporter = metric.NewReporter(sta.messenger)
 
 	// connecting a new blizzard client
+	sta.BlizzardState = state.BlizzardState{}
 	sta.BlizzardState.BlizzardClient, err = blizzardv2.NewClient(config.BlizzardConfig.ClientId, config.BlizzardConfig.ClientSecret)
 	if err != nil {
 		logging.WithField("error", err.Error()).Error("failed to initialise blizzard-client")
@@ -105,7 +106,7 @@ func NewAPIState(config APIStateConfig) (*APIState, error) {
 	}
 
 	// gathering connected-realms
-	sta.regionConnectedRealms, err = sta.ResolveRegionConnectedRealms(sta.regions)
+	sta.regionConnectedRealms, err = sta.BlizzardState.ResolveRegionConnectedRealms(sta.regions)
 	if err != nil {
 		logging.WithFields(logrus.Fields{
 			"error": err.Error(),
@@ -115,7 +116,7 @@ func NewAPIState(config APIStateConfig) (*APIState, error) {
 	}
 
 	// gathering item-classes
-	sta.itemClasses, err = sta.ResolveItemClasses(sta.regions)
+	sta.itemClasses, err = sta.BlizzardState.ResolveItemClasses(sta.regions)
 	if err != nil {
 		logging.WithField("error", err.Error()).Error("failed to get item-classes")
 
@@ -146,30 +147,34 @@ func NewAPIState(config APIStateConfig) (*APIState, error) {
 		return nil, err
 	}
 
+	// resolving states
+	sta.ItemsState = state.ItemsState{Messenger: sta.messenger, ItemsDatabase: sta.itemsDatabase}
+	sta.AreaMapsState = state.AreaMapsState{Messenger: sta.messenger, AreaMapsDatabase: sta.areaMapsDatabase}
+
 	// establishing listeners
-	sta.Listeners = state.NewListeners(state.SubjectListeners{
-		subjects.Boot:                        sta.ListenForBoot,
-		subjects.SessionSecret:               sta.ListenForSessionSecret,
-		subjects.Status:                      sta.ListenForStatus,
-		subjects.Items:                       sta.ListenForItems,
-		subjects.ItemsQuery:                  sta.ListenForItemsQuery,
-		subjects.QueryRealmModificationDates: sta.ListenForQueryRealmModificationDates,
-		subjects.RealmModificationDates:      sta.ListenForRealmModificationDates,
-		subjects.TokenHistory:                sta.ListenForTokenHistory,
-		subjects.ValidateRegionRealm:         sta.ListenForValidateRegionRealm,
-		subjects.AreaMapsQuery:               sta.ListenForAreaMapsQuery,
-		subjects.AreaMaps:                    sta.ListenForAreaMaps,
-	})
+	sta.Listeners = state.NewListeners(state.NewSubjectListeners([]state.SubjectListeners{
+		sta.ItemsState.GetListeners(),
+		sta.AreaMapsState.GetListeners(),
+		sta.TokensState.GetListeners(),
+		{
+			subjects.Boot:                        sta.ListenForBoot,
+			subjects.SessionSecret:               sta.ListenForSessionSecret,
+			subjects.Status:                      sta.ListenForStatus,
+			subjects.QueryRealmModificationDates: sta.ListenForQueryRealmModificationDates,
+			subjects.RealmModificationDates:      sta.ListenForRealmModificationDates,
+			subjects.ValidateRegionRealm:         sta.ListenForValidateRegionRealm,
+		},
+	}))
 
 	return &sta, nil
 }
 
 type APIState struct {
 	state.State
-	state.BlizzardState
-	state.ItemsState
-	state.AreaMapsState
-	state.TokensState
+	BlizzardState state.BlizzardState
+	ItemsState    state.ItemsState
+	AreaMapsState state.AreaMapsState
+	TokensState   state.TokensState
 
 	// set at run-time
 	sessionSecret         uuid.UUID
