@@ -14,6 +14,15 @@ func NormalizeName(in string) (string, error) {
 }
 
 // item
+func NewItemFromGzipped(gzipEncoded []byte) (Item, error) {
+	gzipDecoded, err := util.GzipDecode(gzipEncoded)
+	if err != nil {
+		return Item{}, err
+	}
+
+	return NewItem(gzipDecoded)
+}
+
 func NewItem(body []byte) (Item, error) {
 	i := &Item{}
 	if err := json.Unmarshal(body, i); err != nil {
@@ -31,6 +40,15 @@ type Item struct {
 		LastModified   int            `json:"last_modified"`
 		NormalizedName locale.Mapping `json:"normalized_name"`
 	} `json:"sotah_meta"`
+}
+
+func (item Item) EncodeForStorage() ([]byte, error) {
+	jsonEncoded, err := json.Marshal(item)
+	if err != nil {
+		return []byte{}, err
+	}
+
+	return util.GzipEncode(jsonEncoded)
 }
 
 // item-icon-item-ids map

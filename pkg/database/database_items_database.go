@@ -57,17 +57,10 @@ func (idBase ItemsDatabase) GetItems() (sotah.ItemsMap, error) {
 			}
 			itemId := blizzardv2.ItemId(parsedId)
 
-			gzipDecoded, err := util.GzipDecode(v)
+			out[itemId], err = sotah.NewItemFromGzipped(v)
 			if err != nil {
 				return err
 			}
-
-			item, err := sotah.NewItem(gzipDecoded)
-			if err != nil {
-				return err
-			}
-
-			out[itemId] = item
 
 			return nil
 		})
@@ -133,17 +126,11 @@ func (idBase ItemsDatabase) FindItems(itemIds []blizzardv2.ItemId) (sotah.ItemsM
 				continue
 			}
 
-			gzipDecoded, err := util.GzipDecode(value)
+			var err error
+			out[id], err = sotah.NewItemFromGzipped(value)
 			if err != nil {
 				return err
 			}
-
-			item, err := sotah.NewItem(gzipDecoded)
-			if err != nil {
-				return err
-			}
-
-			out[id] = item
 		}
 
 		return nil
@@ -334,12 +321,7 @@ func (idBase ItemsDatabase) FilterInItemsToSync(ids blizzard.ItemIds) (ItemsSync
 				continue
 			}
 
-			gzipDecoded, err := util.GzipDecode(value)
-			if err != nil {
-				return err
-			}
-
-			item, err := sotah.NewItem(gzipDecoded)
+			item, err := sotah.NewItemFromGzipped(value)
 			if err != nil {
 				return err
 			}

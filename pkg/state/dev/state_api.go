@@ -167,6 +167,9 @@ func NewAPIState(config APIStateConfig) (*APIState, error) {
 type APIState struct {
 	state.State
 	state.BlizzardState
+	state.ItemsState
+	state.AreaMapsState
+	state.TokensState
 
 	// set at run-time
 	sessionSecret         uuid.UUID

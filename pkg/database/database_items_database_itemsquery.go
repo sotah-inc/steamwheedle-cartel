@@ -2,10 +2,14 @@ package database
 
 import (
 	"encoding/json"
+	"fmt"
 	"sort"
 
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/locale"
+
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
+
 	"github.com/lithammer/fuzzysearch/fuzzy"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzard"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database/codes"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 )
@@ -20,28 +24,30 @@ func NewQueryItemsRequest(data []byte) (QueryItemsRequest, error) {
 }
 
 type QueryItemsRequest struct {
-	Query string `json:"query"`
+	Query  string        `json:"query"`
+	Locale locale.Locale `json:"locale"`
 }
 type QueryItemsItem struct {
-	Target string          `json:"target"`
-	ItemId blizzard.ItemID `json:"item_id"`
-	Rank   int             `json:"rank"`
+	Target string            `json:"target"`
+	ItemId blizzardv2.ItemId `json:"item_id"`
+	Rank   int               `json:"rank"`
 }
 
-func NewQueryItemsItems(idNormalizedNameMap sotah.ItemIdNameMap) QueryItemsItems {
-	out := QueryItemsItems{}
+func NewQueryItemsItems(idNormalizedNameMap sotah.ItemIdNameMap, providedLocale locale.Locale) (QueryItemsItems, error) {
+	out := make(QueryItemsItems, len(idNormalizedNameMap))
+	i := 0
 	for id, normalizedName := range idNormalizedNameMap {
-		if normalizedName == "" {
-			continue
+		foundName, ok := normalizedName[providedLocale]
+		if !ok {
+			return QueryItemsItems{}, fmt.Errorf("could not resolve normalized-name from locale %s", providedLocale)
 		}
 
-		out = append(out, QueryItemsItem{
-			ItemId: id,
-			Target: normalizedName,
-		})
+		out[i] = QueryItemsItem{ItemId: id, Target: foundName}
+
+		i += 1
 	}
 
-	return out
+	return out, nil
 }
 
 type QueryItemsItems []QueryItemsItem
@@ -100,7 +106,10 @@ func (idBase ItemsDatabase) QueryItems(req QueryItemsRequest) (QueryItemsRespons
 	}
 
 	// reformatting into query-items-items
-	queryItems := NewQueryItemsItems(idNormalizedNameMap)
+	queryItems, err := NewQueryItemsItems(idNormalizedNameMap, req.Locale)
+	if err != nil {
+		return QueryItemsResponse{}, codes.UserError, err
+	}
 
 	// optionally sorting by rank or sorting by name
 	if req.Query != "" {

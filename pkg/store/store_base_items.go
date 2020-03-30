@@ -5,11 +5,12 @@ import (
 	"fmt"
 	"io/ioutil"
 
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
+
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 
 	"cloud.google.com/go/storage"
 	"github.com/sirupsen/logrus"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzard"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah/gameversions"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/store/regions"
@@ -40,15 +41,15 @@ func (b ItemsBase) GetFirmBucket() (*storage.BucketHandle, error) {
 	return b.base.getFirmBucket(b.getBucketName())
 }
 
-func (b ItemsBase) getObjectName(id blizzard.ItemID) string {
+func (b ItemsBase) getObjectName(id blizzardv2.ItemId) string {
 	return fmt.Sprintf("%s/%d.json.gz", b.GameVersion, id)
 }
 
-func (b ItemsBase) GetObject(id blizzard.ItemID, bkt *storage.BucketHandle) *storage.ObjectHandle {
+func (b ItemsBase) GetObject(id blizzardv2.ItemId, bkt *storage.BucketHandle) *storage.ObjectHandle {
 	return b.base.getObject(b.getObjectName(id), bkt)
 }
 
-func (b ItemsBase) GetFirmObject(id blizzard.ItemID, bkt *storage.BucketHandle) (*storage.ObjectHandle, error) {
+func (b ItemsBase) GetFirmObject(id blizzardv2.ItemId, bkt *storage.BucketHandle) (*storage.ObjectHandle, error) {
 	return b.base.getFirmObject(b.getObjectName(id), bkt)
 }
 
@@ -63,7 +64,7 @@ func (b ItemsBase) NewItem(obj *storage.ObjectHandle) (sotah.Item, error) {
 		}
 	}()
 
-	body, err := ioutil.ReadAll(reader)
+	body, err := ioutil.ReadAll(reader) // automatically gzip-decoded
 	if err != nil {
 		return sotah.Item{}, err
 	}
@@ -73,7 +74,7 @@ func (b ItemsBase) NewItem(obj *storage.ObjectHandle) (sotah.Item, error) {
 
 type GetItemsOutJob struct {
 	Err             error
-	Id              blizzard.ItemID
+	Id              blizzardv2.ItemId
 	GzipEncodedData []byte
 }
 
@@ -84,9 +85,9 @@ func (job GetItemsOutJob) ToLogrusFields() logrus.Fields {
 	}
 }
 
-func (b ItemsBase) GetItems(ids blizzard.ItemIds, bkt *storage.BucketHandle) chan GetItemsOutJob {
+func (b ItemsBase) GetItems(ids []blizzardv2.ItemId, bkt *storage.BucketHandle) chan GetItemsOutJob {
 	// spinning up workers
-	in := make(chan blizzard.ItemID)
+	in := make(chan blizzardv2.ItemId)
 	out := make(chan GetItemsOutJob)
 	worker := func() {
 		for id := range in {

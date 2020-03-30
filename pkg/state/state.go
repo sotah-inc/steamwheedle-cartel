@@ -1,7 +1,6 @@
 package state
 
 import (
-	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -11,14 +10,12 @@ import (
 
 	"github.com/sirupsen/logrus"
 	"github.com/twinj/uuid"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzard"
 	dCodes "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database/codes"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
 	mCodes "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger/codes"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state/subjects"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 )
 
 type RequestError struct {
@@ -177,9 +174,9 @@ func (r RealmModificationDatesResponse) EncodeForDelivery() ([]byte, error) {
 	return json.Marshal(r)
 }
 
-type ItemBlacklist []blizzard.ItemID
+type ItemBlacklist []blizzardv2.ItemId
 
-func (ib ItemBlacklist) IsPresent(itemId blizzard.ItemID) bool {
+func (ib ItemBlacklist) IsPresent(itemId blizzardv2.ItemId) bool {
 	for _, blacklistItemId := range ib {
 		if blacklistItemId == itemId {
 			return true
@@ -235,65 +232,6 @@ type BootResponse struct {
 
 type SessionSecretData struct {
 	SessionSecret string `json:"session_secret"`
-}
-
-func NewAreaMapsRequest(payload []byte) (AreaMapsRequest, error) {
-	amRequest := &AreaMapsRequest{}
-	err := json.Unmarshal(payload, &amRequest)
-	if err != nil {
-		return AreaMapsRequest{}, err
-	}
-
-	return *amRequest, nil
-}
-
-type AreaMapsRequest struct {
-	AreaMapIds []sotah.AreaMapId `json:"areaMapIds"`
-}
-
-type AreaMapsResponse struct {
-	AreaMaps sotah.AreaMapMap `json:"areaMaps"`
-}
-
-func (amRes AreaMapsResponse) EncodeForMessage() (string, error) {
-	result, err := json.Marshal(amRes)
-	if err != nil {
-		return "", err
-	}
-
-	return string(result), err
-}
-
-func NewItemsRequest(payload []byte) (ItemsRequest, error) {
-	iRequest := &ItemsRequest{}
-	err := json.Unmarshal(payload, &iRequest)
-	if err != nil {
-		return ItemsRequest{}, err
-	}
-
-	return *iRequest, nil
-}
-
-type ItemsRequest struct {
-	ItemIds []blizzardv2.ItemId `json:"itemIds"`
-}
-
-type ItemsResponse struct {
-	Items sotah.ItemsMap `json:"items"`
-}
-
-func (iResponse ItemsResponse) EncodeForMessage() (string, error) {
-	encodedResult, err := json.Marshal(iResponse)
-	if err != nil {
-		return "", err
-	}
-
-	gzippedResult, err := util.GzipEncode(encodedResult)
-	if err != nil {
-		return "", err
-	}
-
-	return base64.StdEncoding.EncodeToString(gzippedResult), nil
 }
 
 func NewTokenHistoryRequest(data []byte) (TokenHistoryRequest, error) {

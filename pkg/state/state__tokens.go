@@ -1,51 +1,56 @@
-package dev
+package state
 
 import (
 	nats "github.com/nats-io/go-nats"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
 	mCodes "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger/codes"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state/subjects"
 )
 
-func (sta *APIState) ListenForAreaMapsQuery(stop state.ListenStopChan) error {
-	err := sta.IO.Messenger.Subscribe(string(subjects.AreaMapsQuery), stop, func(natsMsg nats.Msg) {
+type TokensState struct {
+	messenger      messenger.Messenger
+	tokensDatabase database.TokensDatabase
+}
+
+func (sta TokensState) ListenForTokenHistory(stop ListenStopChan) error {
+	err := sta.messenger.Subscribe(string(subjects.TokenHistory), stop, func(natsMsg nats.Msg) {
 		m := messenger.NewMessage()
 
 		// resolving the request
-		request, err := database.NewAreaMapsQueryRequest(natsMsg.Data)
+		request, err := NewTokenHistoryRequest(natsMsg.Data)
 		if err != nil {
 			m.Err = err.Error()
 			m.Code = mCodes.MsgJSONParseError
-			sta.IO.Messenger.ReplyTo(natsMsg, m)
+			sta.messenger.ReplyTo(natsMsg, m)
 
 			return
 		}
 
-		// querying the area-maps-database
-		resp, err := sta.AreaMapsDatabase.AreaMapsQuery(request)
+		// fetching token-history with request data
+		tHistory, err := sta.tokensDatabase.GetHistory(blizzardv2.RegionName(request.RegionName))
 		if err != nil {
 			m.Err = err.Error()
-			m.Code = mCodes.GenericError
-			sta.IO.Messenger.ReplyTo(natsMsg, m)
+			m.Code = mCodes.MsgJSONParseError
+			sta.messenger.ReplyTo(natsMsg, m)
 
 			return
 		}
 
 		// marshalling for messenger
-		encodedMessage, err := resp.EncodeForDelivery()
+		encodedMessage, err := tHistory.EncodeForDelivery()
 		if err != nil {
 			m.Err = err.Error()
 			m.Code = mCodes.GenericError
-			sta.IO.Messenger.ReplyTo(natsMsg, m)
+			sta.messenger.ReplyTo(natsMsg, m)
 
 			return
 		}
 
 		// dumping it out
 		m.Data = string(encodedMessage)
-		sta.IO.Messenger.ReplyTo(natsMsg, m)
+		sta.messenger.ReplyTo(natsMsg, m)
 	})
 	if err != nil {
 		return err
