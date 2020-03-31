@@ -150,6 +150,12 @@ func NewAPIState(config APIStateConfig) (*APIState, error) {
 	// resolving states
 	sta.ItemsState = state.ItemsState{Messenger: sta.messenger, ItemsDatabase: sta.itemsDatabase}
 	sta.AreaMapsState = state.AreaMapsState{Messenger: sta.messenger, AreaMapsDatabase: sta.areaMapsDatabase}
+	sta.TokensState = state.TokensState{
+		BlizzardState:  sta.BlizzardState,
+		Messenger:      sta.messenger,
+		TokensDatabase: sta.tokensDatabase,
+		Reporter:       sta.reporter,
+	}
 
 	// establishing listeners
 	sta.Listeners = state.NewListeners(state.NewSubjectListeners([]state.SubjectListeners{

@@ -1,83 +1,97 @@
 package diskstore
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
 	"time"
 
 	"github.com/sirupsen/logrus"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzard"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 )
 
-func (ds DiskStore) resolveAuctionsFilepath(rea sotah.Realm) (string, error) {
+func (ds DiskStore) resolveAuctionsFilepath(
+	regionName blizzardv2.RegionName,
+	realmSlug blizzardv2.RealmSlug,
+) (string, error) {
 	if len(ds.CacheDir) == 0 {
 		return "", errors.New("cache dir cannot be blank")
 	}
 
-	if len(rea.Region.Name) == 0 {
-		return "", errors.New("region name cannot be blank")
-	}
-
-	if len(rea.Slug) == 0 {
-		return "", errors.New("realm slug cannot be blank")
-	}
-
-	return fmt.Sprintf("%s/auctions/%s/%s.json.gz", ds.CacheDir, rea.Region.Name, rea.Slug), nil
+	return fmt.Sprintf("%s/auctions/%s/%s.json.gz", ds.CacheDir, regionName, realmSlug), nil
 }
 
-func (ds DiskStore) WriteAuctions(rea sotah.Realm, data []byte) error {
-	dest, err := ds.resolveAuctionsFilepath(rea)
+type WriteAuctionsOptions struct {
+	RegionName blizzardv2.RegionName
+	RealmSlug  blizzardv2.RealmSlug
+	Auctions   blizzardv2.Auctions
+}
+
+func (ds DiskStore) WriteAuctions(opts WriteAuctionsOptions) error {
+	dest, err := ds.resolveAuctionsFilepath(opts.RegionName, opts.RealmSlug)
 	if err != nil {
 		return err
 	}
 
-	return util.WriteFile(dest, data)
-}
-
-func (ds DiskStore) GetAuctionsByRealm(rea sotah.Realm) (blizzard.Auctions, time.Time, error) {
-	// resolving the cached auctions filepath
-	cachedAuctionsFilepath, err := ds.resolveAuctionsFilepath(rea)
+	jsonEncoded, err := json.Marshal(opts.Auctions)
 	if err != nil {
-		return blizzard.Auctions{}, time.Time{}, err
+		return err
 	}
 
-	// optionally skipping non-exist auctions files
+	gzipEncoded, err := util.GzipEncode(jsonEncoded)
+	if err != nil {
+		return err
+	}
+
+	return util.WriteFile(dest, gzipEncoded)
+}
+
+func (ds DiskStore) GetAuctions(
+	regionName blizzardv2.RegionName,
+	realmSlug blizzardv2.RealmSlug,
+) (blizzardv2.Auctions, time.Time, error) {
+	// resolving the cached auctions filepath
+	cachedAuctionsFilepath, err := ds.resolveAuctionsFilepath(regionName, realmSlug)
+	if err != nil {
+		return blizzardv2.Auctions{}, time.Time{}, err
+	}
+
+	// optionally skipping non-exist auctions file
 	cachedAuctionsStat, err := os.Stat(cachedAuctionsFilepath)
 	if err != nil {
 		if !os.IsNotExist(err) {
-			return blizzard.Auctions{}, time.Time{}, err
+			return blizzardv2.Auctions{}, time.Time{}, err
 		}
 
-		return blizzard.Auctions{}, time.Time{}, nil
+		return blizzardv2.Auctions{}, time.Time{}, nil
 	}
 
-	// loading the gzipped cached Auctions file
-	logging.WithFields(logrus.Fields{
-		"region":   rea.Region.Name,
-		"realm":    rea.Slug,
-		"filepath": cachedAuctionsFilepath,
-	}).Debug("Loading auctions from filepath")
-	aucs, err := blizzard.NewAuctionsFromGzFilepath(cachedAuctionsFilepath)
+	gzipEncoded, err := util.ReadFile(cachedAuctionsFilepath)
 	if err != nil {
-		return blizzard.Auctions{}, time.Time{}, err
+		return blizzardv2.Auctions{}, time.Time{}, err
 	}
-	logging.WithFields(logrus.Fields{
-		"region":   rea.Region.Name,
-		"realm":    rea.Slug,
-		"filepath": cachedAuctionsFilepath,
-	}).Debug("Finished loading auctions from filepath")
 
-	return aucs, cachedAuctionsStat.ModTime(), nil
+	jsonEncoded, err := util.GzipDecode(gzipEncoded)
+	if err != nil {
+		return blizzardv2.Auctions{}, time.Time{}, err
+	}
+
+	var auctions blizzardv2.Auctions
+	if err := json.Unmarshal(jsonEncoded, &auctions); err != nil {
+		return blizzardv2.Auctions{}, time.Time{}, err
+	}
+
+	return auctions, cachedAuctionsStat.ModTime(), nil
 }
 
 type GetAuctionsByRealmsJob struct {
 	Err          error
 	Realm        sotah.Realm
-	Auctions     blizzard.Auctions
+	Auctions     blizzardv2.Auctions
 	LastModified time.Time
 }
 

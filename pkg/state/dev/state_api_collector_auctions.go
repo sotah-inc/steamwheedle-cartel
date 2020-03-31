@@ -223,7 +223,7 @@ func (sta *APIState) collectRegionAuctions() {
 	}
 
 	duration := time.Since(startTime)
-	sta.IO.Reporter.Report(metric.Metrics{
+	sta.reporter.Report(metric.Metrics{
 		"auctionscollector_intake_duration": int(duration) / 1000 / 1000 / 1000,
 		"included_realms":                   includedRealmCount,
 		"excluded_realms":                   totalRealms - includedRealmCount,

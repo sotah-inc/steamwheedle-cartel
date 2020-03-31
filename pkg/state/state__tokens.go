@@ -18,9 +18,9 @@ import (
 type TokensState struct {
 	BlizzardState
 
-	messenger      messenger.Messenger
-	tokensDatabase database.TokensDatabase
-	reporter       metric.Reporter
+	Messenger      messenger.Messenger
+	TokensDatabase database.TokensDatabase
+	Reporter       metric.Reporter
 }
 
 func (sta TokensState) GetListeners() SubjectListeners {
@@ -30,7 +30,7 @@ func (sta TokensState) GetListeners() SubjectListeners {
 }
 
 func (sta TokensState) ListenForTokenHistory(stop ListenStopChan) error {
-	err := sta.messenger.Subscribe(string(subjects.TokenHistory), stop, func(natsMsg nats.Msg) {
+	err := sta.Messenger.Subscribe(string(subjects.TokenHistory), stop, func(natsMsg nats.Msg) {
 		m := messenger.NewMessage()
 
 		// resolving the request
@@ -38,17 +38,17 @@ func (sta TokensState) ListenForTokenHistory(stop ListenStopChan) error {
 		if err != nil {
 			m.Err = err.Error()
 			m.Code = mCodes.MsgJSONParseError
-			sta.messenger.ReplyTo(natsMsg, m)
+			sta.Messenger.ReplyTo(natsMsg, m)
 
 			return
 		}
 
 		// fetching token-history with request data
-		tHistory, err := sta.tokensDatabase.GetHistory(blizzardv2.RegionName(request.RegionName))
+		tHistory, err := sta.TokensDatabase.GetHistory(blizzardv2.RegionName(request.RegionName))
 		if err != nil {
 			m.Err = err.Error()
 			m.Code = mCodes.MsgJSONParseError
-			sta.messenger.ReplyTo(natsMsg, m)
+			sta.Messenger.ReplyTo(natsMsg, m)
 
 			return
 		}
@@ -58,14 +58,14 @@ func (sta TokensState) ListenForTokenHistory(stop ListenStopChan) error {
 		if err != nil {
 			m.Err = err.Error()
 			m.Code = mCodes.GenericError
-			sta.messenger.ReplyTo(natsMsg, m)
+			sta.Messenger.ReplyTo(natsMsg, m)
 
 			return
 		}
 
 		// dumping it out
 		m.Data = string(encodedMessage)
-		sta.messenger.ReplyTo(natsMsg, m)
+		sta.Messenger.ReplyTo(natsMsg, m)
 	})
 	if err != nil {
 		return err
@@ -95,14 +95,14 @@ func (sta TokensState) CollectRegionTokens(regions sotah.RegionList) {
 	}
 
 	// persisting
-	if err := sta.tokensDatabase.PersistHistory(regionTokenHistory); err != nil {
+	if err := sta.TokensDatabase.PersistHistory(regionTokenHistory); err != nil {
 		logging.WithField("error", err.Error()).Error("failed to persist region token-histories")
 
 		return
 	}
 
 	duration := time.Since(startTime)
-	sta.reporter.Report(metric.Metrics{
+	sta.Reporter.Report(metric.Metrics{
 		"tokenscollector_intake_duration": int(duration) / 1000 / 1000 / 1000,
 	})
 	logging.Info("finished tokens-collector")
