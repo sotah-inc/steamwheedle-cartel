@@ -14,30 +14,21 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 )
 
-func (ds DiskStore) resolveAuctionsFilepath(
-	regionName blizzardv2.RegionName,
-	realmSlug blizzardv2.RealmSlug,
-) (string, error) {
+func (ds DiskStore) resolveAuctionsFilepath(tuple sotah.RegionRealmTuple) (string, error) {
 	if len(ds.CacheDir) == 0 {
 		return "", errors.New("cache dir cannot be blank")
 	}
 
-	return fmt.Sprintf("%s/auctions/%s/%s.json.gz", ds.CacheDir, regionName, realmSlug), nil
+	return fmt.Sprintf("%s/auctions/%s/%s.json.gz", ds.CacheDir, tuple.RegionName, tuple.RealmSlug), nil
 }
 
-type WriteAuctionsOptions struct {
-	RegionName blizzardv2.RegionName
-	RealmSlug  blizzardv2.RealmSlug
-	Auctions   blizzardv2.Auctions
-}
-
-func (ds DiskStore) WriteAuctions(opts WriteAuctionsOptions) error {
-	dest, err := ds.resolveAuctionsFilepath(opts.RegionName, opts.RealmSlug)
+func (ds DiskStore) WriteAuctionsWithTuple(tuple sotah.RegionRealmTuple, auctions blizzardv2.Auctions) error {
+	dest, err := ds.resolveAuctionsFilepath(tuple)
 	if err != nil {
 		return err
 	}
 
-	jsonEncoded, err := json.Marshal(opts.Auctions)
+	jsonEncoded, err := json.Marshal(auctions)
 	if err != nil {
 		return err
 	}
@@ -50,12 +41,63 @@ func (ds DiskStore) WriteAuctions(opts WriteAuctionsOptions) error {
 	return util.WriteFile(dest, gzipEncoded)
 }
 
-func (ds DiskStore) GetAuctions(
-	regionName blizzardv2.RegionName,
-	realmSlug blizzardv2.RealmSlug,
-) (blizzardv2.Auctions, time.Time, error) {
+type WriteAuctionsWithTuplesInJob struct {
+	Tuple    sotah.RegionRealmTuple
+	Auctions blizzardv2.Auctions
+}
+
+type WriteAuctionsWithTuplesOutJob struct {
+	Err   error
+	Tuple sotah.RegionRealmTuple
+}
+
+func (job WriteAuctionsWithTuplesOutJob) ToLogrusFields() logrus.Fields {
+	return logrus.Fields{
+		"error":  job.Err.Error(),
+		"region": job.Tuple.RegionName,
+		"realm":  job.Tuple.RealmSlug,
+	}
+}
+
+func (ds DiskStore) WriteAuctionsWithTuples(in chan WriteAuctionsWithTuplesInJob) chan WriteAuctionsWithTuplesOutJob {
+	// establishing channels
+	out := make(chan WriteAuctionsWithTuplesOutJob)
+
+	// spinning up the workers for writing
+	worker := func() {
+		for job := range in {
+			if err := ds.WriteAuctionsWithTuple(job.Tuple, job.Auctions); err != nil {
+				out <- WriteAuctionsWithTuplesOutJob{err, job.Tuple}
+
+				continue
+			}
+
+			out <- WriteAuctionsWithTuplesOutJob{nil, job.Tuple}
+		}
+	}
+	postWork := func() {
+		close(out)
+	}
+	util.Work(8, worker, postWork)
+
+	// queueing up the jobs
+	go func() {
+		for job := range in {
+			logging.WithFields(logrus.Fields{
+				"region": job.Tuple.RegionName,
+				"realm":  job.Tuple.RealmSlug,
+			}).Debug("queueing up job for writing auctions")
+
+			in <- job
+		}
+	}()
+
+	return out
+}
+
+func (ds DiskStore) GetAuctionsByTuple(tuple sotah.RegionRealmTuple) (blizzardv2.Auctions, time.Time, error) {
 	// resolving the cached auctions filepath
-	cachedAuctionsFilepath, err := ds.resolveAuctionsFilepath(regionName, realmSlug)
+	cachedAuctionsFilepath, err := ds.resolveAuctionsFilepath(tuple)
 	if err != nil {
 		return blizzardv2.Auctions{}, time.Time{}, err
 	}
@@ -88,51 +130,63 @@ func (ds DiskStore) GetAuctions(
 	return auctions, cachedAuctionsStat.ModTime(), nil
 }
 
-type GetAuctionsByRealmsJob struct {
+type GetAuctionsByTuplesJob struct {
 	Err          error
-	Realm        sotah.Realm
+	Tuple        sotah.RegionRealmTuple
 	Auctions     blizzardv2.Auctions
 	LastModified time.Time
 }
 
-func (job GetAuctionsByRealmsJob) ToLogrusFields() logrus.Fields {
+func (job GetAuctionsByTuplesJob) ToLogrusFields() logrus.Fields {
 	return logrus.Fields{}
 }
 
-func (ds DiskStore) GetAuctionsByRealms(reas sotah.Realms) chan GetAuctionsByRealmsJob {
+func (ds DiskStore) GetAuctionsByTuples(tuples sotah.RegionRealmTuples) chan GetAuctionsByTuplesJob {
 	// establishing channels
-	out := make(chan GetAuctionsByRealmsJob)
-	in := make(chan sotah.Realm)
+	out := make(chan GetAuctionsByTuplesJob)
+	in := make(chan sotah.RegionRealmTuple)
 
 	// spinning up the workers for fetching auctions
 	worker := func() {
-		for rea := range in {
-			aucs, lastModified, err := ds.GetAuctionsByRealm(rea)
-			if lastModified.IsZero() {
-				logging.WithFields(logrus.Fields{
-					"region": rea.Region.Name,
-					"realm":  rea.Slug,
-				}).Error("Last-modified was blank when loading auctions from filecache")
+		for tuple := range in {
+			aucs, lastModified, err := ds.GetAuctionsByTuple(tuple)
+			if err != nil {
+				out <- GetAuctionsByTuplesJob{
+					Err:          err,
+					Tuple:        tuple,
+					Auctions:     nil,
+					LastModified: time.Time{},
+				}
 
 				continue
 			}
 
-			out <- GetAuctionsByRealmsJob{err, rea, aucs, lastModified}
+			if lastModified.IsZero() {
+				logging.WithFields(logrus.Fields{
+					"region": tuple.RegionName,
+					"realm":  tuple.RealmSlug,
+				}).Error("last-modified was blank when fetching auctions from filecache")
+
+				continue
+			}
+
+			out <- GetAuctionsByTuplesJob{err, tuple, aucs, lastModified}
 		}
 	}
 	postWork := func() {
 		close(out)
 	}
-	util.Work(4, worker, postWork)
+	util.Work(8, worker, postWork)
 
-	// queueing up the realms
+	// queueing up the tuples
 	go func() {
-		for _, rea := range reas {
+		for _, tuple := range tuples {
 			logging.WithFields(logrus.Fields{
-				"region": rea.Region.Name,
-				"realm":  rea.Slug,
-			}).Debug("Queueing up auction for loading")
-			in <- rea
+				"region": tuple.RegionName,
+				"realm":  tuple.RealmSlug,
+			}).Debug("queueing up tuple for fetching")
+
+			in <- tuple
 		}
 
 		close(in)
