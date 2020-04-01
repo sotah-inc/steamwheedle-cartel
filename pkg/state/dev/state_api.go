@@ -184,7 +184,7 @@ type APIState struct {
 
 	// set at run-time
 	sessionSecret         uuid.UUID
-	regionConnectedRealms map[blizzardv2.RegionName]blizzardv2.ConnectedRealmResponses
+	regionConnectedRealms blizzardv2.RegionConnectedRealmResponses
 	itemClasses           []blizzardv2.ItemClassResponse
 
 	// derived from config file

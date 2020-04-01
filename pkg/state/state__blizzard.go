@@ -9,10 +9,10 @@ type BlizzardState struct {
 	BlizzardClient blizzardv2.Client
 }
 
-type RegionConnectedRealms map[blizzardv2.RegionName]blizzardv2.ConnectedRealmResponses
-
-func (sta BlizzardState) ResolveRegionConnectedRealms(regions sotah.RegionList) (RegionConnectedRealms, error) {
-	out := RegionConnectedRealms{}
+func (sta BlizzardState) ResolveRegionConnectedRealms(
+	regions sotah.RegionList,
+) (blizzardv2.RegionConnectedRealmResponses, error) {
+	out := blizzardv2.RegionConnectedRealmResponses{}
 	for _, region := range regions {
 		var err error
 		out[region.Name], err = sta.resolveConnectedRealms(region)
@@ -24,7 +24,7 @@ func (sta BlizzardState) ResolveRegionConnectedRealms(regions sotah.RegionList) 
 	return out, nil
 }
 
-func (sta BlizzardState) resolveConnectedRealms(region sotah.Region) (blizzardv2.ConnectedRealmResponses, error) {
+func (sta BlizzardState) resolveConnectedRealms(region sotah.Region) ([]blizzardv2.ConnectedRealmResponse, error) {
 	return blizzardv2.GetAllConnectedRealms(blizzardv2.GetAllConnectedRealmsOptions{
 		GetConnectedRealmIndexURL: func() (string, error) {
 			return sta.BlizzardClient.AppendAccessToken(
@@ -55,7 +55,9 @@ func (sta BlizzardState) ResolveItemClasses(regions sotah.RegionList) ([]blizzar
 	})
 }
 
-func (sta BlizzardState) ResolveTokens(regions sotah.RegionList) (map[blizzardv2.RegionName]blizzardv2.TokenResponse, error) {
+func (sta BlizzardState) ResolveTokens(
+	regions sotah.RegionList,
+) (map[blizzardv2.RegionName]blizzardv2.TokenResponse, error) {
 	return blizzardv2.GetTokens(blizzardv2.GetTokensOptions{
 		Tuples: func() []blizzardv2.RegionHostnameTuple {
 			out := make([]blizzardv2.RegionHostnameTuple, len(regions))
@@ -72,6 +74,15 @@ func (sta BlizzardState) ResolveTokens(regions sotah.RegionList) (map[blizzardv2
 			return sta.BlizzardClient.AppendAccessToken(
 				blizzardv2.DefaultGetTokenURL(regionHostname, regionName),
 			)
+		},
+	})
+}
+
+func (sta BlizzardState) ResolveAuctions(tuples []blizzardv2.RegionConnectedRealmTuple) chan blizzardv2.GetAuctionsJob {
+	return blizzardv2.GetAuctions(blizzardv2.GetAuctionsOptions{
+		Tuples: tuples,
+		GetAuctionsURL: func(tuple blizzardv2.RegionConnectedRealmTuple) (s string, err error) {
+			return sta.BlizzardClient.AppendAccessToken(blizzardv2.DefaultGetAuctionsURL(tuple))
 		},
 	})
 }

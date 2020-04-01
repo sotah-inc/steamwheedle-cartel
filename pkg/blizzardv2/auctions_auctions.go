@@ -3,11 +3,20 @@ package blizzardv2
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 )
+
+const auctionsURLFormat = "https://%s/data/wow/connected-realm/%d/auctions?namespace=dynamic-%s"
+
+func DefaultGetAuctionsURL(tuple RegionConnectedRealmTuple) string {
+	return fmt.Sprintf(auctionsURLFormat, tuple.RegionHostname, tuple.ConnectedRealmId, tuple.RegionName)
+}
+
+type GetAuctionsURLFunc func(string, RegionName, ConnectedRealmId) string
 
 type AuctionId int64
 

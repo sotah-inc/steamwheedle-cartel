@@ -24,18 +24,18 @@ func (job GetAllConnectedRealmsJob) ToLogrusFields() logrus.Fields {
 	}
 }
 
-func GetAllConnectedRealms(opts GetAllConnectedRealmsOptions) (ConnectedRealmResponses, error) {
+func GetAllConnectedRealms(opts GetAllConnectedRealmsOptions) ([]ConnectedRealmResponse, error) {
 	// querying index
 	uri, err := opts.GetConnectedRealmIndexURL()
 	if err != nil {
-		return ConnectedRealmResponses{}, err
+		return []ConnectedRealmResponse{}, err
 	}
 
 	crIndex, _, err := NewConnectedRealmIndexFromHTTP(uri)
 	if err != nil {
 		logging.WithField("error", err.Error()).Error("failed to get connected-realm-index")
 
-		return ConnectedRealmResponses{}, err
+		return []ConnectedRealmResponse{}, err
 	}
 
 	// starting up workers for gathering individual connected-realms
@@ -87,11 +87,11 @@ func GetAllConnectedRealms(opts GetAllConnectedRealmsOptions) (ConnectedRealmRes
 	}()
 
 	// waiting for it all to drain out
-	result := make(ConnectedRealmResponses, len(crIndex.ConnectedRealms))
+	result := make([]ConnectedRealmResponse, len(crIndex.ConnectedRealms))
 	i := 0
 	for outJob := range out {
 		if outJob.Err != nil {
-			return ConnectedRealmResponses{}, outJob.Err
+			return []ConnectedRealmResponse{}, outJob.Err
 		}
 
 		result[i] = outJob.ConnectedRealmResponse

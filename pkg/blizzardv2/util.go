@@ -11,3 +11,9 @@ type SelfReference struct {
 type HrefReference struct {
 	Href string `json:"href"`
 }
+
+type RegionConnectedRealmTuple struct {
+	RegionName       RegionName
+	RegionHostname   string
+	ConnectedRealmId ConnectedRealmId
+}

@@ -5,32 +5,37 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 )
 
-type ConnectedRealmResponses []ConnectedRealmResponse
-
 type GetAuctionsJob struct {
 	Err              error
-	HrefReference    HrefReference
+	Tuple            RegionConnectedRealmTuple
 	AuctionsResponse AuctionsResponse
 }
 
 func (job GetAuctionsJob) ToLogrusFields() logrus.Fields {
 	return logrus.Fields{
-		"error": job.Err.Error(),
-		"href":  job.HrefReference.Href,
+		"error":           job.Err.Error(),
+		"region":          job.Tuple.RegionName,
+		"connected-realm": job.Tuple.ConnectedRealmId,
 	}
 }
 
-func (response ConnectedRealmResponses) GetAuctions(getAuctionsURL func(string) (string, error)) chan GetAuctionsJob {
+type GetAuctionsOptions struct {
+	Tuples         []RegionConnectedRealmTuple
+	GetAuctionsURL func(RegionConnectedRealmTuple) (string, error)
+}
+
+func GetAuctions(opts GetAuctionsOptions) chan GetAuctionsJob {
 	// starting up workers for gathering individual connected-realms
-	in := make(chan HrefReference)
+	in := make(chan RegionConnectedRealmTuple)
 	out := make(chan GetAuctionsJob)
 	worker := func() {
-		for hrefRef := range in {
-			getAuctionsUri, err := getAuctionsURL(hrefRef.Href)
+		for tuple := range in {
+			getAuctionsUri, err := opts.GetAuctionsURL(tuple)
 			if err != nil {
 				out <- GetAuctionsJob{
-					Err:           err,
-					HrefReference: hrefRef,
+					Err:              err,
+					Tuple:            tuple,
+					AuctionsResponse: AuctionsResponse{},
 				}
 
 				continue
@@ -39,8 +44,9 @@ func (response ConnectedRealmResponses) GetAuctions(getAuctionsURL func(string) 
 			auctionsResponse, _, err := NewAuctionsFromHTTP(getAuctionsUri)
 			if err != nil {
 				out <- GetAuctionsJob{
-					Err:           err,
-					HrefReference: hrefRef,
+					Err:              err,
+					Tuple:            tuple,
+					AuctionsResponse: AuctionsResponse{},
 				}
 
 				continue
@@ -48,7 +54,7 @@ func (response ConnectedRealmResponses) GetAuctions(getAuctionsURL func(string) 
 
 			out <- GetAuctionsJob{
 				Err:              nil,
-				HrefReference:    hrefRef,
+				Tuple:            tuple,
 				AuctionsResponse: auctionsResponse,
 			}
 		}
