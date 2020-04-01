@@ -18,7 +18,7 @@ func (sta DiskAuctionsState) Collect(tuples []blizzardv2.RegionConnectedRealmTup
 	storeAucsInJobs := make(chan diskstore.WriteAuctionsWithTuplesInJob)
 	storeAucsOutJobs := sta.DiskStore.WriteAuctionsWithTuples(storeAucsInJobs)
 
-	// interpolating auctions-out jobs into store-auctions-in jobs
+	// interpolating resolve-auctions-out jobs into store-auctions-in jobs
 	go func() {
 		for aucsOutJob := range aucsOutJobs {
 			if aucsOutJob.Err != nil {
