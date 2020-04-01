@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/sirupsen/logrus"
 	"github.com/twinj/uuid"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database"
@@ -41,7 +40,6 @@ func NewAPIState(config APIStateConfig) (*APIState, error) {
 	sta := APIState{
 		State:         state.NewState(uuid.NewV4(), false),
 		sessionSecret: uuid.NewV4(),
-		regions:       config.SotahConfig.FilterInRegions(config.SotahConfig.Regions),
 		expansions:    config.SotahConfig.Expansions,
 		professions: func() []sotah.Profession {
 			out := make([]sotah.Profession, len(config.SotahConfig.Professions))
@@ -54,6 +52,7 @@ func NewAPIState(config APIStateConfig) (*APIState, error) {
 		}(),
 		itemBlacklist: config.SotahConfig.ItemBlacklist,
 	}
+	regions := config.SotahConfig.FilterInRegions(config.SotahConfig.Regions)
 
 	var err error
 	sta.diskStore, err = func() (diskstore.DiskStore, error) {
@@ -69,7 +68,7 @@ func NewAPIState(config APIStateConfig) (*APIState, error) {
 			fmt.Sprintf("%s/auctions", config.DiskStoreCacheDir),
 			fmt.Sprintf("%s/databases", config.DiskStoreCacheDir),
 		}
-		for _, reg := range sta.regions {
+		for _, reg := range regions {
 			cacheDirs = append(cacheDirs, fmt.Sprintf("%s/auctions/%s", config.DiskStoreCacheDir, reg.Name))
 		}
 
@@ -105,18 +104,11 @@ func NewAPIState(config APIStateConfig) (*APIState, error) {
 		return nil, err
 	}
 
-	// gathering connected-realms
-	sta.regionConnectedRealms, err = sta.BlizzardState.ResolveRegionConnectedRealms(sta.regions)
-	if err != nil {
-		logging.WithFields(logrus.Fields{
-			"error": err.Error(),
-		}).Error("failed to resolve region connected-realms")
-
-		return nil, err
-	}
+	// gathering region-state
+	sta.RegionState, err = state.NewRegionState(sta.BlizzardState, regions)
 
 	// gathering item-classes
-	sta.itemClasses, err = sta.BlizzardState.ResolveItemClasses(sta.regions)
+	sta.itemClasses, err = sta.BlizzardState.ResolveItemClasses(regions)
 	if err != nil {
 		logging.WithField("error", err.Error()).Error("failed to get item-classes")
 
@@ -181,14 +173,13 @@ type APIState struct {
 	ItemsState    state.ItemsState
 	AreaMapsState state.AreaMapsState
 	TokensState   state.TokensState
+	RegionState   state.RegionsState
 
 	// set at run-time
-	sessionSecret         uuid.UUID
-	regionConnectedRealms blizzardv2.RegionConnectedRealmResponses
-	itemClasses           []blizzardv2.ItemClassResponse
+	sessionSecret uuid.UUID
+	itemClasses   []blizzardv2.ItemClassResponse
 
 	// derived from config file
-	regions       sotah.RegionList
 	expansions    []sotah.Expansion
 	professions   []sotah.Profession
 	itemBlacklist state.ItemBlacklist

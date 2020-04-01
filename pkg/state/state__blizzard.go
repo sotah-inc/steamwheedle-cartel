@@ -11,8 +11,8 @@ type BlizzardState struct {
 
 func (sta BlizzardState) ResolveRegionConnectedRealms(
 	regions sotah.RegionList,
-) (blizzardv2.RegionConnectedRealmResponses, error) {
-	out := blizzardv2.RegionConnectedRealmResponses{}
+) (map[blizzardv2.RegionName][]blizzardv2.ConnectedRealmResponse, error) {
+	out := map[blizzardv2.RegionName][]blizzardv2.ConnectedRealmResponse{}
 	for _, region := range regions {
 		var err error
 		out[region.Name], err = sta.resolveConnectedRealms(region)
