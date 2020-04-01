@@ -44,13 +44,13 @@ type Auction struct {
 
 type Auctions []Auction
 
-func (aucs Auctions) ItemIds() []ItemId {
+func (aucs Auctions) ItemIds() ItemIds {
 	itemIdsMap := map[ItemId]interface{}{}
 	for _, auc := range aucs {
 		itemIdsMap[auc.Item.Id] = struct{}{}
 	}
 
-	out := make([]ItemId, len(itemIdsMap))
+	out := make(ItemIds, len(itemIdsMap))
 	i := 0
 	for id := range itemIdsMap {
 		out[i] = id
@@ -64,7 +64,7 @@ func (aucs Auctions) ItemIds() []ItemId {
 type AuctionsResponse struct {
 	LinksBase
 	ConnectedRealm HrefReference `json:"connected_realm"`
-	Auctions       []Auction     `json:"auctions"`
+	Auctions       Auctions      `json:"auctions"`
 }
 
 func NewAuctionsFromHTTP(uri string) (AuctionsResponse, ResponseMeta, error) {
