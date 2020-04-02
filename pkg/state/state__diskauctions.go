@@ -3,6 +3,8 @@ package state
 import (
 	"time"
 
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
+
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/diskstore"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
@@ -21,8 +23,8 @@ type CollectAuctionsResult struct {
 }
 
 type CollectAuctionsResults struct {
-	ItemIds                          blizzardv2.ItemIds
-	RegionConnectedRealmLastModified map[blizzardv2.RegionName]map[blizzardv2.ConnectedRealmId]time.Time
+	ItemIds          blizzardv2.ItemIds
+	RegionTimestamps sotah.RegionTimestamps
 }
 
 func (sta DiskAuctionsState) CollectAuctions(
@@ -62,22 +64,19 @@ func (sta DiskAuctionsState) CollectAuctions(
 	// spinning up a worker for receiving results from auctions-out worker
 	go func() {
 		results := CollectAuctionsResults{
-			ItemIds:                          blizzardv2.ItemIds{},
-			RegionConnectedRealmLastModified: map[blizzardv2.RegionName]map[blizzardv2.ConnectedRealmId]time.Time{},
+			ItemIds:          blizzardv2.ItemIds{},
+			RegionTimestamps: sotah.RegionTimestamps{},
 		}
 		for job := range resultsInJob {
-			// misc
-			regionName := job.Tuple.RegionName
-			connectedRealmId := job.Tuple.ConnectedRealmId
+			// loading last-modified in
+			results.RegionTimestamps = results.RegionTimestamps.SetDownloaded(
+				job.Tuple.RegionName,
+				job.Tuple.ConnectedRealmId,
+				job.LastModified,
+			)
 
 			// loading item-ids in
 			results.ItemIds = results.ItemIds.Merge(job.ItemIds)
-
-			// loading last-modified in
-			if _, ok := results.RegionConnectedRealmLastModified[regionName]; !ok {
-				results.RegionConnectedRealmLastModified[regionName] = map[blizzardv2.ConnectedRealmId]time.Time{}
-			}
-			results.RegionConnectedRealmLastModified[regionName][connectedRealmId] = job.LastModified
 		}
 
 		resultsOutJob <- results
