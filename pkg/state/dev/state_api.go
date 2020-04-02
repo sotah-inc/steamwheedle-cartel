@@ -148,6 +148,11 @@ func NewAPIState(config APIStateConfig) (*APIState, error) {
 		TokensDatabase: sta.tokensDatabase,
 		Reporter:       sta.reporter,
 	}
+	sta.DiskAuctionsState = &state.DiskAuctionsState{
+		BlizzardState:    sta.BlizzardState,
+		DiskStore:        sta.diskStore,
+		RegionTimestamps: sotah.RegionTimestamps{},
+	}
 
 	// establishing listeners
 	sta.Listeners = state.NewListeners(state.NewSubjectListeners([]state.SubjectListeners{
@@ -169,11 +174,12 @@ func NewAPIState(config APIStateConfig) (*APIState, error) {
 
 type APIState struct {
 	state.State
-	BlizzardState state.BlizzardState
-	ItemsState    state.ItemsState
-	AreaMapsState state.AreaMapsState
-	TokensState   state.TokensState
-	RegionState   state.RegionsState
+	BlizzardState     state.BlizzardState
+	ItemsState        state.ItemsState
+	AreaMapsState     state.AreaMapsState
+	TokensState       state.TokensState
+	RegionState       state.RegionsState
+	DiskAuctionsState *state.DiskAuctionsState
 
 	// set at run-time
 	sessionSecret uuid.UUID

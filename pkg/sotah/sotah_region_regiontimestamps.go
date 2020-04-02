@@ -12,6 +12,18 @@ type ConnectedRealmTimestamps struct {
 
 type RegionTimestamps map[blizzardv2.RegionName]map[blizzardv2.ConnectedRealmId]ConnectedRealmTimestamps
 
+func (regionTimestamps RegionTimestamps) IsZero() bool {
+	for _, connectedRealmTimestamps := range regionTimestamps {
+		for _, timestamps := range connectedRealmTimestamps {
+			if !timestamps.Downloaded.IsZero() {
+				return true
+			}
+		}
+	}
+
+	return false
+}
+
 func (regionTimestamps RegionTimestamps) resolve(
 	name blizzardv2.RegionName,
 	id blizzardv2.ConnectedRealmId,
