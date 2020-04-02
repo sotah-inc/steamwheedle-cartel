@@ -10,9 +10,16 @@ func NewRegionState(blizzardState BlizzardState, regions sotah.RegionList) (Regi
 
 	regionComposites := make(sotah.RegionComposites, len(regions))
 	for i, region := range regions {
+		connectedRealms := regionConnectedRealms[region.Name]
+
+		realmComposites := make([]sotah.RealmComposite, len(connectedRealms))
+		for j, response := range connectedRealms {
+			realmComposites[j] = sotah.RealmComposite{ConnectedRealmResponse: response}
+		}
+
 		regionComposites[i] = sotah.RegionComposite{
-			Region:          region,
-			ConnectedRealms: regionConnectedRealms[region.Name],
+			ConfigRegion:             region,
+			ConnectedRealmComposites: realmComposites,
 		}
 	}
 

@@ -1,6 +1,8 @@
 package blizzardv2
 
 import (
+	"time"
+
 	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 )
@@ -9,6 +11,7 @@ type GetAuctionsJob struct {
 	Err              error
 	Tuple            RegionConnectedRealmTuple
 	AuctionsResponse AuctionsResponse
+	LastModified     time.Time
 }
 
 func (job GetAuctionsJob) ToLogrusFields() logrus.Fields {
@@ -36,17 +39,19 @@ func GetAuctions(opts GetAuctionsOptions) chan GetAuctionsJob {
 					Err:              err,
 					Tuple:            tuple,
 					AuctionsResponse: AuctionsResponse{},
+					LastModified:     time.Time{},
 				}
 
 				continue
 			}
 
-			auctionsResponse, _, err := NewAuctionsFromHTTP(getAuctionsUri)
+			auctionsResponse, responseMeta, err := NewAuctionsFromHTTP(getAuctionsUri)
 			if err != nil {
 				out <- GetAuctionsJob{
 					Err:              err,
 					Tuple:            tuple,
 					AuctionsResponse: AuctionsResponse{},
+					LastModified:     time.Time{},
 				}
 
 				continue
@@ -56,6 +61,7 @@ func GetAuctions(opts GetAuctionsOptions) chan GetAuctionsJob {
 				Err:              nil,
 				Tuple:            tuple,
 				AuctionsResponse: auctionsResponse,
+				LastModified:     responseMeta.LastModified,
 			}
 		}
 	}

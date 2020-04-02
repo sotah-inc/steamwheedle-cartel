@@ -1,6 +1,8 @@
 package state
 
 import (
+	"time"
+
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/diskstore"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
@@ -12,6 +14,17 @@ type DiskAuctionsState struct {
 	DiskStore diskstore.DiskStore
 }
 
+type CollectAuctionsResult struct {
+	Tuple        blizzardv2.RegionConnectedRealmTuple
+	ItemIds      blizzardv2.ItemIds
+	LastModified time.Time
+}
+
+type CollectAuctionsResults struct {
+	ItemIds                          blizzardv2.ItemIds
+	RegionConnectedRealmLastModified map[blizzardv2.RegionName]map[blizzardv2.ConnectedRealmId]time.Time
+}
+
 func (sta DiskAuctionsState) CollectAuctions(
 	tuples []blizzardv2.RegionConnectedRealmTuple,
 ) (blizzardv2.ItemIds, error) {
@@ -19,8 +32,8 @@ func (sta DiskAuctionsState) CollectAuctions(
 	aucsOutJobs := sta.BlizzardState.ResolveAuctions(tuples)
 	storeAucsInJobs := make(chan diskstore.WriteAuctionsWithTuplesInJob)
 	storeAucsOutJobs := sta.DiskStore.WriteAuctionsWithTuples(storeAucsInJobs)
-	itemIdsInJobs := make(chan blizzardv2.ItemIds)
-	itemIdsOutJob := make(chan blizzardv2.ItemIds)
+	resultsInJob := make(chan CollectAuctionsResult)
+	resultsOutJob := make(chan CollectAuctionsResults)
 
 	// interpolating resolve-auctions-out jobs into store-auctions-in jobs
 	go func() {
@@ -35,22 +48,40 @@ func (sta DiskAuctionsState) CollectAuctions(
 				Tuple:    aucsOutJob.Tuple,
 				Auctions: aucsOutJob.AuctionsResponse.Auctions,
 			}
-			itemIdsInJobs <- aucsOutJob.AuctionsResponse.Auctions.ItemIds()
+			resultsInJob <- CollectAuctionsResult{
+				Tuple:        aucsOutJob.Tuple,
+				ItemIds:      aucsOutJob.AuctionsResponse.Auctions.ItemIds(),
+				LastModified: aucsOutJob.LastModified,
+			}
 		}
 
 		close(storeAucsInJobs)
-		close(itemIdsInJobs)
+		close(resultsInJob)
 	}()
 
-	// spinning up a worker for receiving item-ids from auctions
+	// spinning up a worker for receiving results from auctions-out worker
 	go func() {
-		results := blizzardv2.ItemIds{}
-		for receivedItemIds := range itemIdsInJobs {
-			results = results.Merge(receivedItemIds)
+		results := CollectAuctionsResults{
+			ItemIds:                          blizzardv2.ItemIds{},
+			RegionConnectedRealmLastModified: map[blizzardv2.RegionName]map[blizzardv2.ConnectedRealmId]time.Time{},
+		}
+		for job := range resultsInJob {
+			// misc
+			regionName := job.Tuple.RegionName
+			connectedRealmId := job.Tuple.ConnectedRealmId
+
+			// loading item-ids in
+			results.ItemIds = results.ItemIds.Merge(job.ItemIds)
+
+			// loading last-modified in
+			if _, ok := results.RegionConnectedRealmLastModified[regionName]; !ok {
+				results.RegionConnectedRealmLastModified[regionName] = map[blizzardv2.ConnectedRealmId]time.Time{}
+			}
+			results.RegionConnectedRealmLastModified[regionName][connectedRealmId] = job.LastModified
 		}
 
-		itemIdsOutJob <- results
-		close(itemIdsOutJob)
+		resultsOutJob <- results
+		close(resultsOutJob)
 	}()
 
 	// waiting for store-auctions results to drain out
@@ -63,7 +94,7 @@ func (sta DiskAuctionsState) CollectAuctions(
 	}
 
 	// waiting for item-ids to drain out
-	receivedItemIds := <-itemIdsOutJob
+	results := <-resultsOutJob
 
-	return receivedItemIds, nil
+	return results.ItemIds, nil
 }

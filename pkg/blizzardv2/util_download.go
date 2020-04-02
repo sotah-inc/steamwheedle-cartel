@@ -73,7 +73,7 @@ type ResponseMeta struct {
 	Status             int
 	ConnectionDuration time.Duration
 	RequestDuration    time.Duration
-	LastModified       int64
+	LastModified       time.Time
 }
 
 type DownloadOptions struct {
@@ -108,18 +108,13 @@ func Download(opts DownloadOptions) (ResponseMeta, error) {
 	}()
 
 	// checking last-modified header
-	parsedLastModified, err := func() (int64, error) {
+	parsedLastModified, err := func() (time.Time, error) {
 		foundLastModified := resp.Header.Get("Last-Modified")
 		if foundLastModified == "" {
-			return 0, nil
+			return time.Time{}, nil
 		}
 
-		parsed, err := time.Parse(time.RFC1123, foundLastModified)
-		if err != nil {
-			return 0, err
-		}
-
-		return parsed.Unix(), nil
+		return time.Parse(time.RFC1123, foundLastModified)
 	}()
 	if err != nil {
 		return ResponseMeta{}, err
