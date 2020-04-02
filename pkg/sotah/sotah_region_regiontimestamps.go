@@ -12,7 +12,7 @@ type ConnectedRealmTimestamps struct {
 
 type RegionTimestamps map[blizzardv2.RegionName]map[blizzardv2.ConnectedRealmId]ConnectedRealmTimestamps
 
-func (regionTimestamps RegionTimestamps) Resolve(
+func (regionTimestamps RegionTimestamps) resolve(
 	name blizzardv2.RegionName,
 	id blizzardv2.ConnectedRealmId,
 ) RegionTimestamps {
@@ -33,7 +33,7 @@ func (regionTimestamps RegionTimestamps) SetDownloaded(
 	downloaded time.Time,
 ) RegionTimestamps {
 	// resolving due to missing members
-	out := regionTimestamps.Resolve(name, id)
+	out := regionTimestamps.resolve(name, id)
 
 	// pushing the new time into the found member
 	result := out[name][id]
