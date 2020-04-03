@@ -14,7 +14,7 @@ import (
 
 type DiskAuctionsState struct {
 	BlizzardState BlizzardState
-	RegionsState  RegionsState
+	RegionsState  *RegionsState
 
 	DiskStore diskstore.DiskStore
 }
@@ -30,7 +30,7 @@ type CollectAuctionsResults struct {
 	RegionTimestamps sotah.RegionTimestamps
 }
 
-func (sta *DiskAuctionsState) CollectAuctions() (blizzardv2.ItemIds, error) {
+func (sta DiskAuctionsState) CollectAuctions() (blizzardv2.ItemIds, error) {
 	// spinning up workers
 	aucsOutJobs := sta.BlizzardState.ResolveAuctions(sta.RegionsState.RegionComposites.ToDownloadTuples())
 	storeAucsInJobs := make(chan diskstore.WriteAuctionsWithTuplesInJob)
@@ -105,9 +105,9 @@ func (sta *DiskAuctionsState) CollectAuctions() (blizzardv2.ItemIds, error) {
 	// waiting for item-ids to drain out
 	results := <-resultsOutJob
 
-	// optionally updating local state
+	// optionally updating region state
 	if !results.RegionTimestamps.IsZero() {
-		sta.RegionsState.RegionComposites = sta.RegionsState.RegionComposites.Receive(results.RegionTimestamps)
+		sta.RegionsState.ReceiveTimestamps(results.RegionTimestamps)
 	}
 
 	return results.ItemIds, nil

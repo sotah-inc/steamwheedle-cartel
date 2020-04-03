@@ -148,7 +148,7 @@ func NewAPIState(config APIStateConfig) (*APIState, error) {
 		TokensDatabase: sta.tokensDatabase,
 		Reporter:       sta.reporter,
 	}
-	sta.DiskAuctionsState = &state.DiskAuctionsState{
+	sta.DiskAuctionsState = state.DiskAuctionsState{
 		BlizzardState: sta.BlizzardState,
 		RegionsState:  sta.RegionState,
 		DiskStore:     sta.diskStore,
@@ -178,8 +178,8 @@ type APIState struct {
 	ItemsState        state.ItemsState
 	AreaMapsState     state.AreaMapsState
 	TokensState       state.TokensState
-	RegionState       state.RegionsState
-	DiskAuctionsState *state.DiskAuctionsState
+	RegionState       *state.RegionsState
+	DiskAuctionsState state.DiskAuctionsState
 
 	// set at run-time
 	sessionSecret uuid.UUID

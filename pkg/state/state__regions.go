@@ -2,10 +2,10 @@ package state
 
 import "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 
-func NewRegionState(blizzardState BlizzardState, regions sotah.RegionList) (RegionsState, error) {
+func NewRegionState(blizzardState BlizzardState, regions sotah.RegionList) (*RegionsState, error) {
 	regionConnectedRealms, err := blizzardState.ResolveRegionConnectedRealms(regions)
 	if err != nil {
-		return RegionsState{}, err
+		return nil, err
 	}
 
 	regionComposites := make(sotah.RegionComposites, len(regions))
@@ -23,11 +23,15 @@ func NewRegionState(blizzardState BlizzardState, regions sotah.RegionList) (Regi
 		}
 	}
 
-	return RegionsState{blizzardState, regionComposites}, nil
+	return &RegionsState{blizzardState, regionComposites}, nil
 }
 
 type RegionsState struct {
 	BlizzardState BlizzardState
 
 	RegionComposites sotah.RegionComposites
+}
+
+func (sta RegionsState) ReceiveTimestamps(timestamps sotah.RegionTimestamps) {
+	sta.RegionComposites.Receive(timestamps)
 }
