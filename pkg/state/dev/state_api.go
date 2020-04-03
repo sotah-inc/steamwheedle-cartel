@@ -149,9 +149,9 @@ func NewAPIState(config APIStateConfig) (*APIState, error) {
 		Reporter:       sta.reporter,
 	}
 	sta.DiskAuctionsState = &state.DiskAuctionsState{
-		BlizzardState:    sta.BlizzardState,
-		DiskStore:        sta.diskStore,
-		RegionTimestamps: sotah.RegionTimestamps{},
+		BlizzardState: sta.BlizzardState,
+		RegionsState:  sta.RegionState,
+		DiskStore:     sta.diskStore,
 	}
 
 	// establishing listeners

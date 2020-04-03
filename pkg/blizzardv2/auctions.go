@@ -1,6 +1,7 @@
 package blizzardv2
 
 import (
+	"net/http"
 	"time"
 
 	"github.com/sirupsen/logrus"
@@ -9,9 +10,10 @@ import (
 
 type GetAuctionsJob struct {
 	Err              error
-	Tuple            RegionConnectedRealmTuple
+	Tuple            DownloadConnectedRealmTuple
 	AuctionsResponse AuctionsResponse
 	LastModified     time.Time
+	IsNew            bool
 }
 
 func (job GetAuctionsJob) ToLogrusFields() logrus.Fields {
@@ -23,13 +25,13 @@ func (job GetAuctionsJob) ToLogrusFields() logrus.Fields {
 }
 
 type GetAuctionsOptions struct {
-	Tuples         []RegionConnectedRealmTuple
-	GetAuctionsURL func(RegionConnectedRealmTuple) (string, error)
+	Tuples         []DownloadConnectedRealmTuple
+	GetAuctionsURL func(DownloadConnectedRealmTuple) (string, error)
 }
 
 func GetAuctions(opts GetAuctionsOptions) chan GetAuctionsJob {
 	// starting up workers for gathering individual connected-realms
-	in := make(chan RegionConnectedRealmTuple)
+	in := make(chan DownloadConnectedRealmTuple)
 	out := make(chan GetAuctionsJob)
 	worker := func() {
 		for tuple := range in {
@@ -40,6 +42,7 @@ func GetAuctions(opts GetAuctionsOptions) chan GetAuctionsJob {
 					Tuple:            tuple,
 					AuctionsResponse: AuctionsResponse{},
 					LastModified:     time.Time{},
+					IsNew:            false,
 				}
 
 				continue
@@ -52,6 +55,19 @@ func GetAuctions(opts GetAuctionsOptions) chan GetAuctionsJob {
 					Tuple:            tuple,
 					AuctionsResponse: AuctionsResponse{},
 					LastModified:     time.Time{},
+					IsNew:            false,
+				}
+
+				continue
+			}
+
+			if responseMeta.Status == http.StatusNotModified {
+				out <- GetAuctionsJob{
+					Err:              nil,
+					Tuple:            tuple,
+					AuctionsResponse: AuctionsResponse{},
+					LastModified:     time.Time{},
+					IsNew:            false,
 				}
 
 				continue
@@ -62,6 +78,7 @@ func GetAuctions(opts GetAuctionsOptions) chan GetAuctionsJob {
 				Tuple:            tuple,
 				AuctionsResponse: auctionsResponse,
 				LastModified:     responseMeta.LastModified,
+				IsNew:            true,
 			}
 		}
 	}

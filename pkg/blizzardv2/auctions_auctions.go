@@ -12,7 +12,7 @@ import (
 
 const auctionsURLFormat = "https://%s/data/wow/connected-realm/%d/auctions?namespace=dynamic-%s"
 
-func DefaultGetAuctionsURL(tuple RegionConnectedRealmTuple) string {
+func DefaultGetAuctionsURL(tuple DownloadConnectedRealmTuple) string {
 	return fmt.Sprintf(auctionsURLFormat, tuple.RegionHostname, tuple.ConnectedRealmId, tuple.RegionName)
 }
 
@@ -79,6 +79,15 @@ func NewAuctionsFromHTTP(uri string) (AuctionsResponse, ResponseMeta, error) {
 	}
 
 	if resp.Status != http.StatusOK {
+		if resp.Status == http.StatusNotModified {
+			logging.WithFields(logrus.Fields{
+				"status": resp.Status,
+				"uri":    uri,
+			}).Error("resp from auctions was not 304 Not Modified")
+
+			return AuctionsResponse{}, resp, nil
+		}
+
 		logging.WithFields(logrus.Fields{
 			"status": resp.Status,
 			"uri":    uri,

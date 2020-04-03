@@ -3,6 +3,8 @@ package state
 import (
 	"time"
 
+	"github.com/sirupsen/logrus"
+
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
@@ -12,9 +14,9 @@ import (
 
 type DiskAuctionsState struct {
 	BlizzardState BlizzardState
+	RegionsState  RegionsState
 
-	DiskStore        diskstore.DiskStore
-	RegionTimestamps sotah.RegionTimestamps
+	DiskStore diskstore.DiskStore
 }
 
 type CollectAuctionsResult struct {
@@ -28,11 +30,9 @@ type CollectAuctionsResults struct {
 	RegionTimestamps sotah.RegionTimestamps
 }
 
-func (sta *DiskAuctionsState) CollectAuctions(
-	tuples []blizzardv2.RegionConnectedRealmTuple,
-) (blizzardv2.ItemIds, error) {
+func (sta *DiskAuctionsState) CollectAuctions() (blizzardv2.ItemIds, error) {
 	// spinning up workers
-	aucsOutJobs := sta.BlizzardState.ResolveAuctions(tuples)
+	aucsOutJobs := sta.BlizzardState.ResolveAuctions(sta.RegionsState.RegionComposites.ToDownloadTuples())
 	storeAucsInJobs := make(chan diskstore.WriteAuctionsWithTuplesInJob)
 	storeAucsOutJobs := sta.DiskStore.WriteAuctionsWithTuples(storeAucsInJobs)
 	resultsInJob := make(chan CollectAuctionsResult)
@@ -47,12 +47,21 @@ func (sta *DiskAuctionsState) CollectAuctions(
 				continue
 			}
 
+			if !aucsOutJob.IsNew {
+				logging.WithFields(logrus.Fields{
+					"region":             aucsOutJob.Tuple.RegionName,
+					"connected-realm-id": aucsOutJob.Tuple.ConnectedRealmId,
+				}).Info("auctions fetched successfully but no new results were found")
+
+				continue
+			}
+
 			storeAucsInJobs <- diskstore.WriteAuctionsWithTuplesInJob{
-				Tuple:    aucsOutJob.Tuple,
+				Tuple:    aucsOutJob.Tuple.RegionConnectedRealmTuple,
 				Auctions: aucsOutJob.AuctionsResponse.Auctions,
 			}
 			resultsInJob <- CollectAuctionsResult{
-				Tuple:        aucsOutJob.Tuple,
+				Tuple:        aucsOutJob.Tuple.RegionConnectedRealmTuple,
 				ItemIds:      aucsOutJob.AuctionsResponse.Auctions.ItemIds(),
 				LastModified: aucsOutJob.LastModified,
 			}
@@ -98,7 +107,7 @@ func (sta *DiskAuctionsState) CollectAuctions(
 
 	// optionally updating local state
 	if !results.RegionTimestamps.IsZero() {
-		sta.RegionTimestamps = results.RegionTimestamps
+		sta.RegionsState.RegionComposites = sta.RegionsState.RegionComposites.Receive(results.RegionTimestamps)
 	}
 
 	return results.ItemIds, nil

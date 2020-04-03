@@ -1,5 +1,7 @@
 package blizzardv2
 
+import "time"
+
 type LinksBase struct {
 	Links SelfReference `json:"_links"`
 }
@@ -14,6 +16,11 @@ type HrefReference struct {
 
 type RegionConnectedRealmTuple struct {
 	RegionName       RegionName
-	RegionHostname   string
 	ConnectedRealmId ConnectedRealmId
+}
+
+type DownloadConnectedRealmTuple struct {
+	RegionConnectedRealmTuple
+	RegionHostname string
+	LastModified   time.Time
 }

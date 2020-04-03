@@ -7,7 +7,31 @@ import (
 )
 
 type ConnectedRealmTimestamps struct {
-	Downloaded time.Time
+	Downloaded                 time.Time
+	LiveAuctionsReceived       time.Time
+	PricelistHistoriesReceived time.Time
+}
+
+func (timestamps ConnectedRealmTimestamps) IsZero() bool {
+	return !timestamps.Downloaded.IsZero() &&
+		!timestamps.LiveAuctionsReceived.IsZero() &&
+		!timestamps.PricelistHistoriesReceived.IsZero()
+}
+
+func (timestamps ConnectedRealmTimestamps) Merge(in ConnectedRealmTimestamps) ConnectedRealmTimestamps {
+	if !in.Downloaded.IsZero() {
+		timestamps.Downloaded = in.Downloaded
+	}
+
+	if !in.LiveAuctionsReceived.IsZero() {
+		timestamps.LiveAuctionsReceived = in.LiveAuctionsReceived
+	}
+
+	if !in.PricelistHistoriesReceived.IsZero() {
+		timestamps.PricelistHistoriesReceived = in.PricelistHistoriesReceived
+	}
+
+	return timestamps
 }
 
 type RegionTimestamps map[blizzardv2.RegionName]map[blizzardv2.ConnectedRealmId]ConnectedRealmTimestamps
@@ -15,13 +39,23 @@ type RegionTimestamps map[blizzardv2.RegionName]map[blizzardv2.ConnectedRealmId]
 func (regionTimestamps RegionTimestamps) IsZero() bool {
 	for _, connectedRealmTimestamps := range regionTimestamps {
 		for _, timestamps := range connectedRealmTimestamps {
-			if !timestamps.Downloaded.IsZero() {
-				return true
+			if !timestamps.IsZero() {
+				return false
 			}
 		}
 	}
 
-	return false
+	return true
+}
+
+func (regionTimestamps RegionTimestamps) Exists(name blizzardv2.RegionName, id blizzardv2.ConnectedRealmId) bool {
+	if _, ok := regionTimestamps[name]; !ok {
+		return false
+	}
+
+	_, ok := regionTimestamps[name][id]
+
+	return ok
 }
 
 func (regionTimestamps RegionTimestamps) resolve(
