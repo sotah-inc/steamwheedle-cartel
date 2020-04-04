@@ -7,9 +7,9 @@ import (
 )
 
 type ConnectedRealmTimestamps struct {
-	Downloaded                 time.Time
-	LiveAuctionsReceived       time.Time
-	PricelistHistoriesReceived time.Time
+	Downloaded                 UnixTime `json:"downloaded"`
+	LiveAuctionsReceived       UnixTime `json:"live_auctions_received"`
+	PricelistHistoriesReceived UnixTime `json:"pricelist_histories_received"`
 }
 
 func (timestamps ConnectedRealmTimestamps) IsZero() bool {

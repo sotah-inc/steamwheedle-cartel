@@ -5,35 +5,7 @@ import (
 	"regexp"
 	"strings"
 	"time"
-
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzard"
 )
-
-func NewStatus(reg Region, stat blizzard.Status) Status {
-	return Status{stat, reg, NewRealms(reg, stat.Realms)}
-}
-
-type Status struct {
-	blizzard.Status
-	Region Region `json:"-"`
-	Realms Realms `json:"realms"`
-}
-
-type Statuses map[blizzard.RegionName]Status
-
-func (s Statuses) RegionRealmsMap() RegionRealmMap {
-	out := RegionRealmMap{}
-
-	for regionName, status := range s {
-		out[regionName] = RealmMap{}
-
-		for _, realm := range status.Realms {
-			out[regionName][realm.Slug] = realm
-		}
-	}
-
-	return out
-}
 
 type Profession struct {
 	Name    string `json:"name"`

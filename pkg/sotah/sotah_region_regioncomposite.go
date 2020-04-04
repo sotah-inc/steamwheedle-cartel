@@ -1,17 +1,22 @@
 package sotah
 
 import (
+	"encoding/json"
+	"errors"
+
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
+
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 )
 
 type RealmComposite struct {
-	ConnectedRealmResponse blizzardv2.ConnectedRealmResponse
-	ModificationDates      ConnectedRealmTimestamps
+	ConnectedRealmResponse blizzardv2.ConnectedRealmResponse `json:"connected_realm"`
+	ModificationDates      ConnectedRealmTimestamps          `json:"modification_dates"`
 }
 
 type RegionComposite struct {
-	ConfigRegion             Region
-	ConnectedRealmComposites []RealmComposite
+	ConfigRegion             Region           `json:"config_region"`
+	ConnectedRealmComposites []RealmComposite `json:"connected_realms"`
 }
 
 func (region RegionComposite) ToDownloadTuples() []blizzardv2.DownloadConnectedRealmTuple {
@@ -24,7 +29,7 @@ func (region RegionComposite) ToDownloadTuples() []blizzardv2.DownloadConnectedR
 				ConnectedRealmId: composite.ConnectedRealmResponse.Id,
 			},
 			RegionHostname: region.ConfigRegion.Hostname,
-			LastModified:   composite.ModificationDates.Downloaded,
+			LastModified:   composite.ModificationDates.Downloaded.Time,
 		}
 		i += 1
 	}
@@ -32,7 +37,49 @@ func (region RegionComposite) ToDownloadTuples() []blizzardv2.DownloadConnectedR
 	return out
 }
 
+func (region RegionComposite) EncodeForDelivery() ([]byte, error) {
+	jsonEncoded, err := json.Marshal(region)
+	if err != nil {
+		return []byte{}, err
+	}
+
+	return util.GzipEncode(jsonEncoded)
+}
+
 type RegionComposites []RegionComposite
+
+func (regions RegionComposites) FindBy(
+	name blizzardv2.RegionName,
+) (RegionComposite, error) {
+	for _, region := range regions {
+		if region.ConfigRegion.Name == name {
+			return region, nil
+		}
+	}
+
+	return RegionComposite{}, errors.New("failed to resolve connected-realms")
+}
+
+func (regions RegionComposites) RegionRealmExists(
+	name blizzardv2.RegionName,
+	slug blizzardv2.RealmSlug,
+) bool {
+	for _, region := range regions {
+		if region.ConfigRegion.Name != name {
+			continue
+		}
+
+		for _, connectedRealm := range region.ConnectedRealmComposites {
+			for _, realm := range connectedRealm.ConnectedRealmResponse.Realms {
+				if realm.Slug == slug {
+					return true
+				}
+			}
+		}
+	}
+
+	return false
+}
 
 func (regions RegionComposites) TotalConnectedRealms() int {
 	out := 0

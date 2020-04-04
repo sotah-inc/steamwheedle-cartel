@@ -159,13 +159,12 @@ func NewAPIState(config APIStateConfig) (*APIState, error) {
 		sta.ItemsState.GetListeners(),
 		sta.AreaMapsState.GetListeners(),
 		sta.TokensState.GetListeners(),
+		sta.RegionState.GetListeners(),
 		{
 			subjects.Boot:                        sta.ListenForBoot,
 			subjects.SessionSecret:               sta.ListenForSessionSecret,
-			subjects.Status:                      sta.ListenForStatus,
 			subjects.QueryRealmModificationDates: sta.ListenForQueryRealmModificationDates,
 			subjects.RealmModificationDates:      sta.ListenForRealmModificationDates,
-			subjects.ValidateRegionRealm:         sta.ListenForValidateRegionRealm,
 		},
 	}))
 
