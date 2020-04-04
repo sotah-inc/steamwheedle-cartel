@@ -3,6 +3,9 @@ package state
 import (
 	"encoding/json"
 
+	"github.com/sirupsen/logrus"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
+
 	nats "github.com/nats-io/go-nats"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
 	mCodes "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger/codes"
@@ -10,22 +13,8 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state/subjects"
 )
 
-func NewRealmModificationDatesRequest(data []byte) (RealmModificationDatesRequest, error) {
-	var r RealmModificationDatesRequest
-	if err := json.Unmarshal(data, &r); err != nil {
-		return RealmModificationDatesRequest{}, err
-	}
-
-	return r, nil
-}
-
-type RealmModificationDatesRequest struct {
-	RegionName string `json:"region_name"`
-	RealmSlug  string `json:"realm_slug"`
-}
-
 type RealmModificationDatesResponse struct {
-	sotah.RealmModificationDates
+	sotah.ConnectedRealmTimestamps
 }
 
 func (r RealmModificationDatesResponse) EncodeForDelivery() ([]byte, error) {
@@ -36,7 +25,7 @@ func (sta RegionsState) ListenForQueryRealmModificationDates(stop ListenStopChan
 	err := sta.Messenger.Subscribe(string(subjects.QueryRealmModificationDates), stop, func(natsMsg nats.Msg) {
 		m := messenger.NewMessage()
 
-		req, err := NewRealmModificationDatesRequest(natsMsg.Data)
+		req, err := sotah.NewRegionRealmTuple(natsMsg.Data)
 		if err != nil {
 			m.Err = err.Error()
 			m.Code = mCodes.GenericError
@@ -45,11 +34,21 @@ func (sta RegionsState) ListenForQueryRealmModificationDates(stop ListenStopChan
 			return
 		}
 
-		exists := sta.RegionComposites.RegionRealmExists(req.RegionName, req.RealmSlug)
+		connectedRealmTimestamps, err := sta.RegionComposites.FindRealmTimestamps(req.RegionName, req.RealmSlug)
+		if err != nil {
+			logging.WithFields(logrus.Fields{
+				"region": req.RegionName,
+				"realm":  req.RealmSlug,
+			}).Error("failed to resolve connected-realm timestamps")
 
-		res := RealmModificationDatesResponse{
-			RealmModificationDates: sta.RegionRealmModificationDates.Get(realm.Region.Name, realm.Slug),
+			m.Err = err.Error()
+			m.Code = mCodes.UserError
+			sta.Messenger.ReplyTo(natsMsg, m)
+
+			return
 		}
+
+		res := RealmModificationDatesResponse{connectedRealmTimestamps}
 
 		encodedData, err := res.EncodeForDelivery()
 		if err != nil {

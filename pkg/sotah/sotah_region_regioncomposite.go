@@ -48,7 +48,7 @@ func (region RegionComposite) EncodeForDelivery() ([]byte, error) {
 
 type RegionComposites []RegionComposite
 
-func (regions RegionComposites) FindBy(
+func (regions RegionComposites) FindByRegionName(
 	name blizzardv2.RegionName,
 ) (RegionComposite, error) {
 	for _, region := range regions {
@@ -81,6 +81,27 @@ func (regions RegionComposites) RegionRealmExists(
 	return false
 }
 
+func (regions RegionComposites) FindRealmTimestamps(
+	name blizzardv2.RegionName,
+	slug blizzardv2.RealmSlug,
+) (ConnectedRealmTimestamps, error) {
+	for _, region := range regions {
+		if region.ConfigRegion.Name != name {
+			continue
+		}
+
+		for _, connectedRealm := range region.ConnectedRealmComposites {
+			for _, realm := range connectedRealm.ConnectedRealmResponse.Realms {
+				if realm.Slug == slug {
+					return connectedRealm.ModificationDates, nil
+				}
+			}
+		}
+	}
+
+	return ConnectedRealmTimestamps{}, errors.New("failed to resolve realm-timestamps")
+}
+
 func (regions RegionComposites) TotalConnectedRealms() int {
 	out := 0
 	for _, region := range regions {
@@ -103,7 +124,7 @@ func (regions RegionComposites) ToDownloadTuples() []blizzardv2.DownloadConnecte
 	return out
 }
 
-func (regions RegionComposites) Receive(timestamps RegionTimestamps) RegionComposites {
+func (regions RegionComposites) Receive(timestamps RegionTimestamps) *RegionComposites {
 	for i, region := range regions {
 		regionName := region.ConfigRegion.Name
 
@@ -120,5 +141,5 @@ func (regions RegionComposites) Receive(timestamps RegionTimestamps) RegionCompo
 		}
 	}
 
-	return regions
+	return &regions
 }

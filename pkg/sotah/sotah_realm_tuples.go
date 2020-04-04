@@ -13,9 +13,9 @@ func NewRegionRealmTupleFromRealm(r Realm) RegionRealmTuple {
 	}
 }
 
-func NewRegionRealmTuple(data string) (RegionRealmTuple, error) {
+func NewRegionRealmTuple(data []byte) (RegionRealmTuple, error) {
 	var out RegionRealmTuple
-	if err := json.Unmarshal([]byte(data), &out); err != nil {
+	if err := json.Unmarshal(data, &out); err != nil {
 		return RegionRealmTuple{}, err
 	}
 

@@ -38,7 +38,7 @@ func (sta RegionsState) ListenForStatus(stop ListenStopChan) error {
 			return
 		}
 
-		region, err := sta.RegionComposites.FindBy(sRequest.RegionName)
+		region, err := sta.RegionComposites.FindByRegionName(sRequest.RegionName)
 		if err != nil {
 			m.Err = fmt.Sprintf("invalid region name: %s", sRequest.RegionName)
 			m.Code = codes.UserError

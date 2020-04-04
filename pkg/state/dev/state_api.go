@@ -105,7 +105,11 @@ func NewAPIState(config APIStateConfig) (*APIState, error) {
 	}
 
 	// gathering region-state
-	sta.RegionState, err = state.NewRegionState(sta.BlizzardState, regions)
+	sta.RegionState, err = state.NewRegionState(state.NewRegionStateOptions{
+		BlizzardState: sta.BlizzardState,
+		Regions:       regions,
+		Messenger:     sta.messenger,
+	})
 
 	// gathering item-classes
 	sta.itemClasses, err = sta.BlizzardState.ResolveItemClasses(regions)
@@ -161,10 +165,9 @@ func NewAPIState(config APIStateConfig) (*APIState, error) {
 		sta.TokensState.GetListeners(),
 		sta.RegionState.GetListeners(),
 		{
-			subjects.Boot:                        sta.ListenForBoot,
-			subjects.SessionSecret:               sta.ListenForSessionSecret,
-			subjects.QueryRealmModificationDates: sta.ListenForQueryRealmModificationDates,
-			subjects.RealmModificationDates:      sta.ListenForRealmModificationDates,
+			subjects.Boot:                   sta.ListenForBoot,
+			subjects.SessionSecret:          sta.ListenForSessionSecret,
+			subjects.RealmModificationDates: sta.ListenForRealmModificationDates,
 		},
 	}))
 
@@ -177,7 +180,7 @@ type APIState struct {
 	ItemsState        state.ItemsState
 	AreaMapsState     state.AreaMapsState
 	TokensState       state.TokensState
-	RegionState       *state.RegionsState
+	RegionState       state.RegionsState
 	DiskAuctionsState state.DiskAuctionsState
 
 	// set at run-time

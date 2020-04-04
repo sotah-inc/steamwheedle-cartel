@@ -14,7 +14,7 @@ import (
 
 type DiskAuctionsState struct {
 	BlizzardState BlizzardState
-	RegionsState  *RegionsState
+	RegionsState  RegionsState
 
 	DiskStore diskstore.DiskStore
 }
