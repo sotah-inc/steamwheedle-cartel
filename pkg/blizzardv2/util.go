@@ -15,8 +15,8 @@ type HrefReference struct {
 }
 
 type RegionConnectedRealmTuple struct {
-	RegionName       RegionName
-	ConnectedRealmId ConnectedRealmId
+	RegionName       RegionName       `json:"region_name"`
+	ConnectedRealmId ConnectedRealmId `json:"connected_realm_id"`
 }
 
 type DownloadConnectedRealmTuple struct {
