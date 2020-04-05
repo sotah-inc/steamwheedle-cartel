@@ -212,17 +212,6 @@ func (sta State) NewRegions() (sotah.RegionList, error) {
 	return boot.Regions, nil
 }
 
-type BootResponse struct {
-	Regions     sotah.RegionList               `json:"regions"`
-	ItemClasses []blizzardv2.ItemClassResponse `json:"item_classes"`
-	Expansions  []sotah.Expansion              `json:"expansions"`
-	Professions []sotah.Profession             `json:"professions"`
-}
-
-type SessionSecretData struct {
-	SessionSecret string `json:"session_secret"`
-}
-
 func NewTokenHistoryRequest(data []byte) (TokenHistoryRequest, error) {
 	var out TokenHistoryRequest
 	if err := json.Unmarshal(data, &out); err != nil {

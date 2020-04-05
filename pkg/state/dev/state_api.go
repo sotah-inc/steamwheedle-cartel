@@ -13,7 +13,6 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/metric"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state/subjects"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 )
 
@@ -37,21 +36,9 @@ type APIStateConfig struct {
 
 func NewAPIState(config APIStateConfig) (*APIState, error) {
 	// establishing an initial state
-	sta := APIState{
-		State:         state.NewState(uuid.NewV4(), false),
-		sessionSecret: uuid.NewV4(),
-		expansions:    config.SotahConfig.Expansions,
-		professions: func() []sotah.Profession {
-			out := make([]sotah.Profession, len(config.SotahConfig.Professions))
-			for i, prof := range config.SotahConfig.Professions {
-				prof.IconURL = blizzardv2.DefaultGetItemIconURL(config.SotahConfig.Professions[i].Icon)
-				out[i] = prof
-			}
+	sta := APIState{State: state.NewState(uuid.NewV4(), false)}
 
-			return out
-		}(),
-		itemBlacklist: config.SotahConfig.ItemBlacklist,
-	}
+	// narrowing regions list
 	regions := config.SotahConfig.FilterInRegions(config.SotahConfig.Regions)
 
 	var err error
@@ -111,13 +98,15 @@ func NewAPIState(config APIStateConfig) (*APIState, error) {
 		Messenger:     sta.messenger,
 	})
 
-	// gathering item-classes
-	sta.itemClasses, err = sta.BlizzardState.ResolveItemClasses(regions)
-	if err != nil {
-		logging.WithField("error", err.Error()).Error("failed to get item-classes")
-
-		return nil, err
-	}
+	// gathering boot-state
+	sta.BootState, err = state.NewBootState(state.NewBootStateOptions{
+		BlizzardState: sta.BlizzardState,
+		Messenger:     sta.messenger,
+		Regions:       regions,
+		Expansions:    config.SotahConfig.Expansions,
+		Professions:   config.SotahConfig.Professions,
+		ItemBlacklist: config.SotahConfig.ItemBlacklist,
+	})
 
 	// loading the items database
 	sta.itemsDatabase, err = database.NewItemsDatabase(config.DatabaseConfig.ItemsDir)
@@ -164,11 +153,6 @@ func NewAPIState(config APIStateConfig) (*APIState, error) {
 		sta.AreaMapsState.GetListeners(),
 		sta.TokensState.GetListeners(),
 		sta.RegionState.GetListeners(),
-		{
-			subjects.Boot:                   sta.ListenForBoot,
-			subjects.SessionSecret:          sta.ListenForSessionSecret,
-			subjects.RealmModificationDates: sta.ListenForRealmModificationDates,
-		},
 	}))
 
 	return &sta, nil
@@ -182,15 +166,7 @@ type APIState struct {
 	TokensState       state.TokensState
 	RegionState       state.RegionsState
 	DiskAuctionsState state.DiskAuctionsState
-
-	// set at run-time
-	sessionSecret uuid.UUID
-	itemClasses   []blizzardv2.ItemClassResponse
-
-	// derived from config file
-	expansions    []sotah.Expansion
-	professions   []sotah.Profession
-	itemBlacklist state.ItemBlacklist
+	BootState         state.BootState
 
 	// io
 	areaMapsDatabase database.AreaMapsDatabase
