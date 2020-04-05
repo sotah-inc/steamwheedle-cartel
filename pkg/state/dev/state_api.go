@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/twinj/uuid"
+
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/diskstore"
@@ -36,7 +37,7 @@ type APIStateConfig struct {
 
 func NewAPIState(config APIStateConfig) (*APIState, error) {
 	// establishing an initial state
-	sta := APIState{State: state.NewState(uuid.NewV4(), false)}
+	sta := APIState{State: state.State{RunID: uuid.NewV4(), Listeners: nil, BusListeners: nil}}
 
 	// narrowing regions list
 	regions := config.SotahConfig.FilterInRegions(config.SotahConfig.Regions)

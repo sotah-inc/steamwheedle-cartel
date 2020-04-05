@@ -124,15 +124,10 @@ func (ls Listeners) Stop() {
 }
 
 // state
-func NewState(runId uuid.UUID, useGCloud bool) State {
-	return State{RunID: runId, UseGCloud: useGCloud}
-}
-
 type State struct {
 	RunID        uuid.UUID
 	Listeners    Listeners
 	BusListeners BusListeners
-	UseGCloud    bool
 }
 
 type RealmTimeTuple struct {
