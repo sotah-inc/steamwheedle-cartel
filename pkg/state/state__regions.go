@@ -48,7 +48,8 @@ type RegionsState struct {
 }
 
 func (sta RegionsState) ReceiveTimestamps(timestamps sotah.RegionTimestamps) {
-	sta.RegionComposites = sta.RegionComposites.Receive(timestamps)
+	result := sta.RegionComposites.Receive(timestamps)
+	sta.RegionComposites = &result
 }
 
 func (sta RegionsState) GetListeners() SubjectListeners {

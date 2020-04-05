@@ -124,7 +124,7 @@ func (regions RegionComposites) ToDownloadTuples() []blizzardv2.DownloadConnecte
 	return out
 }
 
-func (regions RegionComposites) Receive(timestamps RegionTimestamps) *RegionComposites {
+func (regions RegionComposites) Receive(timestamps RegionTimestamps) RegionComposites {
 	for i, region := range regions {
 		regionName := region.ConfigRegion.Name
 
@@ -141,5 +141,5 @@ func (regions RegionComposites) Receive(timestamps RegionTimestamps) *RegionComp
 		}
 	}
 
-	return &regions
+	return regions
 }
