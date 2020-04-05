@@ -41,8 +41,7 @@ func NewAPIState(config APIStateConfig) (*APIState, error) {
 	// narrowing regions list
 	regions := config.SotahConfig.FilterInRegions(config.SotahConfig.Regions)
 
-	var err error
-	sta.diskStore, err = func() (diskstore.DiskStore, error) {
+	diskStore, err := func() (diskstore.DiskStore, error) {
 		if config.DiskStoreCacheDir == "" {
 			logging.WithField("disk-store-cache-dir", config.DiskStoreCacheDir).Error("disk-store-cache-dir was blank")
 
@@ -72,15 +71,12 @@ func NewAPIState(config APIStateConfig) (*APIState, error) {
 	}
 
 	// connecting to the messenger host
-	sta.messenger, err = messenger.NewMessenger(config.MessengerConfig.Hostname, config.MessengerConfig.Port)
+	mess, err := messenger.NewMessenger(config.MessengerConfig.Hostname, config.MessengerConfig.Port)
 	if err != nil {
 		logging.WithField("error", err.Error()).Error("failed to connect to messenger")
 
 		return nil, err
 	}
-
-	// initializing a reporter
-	sta.reporter = metric.NewReporter(sta.messenger)
 
 	// connecting a new blizzard client
 	sta.BlizzardState = state.BlizzardState{}
@@ -95,13 +91,13 @@ func NewAPIState(config APIStateConfig) (*APIState, error) {
 	sta.RegionState, err = state.NewRegionState(state.NewRegionStateOptions{
 		BlizzardState: sta.BlizzardState,
 		Regions:       regions,
-		Messenger:     sta.messenger,
+		Messenger:     mess,
 	})
 
 	// gathering boot-state
 	sta.BootState, err = state.NewBootState(state.NewBootStateOptions{
 		BlizzardState: sta.BlizzardState,
-		Messenger:     sta.messenger,
+		Messenger:     mess,
 		Regions:       regions,
 		Expansions:    config.SotahConfig.Expansions,
 		Professions:   config.SotahConfig.Professions,
@@ -109,7 +105,7 @@ func NewAPIState(config APIStateConfig) (*APIState, error) {
 	})
 
 	// loading the items database
-	sta.itemsDatabase, err = database.NewItemsDatabase(config.DatabaseConfig.ItemsDir)
+	itemsDatabase, err := database.NewItemsDatabase(config.DatabaseConfig.ItemsDir)
 	if err != nil {
 		logging.WithField("error", err.Error()).Error("failed to initialise items-database")
 
@@ -117,7 +113,7 @@ func NewAPIState(config APIStateConfig) (*APIState, error) {
 	}
 
 	// loading the tokens database
-	sta.tokensDatabase, err = database.NewTokensDatabase(config.DatabaseConfig.TokensDir)
+	tokensDatabase, err := database.NewTokensDatabase(config.DatabaseConfig.TokensDir)
 	if err != nil {
 		logging.WithField("error", err.Error()).Error("failed to initialise tokens-database")
 
@@ -125,7 +121,7 @@ func NewAPIState(config APIStateConfig) (*APIState, error) {
 	}
 
 	// loading the area-maps database
-	sta.areaMapsDatabase, err = database.NewAreaMapsDatabase(config.DatabaseConfig.AreaMapsDir)
+	areaMapsDatabase, err := database.NewAreaMapsDatabase(config.DatabaseConfig.AreaMapsDir)
 	if err != nil {
 		logging.WithField("error", err.Error()).Error("failed to initialise area-maps-database")
 
@@ -133,18 +129,18 @@ func NewAPIState(config APIStateConfig) (*APIState, error) {
 	}
 
 	// resolving states
-	sta.ItemsState = state.ItemsState{Messenger: sta.messenger, ItemsDatabase: sta.itemsDatabase}
-	sta.AreaMapsState = state.AreaMapsState{Messenger: sta.messenger, AreaMapsDatabase: sta.areaMapsDatabase}
+	sta.ItemsState = state.ItemsState{Messenger: mess, ItemsDatabase: itemsDatabase}
+	sta.AreaMapsState = state.AreaMapsState{Messenger: mess, AreaMapsDatabase: areaMapsDatabase}
 	sta.TokensState = state.TokensState{
 		BlizzardState:  sta.BlizzardState,
-		Messenger:      sta.messenger,
-		TokensDatabase: sta.tokensDatabase,
-		Reporter:       sta.reporter,
+		Messenger:      mess,
+		TokensDatabase: tokensDatabase,
+		Reporter:       metric.NewReporter(mess),
 	}
 	sta.DiskAuctionsState = state.DiskAuctionsState{
 		BlizzardState: sta.BlizzardState,
 		RegionsState:  sta.RegionState,
-		DiskStore:     sta.diskStore,
+		DiskStore:     diskStore,
 	}
 
 	// establishing listeners
@@ -153,6 +149,7 @@ func NewAPIState(config APIStateConfig) (*APIState, error) {
 		sta.AreaMapsState.GetListeners(),
 		sta.TokensState.GetListeners(),
 		sta.RegionState.GetListeners(),
+		sta.BootState.GetListeners(),
 	}))
 
 	return &sta, nil
@@ -167,12 +164,4 @@ type APIState struct {
 	RegionState       state.RegionsState
 	DiskAuctionsState state.DiskAuctionsState
 	BootState         state.BootState
-
-	// io
-	areaMapsDatabase database.AreaMapsDatabase
-	itemsDatabase    database.ItemsDatabase
-	tokensDatabase   database.TokensDatabase
-	diskStore        diskstore.DiskStore
-	messenger        messenger.Messenger
-	reporter         metric.Reporter
 }
