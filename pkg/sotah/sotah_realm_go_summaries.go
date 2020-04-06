@@ -44,8 +44,7 @@ func NewRegionRealmSummaryTuple(data string) (RegionRealmSummaryTuple, error) {
 
 type RegionRealmSummaryTuple struct {
 	RegionRealmTimestampTuple
-	ItemIds    []int    `json:"item_ids"`
-	OwnerNames []string `json:"owner_names"`
+	ItemIds []int `json:"item_ids"`
 }
 
 func (tuple RegionRealmSummaryTuple) EncodeForDelivery() (string, error) {

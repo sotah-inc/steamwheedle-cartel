@@ -32,13 +32,21 @@ func NewItem(body []byte) (Item, error) {
 	return *i, nil
 }
 
+type ItemIconMeta struct {
+	URL        string `json:"icon_url"`
+	ObjectName string `json:"icon_object_name"`
+}
+
+func (meta ItemIconMeta) IsZero() bool {
+	return meta.URL == "" || meta.ObjectName == ""
+}
+
 type Item struct {
 	BlizzardMeta blizzardv2.ItemResponse `json:"blizzard_meta"`
 	SotahMeta    struct {
-		IconURL        string         `json:"icon_url"`
-		IconObjectName string         `json:"icon_object_name"`
 		LastModified   int            `json:"last_modified"`
 		NormalizedName locale.Mapping `json:"normalized_name"`
+		ItemIconMeta   ItemIconMeta   `json:"item_icon_meta"`
 	} `json:"sotah_meta"`
 }
 
@@ -49,21 +57,6 @@ func (item Item) EncodeForStorage() ([]byte, error) {
 	}
 
 	return util.GzipEncode(jsonEncoded)
-}
-
-// item-icon-item-ids map
-type ItemIconItemIdsMap map[string][]blizzardv2.ItemId
-
-func (iconsMap ItemIconItemIdsMap) GetItemIcons() []string {
-	iconNames := make([]string, len(iconsMap))
-	i := 0
-	for iconName := range iconsMap {
-		iconNames[i] = iconName
-
-		i++
-	}
-
-	return iconNames
 }
 
 // item-ids map
