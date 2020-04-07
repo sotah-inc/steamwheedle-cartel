@@ -88,6 +88,9 @@ func (idBase ItemsDatabase) FilterInItemsToSync(ids []blizzardv2.ItemId) (ItemsS
 				return err
 			}
 
+			if item.SotahMeta.ItemIconMeta.IsZero() {
+				iconsToSync[item.SotahMeta.ItemIconMeta.Icon] = item.BlizzardMeta.Id
+			}
 			if !item.SotahMeta.ItemIconMeta.IsZero() {
 				correctIconObjectName := fmt.Sprintf(
 					"%s/%s.jpg",

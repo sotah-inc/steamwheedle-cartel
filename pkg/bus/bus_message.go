@@ -10,7 +10,7 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 )
 
-func NewItemIconBatchesMessages(batches sotah.IconItemsPayloadsBatches) ([]Message, error) {
+func NewItemIconBatchesMessages(batches sotah.IconItemsTuplesBatches) ([]Message, error) {
 	messages := []Message{}
 	for i, ids := range batches {
 		data, err := ids.EncodeForDelivery()

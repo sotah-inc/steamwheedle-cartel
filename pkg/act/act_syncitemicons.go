@@ -7,7 +7,7 @@ import (
 )
 
 type SyncItemIconsInJob struct {
-	payloads sotah.IconItemsPayloads
+	payloads sotah.IconItemsTuples
 }
 
 type SyncItemIconsOutJob struct {
@@ -21,7 +21,7 @@ func (job SyncItemIconsOutJob) ToLogrusFields() logrus.Fields {
 	}
 }
 
-func (c Client) SyncItemIcons(payloadsBatches sotah.IconItemsPayloadsBatches) chan SyncItemIconsOutJob {
+func (c Client) SyncItemIcons(payloadsBatches sotah.IconItemsTuplesBatches) chan SyncItemIconsOutJob {
 	// establishing channels
 	in := make(chan SyncItemIconsInJob)
 	out := make(chan SyncItemIconsOutJob)

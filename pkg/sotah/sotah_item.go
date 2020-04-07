@@ -3,17 +3,23 @@ package sotah
 import (
 	"encoding/json"
 
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/locale"
-
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/locale"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 )
 
-func NormalizeName(in string) (string, error) {
-	return NormalizeString(in)
+type IconName string
+
+type ItemIconMeta struct {
+	URL        string   `json:"icon_url"`
+	ObjectName string   `json:"icon_object_name"`
+	Icon       IconName `json:"icon"`
 }
 
-// item
+func (meta ItemIconMeta) IsZero() bool {
+	return meta.URL == "" || meta.ObjectName == "" || meta.Icon == ""
+}
+
 func NewItemFromGzipped(gzipEncoded []byte) (Item, error) {
 	gzipDecoded, err := util.GzipDecode(gzipEncoded)
 	if err != nil {
@@ -32,15 +38,6 @@ func NewItem(body []byte) (Item, error) {
 	return *i, nil
 }
 
-type ItemIconMeta struct {
-	URL        string `json:"icon_url"`
-	ObjectName string `json:"icon_object_name"`
-}
-
-func (meta ItemIconMeta) IsZero() bool {
-	return meta.URL == "" || meta.ObjectName == ""
-}
-
 type Item struct {
 	BlizzardMeta blizzardv2.ItemResponse `json:"blizzard_meta"`
 	SotahMeta    struct {
@@ -57,133 +54,4 @@ func (item Item) EncodeForStorage() ([]byte, error) {
 	}
 
 	return util.GzipEncode(jsonEncoded)
-}
-
-// item-ids map
-type ItemIdsMap map[blizzardv2.ItemId]struct{}
-
-// items-map
-type ItemsMap map[blizzardv2.ItemId]Item
-
-func (iMap ItemsMap) EncodeForDatabase() ([]byte, error) {
-	jsonEncodedData, err := json.Marshal(iMap)
-	if err != nil {
-		return []byte{}, err
-	}
-
-	gzipEncodedData, err := util.GzipEncode(jsonEncodedData)
-	if err != nil {
-		return []byte{}, err
-	}
-
-	return gzipEncodedData, nil
-}
-
-func NewItemIdNameMap(data []byte) (ItemIdNameMap, error) {
-	gzipDecoded, err := util.GzipDecode(data)
-	if err != nil {
-		return ItemIdNameMap{}, err
-	}
-
-	var out ItemIdNameMap
-	if err := json.Unmarshal(gzipDecoded, &out); err != nil {
-		return ItemIdNameMap{}, err
-	}
-
-	return out, nil
-}
-
-type ItemIdNameMap map[blizzardv2.ItemId]locale.Mapping
-
-func (idNameMap ItemIdNameMap) EncodeForDelivery() ([]byte, error) {
-	jsonEncodedData, err := json.Marshal(idNameMap)
-	if err != nil {
-		return []byte{}, err
-	}
-
-	return util.GzipEncode(jsonEncodedData)
-}
-
-func (idNameMap ItemIdNameMap) ItemIds() []blizzardv2.ItemId {
-	out := make([]blizzardv2.ItemId, len(idNameMap))
-	i := 0
-	for id := range idNameMap {
-		out[i] = id
-
-		i++
-	}
-
-	return out
-}
-
-func NewItemIdsBatches(ids []blizzardv2.ItemId, batchSize int) ItemIdBatches {
-	batches := ItemIdBatches{}
-	for i, id := range ids {
-		key := (i - (i % batchSize)) / batchSize
-		batch := func() []blizzardv2.ItemId {
-			out, ok := batches[key]
-			if !ok {
-				return []blizzardv2.ItemId{}
-			}
-
-			return out
-		}()
-		batch = append(batch, id)
-
-		batches[key] = batch
-	}
-
-	return batches
-}
-
-type ItemIdBatches map[int][]blizzardv2.ItemId
-
-func NewIconItemsPayloadsBatches(iconIdsMap map[string][]blizzardv2.ItemId, batchSize int) IconItemsPayloadsBatches {
-	batches := IconItemsPayloadsBatches{}
-	i := 0
-	for iconName, itemIds := range iconIdsMap {
-		key := (i - (i % batchSize)) / batchSize
-		batch := func() IconItemsPayloads {
-			out, ok := batches[key]
-			if !ok {
-				return IconItemsPayloads{}
-			}
-
-			return out
-		}()
-		batch = append(batch, IconItemsPayload{Name: iconName, Ids: itemIds})
-
-		batches[key] = batch
-
-		i += 1
-	}
-
-	return batches
-}
-
-type IconItemsPayloadsBatches map[int]IconItemsPayloads
-
-func NewIconItemsPayloads(data string) (IconItemsPayloads, error) {
-	var out IconItemsPayloads
-	if err := json.Unmarshal([]byte(data), &out); err != nil {
-		return IconItemsPayloads{}, err
-	}
-
-	return out, nil
-}
-
-type IconItemsPayloads []IconItemsPayload
-
-func (d IconItemsPayloads) EncodeForDelivery() (string, error) {
-	jsonEncoded, err := json.Marshal(d)
-	if err != nil {
-		return "", err
-	}
-
-	return string(jsonEncoded), nil
-}
-
-type IconItemsPayload struct {
-	Name string
-	Ids  []blizzardv2.ItemId
 }

@@ -123,7 +123,7 @@ func (sta SyncItemIconsState) UpdateItems(objectUri string, objectName string, i
 	return nil
 }
 
-func (sta SyncItemIconsState) SyncExistingItemIcon(payload sotah.IconItemsPayload) error {
+func (sta SyncItemIconsState) SyncExistingItemIcon(payload sotah.IconItemsTuple) error {
 	obj, err := sta.itemIconsBase.GetFirmObject(payload.Name, sta.itemIconsBucket)
 	if err != nil {
 		return err
@@ -140,7 +140,7 @@ func (sta SyncItemIconsState) SyncExistingItemIcon(payload sotah.IconItemsPayloa
 	return sta.UpdateItems(objectUri, objAttrs.Name, payload.Ids)
 }
 
-func (sta SyncItemIconsState) SyncItemIcon(payload sotah.IconItemsPayload) error {
+func (sta SyncItemIconsState) SyncItemIcon(payload sotah.IconItemsTuple) error {
 	obj := sta.itemIconsBase.GetObject(payload.Name, sta.itemIconsBucket)
 	exists, err := sta.itemIconsBase.ObjectExists(obj)
 	if err != nil {
@@ -195,9 +195,9 @@ type SyncItemIconsHandlePayloadsJob struct {
 	Ids      blizzard.ItemIds
 }
 
-func (sta SyncItemIconsState) HandlePayloads(payloads sotah.IconItemsPayloads) (blizzard.ItemIds, error) {
+func (sta SyncItemIconsState) HandlePayloads(payloads sotah.IconItemsTuples) (blizzard.ItemIds, error) {
 	// spawning workers
-	in := make(chan sotah.IconItemsPayload)
+	in := make(chan sotah.IconItemsTuple)
 	out := make(chan SyncItemIconsHandlePayloadsJob)
 	worker := func() {
 		for payload := range in {
@@ -246,7 +246,7 @@ func (sta SyncItemIconsState) HandlePayloads(payloads sotah.IconItemsPayloads) (
 	return results, nil
 }
 
-func (sta SyncItemIconsState) Run(payloads sotah.IconItemsPayloads) sotah.Message {
+func (sta SyncItemIconsState) Run(payloads sotah.IconItemsTuples) sotah.Message {
 	logging.WithField("payloads", payloads).Info("Handling")
 
 	ids, err := sta.HandlePayloads(payloads)

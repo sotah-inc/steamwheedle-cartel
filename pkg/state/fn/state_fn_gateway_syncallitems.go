@@ -64,7 +64,7 @@ func (sta GatewayState) HandleItemIcons(iconsMap map[string]blizzard.ItemIds) er
 
 	// batching icons together
 	logging.WithField("icons", len(iconsMap)).Info("Batching icons together")
-	iconBatches := sotah.NewIconItemsPayloadsBatches(iconsMap, 100)
+	iconBatches := sotah.NewIconItemsTuplesBatches(iconsMap, 100)
 
 	// calling act client with item-icons batches
 	logging.Info("Calling item-icons with act client")
