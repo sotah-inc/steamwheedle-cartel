@@ -22,9 +22,12 @@ func NewClient(id string, secret string) (Client, error) {
 		return Client{}, errors.New("client secret is blank")
 	}
 
-	initialClient := Client{id, secret, ""}
-	client, err := initialClient.RefreshFromHTTP(OAuthTokenEndpoint)
-	if err != nil {
+	client := Client{
+		id:          id,
+		secret:      secret,
+		accessToken: nil,
+	}
+	if err := client.RefreshFromHTTP(OAuthTokenEndpoint); err != nil {
 		return Client{}, err
 	}
 
@@ -34,7 +37,7 @@ func NewClient(id string, secret string) (Client, error) {
 type Client struct {
 	id          string
 	secret      string
-	accessToken string
+	accessToken *string
 }
 
 type refreshResponse struct {
@@ -43,11 +46,11 @@ type refreshResponse struct {
 	ExpiresIn   int    `json:"expires_in"`
 }
 
-func (c Client) RefreshFromHTTP(uri string) (Client, error) {
+func (c Client) RefreshFromHTTP(uri string) error {
 	// forming a request
 	req, err := http.NewRequest("GET", uri, nil)
 	if err != nil {
-		return Client{}, err
+		return err
 	}
 
 	// appending auth headers
@@ -59,7 +62,7 @@ func (c Client) RefreshFromHTTP(uri string) (Client, error) {
 	httpClient := &http.Client{Transport: tp}
 	resp, err := httpClient.Do(req)
 	if err != nil {
-		return Client{}, err
+		return err
 	}
 
 	if resp.StatusCode != http.StatusOK {
@@ -69,7 +72,7 @@ func (c Client) RefreshFromHTTP(uri string) (Client, error) {
 			"secret": c.secret,
 		}).Info("Received failed oauth token response from Blizzard API")
 
-		return Client{}, errors.New("OAuth token response was not 200")
+		return errors.New("OAuth token response was not 200")
 	}
 
 	// parsing the body
@@ -89,7 +92,7 @@ func (c Client) RefreshFromHTTP(uri string) (Client, error) {
 		return out, isGzipped, nil
 	}()
 	if err != nil {
-		return Client{}, err
+		return err
 	}
 
 	// optionally decoding the response body
@@ -101,23 +104,24 @@ func (c Client) RefreshFromHTTP(uri string) (Client, error) {
 		return util.GzipDecode(body)
 	}()
 	if err != nil {
-		return Client{}, err
+		return err
 	}
 
 	// unmarshalling the body
 	r := &refreshResponse{}
 	if err := json.Unmarshal(decodedBody, &r); err != nil {
-		return Client{}, err
+		return err
 	}
 
-	c.accessToken = r.AccessToken
+	accessToken := r.AccessToken
+	c.accessToken = &accessToken
 
-	return c, nil
+	return nil
 }
 
 func (c Client) AppendAccessToken(destination string) (string, error) {
-	if c.accessToken == "" {
-		return "", errors.New("could not append access token, access token is blank")
+	if c.accessToken == nil {
+		return "", errors.New("could not append access token, access token is nil")
 	}
 
 	u, err := url.Parse(destination)
@@ -126,7 +130,7 @@ func (c Client) AppendAccessToken(destination string) (string, error) {
 	}
 
 	q := u.Query()
-	q.Set("access_token", c.accessToken)
+	q.Set("access_token", *c.accessToken)
 	u.RawQuery = q.Encode()
 
 	return u.String(), nil
