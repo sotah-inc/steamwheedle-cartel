@@ -34,8 +34,8 @@ func NewItemsSyncPayload(data string) (ItemsSyncPayload, error) {
 }
 
 type ItemsSyncPayload struct {
-	Ids        []blizzardv2.ItemId
-	IconIdsMap map[string][]blizzardv2.ItemId
+	Ids        blizzardv2.ItemIds
+	IconIdsMap sotah.IconIdsMap
 }
 
 func (p ItemsSyncPayload) EncodeForDelivery() (string, error) {
@@ -54,13 +54,10 @@ func (p ItemsSyncPayload) EncodeForDelivery() (string, error) {
 
 func (idBase ItemsDatabase) FilterInItemsToSync(ids []blizzardv2.ItemId) (ItemsSyncPayload, error) {
 	// producing a blank whitelist
-	syncWhitelist := map[blizzardv2.ItemId]bool{}
-	for _, id := range ids {
-		syncWhitelist[id] = false
-	}
+	syncWhitelist := sotah.NewItemSyncWhitelist(ids)
 
 	// producing a blank map of icon->item-ids
-	iconsToSync := map[string][]blizzardv2.ItemId{}
+	iconsToSync := sotah.IconIdsMap{}
 
 	// peeking into the items database
 	err := idBase.db.Update(func(tx *bolt.Tx) error {
@@ -88,10 +85,8 @@ func (idBase ItemsDatabase) FilterInItemsToSync(ids []blizzardv2.ItemId) (ItemsS
 				return err
 			}
 
-			if item.SotahMeta.ItemIconMeta.IsZero() {
-				iconsToSync[item.SotahMeta.ItemIconMeta.Icon] = item.BlizzardMeta.Id
-			}
-			if !item.SotahMeta.ItemIconMeta.IsZero() {
+			hasBlankIconMeta := item.SotahMeta.ItemIconMeta.IsZero()
+			hasIncorrectIconMeta := func() bool {
 				correctIconObjectName := fmt.Sprintf(
 					"%s/%s.jpg",
 					gameversions.Retail,
@@ -99,41 +94,17 @@ func (idBase ItemsDatabase) FilterInItemsToSync(ids []blizzardv2.ItemId) (ItemsS
 				)
 				correctIconURL := fmt.Sprintf(store.ItemIconURLFormat, "sotah-item-icons", correctIconObjectName)
 
-				shouldInclude := item.SotahMeta.ItemIconMeta.ObjectName != correctIconObjectName ||
+				return item.SotahMeta.ItemIconMeta.ObjectName != correctIconObjectName ||
 					item.SotahMeta.ItemIconMeta.URL != correctIconURL
-				if shouldInclude {
-					iconItemIds := func() []blizzardv2.ItemId {
-						out, ok := iconsToSync[item.Icon]
-						if !ok {
-							return []blizzardv2.ItemId{}
-						}
-
-						return out
-					}()
-					iconItemIds = append(iconItemIds, id)
-					iconsToSync[item.Icon] = iconItemIds
-				}
+			}()
+			if hasBlankIconMeta || hasIncorrectIconMeta {
+				iconsToSync = iconsToSync.Append(item.SotahMeta.ItemIconMeta.Icon, item.BlizzardMeta.Id)
 			}
 
-			if item.SotahMeta.NormalizedName.IsZero() {
-				logging.WithField("item", item.BlizzardMeta.Id).Info("Normalized-name is blank")
+			isMissingNames := item.SotahMeta.NormalizedName.IsZero()
+			isMissingNormalizedName := itemNamesBucket.Get(itemNameKeyName(id)) == nil
+			if isMissingNames || isMissingNormalizedName {
 				syncWhitelist[id] = true
-			}
-
-			normalizedNameValue := itemNamesBucket.Get(itemNameKeyName(id))
-			if normalizedNameValue == nil {
-				logging.WithField("item", item.ID).Info("Normalized-name not in bucket")
-				syncWhitelist[id] = true
-			} else {
-				if string(normalizedNameValue) == "" {
-					logging.WithField("item", item.ID).Info("Normalized-name was a blank string")
-					syncWhitelist[id] = true
-				} else {
-					if string(normalizedNameValue) != item.NormalizedName {
-						logging.WithField("item", item.ID).Info("Normalized-name did not match item normalized-name")
-						syncWhitelist[id] = true
-					}
-				}
 			}
 		}
 
@@ -143,15 +114,5 @@ func (idBase ItemsDatabase) FilterInItemsToSync(ids []blizzardv2.ItemId) (ItemsS
 		return ItemsSyncPayload{}, err
 	}
 
-	// reformatting the whitelist
-	idsToSync := []blizzardv2.ItemId{}
-	for id, shouldSync := range syncWhitelist {
-		if !shouldSync {
-			continue
-		}
-
-		idsToSync = append(idsToSync, id)
-	}
-
-	return ItemsSyncPayload{Ids: idsToSync, IconIdsMap: iconsToSync}, nil
+	return ItemsSyncPayload{Ids: syncWhitelist.ToItemIds(), IconIdsMap: iconsToSync}, nil
 }

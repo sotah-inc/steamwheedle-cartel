@@ -6,7 +6,19 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 )
 
-func NewIconItemsTuplesBatches(iconIdsMap map[string][]blizzardv2.ItemId, batchSize int) IconItemsTuplesBatches {
+type IconIdsMap map[IconName]blizzardv2.ItemIds
+
+func (iMap IconIdsMap) Append(name IconName, id blizzardv2.ItemId) IconIdsMap {
+	if _, ok := iMap[name]; !ok {
+		iMap[name] = blizzardv2.ItemIds{}
+	}
+
+	iMap[name] = append(iMap[name], id)
+
+	return iMap
+}
+
+func NewIconItemsTuplesBatches(iconIdsMap IconIdsMap, batchSize int) IconItemsTuplesBatches {
 	batches := IconItemsTuplesBatches{}
 	i := 0
 	for iconName, itemIds := range iconIdsMap {
@@ -43,6 +55,6 @@ func (d IconItemsTuples) EncodeForDelivery() (string, error) {
 }
 
 type IconItemsTuple struct {
-	Name string
+	Name IconName
 	Ids  []blizzardv2.ItemId
 }
