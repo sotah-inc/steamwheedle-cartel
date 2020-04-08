@@ -16,7 +16,16 @@ func (sta APIState) Collect() error {
 		return err
 	}
 
-	logging.WithField("item-ids", len(itemIds)).Info("found items")
+	logging.WithField("item-ids", len(itemIds)).Info("found items in auctions")
+
+	itemSyncPayload, err := sta.ItemsState.ItemsDatabase.FilterInItemsToSync(itemIds)
+	if err != nil {
+		logging.WithField("error", err.Error()).Error("failed to filter in items-to-sync")
+
+		return err
+	}
+
+	logging.WithField("item-sync-payload", itemSyncPayload).Info("received item-sync-payload")
 
 	return nil
 }
