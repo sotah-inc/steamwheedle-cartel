@@ -74,7 +74,7 @@ func (idBase ItemsDatabase) FilterInItemsToSync(ids []blizzardv2.ItemId) (ItemsS
 		for _, id := range ids {
 			value := itemsBucket.Get(itemsKeyName(id))
 			if value == nil {
-				logging.WithField("item", id).Info("Item was not in bucket")
+				logging.WithField("item", id).Info("item was not in bucket")
 				syncWhitelist[id] = true
 
 				continue
@@ -87,6 +87,10 @@ func (idBase ItemsDatabase) FilterInItemsToSync(ids []blizzardv2.ItemId) (ItemsS
 
 			hasBlankIconMeta := item.SotahMeta.ItemIconMeta.IsZero()
 			hasIncorrectIconMeta := func() bool {
+				if hasBlankIconMeta {
+					return false
+				}
+
 				correctIconObjectName := fmt.Sprintf(
 					"%s/%s.jpg",
 					gameversions.Retail,
