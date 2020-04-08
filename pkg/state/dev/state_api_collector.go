@@ -3,35 +3,49 @@ package dev
 import (
 	"time"
 
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzard"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 )
 
-func (sta *APIState) StartCollector(stopChan sotah.WorkerStopChan) sotah.WorkerStopChan {
-	sta.collectRegionAuctions()
-	sta.collectRegionTokens()
+func (sta APIState) Collect() error {
+	itemIds, err := sta.DiskAuctionsState.CollectAuctions()
+	if err != nil {
+		logging.WithField("error", err.Error()).Error("failed to collect auctions")
+
+		return err
+	}
+
+	logging.WithField("item-ids", len(itemIds)).Info("found items")
+
+	return nil
+}
+
+func (sta APIState) StartCollector(stopChan sotah.WorkerStopChan) sotah.WorkerStopChan {
+	if err := sta.Collect(); err != nil {
+		logging.WithField("error", err.Error()).Error("failed to collect")
+	}
 
 	onStop := make(sotah.WorkerStopChan)
 	go func() {
 		ticker := time.NewTicker(20 * time.Minute)
 
-		logging.Info("Starting collector")
+		logging.Info("starting collector")
 	outer:
 		for {
 			select {
 			case <-ticker.C:
-				// refreshing the access-token for the Resolver blizz client
-				nextClient, err := sta.IO.Resolver.BlizzardClient.RefreshFromHTTP(blizzard.OAuthTokenEndpoint)
-				if err != nil {
-					logging.WithField("error", err.Error()).Error("Failed to refresh blizzard client")
+				if err := sta.BlizzardState.BlizzardClient.RefreshFromHTTP(blizzardv2.OAuthTokenEndpoint); err != nil {
+					logging.WithField("error", err.Error()).Error("failed to refresh blizzard http-client")
 
 					continue
 				}
-				sta.IO.Resolver.BlizzardClient = nextClient
 
-				sta.collectRegionAuctions()
-				sta.collectRegionTokens()
+				if err := sta.Collect(); err != nil {
+					logging.WithField("error", err.Error()).Error("failed to collect")
+
+					continue
+				}
 			case <-stopChan:
 				ticker.Stop()
 
