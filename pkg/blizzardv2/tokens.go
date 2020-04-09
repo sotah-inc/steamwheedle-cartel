@@ -19,11 +19,6 @@ func (job GetTokensJob) ToLogrusFields() logrus.Fields {
 	}
 }
 
-type RegionHostnameTuple struct {
-	RegionName     RegionName
-	RegionHostname string
-}
-
 type GetTokensOptions struct {
 	Tuples          []RegionHostnameTuple
 	GetTokenInfoURL func(string, RegionName) (string, error)

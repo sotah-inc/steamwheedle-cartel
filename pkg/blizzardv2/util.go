@@ -24,3 +24,8 @@ type DownloadConnectedRealmTuple struct {
 	RegionHostname string
 	LastModified   time.Time
 }
+
+type RegionHostnameTuple struct {
+	RegionName     RegionName
+	RegionHostname string
+}
