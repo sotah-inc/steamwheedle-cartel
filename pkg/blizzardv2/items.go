@@ -25,7 +25,7 @@ type GetItemsOptions struct {
 	ItemIds    []ItemId
 }
 
-func (response ItemResponses) GetItems(opts GetItemsOptions) chan GetItemsOutJob {
+func GetItems(opts GetItemsOptions) chan GetItemsOutJob {
 	// starting up workers for gathering individual items
 	in := make(chan ItemId)
 	out := make(chan GetItemsOutJob)

@@ -81,8 +81,24 @@ func (sta BlizzardState) ResolveTokens(
 func (sta BlizzardState) ResolveAuctions(tuples []blizzardv2.DownloadConnectedRealmTuple) chan blizzardv2.GetAuctionsJob {
 	return blizzardv2.GetAuctions(blizzardv2.GetAuctionsOptions{
 		Tuples: tuples,
-		GetAuctionsURL: func(tuple blizzardv2.DownloadConnectedRealmTuple) (s string, err error) {
+		GetAuctionsURL: func(tuple blizzardv2.DownloadConnectedRealmTuple) (string, error) {
 			return sta.BlizzardClient.AppendAccessToken(blizzardv2.DefaultGetAuctionsURL(tuple))
 		},
 	})
+}
+
+func (sta BlizzardState) ResolveItems(regions sotah.RegionList, ids blizzardv2.ItemIds) (chan blizzardv2.GetItemsOutJob, error) {
+	primaryRegion, err := regions.GetPrimaryRegion()
+	if err != nil {
+		return nil, err
+	}
+
+	return blizzardv2.GetItems(blizzardv2.GetItemsOptions{
+		GetItemURL: func(id blizzardv2.ItemId) (string, error) {
+			return sta.BlizzardClient.AppendAccessToken(
+				blizzardv2.DefaultGetItemURL(primaryRegion.Hostname, id, primaryRegion.Name),
+			)
+		},
+		ItemIds: ids,
+	}), nil
 }
