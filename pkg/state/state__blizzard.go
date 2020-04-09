@@ -2,6 +2,7 @@ package state
 
 import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 )
 
@@ -101,4 +102,23 @@ func (sta BlizzardState) ResolveItems(regions sotah.RegionList, ids blizzardv2.I
 		},
 		ItemIds: ids,
 	}), nil
+}
+
+func (sta BlizzardState) ResolveItemMedias(in chan blizzardv2.GetItemMediasInJob) chan blizzardv2.GetItemMediasOutJob {
+	appendedIn := make(chan blizzardv2.GetItemMediasInJob)
+
+	go func() {
+		for job := range in {
+			wrappedUri, err := sta.BlizzardClient.AppendAccessToken(job.URL)
+			if err != nil {
+				logging.WithField("error", err.Error()).Error("failed to wrap item-media uri")
+
+				continue
+			}
+
+			appendedIn <- blizzardv2.GetItemMediasInJob{URL: wrappedUri}
+		}
+	}()
+
+	return blizzardv2.GetItemMedias(appendedIn)
 }
