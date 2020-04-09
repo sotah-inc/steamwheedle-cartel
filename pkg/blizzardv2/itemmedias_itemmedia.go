@@ -3,12 +3,60 @@ package blizzardv2
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"strings"
 
 	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 )
+
+const itemMediaURLFormat = "https://%s/data/wow/media/item/%d?namespace=static-%s"
+
+func DefaultGetItemMediaURL(regionHostname string, id ItemId, regionName RegionName) string {
+	return fmt.Sprintf(itemMediaURLFormat, regionHostname, id, regionName)
+}
+
+type GetItemMediaURLFunc func(string, ItemId, RegionName) string
+
+type ItemMediaAsset struct {
+	Key string `json:"key"`
+}
+
+type ItemMediaResponse struct {
+	LinksBase
+	Assets []ItemMediaAsset `json:"assets"`
+	Id     ItemId           `json:"id"`
+}
+
+func (res ItemMediaResponse) GetIcon() (string, error) {
+	if len(res.Assets) == 0 {
+		return "", errors.New("could not find ")
+	}
+
+	k := res.Assets[0].Key
+
+	lastSlashIndex := strings.LastIndex(k, "/")
+	if lastSlashIndex == -1 {
+		return "", errors.New("asset key did not have slash")
+	}
+
+	lastDotIndex := strings.LastIndex(k, ".")
+	if lastDotIndex == -1 {
+		return "", errors.New("asset key did not have dot")
+	}
+
+	return k[lastSlashIndex+1 : lastDotIndex], nil
+}
+
+func NewItemMediaResponse(body []byte) (ItemMediaResponse, error) {
+	iMedia := &ItemMediaResponse{}
+	if err := json.Unmarshal(body, iMedia); err != nil {
+		return ItemMediaResponse{}, err
+	}
+
+	return *iMedia, nil
+}
 
 func NewItemMediaFromHTTP(uri string) (ItemMediaResponse, ResponseMeta, error) {
 	resp, err := Download(DownloadOptions{Uri: uri})
@@ -41,43 +89,4 @@ func NewItemMediaFromHTTP(uri string) (ItemMediaResponse, ResponseMeta, error) {
 	}
 
 	return item, resp, nil
-}
-
-func NewItemMediaResponse(body []byte) (ItemMediaResponse, error) {
-	iMedia := &ItemMediaResponse{}
-	if err := json.Unmarshal(body, iMedia); err != nil {
-		return ItemMediaResponse{}, err
-	}
-
-	return *iMedia, nil
-}
-
-type ItemMediaAsset struct {
-	Key string `json:"key"`
-}
-
-type ItemMediaResponse struct {
-	LinksBase
-	Assets []ItemMediaAsset `json:"assets"`
-	Id     ItemId           `json:"id"`
-}
-
-func (res ItemMediaResponse) GetIcon() (string, error) {
-	if len(res.Assets) == 0 {
-		return "", errors.New("could not find ")
-	}
-
-	k := res.Assets[0].Key
-
-	lastSlashIndex := strings.LastIndex(k, "/")
-	if lastSlashIndex == -1 {
-		return "", errors.New("asset key did not have slash")
-	}
-
-	lastDotIndex := strings.LastIndex(k, ".")
-	if lastDotIndex == -1 {
-		return "", errors.New("asset key did not have dot")
-	}
-
-	return k[lastSlashIndex+1 : lastDotIndex], nil
 }

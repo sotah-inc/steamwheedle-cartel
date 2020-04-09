@@ -5,47 +5,32 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 )
 
-type ItemMediaResponses []ItemMediaResponse
+type GetItemMediasInJob struct {
+	URL string
+}
 
 type GetItemMediasOutJob struct {
 	Err               error
-	Id                ItemId
 	ItemMediaResponse ItemMediaResponse
 }
 
 func (job GetItemMediasOutJob) ToLogrusFields() logrus.Fields {
 	return logrus.Fields{
 		"error": job.Err.Error(),
-		"id":    job.Id,
 	}
 }
 
-func (response ItemMediaResponses) GetItemMedias(
-	regionHostname string,
-	regionName RegionName,
-	getItemURL GetItemURLFunc,
+func GetItemMedias(
+	in chan GetItemMediasInJob,
 ) chan GetItemMediasOutJob {
-	// starting up workers for gathering individual items
-	in := make(chan ItemId)
+	// starting up workers for gathering item-medias
 	out := make(chan GetItemMediasOutJob)
 	worker := func() {
-		for id := range in {
-			getItemUri, err := getItemURL(regionHostname, id, regionName)
+		for job := range in {
+			itemMediaResponse, _, err := NewItemMediaFromHTTP(job.URL)
 			if err != nil {
 				out <- GetItemMediasOutJob{
 					Err:               err,
-					Id:                id,
-					ItemMediaResponse: ItemMediaResponse{},
-				}
-
-				continue
-			}
-
-			itemMediaResponse, _, err := NewItemMediaFromHTTP(getItemUri)
-			if err != nil {
-				out <- GetItemMediasOutJob{
-					Err:               err,
-					Id:                id,
 					ItemMediaResponse: ItemMediaResponse{},
 				}
 
@@ -54,7 +39,6 @@ func (response ItemMediaResponses) GetItemMedias(
 
 			out <- GetItemMediasOutJob{
 				Err:               nil,
-				Id:                id,
 				ItemMediaResponse: itemMediaResponse,
 			}
 		}
