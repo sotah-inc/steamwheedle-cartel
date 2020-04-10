@@ -8,9 +8,7 @@ import (
 	"time"
 
 	"github.com/sirupsen/logrus"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzard"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 )
 
 func RetentionLimit() time.Time {
@@ -64,10 +62,4 @@ func Paths(databaseDir string) ([]databasePathPair, error) {
 	}
 
 	return out, nil
-}
-
-type LoadInJob struct {
-	Realm      sotah.Realm
-	TargetTime time.Time
-	Auctions   blizzard.Auctions
 }

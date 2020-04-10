@@ -4,13 +4,9 @@ import (
 	"encoding/json"
 
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
-
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzard"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 )
-
-type realmWhitelist map[blizzard.RealmSlug]struct{}
 
 func NewConfigFromFilepath(relativePath string) (Config, error) {
 	logging.WithField("path", relativePath).Info("Reading Config")
@@ -50,37 +46,6 @@ func (c Config) FilterInRegions(regs RegionList) RegionList {
 		}
 
 		out = append(out, reg)
-	}
-
-	return out
-}
-
-func (c Config) FilterInRealms(reg Region, reas Realms) Realms {
-	// returning nothing when region not found in whitelist
-	wList, ok := c.Whitelist[reg.Name]
-	if !ok {
-		return Realms{}
-	}
-
-	// returning all when whitelist is empty
-	if len(wList) == 0 {
-		return reas
-	}
-
-	// gathering flags
-	wListValue := realmWhitelist{}
-	for _, realmSlug := range wList {
-		wListValue[realmSlug] = struct{}{}
-	}
-
-	out := Realms{}
-
-	for _, rea := range reas {
-		if _, ok := wListValue[rea.Slug]; !ok {
-			continue
-		}
-
-		out = append(out, rea)
 	}
 
 	return out

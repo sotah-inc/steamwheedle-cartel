@@ -11,8 +11,6 @@ import (
 
 const (
 	appMetricSubject = "appMetrics"
-	ClassA           = "class_a"
-	ClassB           = "class_b"
 )
 
 func NewReporter(mess messenger.Messenger) Reporter {
