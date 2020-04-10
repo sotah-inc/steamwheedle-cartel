@@ -1,7 +1,6 @@
 package database
 
 import (
-	"encoding/json"
 	"strconv"
 
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/locale"
@@ -11,7 +10,6 @@ import (
 	"github.com/boltdb/bolt"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 )
 
 func NewItemsDatabase(dbDir string) (ItemsDatabase, error) {
@@ -134,53 +132,4 @@ func (idBase ItemsDatabase) FindItems(itemIds []blizzardv2.ItemId) (sotah.ItemsM
 	}
 
 	return out, nil
-}
-
-// persisting
-func (idBase ItemsDatabase) PersistItems(iMap sotah.ItemsMap) error {
-	logging.WithField("items", len(iMap)).Debug("Persisting items")
-
-	err := idBase.db.Batch(func(tx *bolt.Tx) error {
-		itemsBucket, err := tx.CreateBucketIfNotExists(databaseItemsBucketName())
-		if err != nil {
-			return err
-		}
-
-		itemNamesBucket, err := tx.CreateBucketIfNotExists(databaseItemNamesBucketName())
-		if err != nil {
-			return err
-		}
-
-		for id, item := range iMap {
-			jsonEncoded, err := json.Marshal(item)
-			if err != nil {
-				return err
-			}
-
-			gzipEncoded, err := util.GzipEncode(jsonEncoded)
-			if err != nil {
-				return err
-			}
-
-			if err := itemsBucket.Put(itemsKeyName(id), gzipEncoded); err != nil {
-				return err
-			}
-
-			encodedNormalizedName, err := item.SotahMeta.NormalizedName.EncodeForStorage()
-			if err != nil {
-				return err
-			}
-
-			if err := itemNamesBucket.Put(itemNameKeyName(id), encodedNormalizedName); err != nil {
-				return err
-			}
-		}
-
-		return nil
-	})
-	if err != nil {
-		return err
-	}
-
-	return nil
 }

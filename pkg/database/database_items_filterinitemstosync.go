@@ -9,7 +9,6 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah/gameversions"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/store"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 )
@@ -91,11 +90,7 @@ func (idBase ItemsDatabase) FilterInItemsToSync(ids []blizzardv2.ItemId) (ItemsS
 					return false
 				}
 
-				correctIconObjectName := fmt.Sprintf(
-					"%s/%s.jpg",
-					gameversions.Retail,
-					item.SotahMeta.ItemIconMeta.ObjectName,
-				)
+				correctIconObjectName := sotah.NewItemObjectName(item.SotahMeta.ItemIconMeta.Icon)
 				correctIconURL := fmt.Sprintf(store.ItemIconURLFormat, "sotah-item-icons", correctIconObjectName)
 
 				return item.SotahMeta.ItemIconMeta.ObjectName != correctIconObjectName ||
