@@ -17,25 +17,21 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 )
 
-type APIStateConfig struct {
-	SotahConfig     sotah.Config
-	MessengerConfig struct {
-		Hostname string
-		Port     int
-	}
-	DiskStoreCacheDir string
-	BlizzardConfig    struct {
-		ClientId     string
-		ClientSecret string
-	}
-	DatabaseConfig struct {
-		ItemsDir    string
-		TokensDir   string
-		AreaMapsDir string
-	}
+type ApiStateDatabaseConfig struct {
+	ItemsDir    string
+	TokensDir   string
+	AreaMapsDir string
 }
 
-func NewAPIState(config APIStateConfig) (*APIState, error) {
+type ApiStateConfig struct {
+	SotahConfig       sotah.Config
+	MessengerConfig   messenger.MessengerConfig
+	DiskStoreCacheDir string
+	BlizzardConfig    blizzardv2.ClientConfig
+	DatabaseConfig    ApiStateDatabaseConfig
+}
+
+func NewAPIState(config ApiStateConfig) (*APIState, error) {
 	// establishing an initial state
 	sta := APIState{State: state.State{RunID: uuid.NewV4(), Listeners: nil, BusListeners: nil}}
 
@@ -72,7 +68,7 @@ func NewAPIState(config APIStateConfig) (*APIState, error) {
 	}
 
 	// connecting to the messenger host
-	mess, err := messenger.NewMessenger(config.MessengerConfig.Hostname, config.MessengerConfig.Port)
+	mess, err := messenger.NewMessenger(config.MessengerConfig)
 	if err != nil {
 		logging.WithField("error", err.Error()).Error("failed to connect to messenger")
 
@@ -81,7 +77,7 @@ func NewAPIState(config APIStateConfig) (*APIState, error) {
 
 	// connecting a new blizzard client
 	sta.BlizzardState = state.BlizzardState{}
-	sta.BlizzardState.BlizzardClient, err = blizzardv2.NewClient(config.BlizzardConfig.ClientId, config.BlizzardConfig.ClientSecret)
+	sta.BlizzardState.BlizzardClient, err = blizzardv2.NewClient(config.BlizzardConfig)
 	if err != nil {
 		logging.WithField("error", err.Error()).Error("failed to initialise blizzard-client")
 

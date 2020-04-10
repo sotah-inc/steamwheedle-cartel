@@ -14,17 +14,22 @@ import (
 
 const OAuthTokenEndpoint = "https://us.battle.net/oauth/token?grant_type=client_credentials"
 
-func NewClient(id string, secret string) (Client, error) {
-	if len(id) == 0 {
+type ClientConfig struct {
+	ClientId     string
+	ClientSecret string
+}
+
+func NewClient(config ClientConfig) (Client, error) {
+	if len(config.ClientId) == 0 {
 		return Client{}, errors.New("client id is blank")
 	}
-	if len(secret) == 0 {
+	if len(config.ClientSecret) == 0 {
 		return Client{}, errors.New("client secret is blank")
 	}
 
 	client := Client{
-		id:          id,
-		secret:      secret,
+		id:          config.ClientId,
+		secret:      config.ClientSecret,
 		accessToken: nil,
 	}
 	if err := client.RefreshFromHTTP(OAuthTokenEndpoint); err != nil {

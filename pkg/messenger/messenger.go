@@ -40,19 +40,27 @@ func NewMessengerFromEnvVars(hostKey string, portKey string) (Messenger, error) 
 		return Messenger{}, err
 	}
 
-	return NewMessenger(natsHost, parsedNatsPort)
+	return NewMessenger(MessengerConfig{
+		Hostname: natsHost,
+		Port:     parsedNatsPort,
+	})
 }
 
-func NewMessenger(host string, port int) (Messenger, error) {
-	if len(host) == 0 {
+type MessengerConfig struct {
+	Hostname string
+	Port     int
+}
+
+func NewMessenger(config MessengerConfig) (Messenger, error) {
+	if len(config.Hostname) == 0 {
 		return Messenger{}, errors.New("host cannot be blank")
 	}
 
-	if port == 0 {
+	if config.Port == 0 {
 		return Messenger{}, errors.New("port cannot be zero")
 	}
 
-	natsURI := fmt.Sprintf("nats://%s:%d", host, port)
+	natsURI := fmt.Sprintf("nats://%s:%d", config.Hostname, config.Port)
 
 	logging.WithField("uri", natsURI).Info("Connecting to nats")
 
