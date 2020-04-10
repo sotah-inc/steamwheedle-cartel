@@ -1,31 +1,25 @@
 package main
 
 import (
-	"fmt"
 	"os"
 
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
+
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
+
 	"github.com/sirupsen/logrus"
-	"github.com/twinj/uuid"
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/cmd/app/commands"
 	devCommand "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/command/dev"
-	prodCommand "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/command/prod"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging/stackdriver"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 	devState "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state/dev"
-	prodState "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state/prod"
 )
 
 type commandMap map[string]func() error
 
-// ID represents this run's unique id
-var ID uuid.UUID
-
 func main() {
-	// assigning global ID
-	ID = uuid.NewV4()
-
 	// parsing the command flags
 	var (
 		app            = kingpin.New("sotah-server", "A command-line Blizzard AH client.")
@@ -38,34 +32,14 @@ func main() {
 		cacheDir       = app.Flag("cache-dir", "Directory to cache data files to").Required().String()
 		projectID      = app.Flag("project-id", "GCloud Storage Project ID").Default("").Envar("PROJECT_ID").String()
 
-		apiCommand          = app.Command(string(commands.API), "For running sotah-server.")
-		liveAuctionsCommand = app.Command(
-			string(commands.LiveAuctions),
-			"For in-memory storage of current auctions.",
-		)
-		pricelistHistoriesCommand = app.Command(
-			string(commands.PricelistHistories),
-			"For on-disk storage of pricelist histories.",
-		)
-
-		prodApiCommand          = app.Command(string(commands.ProdApi), "For running sotah-server in prod-mode.")
-		prodMetricsCommand      = app.Command(string(commands.ProdMetrics), "For forwarding metrics to a nats channel.")
-		prodLiveAuctionsCommand = app.Command(
-			string(commands.ProdLiveAuctions),
-			"For managing live-auctions in gcp ce vm.",
-		)
-		prodPricelistHistoriesCommand = app.Command(
-			string(commands.ProdPricelistHistories),
-			"For managing pricelist-histories in gcp ce vm.",
-		)
-		prodItemsCommand = app.Command(string(commands.ProdItems), "For managing items in gcp ce vm.")
+		apiCommand = app.Command(string(commands.API), "For running sotah-server.")
 	)
 	cmd := kingpin.MustParse(app.Parse(os.Args[1:]))
 
 	// establishing log verbosity
 	logVerbosity, err := logrus.ParseLevel(*verbosity)
 	if err != nil {
-		logging.WithField("error", err.Error()).Fatal("Could not parse log level")
+		logging.WithField("error", err.Error()).Fatal("could not parse log level")
 
 		return
 	}
@@ -77,97 +51,49 @@ func main() {
 		logging.WithFields(logrus.Fields{
 			"error":    err.Error(),
 			"filepath": *configFilepath,
-		}).Fatal("Could not fetch config")
+		}).Fatal("could not fetch config")
 
 		return
 	}
 
 	// optionally adding stackdriver hook
 	if c.UseGCloud {
-		logging.WithField("project-id", *projectID).Info("Creating stackdriver hook")
+		logging.WithField("project-id", *projectID).Info("creating stackdriver hook")
 		stackdriverHook, err := stackdriver.NewHook(*projectID, cmd)
 		if err != nil {
 			logging.WithFields(logrus.Fields{
 				"error":     err.Error(),
 				"projectID": projectID,
-			}).Fatal("Could not create new stackdriver logrus hook")
+			}).Fatal("could not create new stackdriver logrus hook")
 
 			return
 		}
 
 		logging.AddHook(stackdriverHook)
 	}
-	logging.Info("Starting")
+	logging.Info("starting")
 
-	logging.WithField("command", cmd).Info("Running command")
+	logging.WithField("command", cmd).Info("running command")
 
 	// declaring a command map
 	cMap := commandMap{
 		apiCommand.FullCommand(): func() error {
-			return devCommand.Api(devState.APIStateConfig{
-				SotahConfig:          c,
-				DiskStoreCacheDir:    *cacheDir,
-				ItemsDatabaseDir:     fmt.Sprintf("%s/databases", *cacheDir),
-				BlizzardClientSecret: *clientSecret,
-				BlizzardClientId:     *clientID,
-				MessengerPort:        *natsPort,
-				MessengerHost:        *natsHost,
-				GCloudProjectID:      *projectID,
-			})
-		},
-		liveAuctionsCommand.FullCommand(): func() error {
-			return devCommand.LiveAuctions(devState.LiveAuctionsStateConfig{
-				MessengerHost:           *natsHost,
-				MessengerPort:           *natsPort,
-				DiskStoreCacheDir:       *cacheDir,
-				LiveAuctionsDatabaseDir: fmt.Sprintf("%s/databases", *cacheDir),
-			})
-		},
-		pricelistHistoriesCommand.FullCommand(): func() error {
-			return devCommand.PricelistHistories(devState.PricelistHistoriesStateConfig{
-				DiskStoreCacheDir:             *cacheDir,
-				MessengerPort:                 *natsPort,
-				MessengerHost:                 *natsHost,
-				PricelistHistoriesDatabaseDir: fmt.Sprintf("%s/databases", *cacheDir),
-			})
-		},
-		prodApiCommand.FullCommand(): func() error {
-			return prodCommand.ProdApi(prodState.ProdApiStateConfig{
-				SotahConfig:     c,
-				MessengerPort:   *natsPort,
-				MessengerHost:   *natsHost,
-				GCloudProjectID: *projectID,
-			})
-		},
-		prodMetricsCommand.FullCommand(): func() error {
-			return prodCommand.ProdMetrics(prodState.ProdMetricsStateConfig{
-				MessengerPort:   *natsPort,
-				MessengerHost:   *natsHost,
-				GCloudProjectID: *projectID,
-			})
-		},
-		prodLiveAuctionsCommand.FullCommand(): func() error {
-			return prodCommand.ProdLiveAuctions(prodState.ProdLiveAuctionsStateConfig{
-				MessengerPort:           *natsPort,
-				MessengerHost:           *natsHost,
-				GCloudProjectID:         *projectID,
-				LiveAuctionsDatabaseDir: fmt.Sprintf("%s/databases", *cacheDir),
-			})
-		},
-		prodPricelistHistoriesCommand.FullCommand(): func() error {
-			return prodCommand.ProdPricelistHistories(prodState.ProdPricelistHistoriesStateConfig{
-				MessengerPort:                 *natsPort,
-				MessengerHost:                 *natsHost,
-				GCloudProjectID:               *projectID,
-				PricelistHistoriesDatabaseDir: fmt.Sprintf("%s/databases", *cacheDir),
-			})
-		},
-		prodItemsCommand.FullCommand(): func() error {
-			return prodCommand.Items(prodState.ItemsStateConfig{
-				MessengerPort:    *natsPort,
-				MessengerHost:    *natsHost,
-				GCloudProjectID:  *projectID,
-				ItemsDatabaseDir: fmt.Sprintf("%s/databases", *cacheDir),
+			return devCommand.Api(devState.ApiStateConfig{
+				SotahConfig: c,
+				MessengerConfig: messenger.MessengerConfig{
+					Hostname: *natsHost,
+					Port:     *natsPort,
+				},
+				DiskStoreCacheDir: *cacheDir,
+				BlizzardConfig: blizzardv2.ClientConfig{
+					ClientId:     *clientID,
+					ClientSecret: *clientSecret,
+				},
+				DatabaseConfig: devState.ApiStateDatabaseConfig{
+					ItemsDir:    *cacheDir,
+					TokensDir:   *cacheDir,
+					AreaMapsDir: *cacheDir,
+				},
 			})
 		},
 	}
@@ -175,7 +101,7 @@ func main() {
 	// resolving the command func
 	cmdFunc, ok := cMap[cmd]
 	if !ok {
-		logging.WithField("command", cmd).Fatal("Invalid command")
+		logging.WithField("command", cmd).Fatal("invalid command")
 
 		return
 	}
@@ -185,6 +111,6 @@ func main() {
 		logging.WithFields(logrus.Fields{
 			"error":   err.Error(),
 			"command": cmd,
-		}).Fatal("Failed to execute command")
+		}).Fatal("failed to execute command")
 	}
 }
