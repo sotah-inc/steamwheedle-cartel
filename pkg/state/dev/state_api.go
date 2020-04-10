@@ -25,7 +25,7 @@ type ApiStateDatabaseConfig struct {
 
 type ApiStateConfig struct {
 	SotahConfig       sotah.Config
-	MessengerConfig   messenger.MessengerConfig
+	MessengerConfig   messenger.Config
 	DiskStoreCacheDir string
 	BlizzardConfig    blizzardv2.ClientConfig
 	DatabaseConfig    ApiStateDatabaseConfig

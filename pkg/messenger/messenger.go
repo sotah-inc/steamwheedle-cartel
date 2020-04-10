@@ -40,18 +40,18 @@ func NewMessengerFromEnvVars(hostKey string, portKey string) (Messenger, error) 
 		return Messenger{}, err
 	}
 
-	return NewMessenger(MessengerConfig{
+	return NewMessenger(Config{
 		Hostname: natsHost,
 		Port:     parsedNatsPort,
 	})
 }
 
-type MessengerConfig struct {
+type Config struct {
 	Hostname string
 	Port     int
 }
 
-func NewMessenger(config MessengerConfig) (Messenger, error) {
+func NewMessenger(config Config) (Messenger, error) {
 	if len(config.Hostname) == 0 {
 		return Messenger{}, errors.New("host cannot be blank")
 	}

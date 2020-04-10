@@ -80,7 +80,7 @@ func main() {
 		apiCommand.FullCommand(): func() error {
 			return devCommand.Api(devState.ApiStateConfig{
 				SotahConfig: c,
-				MessengerConfig: messenger.MessengerConfig{
+				MessengerConfig: messenger.Config{
 					Hostname: *natsHost,
 					Port:     *natsPort,
 				},
