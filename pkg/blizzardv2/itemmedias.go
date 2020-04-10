@@ -6,31 +6,46 @@ import (
 )
 
 type GetItemMediasInJob struct {
-	URL string
+	Item ItemResponse
 }
 
 type GetItemMediasOutJob struct {
 	Err               error
+	Item              ItemResponse
 	ItemMediaResponse ItemMediaResponse
 }
 
 func (job GetItemMediasOutJob) ToLogrusFields() logrus.Fields {
 	return logrus.Fields{
 		"error": job.Err.Error(),
+		"item":  job.Item.Id,
 	}
 }
 
 func GetItemMedias(
 	in chan GetItemMediasInJob,
+	getItemMediaURL func(string) (string, error),
 ) chan GetItemMediasOutJob {
 	// starting up workers for gathering item-medias
 	out := make(chan GetItemMediasOutJob)
 	worker := func() {
 		for job := range in {
-			itemMediaResponse, _, err := NewItemMediaFromHTTP(job.URL)
+			itemMediaUrl, err := getItemMediaURL(job.Item.Media.Key.Href)
 			if err != nil {
 				out <- GetItemMediasOutJob{
 					Err:               err,
+					Item:              job.Item,
+					ItemMediaResponse: ItemMediaResponse{},
+				}
+
+				continue
+			}
+
+			itemMediaResponse, _, err := NewItemMediaFromHTTP(itemMediaUrl)
+			if err != nil {
+				out <- GetItemMediasOutJob{
+					Err:               err,
+					Item:              job.Item,
 					ItemMediaResponse: ItemMediaResponse{},
 				}
 
@@ -39,6 +54,7 @@ func GetItemMedias(
 
 			out <- GetItemMediasOutJob{
 				Err:               nil,
+				Item:              job.Item,
 				ItemMediaResponse: itemMediaResponse,
 			}
 		}
