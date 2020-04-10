@@ -2,13 +2,23 @@ package sotah
 
 import (
 	"encoding/json"
+	"fmt"
 
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/locale"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah/gameversions"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 )
 
 type IconName string
+
+func NewItemObjectName(name IconName) string {
+	return fmt.Sprintf(
+		"%s/%s.jpg",
+		gameversions.Retail,
+		name,
+	)
+}
 
 type ItemIconMeta struct {
 	URL        string   `json:"icon_url"`
@@ -38,13 +48,15 @@ func NewItem(body []byte) (Item, error) {
 	return *i, nil
 }
 
+type ItemMeta struct {
+	LastModified   UnixTime       `json:"last_modified"`
+	NormalizedName locale.Mapping `json:"normalized_name"`
+	ItemIconMeta   ItemIconMeta   `json:"item_icon_meta"`
+}
+
 type Item struct {
 	BlizzardMeta blizzardv2.ItemResponse `json:"blizzard_meta"`
-	SotahMeta    struct {
-		LastModified   int            `json:"last_modified"`
-		NormalizedName locale.Mapping `json:"normalized_name"`
-		ItemIconMeta   ItemIconMeta   `json:"item_icon_meta"`
-	} `json:"sotah_meta"`
+	SotahMeta    ItemMeta                `json:"sotah_meta"`
 }
 
 func (item Item) EncodeForStorage() ([]byte, error) {

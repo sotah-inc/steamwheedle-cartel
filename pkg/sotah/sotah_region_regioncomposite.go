@@ -143,3 +143,12 @@ func (regions RegionComposites) Receive(timestamps RegionTimestamps) RegionCompo
 
 	return regions
 }
+
+func (regions RegionComposites) ToList() RegionList {
+	out := make(RegionList, len(regions))
+	for i, region := range regions {
+		out[i] = region.ConfigRegion
+	}
+
+	return out
+}
