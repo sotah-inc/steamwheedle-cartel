@@ -18,14 +18,11 @@ func (sta APIState) Collect() error {
 
 	logging.WithField("item-ids", len(itemIds)).Info("found items in auctions")
 
-	itemSyncPayload, err := sta.ItemsState.ItemsDatabase.FilterInItemsToSync(itemIds)
-	if err != nil {
-		logging.WithField("error", err.Error()).Error("failed to filter in items-to-sync")
+	if err := sta.DiskAuctionsState.CollectItems(itemIds); err != nil {
+		logging.WithField("error", err.Error()).Error("failed to collect items")
 
 		return err
 	}
-
-	logging.WithField("item-sync-payload", itemSyncPayload).Info("received item-sync-payload")
 
 	return nil
 }
