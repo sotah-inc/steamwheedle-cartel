@@ -10,6 +10,8 @@ import (
 	"os"
 	"path/filepath"
 	"sync"
+
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 )
 
 // Work - spawns N number of goroutines to execute X() in parallel, with Y() called when they exit
@@ -49,7 +51,11 @@ func Download(url string) (b []byte, err error) {
 	if err != nil {
 		return b, err
 	}
-	defer resp.Body.Close()
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			logging.WithField("error", err.Error()).Error("failed to close response body")
+		}
+	}()
 
 	if resp.StatusCode != http.StatusOK {
 		return b, fmt.Errorf("response was not OK: %d", resp.StatusCode)
@@ -62,7 +68,11 @@ func Download(url string) (b []byte, err error) {
 		if err != nil {
 			return
 		}
-		defer reader.Close()
+		defer func() {
+			if err := reader.Close(); err != nil {
+				logging.WithField("error", err.Error()).Error("failed to close reader body")
+			}
+		}()
 	default:
 		reader = resp.Body
 	}
@@ -97,7 +107,10 @@ func GzipEncode(in []byte) ([]byte, error) {
 	if _, err := w.Write(in); err != nil {
 		return nil, err
 	}
-	w.Close()
+
+	if err := w.Close(); err != nil {
+		return nil, err
+	}
 
 	return b.Bytes(), nil
 }
@@ -108,7 +121,12 @@ func GzipDecode(in []byte) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer r.Close()
+
+	defer func() {
+		if err := r.Close(); err != nil {
+			logging.WithField("error", err.Error()).Error("failed to close reader")
+		}
+	}()
 
 	return ioutil.ReadAll(r)
 }
@@ -141,17 +159,4 @@ func EnsureDirsExist(relativePaths []string) error {
 	}
 
 	return nil
-}
-
-// StatExists returns whether a name exists
-func StatExists(name string) (bool, error) {
-	if _, err := os.Stat(name); err != nil {
-		if os.IsNotExist(err) {
-			return false, nil
-		}
-
-		return false, err
-	}
-
-	return true, nil
 }
