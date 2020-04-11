@@ -4,45 +4,47 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzard"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
+
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah/sortdirections"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah/sortkinds"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 )
 
 // miniauction
-func newMiniAuction(auc blizzard.Auction) miniAuction {
+func newMiniAuction(auc blizzardv2.Auction) miniAuction {
 	var buyoutPer float32
 	if auc.Buyout > 0 {
 		buyoutPer = float32(auc.Buyout) / float32(auc.Quantity)
 	}
 
 	return miniAuction{
-		auc.Item,
-		auc.Bid,
+		auc.Item.Id,
 		auc.Buyout,
 		buyoutPer,
 		auc.Quantity,
 		auc.TimeLeft,
-		[]int64{},
+		[]blizzardv2.AuctionId{},
 	}
 }
 
 type miniAuction struct {
-	ItemID    blizzard.ItemID `json:"itemId"`
-	Bid       int64           `json:"bid"`
-	Buyout    int64           `json:"buyout"`
-	BuyoutPer float32         `json:"buyoutPer"`
-	Quantity  int64           `json:"quantity"`
-	TimeLeft  string          `json:"timeLeft"`
-	AucList   []int64         `json:"aucList"`
+	ItemId    blizzardv2.ItemId      `json:"itemId"`
+	Buyout    int64                  `json:"buyout"`
+	BuyoutPer float32                `json:"buyoutPer"`
+	Quantity  int                    `json:"quantity"`
+	TimeLeft  string                 `json:"timeLeft"`
+	AucList   []blizzardv2.AuctionId `json:"aucList"`
 }
 
 // miniauction-list
 func NewMiniAuctionListFromMiniAuctions(ma MiniAuctions) MiniAuctionList {
-	out := MiniAuctionList{}
+	out := make(MiniAuctionList, len(ma))
+	i := 0
 	for _, mAuction := range ma {
-		out = append(out, mAuction)
+		out[i] = mAuction
+
+		i += 1
 	}
 
 	return out
@@ -92,11 +94,11 @@ func (maList MiniAuctionList) Sort(kind sortkinds.SortKind, direction sortdirect
 	return mas.sort(kind, direction, maList)
 }
 
-func (maList MiniAuctionList) FilterByItemIDs(itemIDFilters []blizzard.ItemID) MiniAuctionList {
+func (maList MiniAuctionList) FilterByItemIds(itemIds []blizzardv2.ItemId) MiniAuctionList {
 	out := MiniAuctionList{}
 	for _, ma := range maList {
-		for _, itemIDFilter := range itemIDFilters {
-			if ma.ItemID == itemIDFilter {
+		for _, id := range itemIds {
+			if ma.ItemId == id {
 				out = append(out, ma)
 			}
 		}
@@ -105,15 +107,18 @@ func (maList MiniAuctionList) FilterByItemIDs(itemIDFilters []blizzard.ItemID) M
 	return out
 }
 
-func (maList MiniAuctionList) ItemIds() []blizzard.ItemID {
-	result := map[blizzard.ItemID]struct{}{}
+func (maList MiniAuctionList) ItemIds() []blizzardv2.ItemId {
+	result := map[blizzardv2.ItemId]struct{}{}
 	for _, ma := range maList {
-		result[ma.ItemID] = struct{}{}
+		result[ma.ItemId] = struct{}{}
 	}
 
-	out := []blizzard.ItemID{}
+	out := make(blizzardv2.ItemIds, len(result))
+	i := 0
 	for v := range result {
-		out = append(out, v)
+		out[i] = v
+
+		i += 1
 	}
 
 	return out
@@ -131,32 +136,35 @@ func (maList MiniAuctionList) TotalAuctions() int {
 func (maList MiniAuctionList) TotalQuantity() int {
 	out := 0
 	for _, auc := range maList {
-		out += int(auc.Quantity) * len(auc.AucList)
+		out += auc.Quantity * len(auc.AucList)
 	}
 
 	return out
 }
 
-func (maList MiniAuctionList) TotalBuyout() int64 {
-	out := int64(0)
+func (maList MiniAuctionList) TotalBuyout() float64 {
+	out := float64(0)
 	for _, auc := range maList {
-		out += auc.Buyout * auc.Quantity * int64(len(auc.AucList))
+		out += float64(auc.Buyout) * float64(auc.Quantity) * float64(len(auc.AucList))
 	}
 
 	return out
 }
 
-func (maList MiniAuctionList) AuctionIds() []int64 {
-	result := map[int64]struct{}{}
+func (maList MiniAuctionList) AuctionIds() []blizzardv2.AuctionId {
+	result := map[blizzardv2.AuctionId]struct{}{}
 	for _, mAuction := range maList {
 		for _, auc := range mAuction.AucList {
 			result[auc] = struct{}{}
 		}
 	}
 
-	out := []int64{}
-	for ID := range result {
-		out = append(out, ID)
+	out := make([]blizzardv2.AuctionId, len(result))
+	i := 0
+	for id := range result {
+		out = append(out, id)
+
+		i += 1
 	}
 
 	return out
@@ -177,19 +185,19 @@ func (maList MiniAuctionList) EncodeForDatabase() ([]byte, error) {
 }
 
 // mini-auctions
-func NewMiniAuctions(aucs blizzard.Auctions) MiniAuctions {
+func NewMiniAuctions(aucs blizzardv2.Auctions) MiniAuctions {
 	out := MiniAuctions{}
-	for _, auc := range aucs.Auctions {
+	for _, auc := range aucs {
 		maHash := newMiniAuctionHash(auc)
 		if mAuction, ok := out[maHash]; ok {
-			mAuction.AucList = append(mAuction.AucList, auc.Auc)
+			mAuction.AucList = append(mAuction.AucList, auc.Id)
 			out[maHash] = mAuction
 
 			continue
 		}
 
 		mAuction := newMiniAuction(auc)
-		mAuction.AucList = append(mAuction.AucList, auc.Auc)
+		mAuction.AucList = append(mAuction.AucList, auc.Id)
 		out[maHash] = mAuction
 	}
 
@@ -198,11 +206,10 @@ func NewMiniAuctions(aucs blizzard.Auctions) MiniAuctions {
 
 type MiniAuctions map[miniAuctionHash]miniAuction
 
-func newMiniAuctionHash(auc blizzard.Auction) miniAuctionHash {
+func newMiniAuctionHash(auc blizzardv2.Auction) miniAuctionHash {
 	return miniAuctionHash(fmt.Sprintf(
-		"%d-%d-%d-%d-%s",
+		"%d-%d-%d-%s",
 		auc.Item,
-		auc.Bid,
 		auc.Buyout,
 		auc.Quantity,
 		auc.TimeLeft,

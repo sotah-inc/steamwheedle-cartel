@@ -69,13 +69,13 @@ type byItem MiniAuctionList
 
 func (by byItem) Len() int           { return len(by) }
 func (by byItem) Swap(i, j int)      { by[i], by[j] = by[j], by[i] }
-func (by byItem) Less(i, j int) bool { return by[i].ItemID < by[j].ItemID }
+func (by byItem) Less(i, j int) bool { return by[i].ItemId < by[j].ItemId }
 
 type byItemReversed MiniAuctionList
 
 func (by byItemReversed) Len() int           { return len(by) }
 func (by byItemReversed) Swap(i, j int)      { by[i], by[j] = by[j], by[i] }
-func (by byItemReversed) Less(i, j int) bool { return by[i].ItemID > by[j].ItemID }
+func (by byItemReversed) Less(i, j int) bool { return by[i].ItemId > by[j].ItemId }
 
 type byQuantity MiniAuctionList
 

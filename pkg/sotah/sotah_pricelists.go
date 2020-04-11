@@ -28,7 +28,7 @@ func NewItemPrices(maList MiniAuctionList) ItemPrices {
 	}
 
 	for _, mAuction := range maList {
-		id := mAuction.ItemID
+		id := mAuction.ItemId
 
 		if _, ok := itemIDMap[id]; !ok {
 			continue

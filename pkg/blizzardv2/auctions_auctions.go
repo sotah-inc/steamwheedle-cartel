@@ -42,6 +42,18 @@ type Auction struct {
 	TimeLeft string `json:"time_left"`
 }
 
+type AuctionHash string
+
+func (auc Auction) ToHash() AuctionHash {
+	return AuctionHash(fmt.Sprintf(
+		"%d-%d-%d-%s",
+		auc.Item,
+		auc.Buyout,
+		auc.Quantity,
+		auc.TimeLeft,
+	))
+}
+
 type Auctions []Auction
 
 func (aucs Auctions) ItemIds() ItemIds {
