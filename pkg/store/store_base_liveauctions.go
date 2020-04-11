@@ -48,7 +48,7 @@ func (b LiveAuctionsBase) GetFirmObject(realm sotah.Realm, bkt *storage.BucketHa
 
 func (b LiveAuctionsBase) Handle(aucs blizzard.Auctions, realm sotah.Realm, bkt *storage.BucketHandle) error {
 	// encoding auctions in the appropriate format
-	gzipEncodedBody, err := sotah.NewMiniAuctionListFromMiniAuctions(sotah.NewMiniAuctions(aucs)).EncodeForDatabase()
+	gzipEncodedBody, err := sotah.NewMiniAuctionListFromMiniAuctions(sotah.NewMiniAuctions(aucs)).EncodeForStorage()
 	if err != nil {
 		return err
 	}

@@ -1,7 +1,7 @@
 package diskstore
 
 import (
-	"encoding/json"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 
 	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
@@ -9,18 +9,16 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 )
 
-func (ds DiskStore) WriteAuctionsWithTuple(tuple blizzardv2.RegionConnectedRealmTuple, auctions blizzardv2.Auctions) error {
+func (ds DiskStore) WriteAuctionsWithTuple(
+	tuple blizzardv2.RegionConnectedRealmTuple,
+	auctions sotah.MiniAuctionList,
+) error {
 	dest, err := ds.resolveAuctionsFilepath(tuple)
 	if err != nil {
 		return err
 	}
 
-	jsonEncoded, err := json.Marshal(auctions)
-	if err != nil {
-		return err
-	}
-
-	gzipEncoded, err := util.GzipEncode(jsonEncoded)
+	gzipEncoded, err := auctions.EncodeForStorage()
 	if err != nil {
 		return err
 	}
@@ -30,7 +28,7 @@ func (ds DiskStore) WriteAuctionsWithTuple(tuple blizzardv2.RegionConnectedRealm
 
 type WriteAuctionsWithTuplesInJob struct {
 	Tuple    blizzardv2.RegionConnectedRealmTuple
-	Auctions blizzardv2.Auctions
+	Auctions sotah.MiniAuctionList
 }
 
 type WriteAuctionsWithTuplesOutJob struct {

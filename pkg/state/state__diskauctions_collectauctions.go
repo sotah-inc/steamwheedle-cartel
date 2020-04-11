@@ -51,7 +51,7 @@ func (sta DiskAuctionsState) CollectAuctions() (blizzardv2.ItemIds, error) {
 
 			storeAucsInJobs <- diskstore.WriteAuctionsWithTuplesInJob{
 				Tuple:    aucsOutJob.Tuple.RegionConnectedRealmTuple,
-				Auctions: aucsOutJob.AuctionsResponse.Auctions,
+				Auctions: sotah.NewMiniAuctionList(aucsOutJob.AuctionsResponse.Auctions),
 			}
 			resultsInJob <- CollectAuctionsResult{
 				Tuple:        aucsOutJob.Tuple.RegionConnectedRealmTuple,
