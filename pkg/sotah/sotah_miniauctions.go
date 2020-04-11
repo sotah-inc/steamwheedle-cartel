@@ -6,9 +6,9 @@ import (
 
 // miniauction
 func newMiniAuction(auc blizzardv2.Auction) miniAuction {
-	var buyoutPer float32
+	var buyoutPer float64
 	if auc.Buyout > 0 {
-		buyoutPer = float32(auc.Buyout) / float32(auc.Quantity)
+		buyoutPer = float64(auc.Buyout) / float64(auc.Quantity)
 	}
 
 	return miniAuction{
@@ -24,7 +24,7 @@ func newMiniAuction(auc blizzardv2.Auction) miniAuction {
 type miniAuction struct {
 	ItemId    blizzardv2.ItemId      `json:"itemId"`
 	Buyout    int64                  `json:"buyout"`
-	BuyoutPer float32                `json:"buyoutPer"`
+	BuyoutPer float64                `json:"buyoutPer"`
 	Quantity  int                    `json:"quantity"`
 	TimeLeft  string                 `json:"timeLeft"`
 	AucList   []blizzardv2.AuctionId `json:"aucList"`

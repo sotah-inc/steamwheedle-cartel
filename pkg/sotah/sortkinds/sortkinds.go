@@ -10,7 +10,6 @@ const (
 	None SortKind = iota
 	Item
 	Quantity
-	Bid
 	Buyout
 	BuyoutPer
 	Auctions

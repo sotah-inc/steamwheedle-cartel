@@ -139,3 +139,12 @@ func (maList MiniAuctionList) EncodeForStorage() ([]byte, error) {
 
 	return gzipEncodedData, nil
 }
+
+func (maList MiniAuctionList) ToItemBuyoutPerListMap() blizzardv2.ItemBuyoutPerSummaryMap {
+	result := blizzardv2.NewItemBuyoutPerListMap(maList.ItemIds())
+	for _, mAuction := range maList {
+		result = result.Insert(mAuction.ItemId, mAuction.BuyoutPer)
+	}
+
+	return blizzardv2.NewItemBuyoutPerSummaryMap(result)
+}
