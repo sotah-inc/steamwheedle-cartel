@@ -37,7 +37,6 @@ func (mas miniAuctionSorter) sort(
 	kindMap := map[sortkinds.SortKind]string{
 		sortkinds.Item:      "Item",
 		sortkinds.Quantity:  "quantity",
-		sortkinds.Bid:       "bid",
 		sortkinds.Buyout:    "buyout",
 		sortkinds.BuyoutPer: "buyout_per",
 		sortkinds.Auctions:  "Auctions",

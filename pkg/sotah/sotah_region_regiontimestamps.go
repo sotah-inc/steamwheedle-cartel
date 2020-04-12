@@ -83,7 +83,7 @@ func (regionTimestamps RegionTimestamps) SetDownloaded(
 
 	// pushing the new time into the found member
 	result := out[name][id]
-	result.Downloaded = downloaded
+	result.Downloaded = UnixTime{Time: downloaded}
 	out[name][id] = result
 
 	return out

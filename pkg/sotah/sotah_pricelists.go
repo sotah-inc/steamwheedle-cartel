@@ -9,7 +9,8 @@ import (
 	"io/ioutil"
 	"strconv"
 
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzard"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
+
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 )
 
@@ -31,7 +32,7 @@ func NewItemPriceHistoriesFromMinimized(reader io.Reader) (ItemPriceHistories, e
 		if err != nil {
 			return ItemPriceHistories{}, err
 		}
-		itemId := blizzard.ItemID(itemIdInt)
+		itemId := blizzardv2.ItemId(itemIdInt)
 
 		base64DecodedPriceHistory, err := base64.StdEncoding.DecodeString(record[1])
 		if err != nil {
@@ -54,16 +55,16 @@ func NewItemPriceHistoriesFromMinimized(reader io.Reader) (ItemPriceHistories, e
 	return out, nil
 }
 
-type ItemPriceHistories map[blizzard.ItemID]PriceHistory
+type ItemPriceHistories map[blizzardv2.ItemId]PriceHistory
 
 type EncodeForPersistenceInJob struct {
-	itemId       blizzard.ItemID
+	itemId       blizzardv2.ItemId
 	priceHistory PriceHistory
 }
 
 type EncodeForPersistenceOutJob struct {
 	Err    error
-	ItemId blizzard.ItemID
+	ItemId blizzardv2.ItemId
 	Data   string
 }
 
@@ -173,67 +174,4 @@ func (pHistory PriceHistory) EncodeForPersistence() ([]byte, error) {
 	}
 
 	return gzipEncoded, nil
-}
-
-func NewCleanupPricelistPayloads(regionRealmMap map[blizzard.RegionName]Realms) CleanupPricelistPayloads {
-	out := CleanupPricelistPayloads{}
-	for regionName, realms := range regionRealmMap {
-		for _, realm := range realms {
-			out = append(out, CleanupPricelistPayload{
-				RegionName: string(regionName),
-				RealmSlug:  string(realm.Slug),
-			})
-		}
-	}
-
-	return out
-}
-
-type CleanupPricelistPayloads []CleanupPricelistPayload
-
-func NewCleanupPricelistPayload(data string) (CleanupPricelistPayload, error) {
-	var out CleanupPricelistPayload
-	if err := json.Unmarshal([]byte(data), &out); err != nil {
-		return CleanupPricelistPayload{}, err
-	}
-
-	return out, nil
-}
-
-type CleanupPricelistPayload struct {
-	RegionName string `json:"region_name"`
-	RealmSlug  string `json:"realm_slug"`
-}
-
-func (p CleanupPricelistPayload) EncodeForDelivery() (string, error) {
-	jsonEncoded, err := json.Marshal(p)
-	if err != nil {
-		return "", err
-	}
-
-	return string(jsonEncoded), nil
-}
-
-func NewCleanupPricelistPayloadResponse(data string) (CleanupPricelistPayloadResponse, error) {
-	var out CleanupPricelistPayloadResponse
-	if err := json.Unmarshal([]byte(data), &out); err != nil {
-		return CleanupPricelistPayloadResponse{}, err
-	}
-
-	return out, nil
-}
-
-type CleanupPricelistPayloadResponse struct {
-	RegionName   string `json:"region_name"`
-	RealmSlug    string `json:"realm_slug"`
-	TotalDeleted int    `json:"total_removed"`
-}
-
-func (p CleanupPricelistPayloadResponse) EncodeForDelivery() (string, error) {
-	jsonEncoded, err := json.Marshal(p)
-	if err != nil {
-		return "", err
-	}
-
-	return string(jsonEncoded), nil
 }
