@@ -3,6 +3,8 @@ package state
 import (
 	"encoding/json"
 
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
+
 	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 
@@ -25,7 +27,7 @@ func (sta RegionsState) ListenForQueryRealmModificationDates(stop ListenStopChan
 	err := sta.Messenger.Subscribe(string(subjects.QueryRealmModificationDates), stop, func(natsMsg nats.Msg) {
 		m := messenger.NewMessage()
 
-		req, err := sotah.NewRegionRealmTuple(natsMsg.Data)
+		req, err := blizzardv2.NewRegionConnectedRealmTuple(natsMsg.Data)
 		if err != nil {
 			m.Err = err.Error()
 			m.Code = mCodes.GenericError
@@ -34,11 +36,14 @@ func (sta RegionsState) ListenForQueryRealmModificationDates(stop ListenStopChan
 			return
 		}
 
-		connectedRealmTimestamps, err := sta.RegionComposites.FindRealmTimestamps(req.RegionName, req.RealmSlug)
+		connectedRealmTimestamps, err := sta.RegionComposites.FindConnectedRealmTimestamps(
+			req.RegionName,
+			req.ConnectedRealmId,
+		)
 		if err != nil {
 			logging.WithFields(logrus.Fields{
-				"region": req.RegionName,
-				"realm":  req.RealmSlug,
+				"region":          req.RegionName,
+				"connected-realm": req.ConnectedRealmId,
 			}).Error("failed to resolve connected-realm timestamps")
 
 			m.Err = err.Error()

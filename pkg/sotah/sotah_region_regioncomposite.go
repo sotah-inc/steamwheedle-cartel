@@ -81,9 +81,9 @@ func (regions RegionComposites) RegionRealmExists(
 	return false
 }
 
-func (regions RegionComposites) FindRealmTimestamps(
+func (regions RegionComposites) FindConnectedRealmTimestamps(
 	name blizzardv2.RegionName,
-	slug blizzardv2.RealmSlug,
+	id blizzardv2.ConnectedRealmId,
 ) (ConnectedRealmTimestamps, error) {
 	for _, region := range regions {
 		if region.ConfigRegion.Name != name {
@@ -91,10 +91,8 @@ func (regions RegionComposites) FindRealmTimestamps(
 		}
 
 		for _, connectedRealm := range region.ConnectedRealmComposites {
-			for _, realm := range connectedRealm.ConnectedRealmResponse.Realms {
-				if realm.Slug == slug {
-					return connectedRealm.ModificationDates, nil
-				}
+			if connectedRealm.ConnectedRealmResponse.Id == id {
+				return connectedRealm.ModificationDates, nil
 			}
 		}
 	}

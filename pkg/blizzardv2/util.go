@@ -1,6 +1,9 @@
 package blizzardv2
 
-import "time"
+import (
+	"encoding/json"
+	"time"
+)
 
 type LinksBase struct {
 	Links SelfReference `json:"_links"`
@@ -12,6 +15,15 @@ type SelfReference struct {
 
 type HrefReference struct {
 	Href string `json:"href"`
+}
+
+func NewRegionConnectedRealmTuple(data []byte) (RegionConnectedRealmTuple, error) {
+	out := RegionConnectedRealmTuple{}
+	if err := json.Unmarshal(data, &out); err != nil {
+		return RegionConnectedRealmTuple{}, err
+	}
+
+	return out, nil
 }
 
 type RegionConnectedRealmTuple struct {
