@@ -1,6 +1,7 @@
 package state
 
 import (
+	"encoding/json"
 	"time"
 
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
@@ -27,6 +28,19 @@ func (sta TokensState) GetListeners() SubjectListeners {
 	return SubjectListeners{
 		subjects.TokenHistory: sta.ListenForTokenHistory,
 	}
+}
+
+func NewTokenHistoryRequest(data []byte) (TokenHistoryRequest, error) {
+	var out TokenHistoryRequest
+	if err := json.Unmarshal(data, &out); err != nil {
+		return TokenHistoryRequest{}, err
+	}
+
+	return out, nil
+}
+
+type TokenHistoryRequest struct {
+	RegionName string `json:"region_name"`
 }
 
 func (sta TokensState) ListenForTokenHistory(stop ListenStopChan) error {
