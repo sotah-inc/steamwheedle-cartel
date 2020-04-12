@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"strconv"
 
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzard"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 )
 
 // bucketing
-func databaseTokensBucketName(regionName blizzard.RegionName) []byte {
+func databaseTokensBucketName(regionName blizzardv2.RegionName) []byte {
 	return []byte(fmt.Sprintf("tokens-%s", regionName))
 }
 

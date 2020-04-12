@@ -4,7 +4,7 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 )
 
-func NewItemPricesFromMiniAuctions(maList MiniAuctionList) ItemPrices {
+func NewItemPricesFromMiniAuctionList(maList MiniAuctionList) ItemPrices {
 	out := NewItemPrices(maList.ItemIds())
 	for _, mAuction := range maList {
 		out = out.ReceiveMiniAuction(mAuction)

@@ -110,16 +110,19 @@ func (ipHistories ItemPriceHistories) EncodeForPersistence() ([]byte, error) {
 	}()
 
 	// waiting for them to drain out
-	csvData := [][]string{}
+	csvData := make([][]string, len(ipHistories))
+	i := 0
 	for outJob := range out {
 		if outJob.Err != nil {
 			return []byte{}, outJob.Err
 		}
 
-		csvData = append(csvData, []string{
+		csvData[i] = []string{
 			strconv.Itoa(int(outJob.ItemId)),
 			outJob.Data,
-		})
+		}
+
+		i += 1
 	}
 
 	// producing a receiver
