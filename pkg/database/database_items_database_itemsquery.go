@@ -33,7 +33,10 @@ type QueryItemsItem struct {
 	Rank   int               `json:"rank"`
 }
 
-func NewQueryItemsItems(idNormalizedNameMap sotah.ItemIdNameMap, providedLocale locale.Locale) (QueryItemsItems, error) {
+func NewQueryItemsItems(
+	idNormalizedNameMap sotah.ItemIdNameMap,
+	providedLocale locale.Locale,
+) (QueryItemsItems, error) {
 	out := make(QueryItemsItems, len(idNormalizedNameMap))
 	i := 0
 	for id, normalizedName := range idNormalizedNameMap {

@@ -135,7 +135,7 @@ func (amBase AreaMapsDatabase) PersistAreaMaps(aMapMap sotah.AreaMapMap) error {
 				return err
 			}
 
-			normalizedName, err := sotah.NormalizeName(aMap.NormalizedName)
+			normalizedName, err := sotah.NormalizeString(aMap.NormalizedName)
 			if err != nil {
 				return err
 			}
