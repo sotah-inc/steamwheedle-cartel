@@ -19,12 +19,12 @@ type ClientConfig struct {
 	ClientSecret string
 }
 
-func NewClient(config ClientConfig) (Client, error) {
+func NewClient(config ClientConfig) (*Client, error) {
 	if len(config.ClientId) == 0 {
-		return Client{}, errors.New("client id is blank")
+		return nil, errors.New("client id is blank")
 	}
 	if len(config.ClientSecret) == 0 {
-		return Client{}, errors.New("client secret is blank")
+		return nil, errors.New("client secret is blank")
 	}
 
 	client := Client{
@@ -33,16 +33,16 @@ func NewClient(config ClientConfig) (Client, error) {
 		accessToken: "",
 	}
 	if err := client.RefreshFromHTTP(OAuthTokenEndpoint); err != nil {
-		return Client{}, err
+		return nil, err
 	}
 
 	if !client.IsValid() {
 		logging.WithField("source", "NewClient").Error("client was not valid")
 
-		return Client{}, errors.New("client was not valid")
+		return nil, errors.New("client was not valid")
 	}
 
-	return client, nil
+	return &client, nil
 }
 
 type Client struct {

@@ -21,7 +21,7 @@ func NewBlizzardState(config blizzardv2.ClientConfig) (BlizzardState, error) {
 		return BlizzardState{}, errors.New("client was not valid")
 	}
 
-	return BlizzardState{BlizzardClient: &client}, nil
+	return BlizzardState{BlizzardClient: client}, nil
 }
 
 type BlizzardState struct {
