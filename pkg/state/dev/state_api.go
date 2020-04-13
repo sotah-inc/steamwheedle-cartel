@@ -168,7 +168,7 @@ type ApiState struct {
 	ItemsState        state.ItemsState
 	AreaMapsState     state.AreaMapsState
 	TokensState       state.TokensState
-	RegionState       state.RegionsState
+	RegionState       *state.RegionsState
 	DiskAuctionsState state.DiskAuctionsState
 	BootState         state.BootState
 }

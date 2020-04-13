@@ -12,10 +12,10 @@ type NewRegionStateOptions struct {
 	Messenger     messenger.Messenger
 }
 
-func NewRegionState(opts NewRegionStateOptions) (RegionsState, error) {
+func NewRegionState(opts NewRegionStateOptions) (*RegionsState, error) {
 	regionConnectedRealms, err := opts.BlizzardState.ResolveRegionConnectedRealms(opts.Regions)
 	if err != nil {
-		return RegionsState{}, err
+		return nil, err
 	}
 
 	regionComposites := make(sotah.RegionComposites, len(opts.Regions))
@@ -33,10 +33,10 @@ func NewRegionState(opts NewRegionStateOptions) (RegionsState, error) {
 		}
 	}
 
-	return RegionsState{
+	return &RegionsState{
 		BlizzardState:    opts.BlizzardState,
 		Messenger:        opts.Messenger,
-		RegionComposites: &regionComposites,
+		RegionComposites: regionComposites,
 	}, nil
 }
 
@@ -44,15 +44,15 @@ type RegionsState struct {
 	BlizzardState BlizzardState
 	Messenger     messenger.Messenger
 
-	RegionComposites *sotah.RegionComposites
+	RegionComposites sotah.RegionComposites
 }
 
-func (sta RegionsState) ReceiveTimestamps(timestamps sotah.RegionTimestamps) {
+func (sta *RegionsState) ReceiveTimestamps(timestamps sotah.RegionTimestamps) {
 	result := sta.RegionComposites.Receive(timestamps)
-	sta.RegionComposites = &result
+	sta.RegionComposites = result
 }
 
-func (sta RegionsState) GetListeners() SubjectListeners {
+func (sta *RegionsState) GetListeners() SubjectListeners {
 	return SubjectListeners{
 		subjects.Status:              sta.ListenForStatus,
 		subjects.ValidateRegionRealm: sta.ListenForValidateRegionRealm,
