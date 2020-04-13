@@ -31,9 +31,9 @@ type ApiStateConfig struct {
 	DatabaseConfig    ApiStateDatabaseConfig
 }
 
-func NewAPIState(config ApiStateConfig) (*APIState, error) {
+func NewAPIState(config ApiStateConfig) (ApiState, error) {
 	// establishing an initial state
-	sta := APIState{State: state.State{RunID: uuid.NewV4(), Listeners: nil, BusListeners: nil}}
+	sta := ApiState{State: state.State{RunID: uuid.NewV4(), Listeners: nil, BusListeners: nil}}
 
 	// narrowing regions list
 	regions := config.SotahConfig.FilterInRegions(config.SotahConfig.Regions)
@@ -64,7 +64,7 @@ func NewAPIState(config ApiStateConfig) (*APIState, error) {
 	if err != nil {
 		logging.WithField("error", err.Error()).Error("failed to initialise disk-store")
 
-		return nil, err
+		return ApiState{}, err
 	}
 
 	// connecting to the messenger host
@@ -72,7 +72,7 @@ func NewAPIState(config ApiStateConfig) (*APIState, error) {
 	if err != nil {
 		logging.WithField("error", err.Error()).Error("failed to connect to messenger")
 
-		return nil, err
+		return ApiState{}, err
 	}
 
 	// connecting a new blizzard client
@@ -81,7 +81,7 @@ func NewAPIState(config ApiStateConfig) (*APIState, error) {
 	if err != nil {
 		logging.WithField("error", err.Error()).Error("failed to initialise blizzard-client")
 
-		return nil, err
+		return ApiState{}, err
 	}
 
 	// gathering region-state
@@ -90,6 +90,11 @@ func NewAPIState(config ApiStateConfig) (*APIState, error) {
 		Regions:       regions,
 		Messenger:     mess,
 	})
+	if err != nil {
+		logging.WithField("error", err.Error()).Error("failed to establish region-state")
+
+		return ApiState{}, err
+	}
 
 	// gathering boot-state
 	sta.BootState, err = state.NewBootState(state.NewBootStateOptions{
@@ -100,13 +105,18 @@ func NewAPIState(config ApiStateConfig) (*APIState, error) {
 		Professions:   config.SotahConfig.Professions,
 		ItemBlacklist: config.SotahConfig.ItemBlacklist,
 	})
+	if err != nil {
+		logging.WithField("error", err.Error()).Error("failed to establish boot-state")
+
+		return ApiState{}, err
+	}
 
 	// loading the items database
 	itemsDatabase, err := database.NewItemsDatabase(config.DatabaseConfig.ItemsDir)
 	if err != nil {
 		logging.WithField("error", err.Error()).Error("failed to initialise items-database")
 
-		return nil, err
+		return ApiState{}, err
 	}
 
 	// loading the tokens database
@@ -114,7 +124,7 @@ func NewAPIState(config ApiStateConfig) (*APIState, error) {
 	if err != nil {
 		logging.WithField("error", err.Error()).Error("failed to initialise tokens-database")
 
-		return nil, err
+		return ApiState{}, err
 	}
 
 	// loading the area-maps database
@@ -122,7 +132,7 @@ func NewAPIState(config ApiStateConfig) (*APIState, error) {
 	if err != nil {
 		logging.WithField("error", err.Error()).Error("failed to initialise area-maps-database")
 
-		return nil, err
+		return ApiState{}, err
 	}
 
 	// resolving states
@@ -138,6 +148,7 @@ func NewAPIState(config ApiStateConfig) (*APIState, error) {
 		BlizzardState: sta.BlizzardState,
 		RegionsState:  sta.RegionState,
 		DiskStore:     diskStore,
+		ItemsDatabase: itemsDatabase,
 	}
 
 	// establishing listeners
@@ -149,10 +160,10 @@ func NewAPIState(config ApiStateConfig) (*APIState, error) {
 		sta.BootState.GetListeners(),
 	}))
 
-	return &sta, nil
+	return sta, nil
 }
 
-type APIState struct {
+type ApiState struct {
 	state.State
 	BlizzardState     state.BlizzardState
 	ItemsState        state.ItemsState

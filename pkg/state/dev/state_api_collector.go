@@ -8,7 +8,7 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 )
 
-func (sta APIState) Collect() error {
+func (sta ApiState) Collect() error {
 	itemIds, err := sta.DiskAuctionsState.CollectAuctions()
 	if err != nil {
 		logging.WithField("error", err.Error()).Error("failed to collect auctions")
@@ -27,7 +27,7 @@ func (sta APIState) Collect() error {
 	return nil
 }
 
-func (sta APIState) StartCollector(stopChan sotah.WorkerStopChan) sotah.WorkerStopChan {
+func (sta ApiState) StartCollector(stopChan sotah.WorkerStopChan) sotah.WorkerStopChan {
 	if err := sta.Collect(); err != nil {
 		logging.WithField("error", err.Error()).Error("failed to collect")
 	}
