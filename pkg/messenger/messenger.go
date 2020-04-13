@@ -15,7 +15,8 @@ import (
 )
 
 type Messenger struct {
-	conn *nats.Conn
+	Config Config
+	conn   *nats.Conn
 }
 
 func NewMessage() Message {
@@ -69,13 +70,19 @@ func NewMessenger(config Config) (Messenger, error) {
 		return Messenger{}, err
 	}
 
-	mess := Messenger{conn: conn}
+	mess := Messenger{conn: conn, Config: config}
 
 	return mess, nil
 }
 
 func (mess Messenger) Subscribe(subject string, stop chan interface{}, cb func(nats.Msg)) error {
 	logging.WithField("subject", subject).Debug("Subscribing to subject")
+
+	if mess.conn == nil {
+		logging.WithField("config", mess.Config).Error("messenger connection was nil")
+
+		return errors.New("messenger connection was nil")
+	}
 
 	sub, err := mess.conn.Subscribe(subject, func(natsMsg *nats.Msg) {
 		logging.WithField("subject", subject).Debug("Received Request")
