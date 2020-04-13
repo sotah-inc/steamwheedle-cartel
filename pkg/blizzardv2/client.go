@@ -37,6 +37,8 @@ func NewClient(config ClientConfig) (Client, error) {
 	}
 
 	if !client.IsValid() {
+		logging.WithField("source", "NewClient").Error("client was not valid")
+
 		return Client{}, errors.New("client was not valid")
 	}
 

@@ -3,6 +3,8 @@ package state
 import (
 	"errors"
 
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
+
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 )
@@ -14,6 +16,8 @@ func NewBlizzardState(config blizzardv2.ClientConfig) (BlizzardState, error) {
 	}
 
 	if !client.IsValid() {
+		logging.WithField("source", "NewBlizzardState").Error("client was not valid")
+
 		return BlizzardState{}, errors.New("client was not valid")
 	}
 
