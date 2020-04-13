@@ -21,11 +21,11 @@ func NewBlizzardState(config blizzardv2.ClientConfig) (BlizzardState, error) {
 		return BlizzardState{}, errors.New("client was not valid")
 	}
 
-	return BlizzardState{BlizzardClient: client}, nil
+	return BlizzardState{BlizzardClient: &client}, nil
 }
 
 type BlizzardState struct {
-	BlizzardClient blizzardv2.Client
+	BlizzardClient *blizzardv2.Client
 }
 
 func (sta BlizzardState) ResolveRegionConnectedRealms(

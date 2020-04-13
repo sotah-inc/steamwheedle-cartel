@@ -30,7 +30,7 @@ func NewClient(config ClientConfig) (Client, error) {
 	client := Client{
 		id:          config.ClientId,
 		secret:      config.ClientSecret,
-		accessToken: nil,
+		accessToken: "",
 	}
 	if err := client.RefreshFromHTTP(OAuthTokenEndpoint); err != nil {
 		return Client{}, err
@@ -48,7 +48,7 @@ func NewClient(config ClientConfig) (Client, error) {
 type Client struct {
 	id          string
 	secret      string
-	accessToken *string
+	accessToken string
 }
 
 type refreshResponse struct {
@@ -124,15 +124,14 @@ func (c Client) RefreshFromHTTP(uri string) error {
 		return err
 	}
 
-	accessToken := r.AccessToken
-	c.accessToken = &accessToken
+	c.accessToken = r.AccessToken
 
 	return nil
 }
 
 func (c Client) AppendAccessToken(destination string) (string, error) {
-	if c.accessToken == nil {
-		return "", errors.New("could not append access token, access token is nil")
+	if c.accessToken == "" {
+		return "", errors.New("could not append access token, access token is a blank string")
 	}
 
 	u, err := url.Parse(destination)
@@ -141,14 +140,14 @@ func (c Client) AppendAccessToken(destination string) (string, error) {
 	}
 
 	q := u.Query()
-	q.Set("access_token", *c.accessToken)
+	q.Set("access_token", c.accessToken)
 	u.RawQuery = q.Encode()
 
 	return u.String(), nil
 }
 
 func (c Client) IsValid() bool {
-	return c.accessToken != nil
+	return c.accessToken != ""
 }
 
 func ClearAccessToken(destination string) (string, error) {
