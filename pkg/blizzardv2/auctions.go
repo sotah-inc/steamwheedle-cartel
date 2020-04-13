@@ -4,6 +4,8 @@ import (
 	"net/http"
 	"time"
 
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
+
 	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 )
@@ -80,14 +82,25 @@ func GetAuctions(opts GetAuctionsOptions) chan GetAuctionsJob {
 				LastModified:     responseMeta.LastModified,
 				IsNew:            true,
 			}
-
-			break
 		}
 	}
 	postWork := func() {
 		close(out)
 	}
 	util.Work(4, worker, postWork)
+
+	// spinning it up
+	go func() {
+		for _, tuple := range opts.Tuples {
+			in <- tuple
+
+			logging.Info("breaking GetAuctions() early")
+
+			break
+		}
+
+		close(in)
+	}()
 
 	return out
 }

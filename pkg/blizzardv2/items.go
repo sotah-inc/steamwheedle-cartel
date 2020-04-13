@@ -2,6 +2,7 @@ package blizzardv2
 
 import (
 	"github.com/sirupsen/logrus"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 )
 
@@ -58,8 +59,6 @@ func GetItems(opts GetItemsOptions) chan GetItemsOutJob {
 				Id:           id,
 				ItemResponse: itemResponse,
 			}
-
-			break
 		}
 	}
 	postWork := func() {
@@ -71,6 +70,10 @@ func GetItems(opts GetItemsOptions) chan GetItemsOutJob {
 	go func() {
 		for _, id := range opts.ItemIds {
 			in <- id
+
+			logging.Info("breaking GetItems() early")
+
+			break
 		}
 
 		close(in)

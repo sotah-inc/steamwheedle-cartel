@@ -100,6 +100,8 @@ func (sta BlizzardState) ResolveTokens(
 func (sta BlizzardState) ResolveAuctions(
 	tuples []blizzardv2.DownloadConnectedRealmTuple,
 ) chan blizzardv2.GetAuctionsJob {
+	logging.WithField("tuples", len(tuples)).Info("resolving auctions with tuples")
+
 	return blizzardv2.GetAuctions(blizzardv2.GetAuctionsOptions{
 		Tuples: tuples,
 		GetAuctionsURL: func(tuple blizzardv2.DownloadConnectedRealmTuple) (string, error) {
@@ -116,6 +118,8 @@ func (sta BlizzardState) ResolveItems(
 	if err != nil {
 		return nil, err
 	}
+
+	logging.WithField("item-ids", len(ids)).Info("resolving item-ids")
 
 	return blizzardv2.GetItems(blizzardv2.GetItemsOptions{
 		GetItemURL: func(id blizzardv2.ItemId) (string, error) {
