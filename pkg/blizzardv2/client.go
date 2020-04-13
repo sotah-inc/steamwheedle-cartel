@@ -36,6 +36,10 @@ func NewClient(config ClientConfig) (Client, error) {
 		return Client{}, err
 	}
 
+	if !client.IsValid() {
+		return Client{}, errors.New("client was not valid")
+	}
+
 	return client, nil
 }
 
