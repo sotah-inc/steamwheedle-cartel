@@ -57,7 +57,7 @@ type refreshResponse struct {
 	ExpiresIn   int    `json:"expires_in"`
 }
 
-func (c Client) RefreshFromHTTP(uri string) error {
+func (c *Client) RefreshFromHTTP(uri string) error {
 	// forming a request
 	req, err := http.NewRequest("GET", uri, nil)
 	if err != nil {
@@ -129,7 +129,7 @@ func (c Client) RefreshFromHTTP(uri string) error {
 	return nil
 }
 
-func (c Client) AppendAccessToken(destination string) (string, error) {
+func (c *Client) AppendAccessToken(destination string) (string, error) {
 	if c.accessToken == "" {
 		return "", errors.New("could not append access token, access token is a blank string")
 	}
@@ -146,7 +146,7 @@ func (c Client) AppendAccessToken(destination string) (string, error) {
 	return u.String(), nil
 }
 
-func (c Client) IsValid() bool {
+func (c *Client) IsValid() bool {
 	return c.accessToken != ""
 }
 

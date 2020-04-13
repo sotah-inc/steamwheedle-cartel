@@ -1,6 +1,7 @@
 package dev
 
 import (
+	"errors"
 	"time"
 
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
@@ -9,6 +10,10 @@ import (
 )
 
 func (sta ApiState) Collect() error {
+	if 1+1 == 2 {
+		return errors.New("fail")
+	}
+
 	itemIds, err := sta.DiskAuctionsState.CollectAuctions()
 	if err != nil {
 		logging.WithField("error", err.Error()).Error("failed to collect auctions")
