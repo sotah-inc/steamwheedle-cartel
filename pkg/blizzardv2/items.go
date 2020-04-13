@@ -58,6 +58,8 @@ func GetItems(opts GetItemsOptions) chan GetItemsOutJob {
 				Id:           id,
 				ItemResponse: itemResponse,
 			}
+
+			break
 		}
 	}
 	postWork := func() {

@@ -80,6 +80,8 @@ func GetAuctions(opts GetAuctionsOptions) chan GetAuctionsJob {
 				LastModified:     responseMeta.LastModified,
 				IsNew:            true,
 			}
+
+			break
 		}
 	}
 	postWork := func() {
