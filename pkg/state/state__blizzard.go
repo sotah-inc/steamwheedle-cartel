@@ -1,9 +1,24 @@
 package state
 
 import (
+	"errors"
+
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 )
+
+func NewBlizzardState(config blizzardv2.ClientConfig) (BlizzardState, error) {
+	client, err := blizzardv2.NewClient(config)
+	if err != nil {
+		return BlizzardState{}, err
+	}
+
+	if !client.IsValid() {
+		return BlizzardState{}, errors.New("client was not valid")
+	}
+
+	return BlizzardState{BlizzardClient: client}, nil
+}
 
 type BlizzardState struct {
 	BlizzardClient blizzardv2.Client

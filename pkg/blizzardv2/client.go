@@ -141,6 +141,10 @@ func (c Client) AppendAccessToken(destination string) (string, error) {
 	return u.String(), nil
 }
 
+func (c Client) IsValid() bool {
+	return c.accessToken != nil
+}
+
 func ClearAccessToken(destination string) (string, error) {
 	u, err := url.Parse(destination)
 	if err != nil {

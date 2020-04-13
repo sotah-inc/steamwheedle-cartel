@@ -76,8 +76,7 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 	}
 
 	// connecting a new blizzard client
-	sta.BlizzardState = state.BlizzardState{}
-	sta.BlizzardState.BlizzardClient, err = blizzardv2.NewClient(config.BlizzardConfig)
+	sta.BlizzardState, err = state.NewBlizzardState(config.BlizzardConfig)
 	if err != nil {
 		logging.WithField("error", err.Error()).Error("failed to initialise blizzard-client")
 
