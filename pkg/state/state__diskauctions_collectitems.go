@@ -3,6 +3,8 @@ package state
 import (
 	"time"
 
+	"github.com/sirupsen/logrus"
+
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
@@ -57,7 +59,10 @@ func (sta DiskAuctionsState) CollectItems(ids blizzardv2.ItemIds) error {
 
 			itemIcon, err := job.ItemMediaResponse.GetIcon()
 			if err != nil {
-				logging.WithField("error", err.Error()).Error("failed to resolve item-icon from item-media")
+				logging.WithFields(logrus.Fields{
+					"error":    err.Error(),
+					"response": job.ItemMediaResponse,
+				}).Error("failed to resolve item-icon from item-media")
 
 				continue
 			}
