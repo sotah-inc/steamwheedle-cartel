@@ -20,7 +20,8 @@ func DefaultGetItemMediaURL(regionHostname string, id ItemId, regionName RegionN
 type GetItemMediaURLFunc func(string, ItemId, RegionName) string
 
 type ItemMediaAsset struct {
-	Key string `json:"key"`
+	Key   string `json:"key"`
+	Value string `json:"value"`
 }
 
 type ItemMediaResponse struct {
@@ -34,19 +35,19 @@ func (res ItemMediaResponse) GetIcon() (string, error) {
 		return "", errors.New("could not find ")
 	}
 
-	k := res.Assets[0].Key
+	v := res.Assets[0].Value
 
-	lastSlashIndex := strings.LastIndex(k, "/")
+	lastSlashIndex := strings.LastIndex(v, "/")
 	if lastSlashIndex == -1 {
 		return "", errors.New("asset key did not have slash")
 	}
 
-	lastDotIndex := strings.LastIndex(k, ".")
+	lastDotIndex := strings.LastIndex(v, ".")
 	if lastDotIndex == -1 {
 		return "", errors.New("asset key did not have dot")
 	}
 
-	return k[lastSlashIndex+1 : lastDotIndex], nil
+	return v[lastSlashIndex+1 : lastDotIndex], nil
 }
 
 func NewItemMediaResponse(body []byte) (ItemMediaResponse, error) {
