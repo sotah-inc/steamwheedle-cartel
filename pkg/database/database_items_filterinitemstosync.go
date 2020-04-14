@@ -7,7 +7,6 @@ import (
 
 	"github.com/boltdb/bolt"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/store"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
@@ -73,7 +72,6 @@ func (idBase ItemsDatabase) FilterInItemsToSync(ids []blizzardv2.ItemId) (ItemsS
 		for _, id := range ids {
 			value := itemsBucket.Get(itemsKeyName(id))
 			if value == nil {
-				logging.WithField("item", id).Info("item was not in bucket")
 				syncWhitelist[id] = true
 
 				continue

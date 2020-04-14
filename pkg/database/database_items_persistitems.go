@@ -1,6 +1,8 @@
 package database
 
 import (
+	"github.com/sirupsen/logrus"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 
 	"github.com/boltdb/bolt"
@@ -21,6 +23,11 @@ func (idBase ItemsDatabase) PersistItems(in chan sotah.Item) error {
 		for item := range in {
 			encodedItem, err := item.EncodeForStorage()
 			if err != nil {
+				logging.WithFields(logrus.Fields{
+					"item-id": item.BlizzardMeta.Id,
+					"error":   err.Error(),
+				}).Error("failed to encode item")
+
 				return err
 			}
 
