@@ -74,7 +74,7 @@ func (sta DiskAuctionsState) CollectItems(ids blizzardv2.ItemIds) error {
 			persistItemsIn <- sotah.Item{
 				BlizzardMeta: job.Item,
 				SotahMeta: sotah.ItemMeta{
-					LastModified:   sotah.UnixTime{Time: time.Now()},
+					LastModified:   sotah.UnixTimestamp(time.Now().Unix()),
 					NormalizedName: job.Item.Name,
 					ItemIconMeta: sotah.ItemIconMeta{
 						URL:        blizzardv2.DefaultGetItemIconURL(itemIcon),

@@ -23,6 +23,14 @@ type Expansion struct {
 
 type UnixTimestamp int64
 
+func (timestamp UnixTimestamp) IsZero() bool {
+	return timestamp == 0
+}
+
+func (timestamp UnixTimestamp) Time() time.Time {
+	return time.Unix(int64(timestamp), 0)
+}
+
 type WorkerStopChan chan struct{}
 
 func NormalizeTargetDate(targetDate time.Time) time.Time {

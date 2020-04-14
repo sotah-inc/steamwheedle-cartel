@@ -49,7 +49,7 @@ func NewItem(body []byte) (Item, error) {
 }
 
 type ItemMeta struct {
-	LastModified   UnixTime       `json:"last_modified"`
+	LastModified   UnixTimestamp  `json:"last_modified"`
 	NormalizedName locale.Mapping `json:"normalized_name"`
 	ItemIconMeta   ItemIconMeta   `json:"item_icon_meta"`
 }

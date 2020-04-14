@@ -7,9 +7,9 @@ import (
 )
 
 type ConnectedRealmTimestamps struct {
-	Downloaded                 UnixTime `json:"downloaded"`
-	LiveAuctionsReceived       UnixTime `json:"live_auctions_received"`
-	PricelistHistoriesReceived UnixTime `json:"pricelist_histories_received"`
+	Downloaded                 UnixTimestamp `json:"downloaded"`
+	LiveAuctionsReceived       UnixTimestamp `json:"live_auctions_received"`
+	PricelistHistoriesReceived UnixTimestamp `json:"pricelist_histories_received"`
 }
 
 func (timestamps ConnectedRealmTimestamps) IsZero() bool {
@@ -83,7 +83,7 @@ func (regionTimestamps RegionTimestamps) SetDownloaded(
 
 	// pushing the new time into the found member
 	result := out[name][id]
-	result.Downloaded = UnixTime{Time: downloaded}
+	result.Downloaded = UnixTimestamp(downloaded.Unix())
 	out[name][id] = result
 
 	return out

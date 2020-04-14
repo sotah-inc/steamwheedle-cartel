@@ -29,7 +29,7 @@ func (region RegionComposite) ToDownloadTuples() []blizzardv2.DownloadConnectedR
 				ConnectedRealmId: composite.ConnectedRealmResponse.Id,
 			},
 			RegionHostname: region.ConfigRegion.Hostname,
-			LastModified:   composite.ModificationDates.Downloaded.Time,
+			LastModified:   composite.ModificationDates.Downloaded.Time(),
 		}
 		i += 1
 	}
