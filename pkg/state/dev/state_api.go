@@ -135,7 +135,12 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 	}
 
 	// resolving states
-	sta.ItemsState = state.ItemsState{Messenger: mess, ItemsDatabase: itemsDatabase}
+	sta.ItemsState = state.ItemsState{
+		BlizzardState: sta.BlizzardState,
+		RegionsState:  sta.RegionState,
+		Messenger:     mess,
+		ItemsDatabase: itemsDatabase,
+	}
 	sta.AreaMapsState = state.AreaMapsState{Messenger: mess, AreaMapsDatabase: areaMapsDatabase}
 	sta.TokensState = state.TokensState{
 		BlizzardState:  sta.BlizzardState,

@@ -10,7 +10,7 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 )
 
-func (sta DiskAuctionsState) CollectItems(ids blizzardv2.ItemIds) error {
+func (sta ItemsState) CollectItems(ids blizzardv2.ItemIds) error {
 	// resolving items to sync
 	itemsSyncPayload, err := sta.ItemsDatabase.FilterInItemsToSync(ids)
 	if err != nil {

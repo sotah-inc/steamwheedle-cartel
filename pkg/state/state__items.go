@@ -7,6 +7,9 @@ import (
 )
 
 type ItemsState struct {
+	BlizzardState BlizzardState
+	RegionsState  *RegionsState
+
 	Messenger     messenger.Messenger
 	ItemsDatabase database.ItemsDatabase
 }

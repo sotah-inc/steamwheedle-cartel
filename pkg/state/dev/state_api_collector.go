@@ -18,7 +18,7 @@ func (sta ApiState) Collect() error {
 
 	logging.WithField("item-ids", len(itemIds)).Info("found items in auctions")
 
-	if err := sta.DiskAuctionsState.CollectItems(itemIds); err != nil {
+	if err := sta.ItemsState.CollectItems(itemIds); err != nil {
 		logging.WithField("error", err.Error()).Error("failed to collect items")
 
 		return err
