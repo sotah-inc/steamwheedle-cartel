@@ -14,7 +14,16 @@ func NewItemSyncWhitelist(ids blizzardv2.ItemIds) ItemSyncWhitelist {
 type ItemSyncWhitelist map[blizzardv2.ItemId]bool
 
 func (wl ItemSyncWhitelist) ToItemIds() blizzardv2.ItemIds {
-	out := make(blizzardv2.ItemIds, len(wl))
+	total := 0
+	for _, shouldSync := range wl {
+		if !shouldSync {
+			continue
+		}
+
+		total += 1
+	}
+
+	out := make(blizzardv2.ItemIds, total)
 	i := 0
 	for id, shouldSync := range wl {
 		if !shouldSync {
@@ -22,6 +31,8 @@ func (wl ItemSyncWhitelist) ToItemIds() blizzardv2.ItemIds {
 		}
 
 		out[i] = id
+
+		i += 1
 	}
 
 	return out
