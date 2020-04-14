@@ -57,7 +57,7 @@ func (sta DiskAuctionsState) CollectItems(ids blizzardv2.ItemIds) error {
 
 			itemIcon, err := job.ItemMediaResponse.GetIcon()
 			if err != nil {
-				logging.WithFields(job.ToLogrusFields()).Error("failed to resolve item-icon from item-media")
+				logging.WithField("error", err.Error()).Error("failed to resolve item-icon from item-media")
 
 				continue
 			}
