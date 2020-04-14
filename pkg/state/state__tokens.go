@@ -2,7 +2,6 @@ package state
 
 import (
 	"encoding/json"
-	"time"
 
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 
@@ -88,18 +87,15 @@ func (sta TokensState) ListenForTokenHistory(stop ListenStopChan) error {
 	return nil
 }
 
-func (sta TokensState) CollectRegionTokens(regions sotah.RegionList) {
+func (sta TokensState) CollectRegionTokens(regions sotah.RegionList) error {
 	logging.Info("Collecting region-tokens")
-
-	// going over the list of regions
-	startTime := time.Now()
 
 	// gathering tokens
 	tokens, err := sta.ResolveTokens(regions)
 	if err != nil {
 		logging.WithField("error", err.Error()).Error("failed to fetch tokens")
 
-		return
+		return err
 	}
 
 	// formatting appropriately
@@ -108,16 +104,5 @@ func (sta TokensState) CollectRegionTokens(regions sotah.RegionList) {
 		regionTokenHistory[regionName] = database.TokenHistory{token.LastUpdatedTimestamp: token.Price}
 	}
 
-	// persisting
-	if err := sta.TokensDatabase.PersistHistory(regionTokenHistory); err != nil {
-		logging.WithField("error", err.Error()).Error("failed to persist region token-histories")
-
-		return
-	}
-
-	duration := time.Since(startTime)
-	sta.Reporter.Report(metric.Metrics{
-		"tokenscollector_intake_duration": int(duration) / 1000 / 1000 / 1000,
-	})
-	logging.Info("finished tokens-collector")
+	return sta.TokensDatabase.PersistHistory(regionTokenHistory)
 }
