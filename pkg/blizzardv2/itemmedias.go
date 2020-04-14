@@ -62,7 +62,7 @@ func GetItemMedias(
 	postWork := func() {
 		close(out)
 	}
-	util.Work(8, worker, postWork)
+	util.Work(2, worker, postWork)
 
 	return out
 }
