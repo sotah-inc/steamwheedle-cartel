@@ -72,8 +72,6 @@ func GetItems(opts GetItemsOptions) chan GetItemsOutJob {
 			in <- id
 
 			logging.Info("breaking GetItems() early")
-
-			break
 		}
 
 		close(in)
