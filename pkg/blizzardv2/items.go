@@ -64,14 +64,14 @@ func GetItems(opts GetItemsOptions) chan GetItemsOutJob {
 	postWork := func() {
 		close(out)
 	}
-	util.Work(8, worker, postWork)
+	util.Work(1, worker, postWork)
 
 	// queueing it up
 	go func() {
 		for _, id := range opts.ItemIds {
-			in <- id
+			logging.WithField("item-id", id).Info("enqueueing item for downloading")
 
-			logging.Info("breaking GetItems() early")
+			in <- id
 		}
 
 		close(in)
