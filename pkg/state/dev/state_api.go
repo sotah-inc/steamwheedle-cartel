@@ -151,7 +151,13 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 	}
 
 	// establishing listeners
-	sta.Listeners = state.NewListeners(state.NewSubjectListeners([]state.SubjectListeners{}))
+	sta.Listeners = state.NewListeners(state.NewSubjectListeners([]state.SubjectListeners{
+		sta.ItemsState.GetListeners(),
+		sta.AreaMapsState.GetListeners(),
+		sta.TokensState.GetListeners(),
+		sta.RegionState.GetListeners(),
+		sta.BootState.GetListeners(),
+	}))
 
 	return sta, nil
 }
