@@ -21,6 +21,8 @@ func (sta ItemsState) CollectItems(ids blizzardv2.ItemIds) error {
 		return err
 	}
 
+	logging.WithField("items", itemsSyncPayload.Ids).Info("collecting items")
+
 	// starting up workers for resolving items
 	itemsOut, err := sta.BlizzardState.ResolveItems(
 		sta.RegionsState.RegionComposites.ToList(),
