@@ -11,6 +11,8 @@ import (
 )
 
 func (sta ItemsState) CollectItems(ids blizzardv2.ItemIds) error {
+	startTime := time.Now()
+
 	// resolving items to sync
 	itemsSyncPayload, err := sta.ItemsDatabase.FilterInItemsToSync(ids)
 	if err != nil {
@@ -88,5 +90,17 @@ func (sta ItemsState) CollectItems(ids blizzardv2.ItemIds) error {
 		close(persistItemsIn)
 	}()
 
-	return sta.ItemsDatabase.PersistItems(persistItemsIn)
+	totalPersisted, err := sta.ItemsDatabase.PersistItems(persistItemsIn)
+	if err != nil {
+		logging.WithField("error", err.Error()).Error("failed to persist items")
+
+		return err
+	}
+
+	logging.WithFields(logrus.Fields{
+		"total":          totalPersisted,
+		"duration-in-ms": time.Since(startTime).Milliseconds(),
+	}).Info("total persisted in collect-items")
+
+	return nil
 }

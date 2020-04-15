@@ -8,7 +8,9 @@ import (
 	"github.com/boltdb/bolt"
 )
 
-func (idBase ItemsDatabase) PersistItems(in chan sotah.Item) error {
+func (idBase ItemsDatabase) PersistItems(in chan sotah.Item) (int, error) {
+	totalPersisted := 0
+
 	err := idBase.db.Batch(func(tx *bolt.Tx) error {
 		itemsBucket, err := tx.CreateBucketIfNotExists(databaseItemsBucketName())
 		if err != nil {
@@ -43,13 +45,15 @@ func (idBase ItemsDatabase) PersistItems(in chan sotah.Item) error {
 			if err := itemNamesBucket.Put(itemNameKeyName(item.BlizzardMeta.Id), encodedNormalizedName); err != nil {
 				return err
 			}
+
+			totalPersisted += 1
 		}
 
 		return nil
 	})
 	if err != nil {
-		return err
+		return 0, err
 	}
 
-	return nil
+	return totalPersisted, nil
 }

@@ -24,6 +24,8 @@ type CollectAuctionsResults struct {
 }
 
 func (sta DiskAuctionsState) CollectAuctions() (blizzardv2.ItemIds, error) {
+	startTime := time.Now()
+
 	// spinning up workers
 	aucsOutJobs := sta.BlizzardState.ResolveAuctions(sta.RegionsState.RegionComposites.ToDownloadTuples())
 	storeAucsInJobs := make(chan diskstore.WriteAuctionsWithTuplesInJob)
@@ -87,12 +89,15 @@ func (sta DiskAuctionsState) CollectAuctions() (blizzardv2.ItemIds, error) {
 	}()
 
 	// waiting for store-auctions results to drain out
+	totalPersisted := 0
 	for storeAucsOutJob := range storeAucsOutJobs {
 		if storeAucsOutJob.Err != nil {
 			logging.WithFields(storeAucsOutJob.ToLogrusFields()).Error("failed to store auctions")
 
 			return blizzardv2.ItemIds{}, storeAucsOutJob.Err
 		}
+
+		totalPersisted += 1
 	}
 
 	// waiting for item-ids to drain out
@@ -102,6 +107,11 @@ func (sta DiskAuctionsState) CollectAuctions() (blizzardv2.ItemIds, error) {
 	if !results.RegionTimestamps.IsZero() {
 		sta.RegionsState.ReceiveTimestamps(results.RegionTimestamps)
 	}
+
+	logging.WithFields(logrus.Fields{
+		"total":          totalPersisted,
+		"duration-in-ms": time.Since(startTime).Milliseconds(),
+	}).Info("total persisted in collect-auctions")
 
 	return results.ItemIds, nil
 }

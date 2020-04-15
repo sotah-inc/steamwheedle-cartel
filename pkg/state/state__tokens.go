@@ -2,6 +2,9 @@ package state
 
 import (
 	"encoding/json"
+	"time"
+
+	"github.com/sirupsen/logrus"
 
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 
@@ -88,7 +91,9 @@ func (sta TokensState) ListenForTokenHistory(stop ListenStopChan) error {
 }
 
 func (sta TokensState) CollectRegionTokens(regions sotah.RegionList) error {
-	logging.Info("Collecting region-tokens")
+	logging.Info("collecting region-tokens")
+
+	startTime := time.Now()
 
 	// gathering tokens
 	tokens, err := sta.ResolveTokens(regions)
@@ -104,5 +109,15 @@ func (sta TokensState) CollectRegionTokens(regions sotah.RegionList) error {
 		regionTokenHistory[regionName] = database.TokenHistory{token.LastUpdatedTimestamp: token.Price}
 	}
 
-	return sta.TokensDatabase.PersistHistory(regionTokenHistory)
+	if err := sta.TokensDatabase.PersistHistory(regionTokenHistory); err != nil {
+		logging.WithField("error", err.Error()).Error("failed to persist tokens-history")
+
+		return err
+	}
+	logging.WithFields(logrus.Fields{
+		"total":          len(tokens),
+		"duration-in-ms": time.Since(startTime).Milliseconds(),
+	}).Info("total persisted in collect-region-tokens")
+
+	return nil
 }
