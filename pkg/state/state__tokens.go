@@ -4,22 +4,43 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/sirupsen/logrus"
-
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
-
 	nats "github.com/nats-io/nats.go"
+	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
 	mCodes "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger/codes"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/metric"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state/subjects"
 )
 
+type NewTokensStateOptions struct {
+	BlizzardState BlizzardState
+	Messenger     messenger.Messenger
+
+	TokensDatabaseDir string
+}
+
+func NewTokensState(opts NewTokensStateOptions) (TokensState, error) {
+	tokensDatabase, err := database.NewTokensDatabase(opts.TokensDatabaseDir)
+	if err != nil {
+		logging.WithField("error", err.Error()).Error("failed to initialise tokens-database")
+
+		return TokensState{}, err
+	}
+
+	return TokensState{
+		BlizzardState:  opts.BlizzardState,
+		Messenger:      opts.Messenger,
+		TokensDatabase: tokensDatabase,
+		Reporter:       metric.NewReporter(opts.Messenger),
+	}, nil
+}
+
 type TokensState struct {
-	BlizzardState
+	BlizzardState BlizzardState
 
 	Messenger      messenger.Messenger
 	TokensDatabase database.TokensDatabase
@@ -96,7 +117,7 @@ func (sta TokensState) CollectRegionTokens(regions sotah.RegionList) error {
 	startTime := time.Now()
 
 	// gathering tokens
-	tokens, err := sta.ResolveTokens(regions)
+	tokens, err := sta.BlizzardState.ResolveTokens(regions)
 	if err != nil {
 		logging.WithField("error", err.Error()).Error("failed to fetch tokens")
 

@@ -1,17 +1,13 @@
 package dev
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/twinj/uuid"
-
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/diskstore"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/metric"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
@@ -31,6 +27,22 @@ type ApiStateConfig struct {
 	DatabaseConfig    ApiStateDatabaseConfig
 }
 
+func (c ApiStateConfig) ToDirList() []string {
+	out := []string{
+		c.DiskStoreCacheDir,
+		fmt.Sprintf("%s/auctions", c.DiskStoreCacheDir),
+		c.DatabaseConfig.AreaMapsDir,
+		c.DatabaseConfig.ItemsDir,
+		c.DatabaseConfig.TokensDir,
+	}
+
+	for _, reg := range c.SotahConfig.FilterInRegions(c.SotahConfig.Regions) {
+		out = append(out, fmt.Sprintf("%s/auctions/%s", c.DiskStoreCacheDir, reg.Name))
+	}
+
+	return out
+}
+
 func NewAPIState(config ApiStateConfig) (ApiState, error) {
 	// establishing an initial state
 	sta := ApiState{State: state.State{RunID: uuid.NewV4(), Listeners: nil, BusListeners: nil}}
@@ -38,30 +50,8 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 	// narrowing regions list
 	regions := config.SotahConfig.FilterInRegions(config.SotahConfig.Regions)
 
-	diskStore, err := func() (diskstore.DiskStore, error) {
-		if config.DiskStoreCacheDir == "" {
-			logging.WithField("disk-store-cache-dir", config.DiskStoreCacheDir).Error("disk-store-cache-dir was blank")
-
-			return diskstore.DiskStore{}, errors.New("disk-store-cache-dir should not be blank")
-		}
-
-		cacheDirs := []string{
-			config.DiskStoreCacheDir,
-			fmt.Sprintf("%s/auctions", config.DiskStoreCacheDir),
-		}
-		for _, reg := range regions {
-			cacheDirs = append(cacheDirs, fmt.Sprintf("%s/auctions/%s", config.DiskStoreCacheDir, reg.Name))
-		}
-
-		if err := util.EnsureDirsExist(cacheDirs); err != nil {
-			return diskstore.DiskStore{}, err
-		}
-
-		return diskstore.NewDiskStore(config.DiskStoreCacheDir), nil
-	}()
-	if err != nil {
-		logging.WithField("error", err.Error()).Error("failed to initialise disk-store")
-
+	// ensuring related dirs exist
+	if err := util.EnsureDirsExist(config.ToDirList()); err != nil {
 		return ApiState{}, err
 	}
 
@@ -81,19 +71,19 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 		return ApiState{}, err
 	}
 
-	// gathering region-state
+	// gathering region state
 	sta.RegionState, err = state.NewRegionState(state.NewRegionStateOptions{
 		BlizzardState: sta.BlizzardState,
 		Regions:       regions,
 		Messenger:     mess,
 	})
 	if err != nil {
-		logging.WithField("error", err.Error()).Error("failed to establish region-state")
+		logging.WithField("error", err.Error()).Error("failed to establish region state")
 
 		return ApiState{}, err
 	}
 
-	// gathering boot-state
+	// gathering boot state
 	sta.BootState, err = state.NewBootState(state.NewBootStateOptions{
 		BlizzardState: sta.BlizzardState,
 		Messenger:     mess,
@@ -103,54 +93,50 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 		ItemBlacklist: config.SotahConfig.ItemBlacklist,
 	})
 	if err != nil {
-		logging.WithField("error", err.Error()).Error("failed to establish boot-state")
+		logging.WithField("error", err.Error()).Error("failed to establish boot state")
 
 		return ApiState{}, err
 	}
 
-	// loading the items database
-	itemsDatabase, err := database.NewItemsDatabase(config.DatabaseConfig.ItemsDir)
+	// loading the items state
+	sta.ItemsState, err = state.NewItemsState(state.NewItemsStateOptions{
+		BlizzardState:    sta.BlizzardState,
+		RegionsState:     sta.RegionState,
+		Messenger:        mess,
+		ItemsDatabaseDir: config.DatabaseConfig.ItemsDir,
+	})
 	if err != nil {
-		logging.WithField("error", err.Error()).Error("failed to initialise items-database")
+		logging.WithField("error", err.Error()).Error("failed to initialise items state")
 
 		return ApiState{}, err
 	}
 
-	// loading the tokens database
-	tokensDatabase, err := database.NewTokensDatabase(config.DatabaseConfig.TokensDir)
+	// loading the tokens state
+	sta.TokensState, err = state.NewTokensState(state.NewTokensStateOptions{
+		BlizzardState:     sta.BlizzardState,
+		Messenger:         mess,
+		TokensDatabaseDir: config.DatabaseConfig.TokensDir,
+	})
 	if err != nil {
-		logging.WithField("error", err.Error()).Error("failed to initialise tokens-database")
+		logging.WithField("error", err.Error()).Error("failed to initialise tokens state")
 
 		return ApiState{}, err
 	}
 
-	// loading the area-maps database
-	areaMapsDatabase, err := database.NewAreaMapsDatabase(config.DatabaseConfig.AreaMapsDir)
+	// loading the area-maps state
+	sta.AreaMapsState, err = state.NewAreaMapsState(mess, config.DatabaseConfig.AreaMapsDir)
 	if err != nil {
-		logging.WithField("error", err.Error()).Error("failed to initialise area-maps-database")
+		logging.WithField("error", err.Error()).Error("failed to initialise area-maps state")
 
 		return ApiState{}, err
 	}
 
-	// resolving states
-	sta.ItemsState = state.ItemsState{
-		BlizzardState: sta.BlizzardState,
-		RegionsState:  sta.RegionState,
-		Messenger:     mess,
-		ItemsDatabase: itemsDatabase,
-	}
-	sta.AreaMapsState = state.AreaMapsState{Messenger: mess, AreaMapsDatabase: areaMapsDatabase}
-	sta.TokensState = state.TokensState{
-		BlizzardState:  sta.BlizzardState,
-		Messenger:      mess,
-		TokensDatabase: tokensDatabase,
-		Reporter:       metric.NewReporter(mess),
-	}
+	// resolving disk-auctions state
 	sta.DiskAuctionsState = state.DiskAuctionsState{
 		BlizzardState: sta.BlizzardState,
 		RegionsState:  sta.RegionState,
-		DiskStore:     diskStore,
-		ItemsDatabase: itemsDatabase,
+		DiskStore:     diskstore.NewDiskStore(config.DiskStoreCacheDir),
+		ItemsDatabase: sta.ItemsState.ItemsDatabase,
 	}
 
 	// establishing listeners
@@ -167,6 +153,7 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 
 type ApiState struct {
 	state.State
+
 	BlizzardState     state.BlizzardState
 	ItemsState        state.ItemsState
 	AreaMapsState     state.AreaMapsState

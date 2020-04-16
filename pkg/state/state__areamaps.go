@@ -5,6 +5,7 @@ import (
 
 	nats "github.com/nats-io/nats.go"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger/codes"
 	mCodes "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger/codes"
@@ -38,6 +39,20 @@ func (amRes AreaMapsResponse) EncodeForMessage() (string, error) {
 	}
 
 	return string(result), err
+}
+
+func NewAreaMapsState(mess messenger.Messenger, areaMapsDatabaseDir string) (AreaMapsState, error) {
+	areaMapsDatabase, err := database.NewAreaMapsDatabase(areaMapsDatabaseDir)
+	if err != nil {
+		logging.WithField("error", err.Error()).Error("failed to initialise area-maps-database")
+
+		return AreaMapsState{}, err
+	}
+
+	return AreaMapsState{
+		Messenger:        mess,
+		AreaMapsDatabase: areaMapsDatabase,
+	}, nil
 }
 
 type AreaMapsState struct {
