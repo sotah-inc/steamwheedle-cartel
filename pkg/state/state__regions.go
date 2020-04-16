@@ -54,7 +54,8 @@ func (sta *RegionsState) ReceiveTimestamps(timestamps sotah.RegionTimestamps) {
 
 func (sta *RegionsState) GetListeners() SubjectListeners {
 	return SubjectListeners{
-		subjects.Status:              sta.ListenForStatus,
-		subjects.ValidateRegionRealm: sta.ListenForValidateRegionRealm,
+		subjects.Status:                      sta.ListenForStatus,
+		subjects.ValidateRegionRealm:         sta.ListenForValidateRegionRealm,
+		subjects.QueryRealmModificationDates: sta.ListenForQueryRealmModificationDates,
 	}
 }
