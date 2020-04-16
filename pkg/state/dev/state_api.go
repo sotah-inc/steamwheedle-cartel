@@ -14,9 +14,10 @@ import (
 )
 
 type ApiStateDatabaseConfig struct {
-	ItemsDir    string
-	TokensDir   string
-	AreaMapsDir string
+	ItemsDir        string
+	TokensDir       string
+	AreaMapsDir     string
+	LiveAuctionsDir string
 }
 
 type ApiStateConfig struct {
@@ -34,6 +35,7 @@ func (c ApiStateConfig) ToDirList() []string {
 		c.DatabaseConfig.AreaMapsDir,
 		c.DatabaseConfig.ItemsDir,
 		c.DatabaseConfig.TokensDir,
+		c.DatabaseConfig.LiveAuctionsDir,
 	}
 
 	for _, reg := range c.SotahConfig.FilterInRegions(c.SotahConfig.Regions) {
@@ -139,6 +141,19 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 		ItemsDatabase: sta.ItemsState.ItemsDatabase,
 	}
 
+	// resolving live-auctions state
+	sta.LiveAuctionsState, err = state.NewLiveAuctionsState(state.NewLiveAuctionsStateOptions{
+		Messenger:                mess,
+		DiskStore:                sta.DiskAuctionsState.DiskStore,
+		LiveAuctionsDatabasesDir: config.DatabaseConfig.LiveAuctionsDir,
+		Tuples:                   sta.RegionState.RegionComposites.ToTuples(),
+	})
+	if err != nil {
+		logging.WithField("error", err.Error()).Error("failed to initialise live-auctions state")
+
+		return ApiState{}, err
+	}
+
 	// establishing listeners
 	sta.Listeners = state.NewListeners(state.NewSubjectListeners([]state.SubjectListeners{
 		sta.ItemsState.GetListeners(),
@@ -146,6 +161,7 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 		sta.TokensState.GetListeners(),
 		sta.RegionState.GetListeners(),
 		sta.BootState.GetListeners(),
+		sta.LiveAuctionsState.GetListeners(),
 	}))
 
 	return sta, nil
@@ -161,4 +177,6 @@ type ApiState struct {
 	RegionState       *state.RegionsState
 	DiskAuctionsState state.DiskAuctionsState
 	BootState         state.BootState
+
+	LiveAuctionsState state.LiveAuctionsState
 }

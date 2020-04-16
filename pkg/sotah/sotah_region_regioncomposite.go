@@ -122,6 +122,19 @@ func (regions RegionComposites) ToDownloadTuples() []blizzardv2.DownloadConnecte
 	return out
 }
 
+func (regions RegionComposites) ToTuples() blizzardv2.RegionConnectedRealmTuples {
+	out := make(blizzardv2.RegionConnectedRealmTuples, regions.TotalConnectedRealms())
+	i := 0
+	for _, region := range regions {
+		for _, tuple := range region.ToDownloadTuples() {
+			out[i] = tuple.RegionConnectedRealmTuple
+			i += 1
+		}
+	}
+
+	return out
+}
+
 func (regions RegionComposites) Receive(timestamps RegionTimestamps) RegionComposites {
 	for i, region := range regions {
 		regionName := region.ConfigRegion.Name

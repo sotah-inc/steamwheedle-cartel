@@ -17,6 +17,17 @@ type HrefReference struct {
 	Href string `json:"href"`
 }
 
+func NewRegionConnectedRealmTuples(data []byte) (RegionConnectedRealmTuples, error) {
+	out := RegionConnectedRealmTuples{}
+	if err := json.Unmarshal(data, &out); err != nil {
+		return RegionConnectedRealmTuples{}, err
+	}
+
+	return out, nil
+}
+
+type RegionConnectedRealmTuples []RegionConnectedRealmTuple
+
 func NewRegionConnectedRealmTuple(data []byte) (RegionConnectedRealmTuple, error) {
 	out := RegionConnectedRealmTuple{}
 	if err := json.Unmarshal(data, &out); err != nil {
