@@ -13,16 +13,16 @@ type miniAuctionSortFn func(MiniAuctionList)
 
 func newMiniAuctionSorter() miniAuctionSorter {
 	return miniAuctionSorter{
-		"Item":         func(mAuctionList MiniAuctionList) { sort.Sort(byItem(mAuctionList)) },
-		"Item-r":       func(mAuctionList MiniAuctionList) { sort.Sort(byItemReversed(mAuctionList)) },
+		"item":         func(mAuctionList MiniAuctionList) { sort.Sort(byItem(mAuctionList)) },
+		"item-r":       func(mAuctionList MiniAuctionList) { sort.Sort(byItemReversed(mAuctionList)) },
 		"quantity":     func(mAuctionList MiniAuctionList) { sort.Sort(byQuantity(mAuctionList)) },
 		"quantity-r":   func(mAuctionList MiniAuctionList) { sort.Sort(byQuantityReversed(mAuctionList)) },
 		"buyout":       func(mAuctionList MiniAuctionList) { sort.Sort(byBuyout(mAuctionList)) },
 		"buyout-r":     func(mAuctionList MiniAuctionList) { sort.Sort(byBuyoutReversed(mAuctionList)) },
 		"buyout_per":   func(mAuctionList MiniAuctionList) { sort.Sort(byBuyoutPer(mAuctionList)) },
 		"buyout_per-r": func(mAuctionList MiniAuctionList) { sort.Sort(byBuyoutPerReversed(mAuctionList)) },
-		"Auctions":     func(mAuctionList MiniAuctionList) { sort.Sort(byAuctions(mAuctionList)) },
-		"Auctions-r":   func(mAuctionList MiniAuctionList) { sort.Sort(byAuctionsReversed(mAuctionList)) },
+		"auctions":     func(mAuctionList MiniAuctionList) { sort.Sort(byAuctions(mAuctionList)) },
+		"auctions-r":   func(mAuctionList MiniAuctionList) { sort.Sort(byAuctionsReversed(mAuctionList)) },
 	}
 }
 
@@ -35,12 +35,11 @@ func (mas miniAuctionSorter) sort(
 ) error {
 	// resolving the sort kind as a string
 	kindMap := map[sortkinds.SortKind]string{
-		sortkinds.Item:      "Item",
+		sortkinds.Item:      "item",
 		sortkinds.Quantity:  "quantity",
 		sortkinds.Buyout:    "buyout",
 		sortkinds.BuyoutPer: "buyout_per",
-		sortkinds.Auctions:  "Auctions",
-		sortkinds.Owner:     "Owner",
+		sortkinds.Auctions:  "auctions",
 	}
 	resolvedKind, ok := kindMap[kind]
 	if !ok {

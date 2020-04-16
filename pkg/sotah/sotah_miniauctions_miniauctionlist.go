@@ -10,6 +10,20 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 )
 
+func NewMiniAuctionListFromGzipped(gzipEncoded []byte) (MiniAuctionList, error) {
+	gzipDecoded, err := util.GzipDecode(gzipEncoded)
+	if err != nil {
+		return nil, err
+	}
+
+	var out MiniAuctionList
+	if err := json.Unmarshal(gzipDecoded, &out); err != nil {
+		return nil, err
+	}
+
+	return out, nil
+}
+
 func NewMiniAuctionList(aucs blizzardv2.Auctions) MiniAuctionList {
 	ma := NewMiniAuctions(aucs)
 
@@ -46,8 +60,7 @@ func (maList MiniAuctionList) Limit(count int, page int) (MiniAuctionList, error
 }
 
 func (maList MiniAuctionList) Sort(kind sortkinds.SortKind, direction sortdirections.SortDirection) error {
-	mas := newMiniAuctionSorter()
-	return mas.sort(kind, direction, maList)
+	return newMiniAuctionSorter().sort(kind, direction, maList)
 }
 
 func (maList MiniAuctionList) FilterByItemIds(itemIds []blizzardv2.ItemId) MiniAuctionList {

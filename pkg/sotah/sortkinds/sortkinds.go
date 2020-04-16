@@ -13,5 +13,4 @@ const (
 	Buyout
 	BuyoutPer
 	Auctions
-	Owner
 )

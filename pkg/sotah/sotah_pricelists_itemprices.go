@@ -54,4 +54,18 @@ func (iPrices ItemPrices) ItemIds() []blizzardv2.ItemId {
 	return out
 }
 
+func (iPrices ItemPrices) FilterIn(ids blizzardv2.ItemIds) ItemPrices {
+	out := ItemPrices{}
+	for _, id := range ids {
+		found, ok := iPrices[id]
+		if !ok {
+			continue
+		}
+
+		out[id] = found
+	}
+
+	return out
+}
+
 type ItemBuyoutPers map[blizzardv2.ItemId][]float64
