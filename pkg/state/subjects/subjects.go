@@ -1,32 +1,49 @@
 package subjects
 
-// Subject - typehint for these enums
 type Subject string
+
+const (
+	Items      Subject = "items"
+	ItemsQuery Subject = "itemsQuery"
+)
+
+const (
+	AreaMapsQuery Subject = "areaMapsQuery"
+	AreaMaps      Subject = "areaMaps"
+)
+
+const (
+	Status                      Subject = "status"
+	ValidateRegionRealm         Subject = "validateRegionRealm"
+	QueryRealmModificationDates Subject = "queryRealmModificationDates"
+)
+
+const (
+	Boot          Subject = "boot"
+	SessionSecret Subject = "sessionSecret"
+)
+
+const (
+	TokenHistory Subject = "tokenHistory"
+)
+
+const (
+	LiveAuctionsIntake Subject = "liveAuctionsIntake"
+)
 
 /*
 Status - subject name for returning current status
 */
 const (
-	Status                      Subject = "status"
-	Auctions                    Subject = "auctions"
-	GenericTestErrors           Subject = "genericTestErrors"
-	ItemsQuery                  Subject = "itemsQuery"
-	TokenHistory                Subject = "tokenHistory"
-	ValidateRegionRealm         Subject = "validateRegionRealm"
-	PriceList                   Subject = "priceList"
-	PriceListHistory            Subject = "priceListHistory"
-	Items                       Subject = "items"
-	Boot                        Subject = "boot"
-	SessionSecret               Subject = "sessionSecret"
-	LiveAuctionsIntake          Subject = "liveAuctionsIntake"
-	PricelistHistoriesIntake    Subject = "pricelistHistoriesIntake"
-	AppMetrics                  Subject = "appMetrics"
-	PricelistHistoriesIntakeV2  Subject = "pricelistHistoriesIntakeV2"
-	QueryRealmModificationDates Subject = "queryRealmModificationDates"
-	RealmModificationDates      Subject = "realmModificationDates"
-	QueryAuctionStats           Subject = "queryAuctionStats"
-	AreaMapsQuery               Subject = "areaMapsQuery"
-	AreaMaps                    Subject = "areaMaps"
+	Auctions                   Subject = "auctions"
+	GenericTestErrors          Subject = "genericTestErrors"
+	PriceList                  Subject = "priceList"
+	PriceListHistory           Subject = "priceListHistory"
+	PricelistHistoriesIntake   Subject = "pricelistHistoriesIntake"
+	AppMetrics                 Subject = "appMetrics"
+	PricelistHistoriesIntakeV2 Subject = "pricelistHistoriesIntakeV2"
+	RealmModificationDates     Subject = "realmModificationDates"
+	QueryAuctionStats          Subject = "queryAuctionStats"
 )
 
 // gcloud fn-related
