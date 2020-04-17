@@ -5,6 +5,8 @@ import (
 	"os"
 	"time"
 
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
+
 	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
@@ -13,45 +15,45 @@ import (
 
 func (ds DiskStore) GetAuctionsByTuple(
 	tuple blizzardv2.RegionConnectedRealmTuple,
-) (blizzardv2.Auctions, time.Time, error) {
+) (sotah.MiniAuctionList, time.Time, error) {
 	// resolving the cached auctions filepath
 	cachedAuctionsFilepath, err := ds.resolveAuctionsFilepath(tuple)
 	if err != nil {
-		return blizzardv2.Auctions{}, time.Time{}, err
+		return sotah.MiniAuctionList{}, time.Time{}, err
 	}
 
 	// optionally skipping non-exist auctions file
 	cachedAuctionsStat, err := os.Stat(cachedAuctionsFilepath)
 	if err != nil {
 		if !os.IsNotExist(err) {
-			return blizzardv2.Auctions{}, time.Time{}, err
+			return sotah.MiniAuctionList{}, time.Time{}, err
 		}
 
-		return blizzardv2.Auctions{}, time.Time{}, nil
+		return sotah.MiniAuctionList{}, time.Time{}, nil
 	}
 
 	gzipEncoded, err := util.ReadFile(cachedAuctionsFilepath)
 	if err != nil {
-		return blizzardv2.Auctions{}, time.Time{}, err
+		return sotah.MiniAuctionList{}, time.Time{}, err
 	}
 
 	jsonEncoded, err := util.GzipDecode(gzipEncoded)
 	if err != nil {
-		return blizzardv2.Auctions{}, time.Time{}, err
+		return sotah.MiniAuctionList{}, time.Time{}, err
 	}
 
-	var auctions blizzardv2.Auctions
-	if err := json.Unmarshal(jsonEncoded, &auctions); err != nil {
-		return blizzardv2.Auctions{}, time.Time{}, err
+	var out sotah.MiniAuctionList
+	if err := json.Unmarshal(jsonEncoded, &out); err != nil {
+		return sotah.MiniAuctionList{}, time.Time{}, err
 	}
 
-	return auctions, cachedAuctionsStat.ModTime(), nil
+	return out, cachedAuctionsStat.ModTime(), nil
 }
 
 type GetAuctionsByTuplesJob struct {
 	Err          error
 	Tuple        blizzardv2.RegionConnectedRealmTuple
-	Auctions     blizzardv2.Auctions
+	Auctions     sotah.MiniAuctionList
 	LastModified time.Time
 }
 

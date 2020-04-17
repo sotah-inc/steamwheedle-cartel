@@ -9,16 +9,16 @@ import (
 )
 
 func (sta ApiState) Collect() error {
-	itemIds, err := sta.DiskAuctionsState.CollectAuctions()
+	collectAuctionsResults, err := sta.DiskAuctionsState.CollectAuctions()
 	if err != nil {
 		logging.WithField("error", err.Error()).Error("failed to collect auctions")
 
 		return err
 	}
 
-	logging.WithField("item-ids", len(itemIds)).Info("found items in auctions")
+	logging.WithField("item-ids", len(collectAuctionsResults.ItemIds)).Info("found items in auctions")
 
-	if err := sta.ItemsState.CollectItems(itemIds); err != nil {
+	if err := sta.ItemsState.CollectItems(collectAuctionsResults.ItemIds); err != nil {
 		logging.WithField("error", err.Error()).Error("failed to collect items")
 
 		return err

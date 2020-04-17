@@ -21,9 +21,10 @@ type CollectAuctionsResult struct {
 type CollectAuctionsResults struct {
 	ItemIds          blizzardv2.ItemIds
 	RegionTimestamps sotah.RegionTimestamps
+	Tuples           blizzardv2.RegionConnectedRealmTuples
 }
 
-func (sta DiskAuctionsState) CollectAuctions() (blizzardv2.ItemIds, error) {
+func (sta DiskAuctionsState) CollectAuctions() (CollectAuctionsResults, error) {
 	startTime := time.Now()
 
 	// spinning up workers
@@ -71,6 +72,7 @@ func (sta DiskAuctionsState) CollectAuctions() (blizzardv2.ItemIds, error) {
 		results := CollectAuctionsResults{
 			ItemIds:          blizzardv2.ItemIds{},
 			RegionTimestamps: sotah.RegionTimestamps{},
+			Tuples:           blizzardv2.RegionConnectedRealmTuples{},
 		}
 		for job := range resultsInJob {
 			// loading last-modified in
@@ -82,6 +84,9 @@ func (sta DiskAuctionsState) CollectAuctions() (blizzardv2.ItemIds, error) {
 
 			// loading item-ids in
 			results.ItemIds = results.ItemIds.Merge(job.ItemIds)
+
+			// loading tuple in
+			results.Tuples = append(results.Tuples, job.Tuple)
 		}
 
 		resultsOutJob <- results
@@ -94,7 +99,7 @@ func (sta DiskAuctionsState) CollectAuctions() (blizzardv2.ItemIds, error) {
 		if storeAucsOutJob.Err != nil {
 			logging.WithFields(storeAucsOutJob.ToLogrusFields()).Error("failed to store auctions")
 
-			return blizzardv2.ItemIds{}, storeAucsOutJob.Err
+			return CollectAuctionsResults{}, storeAucsOutJob.Err
 		}
 
 		totalPersisted += 1
@@ -113,5 +118,5 @@ func (sta DiskAuctionsState) CollectAuctions() (blizzardv2.ItemIds, error) {
 		"duration-in-ms": time.Since(startTime).Milliseconds(),
 	}).Info("total persisted in collect-auctions")
 
-	return results.ItemIds, nil
+	return results, nil
 }
