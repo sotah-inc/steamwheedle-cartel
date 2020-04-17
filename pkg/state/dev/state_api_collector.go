@@ -30,6 +30,12 @@ func (sta ApiState) Collect() error {
 		return err
 	}
 
+	if err := sta.LiveAuctionsState.LiveAuctionsIntake(collectAuctionsResults.Tuples); err != nil {
+		logging.WithField("error", err.Error()).Error("failed to execute live-auctions-intake")
+
+		return err
+	}
+
 	return nil
 }
 
