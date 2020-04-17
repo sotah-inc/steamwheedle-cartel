@@ -36,10 +36,12 @@ func (c ApiStateConfig) ToDirList() []string {
 		c.DatabaseConfig.ItemsDir,
 		c.DatabaseConfig.TokensDir,
 		c.DatabaseConfig.LiveAuctionsDir,
+		fmt.Sprintf("%s/live-auctions", c.DatabaseConfig.LiveAuctionsDir),
 	}
 
 	for _, reg := range c.SotahConfig.FilterInRegions(c.SotahConfig.Regions) {
 		out = append(out, fmt.Sprintf("%s/auctions/%s", c.DiskStoreCacheDir, reg.Name))
+		out = append(out, fmt.Sprintf("%s/live-auctions/%s", c.DiskStoreCacheDir, reg.Name))
 	}
 
 	return out
