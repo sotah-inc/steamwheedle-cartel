@@ -25,7 +25,7 @@ func (sta ItemsState) CollectItems(ids blizzardv2.ItemIds) error {
 
 	// starting up workers for resolving items
 	itemsOut, err := sta.BlizzardState.ResolveItems(
-		sta.RegionsState.RegionComposites.ToList(),
+		sta.RegionsState.RegionComposites.ToList()[:0],
 		itemsSyncPayload.Ids,
 	)
 	if err != nil {
