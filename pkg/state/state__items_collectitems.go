@@ -21,7 +21,7 @@ func (sta ItemsState) CollectItems(ids blizzardv2.ItemIds) error {
 		return err
 	}
 
-	logging.WithField("items", itemsSyncPayload.Ids).Info("collecting items")
+	logging.WithField("items", len(itemsSyncPayload.Ids)).Info("collecting items")
 
 	// starting up workers for resolving items
 	itemsOut, err := sta.BlizzardState.ResolveItems(
