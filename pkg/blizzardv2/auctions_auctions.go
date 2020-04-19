@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
@@ -79,8 +80,8 @@ type AuctionsResponse struct {
 	Auctions       Auctions      `json:"auctions"`
 }
 
-func NewAuctionsFromHTTP(uri string) (AuctionsResponse, ResponseMeta, error) {
-	resp, err := Download(DownloadOptions{Uri: uri})
+func NewAuctionsFromHTTP(uri string, ifModifiedSince time.Time) (AuctionsResponse, ResponseMeta, error) {
+	resp, err := Download(DownloadOptions{Uri: uri, IfModifiedSince: ifModifiedSince})
 	if err != nil {
 		logging.WithFields(logrus.Fields{
 			"error": err.Error(),

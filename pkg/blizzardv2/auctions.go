@@ -48,7 +48,7 @@ func GetAuctions(opts GetAuctionsOptions) chan GetAuctionsJob {
 				continue
 			}
 
-			auctionsResponse, responseMeta, err := NewAuctionsFromHTTP(getAuctionsUri)
+			auctionsResponse, responseMeta, err := NewAuctionsFromHTTP(getAuctionsUri, tuple.LastModified)
 			if err != nil {
 				out <- GetAuctionsJob{
 					Err:              err,
