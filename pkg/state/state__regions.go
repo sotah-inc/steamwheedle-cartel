@@ -7,9 +7,10 @@ import (
 )
 
 type NewRegionStateOptions struct {
-	BlizzardState BlizzardState
-	Regions       sotah.RegionList
-	Messenger     messenger.Messenger
+	BlizzardState            BlizzardState
+	Regions                  sotah.RegionList
+	Messenger                messenger.Messenger
+	RegionRealmSlugWhitelist sotah.RegionRealmSlugWhitelist
 }
 
 func NewRegionState(opts NewRegionStateOptions) (*RegionsState, error) {
@@ -22,9 +23,15 @@ func NewRegionState(opts NewRegionStateOptions) (*RegionsState, error) {
 	for i, region := range opts.Regions {
 		connectedRealms := regionConnectedRealms[region.Name]
 
-		realmComposites := make([]sotah.RealmComposite, len(connectedRealms))
-		for j, response := range connectedRealms {
-			realmComposites[j] = sotah.RealmComposite{ConnectedRealmResponse: response}
+		var realmComposites []sotah.RealmComposite
+		for _, response := range connectedRealms {
+			if !opts.RegionRealmSlugWhitelist.Has(region.Name, response) {
+				continue
+			}
+
+			realmComposites = append(realmComposites, sotah.RealmComposite{
+				ConnectedRealmResponse: response,
+			})
 		}
 
 		regionComposites[i] = sotah.RegionComposite{

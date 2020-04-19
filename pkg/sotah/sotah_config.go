@@ -28,13 +28,32 @@ func NewConfig(body []byte) (Config, error) {
 	return *c, nil
 }
 
+type RegionRealmSlugWhitelist map[blizzardv2.RegionName][]blizzardv2.RealmSlug
+
+func (wl RegionRealmSlugWhitelist) Has(name blizzardv2.RegionName, res blizzardv2.ConnectedRealmResponse) bool {
+	realmSlugs, ok := wl[name]
+	if !ok {
+		return false
+	}
+
+	for _, whitelistSlug := range realmSlugs {
+		for _, realm := range res.Realms {
+			if realm.Slug == whitelistSlug {
+				return true
+			}
+		}
+	}
+
+	return false
+}
+
 type Config struct {
-	Regions       RegionList                                       `json:"regions"`
-	Whitelist     map[blizzardv2.RegionName][]blizzardv2.RealmSlug `json:"whitelist"`
-	UseGCloud     bool                                             `json:"use_gcloud"`
-	Expansions    []Expansion                                      `json:"expansions"`
-	Professions   []Profession                                     `json:"professions"`
-	ItemBlacklist []blizzardv2.ItemId                              `json:"item_blacklist"`
+	Regions       RegionList               `json:"regions"`
+	Whitelist     RegionRealmSlugWhitelist `json:"whitelist"`
+	UseGCloud     bool                     `json:"use_gcloud"`
+	Expansions    []Expansion              `json:"expansions"`
+	Professions   []Profession             `json:"professions"`
+	ItemBlacklist []blizzardv2.ItemId      `json:"item_blacklist"`
 }
 
 func (c Config) FilterInRegions(regs RegionList) RegionList {
