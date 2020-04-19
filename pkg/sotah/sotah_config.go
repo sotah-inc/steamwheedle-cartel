@@ -3,6 +3,8 @@ package sotah
 import (
 	"encoding/json"
 
+	"github.com/sirupsen/logrus"
+
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
@@ -33,16 +35,35 @@ type RegionRealmSlugWhitelist map[blizzardv2.RegionName][]blizzardv2.RealmSlug
 func (wl RegionRealmSlugWhitelist) Has(name blizzardv2.RegionName, res blizzardv2.ConnectedRealmResponse) bool {
 	realmSlugs, ok := wl[name]
 	if !ok {
+		logging.WithFields(logrus.Fields{
+			"region":                   name,
+			"whitelist":                wl,
+			"connected-realm-response": res,
+		}).Info("whitelist did not have region")
+
 		return false
 	}
 
-	for _, whitelistSlug := range realmSlugs {
-		for _, realm := range res.Realms {
+	for _, realm := range res.Realms {
+		for _, whitelistSlug := range realmSlugs {
 			if realm.Slug == whitelistSlug {
+				logging.WithFields(logrus.Fields{
+					"region":                   name,
+					"realm":                    realm.Slug,
+					"whitelist":                wl,
+					"connected-realm-response": res,
+				}).Info("found realm in whitelist")
+
 				return true
 			}
 		}
 	}
+
+	logging.WithFields(logrus.Fields{
+		"region":                   name,
+		"whitelist":                wl,
+		"connected-realm-response": res,
+	}).Info("whitelist did have region but response did not contain realm")
 
 	return false
 }

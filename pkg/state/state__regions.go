@@ -1,6 +1,7 @@
 package state
 
 import (
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state/subjects"
@@ -18,6 +19,8 @@ func NewRegionState(opts NewRegionStateOptions) (*RegionsState, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	logging.WithField("whitelist", opts.RegionRealmSlugWhitelist).Info("checking with whitelist")
 
 	regionComposites := make(sotah.RegionComposites, len(opts.Regions))
 	for i, region := range opts.Regions {
