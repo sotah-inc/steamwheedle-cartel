@@ -3,8 +3,6 @@ package sotah
 import (
 	"encoding/json"
 
-	"github.com/sirupsen/logrus"
-
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
@@ -35,11 +33,6 @@ type RegionRealmSlugWhitelist map[blizzardv2.RegionName]blizzardv2.RealmSlugs
 func (wl RegionRealmSlugWhitelist) Get(name blizzardv2.RegionName) blizzardv2.RealmSlugs {
 	realmSlugs, ok := wl[name]
 	if !ok {
-		logging.WithFields(logrus.Fields{
-			"region":    name,
-			"whitelist": wl,
-		}).Info("whitelist did not have region")
-
 		return blizzardv2.RealmSlugs{}
 	}
 
