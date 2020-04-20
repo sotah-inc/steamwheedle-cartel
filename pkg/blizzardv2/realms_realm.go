@@ -1,10 +1,24 @@
 package blizzardv2
 
-import "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/locale"
+import (
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/locale"
+)
 
 type RealmId int
 
 type RealmSlug string
+
+type RealmSlugs []RealmSlug
+
+func (slugs RealmSlugs) Has(providedSlug RealmSlug) bool {
+	for _, slug := range slugs {
+		if slug == providedSlug {
+			return true
+		}
+	}
+
+	return false
+}
 
 type RealmResponse struct {
 	LinksBase
@@ -25,4 +39,19 @@ type RealmResponse struct {
 	} `json:"type"`
 	IsTournament bool      `json:"is_tournament"`
 	Slug         RealmSlug `json:"slug"`
+}
+
+type RealmResponses []RealmResponse
+
+func (responses RealmResponses) FilterIn(wl RealmSlugs) RealmResponses {
+	out := RealmResponses{}
+	for _, res := range responses {
+		if !wl.Has(res.Slug) {
+			continue
+		}
+
+		out = append(out, res)
+	}
+
+	return out
 }

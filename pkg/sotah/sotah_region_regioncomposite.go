@@ -9,9 +9,22 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 )
 
+func NewRealmComposite(realmWhitelist blizzardv2.RealmSlugs, res blizzardv2.ConnectedRealmResponse) RealmComposite {
+	res.Realms = res.Realms.FilterIn(realmWhitelist)
+
+	return RealmComposite{
+		ConnectedRealmResponse: res,
+		ModificationDates:      ConnectedRealmTimestamps{},
+	}
+}
+
 type RealmComposite struct {
 	ConnectedRealmResponse blizzardv2.ConnectedRealmResponse `json:"connected_realm"`
 	ModificationDates      ConnectedRealmTimestamps          `json:"modification_dates"`
+}
+
+func (composite RealmComposite) IsZero() bool {
+	return len(composite.ConnectedRealmResponse.Realms) == 0
 }
 
 type RegionComposite struct {

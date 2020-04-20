@@ -33,9 +33,9 @@ type ConnectedRealmResponse struct {
 		Type string         `json:"type"`
 		Name locale.Mapping `json:"name"`
 	} `json:"population"`
-	Realms             []RealmResponse `json:"realms"`
-	MythicLeaderboards HrefReference   `json:"mythic_leaderboards"`
-	Auctions           HrefReference   `json:"auctions"`
+	Realms             RealmResponses `json:"realms"`
+	MythicLeaderboards HrefReference  `json:"mythic_leaderboards"`
+	Auctions           HrefReference  `json:"auctions"`
 }
 
 func NewConnectedRealmFromHTTP(uri string) (ConnectedRealmResponse, ResponseMeta, error) {
