@@ -96,7 +96,7 @@ func NewAuctionsFromHTTP(uri string, ifModifiedSince time.Time) (AuctionsRespons
 			logging.WithFields(logrus.Fields{
 				"status": resp.Status,
 				"uri":    uri,
-			}).Error("resp from auctions was not 304 Not Modified")
+			}).Info("resp from auctions was not 304 Not Modified")
 
 			return AuctionsResponse{}, resp, nil
 		}
