@@ -73,6 +73,8 @@ func (sta LiveAuctionsState) LiveAuctionsIntake(tuples blizzardv2.RegionConnecte
 				EncodedData: encodedData,
 			}
 		}
+
+		close(loadEncodedDataIn)
 	}()
 
 	for job := range loadEncodedDataOut {
