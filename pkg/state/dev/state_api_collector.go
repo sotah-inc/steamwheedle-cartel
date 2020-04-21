@@ -43,6 +43,9 @@ func (sta ApiState) StartCollector(stopChan sotah.WorkerStopChan) sotah.WorkerSt
 	if err := sta.Collect(); err != nil {
 		logging.WithField("error", err.Error()).Error("failed to collect")
 	}
+	if err := sta.Collect(); err != nil {
+		logging.WithField("error", err.Error()).Error("failed to collect")
+	}
 
 	onStop := make(sotah.WorkerStopChan)
 	go func() {
