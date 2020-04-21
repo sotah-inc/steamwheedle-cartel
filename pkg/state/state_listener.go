@@ -39,7 +39,7 @@ func NewListeners(sListeners SubjectListeners) Listeners {
 type Listeners map[subjects.Subject]listener
 
 func (ls Listeners) Listen() error {
-	logging.WithField("listeners", len(ls)).Info("Starting listeners")
+	logging.WithField("listeners", len(ls)).Info("starting listeners")
 
 	for _, l := range ls {
 		if err := l.call(l.stopChan); err != nil {

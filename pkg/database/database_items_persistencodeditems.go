@@ -17,7 +17,7 @@ func (idBase ItemsDatabase) PersistEncodedItems(
 	in chan PersistEncodedItemsInJob,
 	idNameMap sotah.ItemIdNameMap,
 ) error {
-	logging.Info("Persisting encoded items")
+	logging.Info("persisting encoded items")
 
 	err := idBase.db.Batch(func(tx *bolt.Tx) error {
 		itemsBucket, err := tx.CreateBucketIfNotExists(databaseItemsBucketName())

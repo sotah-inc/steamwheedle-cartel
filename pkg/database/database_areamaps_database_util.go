@@ -112,7 +112,7 @@ func (amBase AreaMapsDatabase) FindAreaMaps(areaMapIds []sotah.AreaMapId) (sotah
 
 // persisting
 func (amBase AreaMapsDatabase) PersistAreaMaps(aMapMap sotah.AreaMapMap) error {
-	logging.WithField("area-maps", len(aMapMap)).Debug("Persisting area-maps")
+	logging.WithField("area-maps", len(aMapMap)).Debug("persisting area-maps")
 
 	err := amBase.db.Batch(func(tx *bolt.Tx) error {
 		areaMapsBucket, err := tx.CreateBucketIfNotExists(databaseAreaMapsBucketName())

@@ -9,7 +9,7 @@ import (
 )
 
 func NewConfigFromFilepath(relativePath string) (Config, error) {
-	logging.WithField("path", relativePath).Info("Reading Config")
+	logging.WithField("path", relativePath).Info("reading config")
 
 	body, err := util.ReadFile(relativePath)
 	if err != nil {

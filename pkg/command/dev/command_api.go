@@ -10,7 +10,7 @@ import (
 )
 
 func Api(config devState.ApiStateConfig) error {
-	logging.Info("Starting api")
+	logging.Info("starting api")
 
 	// establishing a state
 	apiState, err := devState.NewAPIState(config)

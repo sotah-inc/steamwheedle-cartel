@@ -63,7 +63,7 @@ func NewMessenger(config Config) (Messenger, error) {
 
 	natsURI := fmt.Sprintf("nats://%s:%d", config.Hostname, config.Port)
 
-	logging.WithField("uri", natsURI).Info("Connecting to nats")
+	logging.WithField("uri", natsURI).Info("connecting to nats")
 
 	conn, err := nats.Connect(natsURI)
 	if err != nil {
@@ -76,7 +76,7 @@ func NewMessenger(config Config) (Messenger, error) {
 }
 
 func (mess Messenger) Subscribe(subject string, stop chan interface{}, cb func(nats.Msg)) error {
-	logging.WithField("subject", subject).Debug("Subscribing to subject")
+	logging.WithField("subject", subject).Debug("subscribing to subject")
 
 	if mess.conn == nil {
 		logging.WithField("config", mess.Config).Error("messenger connection was nil")
@@ -85,7 +85,7 @@ func (mess Messenger) Subscribe(subject string, stop chan interface{}, cb func(n
 	}
 
 	sub, err := mess.conn.Subscribe(subject, func(natsMsg *nats.Msg) {
-		logging.WithField("subject", subject).Debug("Received Request")
+		logging.WithField("subject", subject).Debug("received request")
 
 		cb(*natsMsg)
 	})
@@ -110,7 +110,7 @@ func (mess Messenger) Subscribe(subject string, stop chan interface{}, cb func(n
 
 func (mess Messenger) ReplyTo(natsMsg nats.Msg, m Message) {
 	if m.Code == codes.Blank {
-		logging.WithField("error", "code cannot be blank").Fatal("Failed to call ReplyTo")
+		logging.WithField("error", "code cannot be blank").Fatal("failed to call ReplyTo")
 
 		return
 	}
@@ -118,7 +118,7 @@ func (mess Messenger) ReplyTo(natsMsg nats.Msg, m Message) {
 	// json-encoding the message
 	jsonMessage, err := json.Marshal(m)
 	if err != nil {
-		logging.WithField("error", err.Error()).Fatal("Failed to call ReplyTo")
+		logging.WithField("error", err.Error()).Fatal("failed to call ReplyTo")
 
 		return
 	}
@@ -129,13 +129,13 @@ func (mess Messenger) ReplyTo(natsMsg nats.Msg, m Message) {
 			"code":           m.Code,
 			"reply_to":       natsMsg.Reply,
 			"payload_length": len(jsonMessage),
-		}).Error("Publishing an erroneous reply")
+		}).Error("publishing an erroneous reply")
 	} else {
 		logging.WithFields(logrus.Fields{
 			"reply_to":       natsMsg.Reply,
 			"payload_length": len(jsonMessage),
 			"code":           m.Code,
-		}).Debug("Publishing a reply")
+		}).Debug("publishing a reply")
 	}
 
 	// attempting to Publish it
@@ -144,9 +144,9 @@ func (mess Messenger) ReplyTo(natsMsg nats.Msg, m Message) {
 		logging.WithFields(logrus.Fields{
 			"error":   err.Error(),
 			"subject": natsMsg.Reply,
-		}).Error("Failed to Publish message")
+		}).Error("failed to Publish message")
 
-		logging.WithField("error", err.Error()).Fatal("Failed to call ReplyTo")
+		logging.WithField("error", err.Error()).Fatal("failed to call ReplyTo")
 
 		return
 	}

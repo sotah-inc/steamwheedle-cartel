@@ -77,7 +77,7 @@ func (tBase TokensDatabase) GetHistory(regionName blizzardv2.RegionName) (TokenH
 
 // persisting
 func (tBase TokensDatabase) PersistHistory(rtHistory RegionTokenHistory) error {
-	logging.WithField("region-token-history", rtHistory).Debug("Persisting region token-history")
+	logging.WithField("region-token-history", rtHistory).Debug("persisting region token-history")
 
 	err := tBase.db.Batch(func(tx *bolt.Tx) error {
 		for regionName, tHistory := range rtHistory {
