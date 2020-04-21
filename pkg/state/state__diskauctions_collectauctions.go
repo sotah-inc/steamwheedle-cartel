@@ -89,7 +89,13 @@ func (sta DiskAuctionsState) CollectAuctions() (CollectAuctionsResults, error) {
 			results.Tuples = append(results.Tuples, job.Tuple)
 		}
 
-		results.ItemIds = results.ItemIds[:5]
+		results.ItemIds = func() blizzardv2.ItemIds {
+			if len(results.ItemIds) < 5 {
+				return results.ItemIds
+			}
+
+			return results.ItemIds[:5]
+		}()
 
 		resultsOutJob <- results
 		close(resultsOutJob)
