@@ -89,6 +89,8 @@ func (sta DiskAuctionsState) CollectAuctions() (CollectAuctionsResults, error) {
 			results.Tuples = append(results.Tuples, job.Tuple)
 		}
 
+		results.ItemIds = results.ItemIds[:5]
+
 		resultsOutJob <- results
 		close(resultsOutJob)
 	}()
