@@ -29,13 +29,13 @@ const (
 
 const (
 	LiveAuctionsIntake Subject = "liveAuctionsIntake"
+	Auctions           Subject = "auctions"
 )
 
 /*
 Status - subject name for returning current status
 */
 const (
-	Auctions                   Subject = "auctions"
 	GenericTestErrors          Subject = "genericTestErrors"
 	PriceList                  Subject = "priceList"
 	PriceListHistory           Subject = "priceListHistory"
