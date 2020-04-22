@@ -28,7 +28,7 @@ func NewConnectedRealmIndexFromHTTP(uri string) (ConnectedRealmIndexResponse, Re
 	if err != nil {
 		logging.WithFields(logrus.Fields{
 			"error": err.Error(),
-			"uri":   uri,
+			"uri":   ClearAccessToken(uri),
 		}).Error("failed to download connected-realm-index")
 
 		return ConnectedRealmIndexResponse{}, resp, err
@@ -37,7 +37,7 @@ func NewConnectedRealmIndexFromHTTP(uri string) (ConnectedRealmIndexResponse, Re
 	if resp.Status != http.StatusOK {
 		logging.WithFields(logrus.Fields{
 			"status": resp.Status,
-			"uri":    uri,
+			"uri":    ClearAccessToken(uri),
 		}).Error("resp from connected-realm-index was not 200")
 
 		return ConnectedRealmIndexResponse{}, resp, errors.New("status was not 200")
@@ -47,7 +47,7 @@ func NewConnectedRealmIndexFromHTTP(uri string) (ConnectedRealmIndexResponse, Re
 	if err != nil {
 		logging.WithFields(logrus.Fields{
 			"error": err.Error(),
-			"uri":   uri,
+			"uri":   ClearAccessToken(uri),
 		}).Error("failed to parse connected-realm-index response")
 
 		return ConnectedRealmIndexResponse{}, resp, err

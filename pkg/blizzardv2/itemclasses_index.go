@@ -37,7 +37,7 @@ func NewItemClassIndexFromHTTP(uri string) (ItemClassIndexResponse, ResponseMeta
 	if err != nil {
 		logging.WithFields(logrus.Fields{
 			"error": err.Error(),
-			"uri":   uri,
+			"uri":   ClearAccessToken(uri),
 		}).Error("failed to download item-class-index")
 
 		return ItemClassIndexResponse{}, resp, err
@@ -46,7 +46,7 @@ func NewItemClassIndexFromHTTP(uri string) (ItemClassIndexResponse, ResponseMeta
 	if resp.Status != http.StatusOK {
 		logging.WithFields(logrus.Fields{
 			"status": resp.Status,
-			"uri":    uri,
+			"uri":    ClearAccessToken(uri),
 		}).Error("resp from item-class-index was not 200")
 
 		return ItemClassIndexResponse{}, resp, errors.New("status was not 200")
@@ -56,7 +56,7 @@ func NewItemClassIndexFromHTTP(uri string) (ItemClassIndexResponse, ResponseMeta
 	if err != nil {
 		logging.WithFields(logrus.Fields{
 			"error": err.Error(),
-			"uri":   uri,
+			"uri":   ClearAccessToken(uri),
 		}).Error("failed to parse item-class-index response")
 
 		return ItemClassIndexResponse{}, resp, err

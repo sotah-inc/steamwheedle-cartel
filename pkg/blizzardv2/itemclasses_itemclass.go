@@ -48,7 +48,7 @@ func NewItemClassFromHTTP(uri string) (ItemClassResponse, ResponseMeta, error) {
 	if err != nil {
 		logging.WithFields(logrus.Fields{
 			"error": err.Error(),
-			"uri":   uri,
+			"uri":   ClearAccessToken(uri),
 		}).Error("failed to download item-class")
 
 		return ItemClassResponse{}, resp, err
@@ -57,7 +57,7 @@ func NewItemClassFromHTTP(uri string) (ItemClassResponse, ResponseMeta, error) {
 	if resp.Status != http.StatusOK {
 		logging.WithFields(logrus.Fields{
 			"status": resp.Status,
-			"uri":    uri,
+			"uri":    ClearAccessToken(uri),
 		}).Error("resp from item-class was not 200")
 
 		return ItemClassResponse{}, resp, errors.New("status was not 200")
@@ -67,7 +67,7 @@ func NewItemClassFromHTTP(uri string) (ItemClassResponse, ResponseMeta, error) {
 	if err != nil {
 		logging.WithFields(logrus.Fields{
 			"error": err.Error(),
-			"uri":   uri,
+			"uri":   ClearAccessToken(uri),
 		}).Error("failed to parse item-class response")
 
 		return ItemClassResponse{}, resp, err

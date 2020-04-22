@@ -85,7 +85,7 @@ func NewAuctionsFromHTTP(uri string, ifModifiedSince time.Time) (AuctionsRespons
 	if err != nil {
 		logging.WithFields(logrus.Fields{
 			"error": err.Error(),
-			"uri":   uri,
+			"uri":   ClearAccessToken(uri),
 		}).Error("failed to download auctions")
 
 		return AuctionsResponse{}, resp, err
@@ -95,7 +95,7 @@ func NewAuctionsFromHTTP(uri string, ifModifiedSince time.Time) (AuctionsRespons
 		if resp.Status == http.StatusNotModified {
 			logging.WithFields(logrus.Fields{
 				"status": resp.Status,
-				"uri":    uri,
+				"uri":    ClearAccessToken(uri),
 			}).Info("resp from auctions was not 304 Not Modified")
 
 			return AuctionsResponse{}, resp, nil
@@ -103,7 +103,7 @@ func NewAuctionsFromHTTP(uri string, ifModifiedSince time.Time) (AuctionsRespons
 
 		logging.WithFields(logrus.Fields{
 			"status": resp.Status,
-			"uri":    uri,
+			"uri":    ClearAccessToken(uri),
 		}).Error("resp from auctions was not 200")
 
 		return AuctionsResponse{}, resp, errors.New("status was not 200")
@@ -113,7 +113,7 @@ func NewAuctionsFromHTTP(uri string, ifModifiedSince time.Time) (AuctionsRespons
 	if err != nil {
 		logging.WithFields(logrus.Fields{
 			"error": err.Error(),
-			"uri":   uri,
+			"uri":   ClearAccessToken(uri),
 		}).Error("failed to parse auctions response")
 
 		return AuctionsResponse{}, resp, err

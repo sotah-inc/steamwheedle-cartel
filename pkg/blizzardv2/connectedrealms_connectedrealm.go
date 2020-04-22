@@ -43,7 +43,7 @@ func NewConnectedRealmFromHTTP(uri string) (ConnectedRealmResponse, ResponseMeta
 	if err != nil {
 		logging.WithFields(logrus.Fields{
 			"error": err.Error(),
-			"uri":   uri,
+			"uri":   ClearAccessToken(uri),
 		}).Error("failed to download connected-realm")
 
 		return ConnectedRealmResponse{}, resp, err
@@ -52,7 +52,7 @@ func NewConnectedRealmFromHTTP(uri string) (ConnectedRealmResponse, ResponseMeta
 	if resp.Status != http.StatusOK {
 		logging.WithFields(logrus.Fields{
 			"status": resp.Status,
-			"uri":    uri,
+			"uri":    ClearAccessToken(uri),
 		}).Error("resp from connected-realm was not 200")
 
 		return ConnectedRealmResponse{}, resp, errors.New("status was not 200")
@@ -62,7 +62,7 @@ func NewConnectedRealmFromHTTP(uri string) (ConnectedRealmResponse, ResponseMeta
 	if err != nil {
 		logging.WithFields(logrus.Fields{
 			"error": err.Error(),
-			"uri":   uri,
+			"uri":   ClearAccessToken(uri),
 		}).Error("failed to parse connected-realm response")
 
 		return ConnectedRealmResponse{}, resp, err

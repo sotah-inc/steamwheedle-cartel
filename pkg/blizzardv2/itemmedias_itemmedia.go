@@ -64,7 +64,7 @@ func NewItemMediaFromHTTP(uri string) (ItemMediaResponse, ResponseMeta, error) {
 	if err != nil {
 		logging.WithFields(logrus.Fields{
 			"error": err.Error(),
-			"uri":   uri,
+			"uri":   ClearAccessToken(uri),
 		}).Error("failed to download item-media")
 
 		return ItemMediaResponse{}, resp, err
@@ -73,7 +73,7 @@ func NewItemMediaFromHTTP(uri string) (ItemMediaResponse, ResponseMeta, error) {
 	if resp.Status != http.StatusOK {
 		logging.WithFields(logrus.Fields{
 			"status": resp.Status,
-			"uri":    uri,
+			"uri":    ClearAccessToken(uri),
 		}).Error("resp from item-media was not 200")
 
 		return ItemMediaResponse{}, resp, errors.New("status was not 200")
@@ -83,7 +83,7 @@ func NewItemMediaFromHTTP(uri string) (ItemMediaResponse, ResponseMeta, error) {
 	if err != nil {
 		logging.WithFields(logrus.Fields{
 			"error": err.Error(),
-			"uri":   uri,
+			"uri":   ClearAccessToken(uri),
 		}).Error("failed to parse item-media response")
 
 		return ItemMediaResponse{}, resp, err

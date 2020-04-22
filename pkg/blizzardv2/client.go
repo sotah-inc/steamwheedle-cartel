@@ -78,19 +78,19 @@ func (c *Client) RefreshFromHTTP(uri string) error {
 
 	if resp.StatusCode != http.StatusOK {
 		logging.WithFields(logrus.Fields{
-			"uri":    uri,
+			"uri":    ClearAccessToken(uri),
 			"id":     c.id,
 			"secret": c.secret,
-		}).Info("Received failed oauth token response from Blizzard API")
+		}).Info("received failed oauth token response from Blizzard API")
 
-		return errors.New("OAuth token response was not 200")
+		return errors.New("oauth token response was not 200")
 	}
 
 	// parsing the body
 	body, isGzipped, err := func() ([]byte, bool, error) {
 		defer func() {
 			if err := resp.Body.Close(); err != nil {
-				logging.WithField("error", err.Error()).Error("Failed to close response body")
+				logging.WithField("error", err.Error()).Error("failed to close response body")
 			}
 		}()
 
@@ -150,15 +150,21 @@ func (c *Client) IsValid() bool {
 	return c.accessToken != ""
 }
 
-func ClearAccessToken(destination string) (string, error) {
+func ClearAccessToken(destination string) string {
 	u, err := url.Parse(destination)
 	if err != nil {
-		return "", err
+		logging.WithField("error", err.Error()).Error("failed to parse uri when clearing access-token")
+
+		return ""
+	}
+
+	if u.Query().Get("access_token") == "" {
+		return u.String()
 	}
 
 	q := u.Query()
 	q.Set("access_token", "xxx")
 	u.RawQuery = q.Encode()
 
-	return u.String(), nil
+	return u.String()
 }
