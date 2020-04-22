@@ -15,7 +15,7 @@ func NewTokensDatabase(dbDir string) (TokensDatabase, error) {
 		return TokensDatabase{}, err
 	}
 
-	logging.WithField("filepath", dbFilepath).Info("Initializing tokens database")
+	logging.WithField("filepath", dbFilepath).Info("initializing tokens database")
 
 	db, err := bolt.Open(dbFilepath, 0600, nil)
 	if err != nil {

@@ -18,7 +18,7 @@ func NewItemsDatabase(dbDir string) (ItemsDatabase, error) {
 		return ItemsDatabase{}, err
 	}
 
-	logging.WithField("filepath", dbFilepath).Info("Initializing items database")
+	logging.WithField("filepath", dbFilepath).Info("initializing items database")
 
 	db, err := bolt.Open(dbFilepath, 0600, nil)
 	if err != nil {
