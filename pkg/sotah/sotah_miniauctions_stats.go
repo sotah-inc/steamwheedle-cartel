@@ -3,8 +3,6 @@ package sotah
 import (
 	"encoding/json"
 
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
-
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 )
@@ -23,16 +21,16 @@ func NewMiniAuctionListStats(gzipEncoded []byte) (MiniAuctionListStats, error) {
 	return jsonDecoded, nil
 }
 
-type AuctionStats map[sotah.UnixTimestamp]MiniAuctionListGeneralStats
+type AuctionStats map[UnixTimestamp]MiniAuctionListGeneralStats
 
 func (s AuctionStats) EncodeForDelivery() ([]byte, error) {
 	return json.Marshal(s)
 }
 
 type AuctionStatsSetOptions struct {
-	LastUpdatedTimestamp sotah.UnixTimestamp
+	LastUpdatedTimestamp UnixTimestamp
 	Stats                MiniAuctionListStats
-	NormalizeFunc        func(timestamp sotah.UnixTimestamp) sotah.UnixTimestamp
+	NormalizeFunc        func(timestamp UnixTimestamp) UnixTimestamp
 }
 
 func (s AuctionStats) Set(opts AuctionStatsSetOptions) AuctionStats {
