@@ -1,103 +1,20 @@
 package database
 
 import (
-	"encoding/json"
-
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
-
 	"github.com/boltdb/bolt"
 	"github.com/sirupsen/logrus"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 )
 
-func NewMiniAuctionListStats(gzipEncoded []byte) (MiniAuctionListStats, error) {
-	gzipDecoded, err := util.GzipDecode(gzipEncoded)
-	if err != nil {
-		return MiniAuctionListStats{}, err
-	}
-
-	var jsonDecoded MiniAuctionListStats
-	if err := json.Unmarshal(gzipDecoded, &jsonDecoded); err != nil {
-		return MiniAuctionListStats{}, err
-	}
-
-	return jsonDecoded, nil
-}
-
-type AuctionStats map[sotah.UnixTimestamp]MiniAuctionListGeneralStats
-
-func (s AuctionStats) EncodeForDelivery() ([]byte, error) {
-	return json.Marshal(s)
-}
-
-type AuctionStatsSetOptions struct {
-	LastUpdatedTimestamp sotah.UnixTimestamp
-	Stats                MiniAuctionListStats
-	NormalizeFunc        func(timestamp sotah.UnixTimestamp) sotah.UnixTimestamp
-}
-
-func (s AuctionStats) Set(opts AuctionStatsSetOptions) AuctionStats {
-	s[opts.NormalizeFunc(opts.LastUpdatedTimestamp)] = opts.Stats.MiniAuctionListGeneralStats
-
-	return s
-}
-
-func (s AuctionStats) Append(nextStats AuctionStats) AuctionStats {
-	for k, v := range nextStats {
-		next := func() MiniAuctionListGeneralStats {
-			found, ok := s[k]
-			if !ok {
-				return v
-			}
-
-			return v.Add(found)
-		}()
-
-		s[k] = next
-	}
-
-	return s
-}
-
-type MiniAuctionListGeneralStats struct {
-	TotalAuctions int `json:"total_auctions"`
-	TotalQuantity int `json:"total_quantity"`
-	TotalBuyout   int `json:"total_buyout"`
-}
-
-func (s MiniAuctionListGeneralStats) Add(v MiniAuctionListGeneralStats) MiniAuctionListGeneralStats {
-	s.TotalQuantity += v.TotalQuantity
-	s.TotalBuyout += v.TotalBuyout
-	s.TotalAuctions += v.TotalAuctions
-
-	return s
-}
-
-type MiniAuctionListStats struct {
-	MiniAuctionListGeneralStats
-	ItemIds    []blizzardv2.ItemId
-	AuctionIds []blizzardv2.AuctionId
-}
-
-func (s MiniAuctionListStats) EncodeForStorage() ([]byte, error) {
-	jsonEncoded, err := json.Marshal(s)
-	if err != nil {
-		return []byte{}, err
-	}
-
-	return util.GzipEncode(jsonEncoded)
-}
-
-func (ladBase LiveAuctionsDatabase) Stats() (MiniAuctionListStats, error) {
+func (ladBase LiveAuctionsDatabase) Stats() (sotah.MiniAuctionListStats, error) {
 	maList, err := ladBase.GetMiniAuctionList()
 	if err != nil {
-		return MiniAuctionListStats{}, err
+		return sotah.MiniAuctionListStats{}, err
 	}
 
-	out := MiniAuctionListStats{
-		MiniAuctionListGeneralStats: MiniAuctionListGeneralStats{
+	out := sotah.MiniAuctionListStats{
+		MiniAuctionListGeneralStats: sotah.MiniAuctionListGeneralStats{
 			TotalAuctions: maList.TotalAuctions(),
 			TotalQuantity: maList.TotalQuantity(),
 			TotalBuyout:   int(maList.TotalBuyout()),
@@ -144,8 +61,8 @@ func (ladBase LiveAuctionsDatabase) persistStats(currentTimestamp sotah.UnixTime
 	return nil
 }
 
-func (ladBase LiveAuctionsDatabase) GetAuctionStats() (AuctionStats, error) {
-	out := AuctionStats{}
+func (ladBase LiveAuctionsDatabase) AuctionStats() (sotah.AuctionStats, error) {
+	out := sotah.AuctionStats{}
 
 	err := ladBase.db.View(func(tx *bolt.Tx) error {
 		bkt := tx.Bucket(liveAuctionsStatsBucketName())
@@ -159,12 +76,12 @@ func (ladBase LiveAuctionsDatabase) GetAuctionStats() (AuctionStats, error) {
 				return err
 			}
 
-			stats, err := NewMiniAuctionListStats(v)
+			stats, err := sotah.NewMiniAuctionListStats(v)
 			if err != nil {
 				return err
 			}
 
-			out = out.Set(AuctionStatsSetOptions{
+			out = out.Set(sotah.AuctionStatsSetOptions{
 				LastUpdatedTimestamp: lastUpdated,
 				Stats:                stats,
 				NormalizeFunc:        normalizeLiveAuctionsStatsLastUpdated,
@@ -179,7 +96,7 @@ func (ladBase LiveAuctionsDatabase) GetAuctionStats() (AuctionStats, error) {
 		return nil
 	})
 	if err != nil {
-		return AuctionStats{}, err
+		return sotah.AuctionStats{}, err
 	}
 
 	return out, nil
