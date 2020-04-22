@@ -5,6 +5,8 @@ import (
 	"strconv"
 	"time"
 
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
+
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 )
 
@@ -26,22 +28,22 @@ func liveAuctionsStatsBucketName() []byte {
 	return []byte("live-auctions-stats")
 }
 
-func liveAuctionsStatsKeyName(lastUpdated int64) []byte {
+func liveAuctionsStatsKeyName(lastUpdated sotah.UnixTimestamp) []byte {
 	return []byte(fmt.Sprintf("live-auctions-stats-%d", lastUpdated))
 }
 
-func normalizeLiveAuctionsStatsLastUpdated(lastUpdatedTimestamp int64) int64 {
-	lastUpdated := time.Unix(lastUpdatedTimestamp, 0)
+func normalizeLiveAuctionsStatsLastUpdated(lastUpdatedTimestamp sotah.UnixTimestamp) sotah.UnixTimestamp {
+	lastUpdated := time.Unix(int64(lastUpdatedTimestamp), 0)
 	nearestHourOffset := lastUpdated.Second() + lastUpdated.Minute()*60
 
-	return time.Unix(lastUpdatedTimestamp-int64(nearestHourOffset), 0).Unix()
+	return sotah.UnixTimestamp(time.Unix(int64(lastUpdatedTimestamp)-int64(nearestHourOffset), 0).Unix())
 }
 
-func unixTimestampFromLiveAuctionsStatsKeyName(key []byte) (int64, error) {
+func unixTimestampFromLiveAuctionsStatsKeyName(key []byte) (sotah.UnixTimestamp, error) {
 	decodedLastUpdated, err := strconv.Atoi(string(key)[len("live-auctions-stats-"):])
 	if err != nil {
-		return int64(0), err
+		return 0, err
 	}
 
-	return int64(decodedLastUpdated), nil
+	return sotah.UnixTimestamp(decodedLastUpdated), nil
 }

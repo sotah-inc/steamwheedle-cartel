@@ -2,7 +2,8 @@ package database
 
 import (
 	"encoding/json"
-	"time"
+
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 
 	"github.com/boltdb/bolt"
 	"github.com/sirupsen/logrus"
@@ -25,14 +26,20 @@ func NewMiniAuctionListStats(gzipEncoded []byte) (MiniAuctionListStats, error) {
 	return jsonDecoded, nil
 }
 
-type AuctionStats map[int64]MiniAuctionListGeneralStats
+type AuctionStats map[sotah.UnixTimestamp]MiniAuctionListGeneralStats
 
 func (s AuctionStats) EncodeForDelivery() ([]byte, error) {
 	return json.Marshal(s)
 }
 
-func (s AuctionStats) Set(lastUpdatedTimestamp int64, stats MiniAuctionListStats) AuctionStats {
-	s[normalizeLiveAuctionsStatsLastUpdated(lastUpdatedTimestamp)] = stats.MiniAuctionListGeneralStats
+type AuctionStatsSetOptions struct {
+	LastUpdatedTimestamp sotah.UnixTimestamp
+	Stats                MiniAuctionListStats
+	NormalizeFunc        func(timestamp sotah.UnixTimestamp) sotah.UnixTimestamp
+}
+
+func (s AuctionStats) Set(opts AuctionStatsSetOptions) AuctionStats {
+	s[opts.NormalizeFunc(opts.LastUpdatedTimestamp)] = opts.Stats.MiniAuctionListGeneralStats
 
 	return s
 }
@@ -102,7 +109,7 @@ func (ladBase LiveAuctionsDatabase) Stats() (MiniAuctionListStats, error) {
 	return out, nil
 }
 
-func (ladBase LiveAuctionsDatabase) persistStats(currentTime time.Time) error {
+func (ladBase LiveAuctionsDatabase) persistStats(currentTimestamp sotah.UnixTimestamp) error {
 	stats, err := ladBase.Stats()
 	if err != nil {
 		return err
@@ -124,7 +131,7 @@ func (ladBase LiveAuctionsDatabase) persistStats(currentTime time.Time) error {
 			return err
 		}
 
-		if err := bkt.Put(liveAuctionsStatsKeyName(currentTime.Unix()), encodedData); err != nil {
+		if err := bkt.Put(liveAuctionsStatsKeyName(currentTimestamp), encodedData); err != nil {
 			return err
 		}
 
@@ -157,7 +164,11 @@ func (ladBase LiveAuctionsDatabase) GetAuctionStats() (AuctionStats, error) {
 				return err
 			}
 
-			out = out.Set(lastUpdated, stats)
+			out = out.Set(AuctionStatsSetOptions{
+				LastUpdatedTimestamp: lastUpdated,
+				Stats:                stats,
+				NormalizeFunc:        normalizeLiveAuctionsStatsLastUpdated,
+			})
 
 			return nil
 		})
