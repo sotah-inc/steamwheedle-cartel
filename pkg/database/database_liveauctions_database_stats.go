@@ -40,7 +40,7 @@ func (ladBase LiveAuctionsDatabase) persistStats(currentTimestamp sotah.UnixTime
 	logging.WithFields(logrus.Fields{
 		"db":           ladBase.db.Path(),
 		"encoded-data": len(encodedData),
-	}).Debug("Persisting mini-auction-stats via encoded-data")
+	}).Debug("persisting mini-auction-stats via encoded-data")
 
 	err = ladBase.db.Update(func(tx *bolt.Tx) error {
 		bkt, err := tx.CreateBucketIfNotExists(liveAuctionsStatsBucketName())

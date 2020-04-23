@@ -36,6 +36,12 @@ func (sta ApiState) Collect() error {
 		return err
 	}
 
+	if err := sta.LiveAuctionsState.LiveAuctionsDatabases.PersistStats(collectAuctionsResults.Tuples); err != nil {
+		logging.WithField("error", err.Error()).Error("failed to persist live-auctions stats")
+
+		return err
+	}
+
 	return nil
 }
 
