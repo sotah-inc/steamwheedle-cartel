@@ -26,6 +26,7 @@ func NewLiveAuctionsState(opts NewLiveAuctionsStateOptions) (LiveAuctionsState, 
 		LiveAuctionsDatabases: ladBases,
 		Messenger:             opts.Messenger,
 		DiskStore:             opts.DiskStore,
+		Tuples:                opts.Tuples,
 	}, nil
 }
 
@@ -34,11 +35,13 @@ type LiveAuctionsState struct {
 
 	Messenger messenger.Messenger
 	DiskStore diskstore.DiskStore
+	Tuples    blizzardv2.RegionConnectedRealmTuples
 }
 
 func (sta LiveAuctionsState) GetListeners() SubjectListeners {
 	return SubjectListeners{
 		subjects.LiveAuctionsIntake: sta.ListenForLiveAuctionsIntake,
 		subjects.Auctions:           sta.ListenForAuctions,
+		subjects.QueryAuctionStats:  sta.ListenForQueryAuctionStats,
 	}
 }

@@ -28,6 +28,19 @@ func NewRegionConnectedRealmTuples(data []byte) (RegionConnectedRealmTuples, err
 
 type RegionConnectedRealmTuples []RegionConnectedRealmTuple
 
+func (tuples RegionConnectedRealmTuples) FilterByRegionName(name RegionName) RegionConnectedRealmTuples {
+	out := RegionConnectedRealmTuples{}
+	for _, tuple := range tuples {
+		if tuple.RegionName != name {
+			continue
+		}
+
+		out = append(out, tuple)
+	}
+
+	return out
+}
+
 func NewRegionConnectedRealmTuple(data []byte) (RegionConnectedRealmTuple, error) {
 	out := RegionConnectedRealmTuple{}
 	if err := json.Unmarshal(data, &out); err != nil {

@@ -30,6 +30,7 @@ const (
 const (
 	LiveAuctionsIntake Subject = "liveAuctionsIntake"
 	Auctions           Subject = "auctions"
+	QueryAuctionStats  Subject = "queryAuctionStats"
 )
 
 /*
@@ -43,7 +44,6 @@ const (
 	AppMetrics                 Subject = "appMetrics"
 	PricelistHistoriesIntakeV2 Subject = "pricelistHistoriesIntakeV2"
 	RealmModificationDates     Subject = "realmModificationDates"
-	QueryAuctionStats          Subject = "queryAuctionStats"
 )
 
 // gcloud fn-related
