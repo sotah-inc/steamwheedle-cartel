@@ -88,3 +88,19 @@ func (regionTimestamps RegionTimestamps) SetDownloaded(
 
 	return out
 }
+
+func (regionTimestamps RegionTimestamps) SetLiveAuctionsReceived(
+	name blizzardv2.RegionName,
+	id blizzardv2.ConnectedRealmId,
+	liveAuctionsReceived time.Time,
+) RegionTimestamps {
+	// resolving due to missing members
+	out := regionTimestamps.resolve(name, id)
+
+	// pushing the new time into the found member
+	result := out[name][id]
+	result.LiveAuctionsReceived = UnixTimestamp(liveAuctionsReceived.Unix())
+	out[name][id] = result
+
+	return out
+}
