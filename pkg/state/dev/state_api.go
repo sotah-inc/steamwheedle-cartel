@@ -149,7 +149,7 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 		Messenger:                mess,
 		DiskStore:                sta.DiskAuctionsState.DiskStore,
 		LiveAuctionsDatabasesDir: config.DatabaseConfig.LiveAuctionsDir,
-		Tuples:                   sta.RegionState.RegionComposites.ToTuples(),
+		RegionsState:             sta.RegionState,
 	})
 	if err != nil {
 		logging.WithField("error", err.Error()).Error("failed to initialise live-auctions state")
