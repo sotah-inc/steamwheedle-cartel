@@ -33,9 +33,6 @@ const (
 	QueryAuctionStats  Subject = "queryAuctionStats"
 )
 
-/*
-Status - subject name for returning current status
-*/
 const (
 	GenericTestErrors          Subject = "genericTestErrors"
 	PriceList                  Subject = "priceList"
@@ -46,7 +43,6 @@ const (
 	RealmModificationDates     Subject = "realmModificationDates"
 )
 
-// gcloud fn-related
 const (
 	ReceiveRealms                     Subject = "receiveRealms"
 	ReceiveComputedLiveAuctions       Subject = "receiveComputedLiveAuctions"
@@ -58,7 +54,6 @@ const (
 	SyncPubsubTopicsMonitor Subject = "syncPubsubTopicsMonitor"
 )
 
-// gcloud gateway subjects
 const (
 	CallDownloadAllAuctions          Subject = "callDownloadAllAuctions"
 	CallCleanupAllManifests          Subject = "callCleanupAllManifests"
