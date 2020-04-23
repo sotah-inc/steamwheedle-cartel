@@ -1,7 +1,6 @@
 package state
 
 import (
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/diskstore"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
@@ -13,11 +12,14 @@ type NewLiveAuctionsStateOptions struct {
 	DiskStore diskstore.DiskStore
 
 	LiveAuctionsDatabasesDir string
-	Tuples                   blizzardv2.RegionConnectedRealmTuples
+	RegionsState             *RegionsState
 }
 
 func NewLiveAuctionsState(opts NewLiveAuctionsStateOptions) (LiveAuctionsState, error) {
-	ladBases, err := database.NewLiveAuctionsDatabases(opts.LiveAuctionsDatabasesDir, opts.Tuples)
+	ladBases, err := database.NewLiveAuctionsDatabases(
+		opts.LiveAuctionsDatabasesDir,
+		opts.RegionsState.RegionComposites.ToTuples(),
+	)
 	if err != nil {
 		return LiveAuctionsState{}, err
 	}
@@ -26,16 +28,16 @@ func NewLiveAuctionsState(opts NewLiveAuctionsStateOptions) (LiveAuctionsState, 
 		LiveAuctionsDatabases: ladBases,
 		Messenger:             opts.Messenger,
 		DiskStore:             opts.DiskStore,
-		Tuples:                opts.Tuples,
+		RegionsState:          opts.RegionsState,
 	}, nil
 }
 
 type LiveAuctionsState struct {
 	LiveAuctionsDatabases database.LiveAuctionsDatabases
 
-	Messenger messenger.Messenger
-	DiskStore diskstore.DiskStore
-	Tuples    blizzardv2.RegionConnectedRealmTuples
+	Messenger    messenger.Messenger
+	DiskStore    diskstore.DiskStore
+	RegionsState *RegionsState
 }
 
 func (sta LiveAuctionsState) GetListeners() SubjectListeners {

@@ -48,59 +48,56 @@ func (regionTimestamps RegionTimestamps) IsZero() bool {
 	return true
 }
 
-func (regionTimestamps RegionTimestamps) Exists(name blizzardv2.RegionName, id blizzardv2.ConnectedRealmId) bool {
-	if _, ok := regionTimestamps[name]; !ok {
+func (regionTimestamps RegionTimestamps) Exists(tuple blizzardv2.RegionConnectedRealmTuple) bool {
+	if _, ok := regionTimestamps[tuple.RegionName]; !ok {
 		return false
 	}
 
-	_, ok := regionTimestamps[name][id]
+	_, ok := regionTimestamps[tuple.RegionName][tuple.ConnectedRealmId]
 
 	return ok
 }
 
 func (regionTimestamps RegionTimestamps) resolve(
-	name blizzardv2.RegionName,
-	id blizzardv2.ConnectedRealmId,
+	tuple blizzardv2.RegionConnectedRealmTuple,
 ) RegionTimestamps {
-	if _, ok := regionTimestamps[name]; !ok {
-		regionTimestamps[name] = map[blizzardv2.ConnectedRealmId]ConnectedRealmTimestamps{}
+	if _, ok := regionTimestamps[tuple.RegionName]; !ok {
+		regionTimestamps[tuple.RegionName] = map[blizzardv2.ConnectedRealmId]ConnectedRealmTimestamps{}
 	}
 
-	if _, ok := regionTimestamps[name][id]; !ok {
-		regionTimestamps[name][id] = ConnectedRealmTimestamps{}
+	if _, ok := regionTimestamps[tuple.RegionName][tuple.ConnectedRealmId]; !ok {
+		regionTimestamps[tuple.RegionName][tuple.ConnectedRealmId] = ConnectedRealmTimestamps{}
 	}
 
 	return regionTimestamps
 }
 
 func (regionTimestamps RegionTimestamps) SetDownloaded(
-	name blizzardv2.RegionName,
-	id blizzardv2.ConnectedRealmId,
+	tuple blizzardv2.RegionConnectedRealmTuple,
 	downloaded time.Time,
 ) RegionTimestamps {
 	// resolving due to missing members
-	out := regionTimestamps.resolve(name, id)
+	out := regionTimestamps.resolve(tuple)
 
 	// pushing the new time into the found member
-	result := out[name][id]
+	result := out[tuple.RegionName][tuple.ConnectedRealmId]
 	result.Downloaded = UnixTimestamp(downloaded.Unix())
-	out[name][id] = result
+	out[tuple.RegionName][tuple.ConnectedRealmId] = result
 
 	return out
 }
 
 func (regionTimestamps RegionTimestamps) SetLiveAuctionsReceived(
-	name blizzardv2.RegionName,
-	id blizzardv2.ConnectedRealmId,
+	tuple blizzardv2.RegionConnectedRealmTuple,
 	liveAuctionsReceived time.Time,
 ) RegionTimestamps {
 	// resolving due to missing members
-	out := regionTimestamps.resolve(name, id)
+	out := regionTimestamps.resolve(tuple)
 
 	// pushing the new time into the found member
-	result := out[name][id]
+	result := out[tuple.RegionName][tuple.ConnectedRealmId]
 	result.LiveAuctionsReceived = UnixTimestamp(liveAuctionsReceived.Unix())
-	out[name][id] = result
+	out[tuple.RegionName][tuple.ConnectedRealmId] = result
 
 	return out
 }

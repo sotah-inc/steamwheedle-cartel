@@ -155,7 +155,11 @@ func (regions RegionComposites) Receive(timestamps RegionTimestamps) RegionCompo
 		for j, connectedRealm := range region.ConnectedRealmComposites {
 			connectedRealmId := connectedRealm.ConnectedRealmResponse.Id
 
-			if !timestamps.Exists(regionName, connectedRealmId) {
+			tuple := blizzardv2.RegionConnectedRealmTuple{
+				RegionName:       regionName,
+				ConnectedRealmId: connectedRealmId,
+			}
+			if !timestamps.Exists(tuple) {
 				continue
 			}
 

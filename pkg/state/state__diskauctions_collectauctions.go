@@ -76,11 +76,7 @@ func (sta DiskAuctionsState) CollectAuctions() (CollectAuctionsResults, error) {
 		}
 		for job := range resultsInJob {
 			// loading last-modified in
-			results.RegionTimestamps = results.RegionTimestamps.SetDownloaded(
-				job.Tuple.RegionName,
-				job.Tuple.ConnectedRealmId,
-				job.LastModified,
-			)
+			results.RegionTimestamps = results.RegionTimestamps.SetDownloaded(job.Tuple, job.LastModified)
 
 			// loading item-ids in
 			results.ItemIds = results.ItemIds.Merge(job.ItemIds)

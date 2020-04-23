@@ -26,7 +26,7 @@ func (sta LiveAuctionsState) ListenForQueryAuctionStats(stop ListenStopChan) err
 
 		// fetching aggregated stats across all tuples
 		if tuple.RegionName == "" {
-			totalStats, err := sta.LiveAuctionsDatabases.AuctionStatsWithTuples(sta.Tuples)
+			totalStats, err := sta.LiveAuctionsDatabases.AuctionStatsWithTuples(sta.RegionsState.RegionComposites.ToTuples())
 			if err != nil {
 				m.Err = err.Error()
 				m.Code = mCodes.GenericError
@@ -42,7 +42,9 @@ func (sta LiveAuctionsState) ListenForQueryAuctionStats(stop ListenStopChan) err
 
 		// fetching aggregated status across one region
 		if tuple.ConnectedRealmId == 0 {
-			totalStats, err := sta.LiveAuctionsDatabases.AuctionStatsWithTuples(sta.Tuples.FilterByRegionName(tuple.RegionName))
+			totalStats, err := sta.LiveAuctionsDatabases.AuctionStatsWithTuples(
+				sta.RegionsState.RegionComposites.ToTuples().FilterByRegionName(tuple.RegionName),
+			)
 			if err != nil {
 				m.Err = err.Error()
 				m.Code = mCodes.GenericError

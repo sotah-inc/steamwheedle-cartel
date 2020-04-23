@@ -1,6 +1,8 @@
 package database
 
 import (
+	"time"
+
 	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
@@ -13,8 +15,9 @@ type LiveAuctionsLoadEncodedDataInJob struct {
 }
 
 type LiveAuctionsLoadEncodedDataOutJob struct {
-	Err   error
-	Tuple blizzardv2.RegionConnectedRealmTuple
+	Err        error
+	Tuple      blizzardv2.RegionConnectedRealmTuple
+	ReceivedAt time.Time
 }
 
 func (job LiveAuctionsLoadEncodedDataOutJob) ToLogrusFields() logrus.Fields {
@@ -67,8 +70,9 @@ func (ladBases LiveAuctionsDatabases) LoadEncodedData(
 			}
 
 			out <- LiveAuctionsLoadEncodedDataOutJob{
-				Err:   nil,
-				Tuple: job.Tuple,
+				Err:        nil,
+				Tuple:      job.Tuple,
+				ReceivedAt: time.Now(),
 			}
 		}
 	}

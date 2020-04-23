@@ -8,6 +8,7 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger/codes"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state/subjects"
 )
 
@@ -77,6 +78,7 @@ func (sta LiveAuctionsState) LiveAuctionsIntake(tuples blizzardv2.RegionConnecte
 		close(loadEncodedDataIn)
 	}()
 
+	regionTimestamps := sotah.RegionTimestamps{}
 	for job := range loadEncodedDataOut {
 		if job.Err != nil {
 			logging.WithFields(job.ToLogrusFields()).Error("failed to load encoded auctions in")
@@ -88,6 +90,13 @@ func (sta LiveAuctionsState) LiveAuctionsIntake(tuples blizzardv2.RegionConnecte
 			"region":          job.Tuple.RegionName,
 			"connected-realm": job.Tuple.ConnectedRealmId,
 		}).Info("loaded auctions in")
+
+		regionTimestamps = regionTimestamps.SetLiveAuctionsReceived(job.Tuple, job.ReceivedAt)
+	}
+
+	// optionally updating region state
+	if !regionTimestamps.IsZero() {
+		sta.RegionsState.ReceiveTimestamps(regionTimestamps)
 	}
 
 	return nil
