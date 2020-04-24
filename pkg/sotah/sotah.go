@@ -21,6 +21,21 @@ type Expansion struct {
 	LabelColor string `json:"label_color"`
 }
 
+type UnixTimestamps []UnixTimestamp
+
+func (timestamps UnixTimestamps) Before(limit UnixTimestamp) UnixTimestamps {
+	out := UnixTimestamps{}
+	for _, timestamp := range timestamps {
+		if timestamp > limit {
+			continue
+		}
+
+		out = append(out, timestamp)
+	}
+
+	return out
+}
+
 type UnixTimestamp int64
 
 func (timestamp UnixTimestamp) IsZero() bool {
