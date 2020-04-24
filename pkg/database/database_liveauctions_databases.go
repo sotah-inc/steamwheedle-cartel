@@ -72,7 +72,9 @@ func (job AuctionStatsWithTuplesOutJob) ToLogrusFields() logrus.Fields {
 	}
 }
 
-func (ladBases LiveAuctionsDatabases) AuctionStatsWithTuples(tuples blizzardv2.RegionConnectedRealmTuples) (sotah.AuctionStats, error) {
+func (ladBases LiveAuctionsDatabases) AuctionStatsWithTuples(
+	tuples blizzardv2.RegionConnectedRealmTuples,
+) (sotah.AuctionStats, error) {
 	in := make(chan blizzardv2.RegionConnectedRealmTuple)
 	out := make(chan AuctionStatsWithTuplesOutJob)
 
@@ -123,6 +125,15 @@ func (ladBases LiveAuctionsDatabases) AuctionStatsWithTuples(tuples blizzardv2.R
 		close(out)
 	}
 	util.Work(8, worker, postWork)
+
+	// queueing it up
+	go func() {
+		for _, tuple := range tuples {
+			in <- tuple
+		}
+
+		close(in)
+	}()
 
 	// going over the results
 	results := sotah.AuctionStats{}
