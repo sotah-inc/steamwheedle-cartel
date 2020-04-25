@@ -3,6 +3,8 @@ package dev
 import (
 	"time"
 
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database"
+
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
@@ -44,7 +46,7 @@ func (sta ApiState) Collect() error {
 
 	if err := sta.LiveAuctionsState.LiveAuctionsDatabases.PruneStats(
 		collectAuctionsResults.Tuples,
-		sotah.UnixTimestamp(time.Now().Unix()+60*60),
+		sotah.UnixTimestamp(database.RetentionLimit().Unix()),
 	); err != nil {
 		logging.WithField("error", err.Error()).Error("failed to prune live-auctions stats")
 
