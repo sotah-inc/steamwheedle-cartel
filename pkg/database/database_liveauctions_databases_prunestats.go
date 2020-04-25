@@ -1,8 +1,6 @@
 package database
 
 import (
-	"time"
-
 	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
@@ -23,11 +21,12 @@ func (job PruneStatsJob) ToLogrusFields() logrus.Fields {
 	}
 }
 
-func (ladBases LiveAuctionsDatabases) PruneStats(tuples blizzardv2.RegionConnectedRealmTuples) error {
+func (ladBases LiveAuctionsDatabases) PruneStats(
+	tuples blizzardv2.RegionConnectedRealmTuples,
+	retentionLimit sotah.UnixTimestamp,
+) error {
 	in := make(chan blizzardv2.RegionConnectedRealmTuple)
 	out := make(chan PruneStatsJob)
-
-	currentTimestamp := sotah.UnixTimestamp(time.Now().Unix())
 
 	worker := func() {
 		for tuple := range in {
@@ -38,7 +37,7 @@ func (ladBases LiveAuctionsDatabases) PruneStats(tuples blizzardv2.RegionConnect
 				continue
 			}
 
-			err = ladBase.persistStats(currentTimestamp)
+			err = ladBase.pruneStats(retentionLimit)
 			if err != nil {
 				out <- PruneStatsJob{err, tuple}
 
