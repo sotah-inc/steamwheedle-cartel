@@ -45,7 +45,7 @@ func (sta LiveAuctionsState) ListenForLiveAuctionsIntake(stop ListenStopChan) er
 
 func (sta LiveAuctionsState) LiveAuctionsIntake(tuples blizzardv2.RegionConnectedRealmTuples) error {
 	// spinning up workers
-	getAuctionsByTuplesOut := sta.DiskStore.GetAuctionsByTuples(tuples)
+	getAuctionsByTuplesOut := sta.DiskStore.GetEncodedAuctionsByTuples(tuples)
 	loadEncodedDataIn := make(chan database.LiveAuctionsLoadEncodedDataInJob)
 	loadEncodedDataOut := sta.LiveAuctionsDatabases.LoadEncodedData(loadEncodedDataIn)
 
@@ -58,20 +58,9 @@ func (sta LiveAuctionsState) LiveAuctionsIntake(tuples blizzardv2.RegionConnecte
 				continue
 			}
 
-			encodedData, err := job.Auctions.EncodeForStorage()
-			if err != nil {
-				logging.WithFields(logrus.Fields{
-					"err":             err.Error(),
-					"region":          job.Tuple.RegionName,
-					"connected-realm": job.Tuple.ConnectedRealmId,
-				}).Error("failed to encode auctions for storage")
-
-				continue
-			}
-
 			loadEncodedDataIn <- database.LiveAuctionsLoadEncodedDataInJob{
 				Tuple:       job.Tuple,
-				EncodedData: encodedData,
+				EncodedData: job.EncodedAuctions,
 			}
 		}
 
