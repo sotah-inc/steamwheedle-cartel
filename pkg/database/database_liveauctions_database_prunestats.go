@@ -44,12 +44,12 @@ func (ladBase LiveAuctionsDatabase) pruneStats(retentionLimit sotah.UnixTimestam
 func (ladBase LiveAuctionsDatabase) getStatsTimestamps() (sotah.UnixTimestamps, error) {
 	var out sotah.UnixTimestamps
 	err := ladBase.db.View(func(tx *bolt.Tx) error {
-		bkt, err := tx.CreateBucketIfNotExists(liveAuctionsStatsBucketName())
-		if err != nil {
-			return err
+		bkt := tx.Bucket(liveAuctionsStatsBucketName())
+		if bkt == nil {
+			return nil
 		}
 
-		err = bkt.ForEach(func(k, v []byte) error {
+		err := bkt.ForEach(func(k, v []byte) error {
 			parsedKey, err := unixTimestampFromLiveAuctionsStatsKeyName(k)
 			if err != nil {
 				return err
