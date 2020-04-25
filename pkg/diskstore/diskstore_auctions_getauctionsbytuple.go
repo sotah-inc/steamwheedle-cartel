@@ -3,7 +3,6 @@ package diskstore
 import (
 	"encoding/json"
 	"os"
-	"time"
 
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 
@@ -15,46 +14,44 @@ import (
 
 func (ds DiskStore) GetAuctionsByTuple(
 	tuple blizzardv2.RegionConnectedRealmTuple,
-) (sotah.MiniAuctionList, time.Time, error) {
+) (sotah.MiniAuctionList, error) {
 	// resolving the cached auctions filepath
 	cachedAuctionsFilepath, err := ds.resolveAuctionsFilepath(tuple)
 	if err != nil {
-		return sotah.MiniAuctionList{}, time.Time{}, err
+		return sotah.MiniAuctionList{}, err
 	}
 
 	// optionally skipping non-exist auctions file
-	cachedAuctionsStat, err := os.Stat(cachedAuctionsFilepath)
-	if err != nil {
+	if _, err := os.Stat(cachedAuctionsFilepath); err != nil {
 		if !os.IsNotExist(err) {
-			return sotah.MiniAuctionList{}, time.Time{}, err
+			return sotah.MiniAuctionList{}, err
 		}
 
-		return sotah.MiniAuctionList{}, time.Time{}, nil
+		return sotah.MiniAuctionList{}, nil
 	}
 
 	gzipEncoded, err := util.ReadFile(cachedAuctionsFilepath)
 	if err != nil {
-		return sotah.MiniAuctionList{}, time.Time{}, err
+		return sotah.MiniAuctionList{}, err
 	}
 
 	jsonEncoded, err := util.GzipDecode(gzipEncoded)
 	if err != nil {
-		return sotah.MiniAuctionList{}, time.Time{}, err
+		return sotah.MiniAuctionList{}, err
 	}
 
 	var out sotah.MiniAuctionList
 	if err := json.Unmarshal(jsonEncoded, &out); err != nil {
-		return sotah.MiniAuctionList{}, time.Time{}, err
+		return sotah.MiniAuctionList{}, err
 	}
 
-	return out, cachedAuctionsStat.ModTime(), nil
+	return out, nil
 }
 
 type GetAuctionsByTuplesJob struct {
-	Err          error
-	Tuple        blizzardv2.RegionConnectedRealmTuple
-	Auctions     sotah.MiniAuctionList
-	LastModified time.Time
+	Err      error
+	Tuple    blizzardv2.RegionConnectedRealmTuple
+	Auctions sotah.MiniAuctionList
 }
 
 func (job GetAuctionsByTuplesJob) ToLogrusFields() logrus.Fields {
@@ -69,28 +66,18 @@ func (ds DiskStore) GetAuctionsByTuples(tuples []blizzardv2.RegionConnectedRealm
 	// spinning up the workers for fetching auctions
 	worker := func() {
 		for tuple := range in {
-			aucs, lastModified, err := ds.GetAuctionsByTuple(tuple)
+			aucs, err := ds.GetAuctionsByTuple(tuple)
 			if err != nil {
 				out <- GetAuctionsByTuplesJob{
-					Err:          err,
-					Tuple:        tuple,
-					Auctions:     nil,
-					LastModified: time.Time{},
+					Err:      err,
+					Tuple:    tuple,
+					Auctions: nil,
 				}
 
 				continue
 			}
 
-			if lastModified.IsZero() {
-				logging.WithFields(logrus.Fields{
-					"region":          tuple.RegionName,
-					"connected-realm": tuple.ConnectedRealmId,
-				}).Error("last-modified was blank when fetching auctions from filecache")
-
-				continue
-			}
-
-			out <- GetAuctionsByTuplesJob{err, tuple, aucs, lastModified}
+			out <- GetAuctionsByTuplesJob{err, tuple, aucs}
 		}
 	}
 	postWork := func() {
