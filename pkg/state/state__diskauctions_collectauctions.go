@@ -4,12 +4,10 @@ import (
 	"time"
 
 	"github.com/sirupsen/logrus"
-
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
-
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/diskstore"
+	DiskLake "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/lake/disk"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 )
 
 type CollectAuctionsResult struct {
@@ -29,8 +27,8 @@ func (sta DiskAuctionsState) CollectAuctions() (CollectAuctionsResults, error) {
 
 	// spinning up workers
 	aucsOutJobs := sta.BlizzardState.ResolveAuctions(sta.RegionsState.RegionComposites.ToDownloadTuples())
-	storeAucsInJobs := make(chan diskstore.WriteAuctionsWithTuplesInJob)
-	storeAucsOutJobs := sta.DiskStore.WriteAuctionsWithTuples(storeAucsInJobs)
+	storeAucsInJobs := make(chan DiskLake.WriteAuctionsWithTuplesInJob)
+	storeAucsOutJobs := sta.DiskLakeClient.WriteAuctionsWithTuples(storeAucsInJobs)
 	resultsInJob := make(chan CollectAuctionsResult)
 	resultsOutJob := make(chan CollectAuctionsResults)
 
@@ -52,7 +50,7 @@ func (sta DiskAuctionsState) CollectAuctions() (CollectAuctionsResults, error) {
 				continue
 			}
 
-			storeAucsInJobs <- diskstore.WriteAuctionsWithTuplesInJob{
+			storeAucsInJobs <- DiskLake.WriteAuctionsWithTuplesInJob{
 				Tuple:    aucsOutJob.Tuple.RegionConnectedRealmTuple,
 				Auctions: sotah.NewMiniAuctionList(aucsOutJob.AuctionsResponse.Auctions),
 			}

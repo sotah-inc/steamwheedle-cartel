@@ -45,7 +45,7 @@ func (sta LiveAuctionsState) ListenForLiveAuctionsIntake(stop ListenStopChan) er
 
 func (sta LiveAuctionsState) LiveAuctionsIntake(tuples blizzardv2.RegionConnectedRealmTuples) error {
 	// spinning up workers
-	getAuctionsByTuplesOut := sta.Store.GetEncodedAuctionsByTuples(tuples)
+	getAuctionsByTuplesOut := sta.LakeClient.GetEncodedAuctionsByTuples(tuples)
 	loadEncodedDataIn := make(chan database.LiveAuctionsLoadEncodedDataInJob)
 	loadEncodedDataOut := sta.LiveAuctionsDatabases.LoadEncodedData(loadEncodedDataIn)
 
