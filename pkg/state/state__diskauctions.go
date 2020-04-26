@@ -2,13 +2,13 @@ package state
 
 import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/diskstore"
+	DiskLake "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/lake/disk"
 )
 
 type DiskAuctionsState struct {
 	BlizzardState BlizzardState
 	RegionsState  *RegionsState
 
-	DiskStore     diskstore.DiskStore
-	ItemsDatabase database.ItemsDatabase
+	DiskLakeClient DiskLake.Client
+	ItemsDatabase  database.ItemsDatabase
 }

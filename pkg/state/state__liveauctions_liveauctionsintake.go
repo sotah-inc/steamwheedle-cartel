@@ -45,22 +45,22 @@ func (sta LiveAuctionsState) ListenForLiveAuctionsIntake(stop ListenStopChan) er
 
 func (sta LiveAuctionsState) LiveAuctionsIntake(tuples blizzardv2.RegionConnectedRealmTuples) error {
 	// spinning up workers
-	getAuctionsByTuplesOut := sta.DiskStore.GetEncodedAuctionsByTuples(tuples)
+	getAuctionsByTuplesOut := sta.Store.GetEncodedAuctionsByTuples(tuples)
 	loadEncodedDataIn := make(chan database.LiveAuctionsLoadEncodedDataInJob)
 	loadEncodedDataOut := sta.LiveAuctionsDatabases.LoadEncodedData(loadEncodedDataIn)
 
 	// loading it in
 	go func() {
 		for job := range getAuctionsByTuplesOut {
-			if job.Err != nil {
+			if job.Err() != nil {
 				logging.WithFields(job.ToLogrusFields()).Error("failed to fetch auctions")
 
 				continue
 			}
 
 			loadEncodedDataIn <- database.LiveAuctionsLoadEncodedDataInJob{
-				Tuple:       job.Tuple,
-				EncodedData: job.EncodedAuctions,
+				Tuple:       job.Tuple(),
+				EncodedData: job.EncodedAuctions(),
 			}
 		}
 

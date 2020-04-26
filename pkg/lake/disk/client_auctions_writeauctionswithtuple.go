@@ -1,19 +1,18 @@
-package diskstore
+package disk
 
 import (
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
-
 	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 )
 
-func (ds DiskStore) WriteAuctionsWithTuple(
+func (client Client) WriteAuctionsWithTuple(
 	tuple blizzardv2.RegionConnectedRealmTuple,
 	auctions sotah.MiniAuctionList,
 ) error {
-	dest, err := ds.resolveAuctionsFilepath(tuple)
+	dest, err := client.resolveAuctionsFilepath(tuple)
 	if err != nil {
 		return err
 	}
@@ -44,14 +43,14 @@ func (job WriteAuctionsWithTuplesOutJob) ToLogrusFields() logrus.Fields {
 	}
 }
 
-func (ds DiskStore) WriteAuctionsWithTuples(in chan WriteAuctionsWithTuplesInJob) chan WriteAuctionsWithTuplesOutJob {
+func (client Client) WriteAuctionsWithTuples(in chan WriteAuctionsWithTuplesInJob) chan WriteAuctionsWithTuplesOutJob {
 	// establishing channels
 	out := make(chan WriteAuctionsWithTuplesOutJob)
 
 	// spinning up the workers for writing
 	worker := func() {
 		for job := range in {
-			if err := ds.WriteAuctionsWithTuple(job.Tuple, job.Auctions); err != nil {
+			if err := client.WriteAuctionsWithTuple(job.Tuple, job.Auctions); err != nil {
 				out <- WriteAuctionsWithTuplesOutJob{err, job.Tuple}
 
 				continue

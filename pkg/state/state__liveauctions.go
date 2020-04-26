@@ -2,14 +2,14 @@ package state
 
 import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/diskstore"
+	BaseLake "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/lake/base"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state/subjects"
 )
 
 type NewLiveAuctionsStateOptions struct {
-	Messenger messenger.Messenger
-	DiskStore diskstore.DiskStore
+	Messenger  messenger.Messenger
+	LakeClient BaseLake.Client
 
 	LiveAuctionsDatabasesDir string
 	RegionsState             *RegionsState
@@ -27,7 +27,7 @@ func NewLiveAuctionsState(opts NewLiveAuctionsStateOptions) (LiveAuctionsState, 
 	return LiveAuctionsState{
 		LiveAuctionsDatabases: ladBases,
 		Messenger:             opts.Messenger,
-		DiskStore:             opts.DiskStore,
+		LakeClient:            opts.LakeClient,
 		RegionsState:          opts.RegionsState,
 	}, nil
 }
@@ -36,7 +36,7 @@ type LiveAuctionsState struct {
 	LiveAuctionsDatabases database.LiveAuctionsDatabases
 
 	Messenger    messenger.Messenger
-	DiskStore    diskstore.DiskStore
+	LakeClient   BaseLake.Client
 	RegionsState *RegionsState
 }
 

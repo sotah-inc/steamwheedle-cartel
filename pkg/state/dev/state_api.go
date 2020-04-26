@@ -5,7 +5,7 @@ import (
 
 	"github.com/twinj/uuid"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/diskstore"
+	DiskLake "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/lake/disk"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
@@ -138,16 +138,16 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 
 	// resolving disk-auctions state
 	sta.DiskAuctionsState = state.DiskAuctionsState{
-		BlizzardState: sta.BlizzardState,
-		RegionsState:  sta.RegionState,
-		DiskStore:     diskstore.NewDiskStore(config.DiskStoreCacheDir),
-		ItemsDatabase: sta.ItemsState.ItemsDatabase,
+		BlizzardState:  sta.BlizzardState,
+		RegionsState:   sta.RegionState,
+		DiskLakeClient: DiskLake.NewClient(config.DiskStoreCacheDir),
+		ItemsDatabase:  sta.ItemsState.ItemsDatabase,
 	}
 
 	// resolving live-auctions state
 	sta.LiveAuctionsState, err = state.NewLiveAuctionsState(state.NewLiveAuctionsStateOptions{
 		Messenger:                mess,
-		DiskStore:                sta.DiskAuctionsState.DiskStore,
+		LakeClient:               sta.DiskAuctionsState.DiskLakeClient,
 		LiveAuctionsDatabasesDir: config.DatabaseConfig.LiveAuctionsDir,
 		RegionsState:             sta.RegionState,
 	})
