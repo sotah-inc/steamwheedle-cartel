@@ -13,28 +13,28 @@ func NewLiveAuctionsDatabases(
 	ladBases := LiveAuctionsDatabases{}
 
 	for _, tuple := range tuples {
-		shards := func() LiveAuctionsDatabaseShards {
+		connectedRealmDatabases := func() map[blizzardv2.ConnectedRealmId]LiveAuctionsDatabase {
 			out, ok := ladBases[tuple.RegionName]
 			if !ok {
-				return LiveAuctionsDatabaseShards{}
+				return map[blizzardv2.ConnectedRealmId]LiveAuctionsDatabase{}
 			}
 
 			return out
 		}()
 
 		var err error
-		shards[tuple.ConnectedRealmId], err = newLiveAuctionsDatabase(dirPath, tuple)
+		connectedRealmDatabases[tuple.ConnectedRealmId], err = newLiveAuctionsDatabase(dirPath, tuple)
 		if err != nil {
 			return LiveAuctionsDatabases{}, err
 		}
 
-		ladBases[tuple.RegionName] = shards
+		ladBases[tuple.RegionName] = connectedRealmDatabases
 	}
 
 	return ladBases, nil
 }
 
-type LiveAuctionsDatabases map[blizzardv2.RegionName]LiveAuctionsDatabaseShards
+type LiveAuctionsDatabases map[blizzardv2.RegionName]map[blizzardv2.ConnectedRealmId]LiveAuctionsDatabase
 
 func (ladBases LiveAuctionsDatabases) GetDatabase(
 	tuple blizzardv2.RegionConnectedRealmTuple,
@@ -51,5 +51,3 @@ func (ladBases LiveAuctionsDatabases) GetDatabase(
 
 	return db, nil
 }
-
-type LiveAuctionsDatabaseShards map[blizzardv2.ConnectedRealmId]LiveAuctionsDatabase
