@@ -11,7 +11,7 @@ import (
 
 type PricelistHistoryLoadEncodedDataInJob struct {
 	Tuple       blizzardv2.LoadConnectedRealmTuple
-	EncodedData []byte
+	EncodedData map[blizzardv2.ItemId][]byte
 }
 
 type PricelistHistoryLoadEncodedDataOutJob struct {
