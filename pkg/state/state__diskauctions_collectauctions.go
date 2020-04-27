@@ -11,15 +11,14 @@ import (
 )
 
 type CollectAuctionsResult struct {
-	Tuple        blizzardv2.RegionConnectedRealmTuple
-	ItemIds      blizzardv2.ItemIds
-	LastModified time.Time
+	Tuple   blizzardv2.LoadConnectedRealmTuple
+	ItemIds blizzardv2.ItemIds
 }
 
 type CollectAuctionsResults struct {
 	ItemIds          blizzardv2.ItemIds
 	RegionTimestamps sotah.RegionTimestamps
-	Tuples           blizzardv2.RegionConnectedRealmTuples
+	Tuples           blizzardv2.LoadConnectedRealmTuples
 }
 
 func (sta DiskAuctionsState) CollectAuctions() (CollectAuctionsResults, error) {
@@ -41,7 +40,7 @@ func (sta DiskAuctionsState) CollectAuctions() (CollectAuctionsResults, error) {
 				continue
 			}
 
-			if !aucsOutJob.IsNew {
+			if !aucsOutJob.IsNew() {
 				logging.WithFields(logrus.Fields{
 					"region":             aucsOutJob.Tuple.RegionName,
 					"connected-realm-id": aucsOutJob.Tuple.ConnectedRealmId,
@@ -55,9 +54,8 @@ func (sta DiskAuctionsState) CollectAuctions() (CollectAuctionsResults, error) {
 				Auctions: sotah.NewMiniAuctionList(aucsOutJob.AuctionsResponse.Auctions),
 			}
 			resultsInJob <- CollectAuctionsResult{
-				Tuple:        aucsOutJob.Tuple.RegionConnectedRealmTuple,
-				ItemIds:      aucsOutJob.AuctionsResponse.Auctions.ItemIds(),
-				LastModified: aucsOutJob.LastModified,
+				Tuple:   aucsOutJob.Tuple,
+				ItemIds: aucsOutJob.AuctionsResponse.Auctions.ItemIds(),
 			}
 		}
 
@@ -70,11 +68,14 @@ func (sta DiskAuctionsState) CollectAuctions() (CollectAuctionsResults, error) {
 		results := CollectAuctionsResults{
 			ItemIds:          blizzardv2.ItemIds{},
 			RegionTimestamps: sotah.RegionTimestamps{},
-			Tuples:           blizzardv2.RegionConnectedRealmTuples{},
+			Tuples:           blizzardv2.LoadConnectedRealmTuples{},
 		}
 		for job := range resultsInJob {
 			// loading last-modified in
-			results.RegionTimestamps = results.RegionTimestamps.SetDownloaded(job.Tuple, job.LastModified)
+			results.RegionTimestamps = results.RegionTimestamps.SetDownloaded(
+				job.Tuple.RegionConnectedRealmTuple,
+				job.Tuple.LastModified,
+			)
 
 			// loading item-ids in
 			results.ItemIds = results.ItemIds.Merge(job.ItemIds)

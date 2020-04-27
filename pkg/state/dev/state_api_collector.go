@@ -32,20 +32,24 @@ func (sta ApiState) Collect() error {
 		return err
 	}
 
-	if err := sta.LiveAuctionsState.LiveAuctionsIntake(collectAuctionsResults.Tuples); err != nil {
+	if err := sta.LiveAuctionsState.LiveAuctionsIntake(
+		collectAuctionsResults.Tuples.RegionConnectedRealmTuples(),
+	); err != nil {
 		logging.WithField("error", err.Error()).Error("failed to execute live-auctions-intake")
 
 		return err
 	}
 
-	if err := sta.LiveAuctionsState.LiveAuctionsDatabases.PersistStats(collectAuctionsResults.Tuples); err != nil {
+	if err := sta.LiveAuctionsState.LiveAuctionsDatabases.PersistStats(
+		collectAuctionsResults.Tuples.RegionConnectedRealmTuples(),
+	); err != nil {
 		logging.WithField("error", err.Error()).Error("failed to persist live-auctions stats")
 
 		return err
 	}
 
 	if err := sta.LiveAuctionsState.LiveAuctionsDatabases.PruneStats(
-		collectAuctionsResults.Tuples,
+		collectAuctionsResults.Tuples.RegionConnectedRealmTuples(),
 		sotah.UnixTimestamp(database.RetentionLimit().Unix()),
 	); err != nil {
 		logging.WithField("error", err.Error()).Error("failed to prune live-auctions stats")

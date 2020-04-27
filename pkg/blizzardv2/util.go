@@ -60,6 +60,17 @@ type DownloadConnectedRealmTuple struct {
 	RegionHostname string
 }
 
+type LoadConnectedRealmTuples []LoadConnectedRealmTuple
+
+func (tuples LoadConnectedRealmTuples) RegionConnectedRealmTuples() RegionConnectedRealmTuples {
+	out := make(RegionConnectedRealmTuples, len(tuples))
+	for i, tuple := range tuples {
+		out[i] = tuple.RegionConnectedRealmTuple
+	}
+
+	return out
+}
+
 type LoadConnectedRealmTuple struct {
 	RegionConnectedRealmTuple
 	LastModified time.Time

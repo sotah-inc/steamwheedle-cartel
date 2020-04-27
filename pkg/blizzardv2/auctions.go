@@ -10,10 +10,12 @@ import (
 
 type GetAuctionsJob struct {
 	Err              error
-	Tuple            DownloadConnectedRealmTuple
+	Tuple            LoadConnectedRealmTuple
 	AuctionsResponse AuctionsResponse
-	LastModified     time.Time
-	IsNew            bool
+}
+
+func (job GetAuctionsJob) IsNew() bool {
+	return !job.Tuple.LastModified.IsZero()
 }
 
 func (job GetAuctionsJob) ToLogrusFields() logrus.Fields {
@@ -38,11 +40,12 @@ func GetAuctions(opts GetAuctionsOptions) chan GetAuctionsJob {
 			getAuctionsUri, err := opts.GetAuctionsURL(tuple)
 			if err != nil {
 				out <- GetAuctionsJob{
-					Err:              err,
-					Tuple:            tuple,
+					Err: err,
+					Tuple: LoadConnectedRealmTuple{
+						RegionConnectedRealmTuple: tuple.RegionConnectedRealmTuple,
+						LastModified:              time.Time{},
+					},
 					AuctionsResponse: AuctionsResponse{},
-					LastModified:     time.Time{},
-					IsNew:            false,
 				}
 
 				continue
@@ -51,11 +54,12 @@ func GetAuctions(opts GetAuctionsOptions) chan GetAuctionsJob {
 			auctionsResponse, responseMeta, err := NewAuctionsFromHTTP(getAuctionsUri, tuple.LastModified)
 			if err != nil {
 				out <- GetAuctionsJob{
-					Err:              err,
-					Tuple:            tuple,
+					Err: err,
+					Tuple: LoadConnectedRealmTuple{
+						RegionConnectedRealmTuple: tuple.RegionConnectedRealmTuple,
+						LastModified:              time.Time{},
+					},
 					AuctionsResponse: AuctionsResponse{},
-					LastModified:     time.Time{},
-					IsNew:            false,
 				}
 
 				continue
@@ -63,22 +67,24 @@ func GetAuctions(opts GetAuctionsOptions) chan GetAuctionsJob {
 
 			if responseMeta.Status == http.StatusNotModified {
 				out <- GetAuctionsJob{
-					Err:              nil,
-					Tuple:            tuple,
+					Err: nil,
+					Tuple: LoadConnectedRealmTuple{
+						RegionConnectedRealmTuple: tuple.RegionConnectedRealmTuple,
+						LastModified:              time.Time{},
+					},
 					AuctionsResponse: AuctionsResponse{},
-					LastModified:     time.Time{},
-					IsNew:            false,
 				}
 
 				continue
 			}
 
 			out <- GetAuctionsJob{
-				Err:              nil,
-				Tuple:            tuple,
+				Err: nil,
+				Tuple: LoadConnectedRealmTuple{
+					RegionConnectedRealmTuple: tuple.RegionConnectedRealmTuple,
+					LastModified:              responseMeta.LastModified,
+				},
 				AuctionsResponse: auctionsResponse,
-				LastModified:     responseMeta.LastModified,
-				IsNew:            true,
 			}
 		}
 	}
