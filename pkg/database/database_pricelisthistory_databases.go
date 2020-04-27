@@ -2,6 +2,7 @@ package database
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
@@ -9,12 +10,61 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 )
 
-type PricelistHistoryDatabases map[blizzardv2.RegionName]map[blizzardv2.ConnectedRealmId]PricelistHistoryDatabaseShards
+func NewPricelistHistoryDatabases(
+	dirPath string,
+	tuples blizzardv2.RegionConnectedRealmTuples,
+) (PricelistHistoryDatabases, error) {
+	if dirPath == "" {
+		return PricelistHistoryDatabases{}, errors.New("dir-path cannot be blank")
+	}
+
+	phdBases := PricelistHistoryDatabases{
+		databaseDir: dirPath,
+		Databases:   map[blizzardv2.RegionName]map[blizzardv2.ConnectedRealmId]PricelistHistoryDatabaseShards{},
+	}
+
+	for _, tuple := range tuples {
+		if _, ok := phdBases.Databases[tuple.RegionName]; !ok {
+			phdBases.Databases[tuple.RegionName] = map[blizzardv2.ConnectedRealmId]PricelistHistoryDatabaseShards{}
+		}
+		if _, ok := phdBases.Databases[tuple.RegionName][tuple.ConnectedRealmId]; !ok {
+			phdBases.Databases[tuple.RegionName][tuple.ConnectedRealmId] = PricelistHistoryDatabaseShards{}
+		}
+
+		dbPathPairs, err := Paths(fmt.Sprintf(
+			"%s/pricelist-histories/%s/%d",
+			dirPath,
+			tuple.RegionName,
+			tuple.ConnectedRealmId,
+		))
+		if err != nil {
+			return PricelistHistoryDatabases{}, err
+		}
+
+		for _, dbPathPair := range dbPathPairs {
+			phdBase, err := newPricelistHistoryDatabase(dbPathPair.FullPath, dbPathPair.Timestamp)
+			if err != nil {
+				return PricelistHistoryDatabases{}, err
+			}
+
+			phdBases.Databases[tuple.RegionName][tuple.ConnectedRealmId][dbPathPair.Timestamp] = phdBase
+		}
+	}
+
+	return phdBases, nil
+}
+
+type PricelistHistoryDatabases struct {
+	databaseDir string
+	Databases   map[blizzardv2.RegionName]map[blizzardv2.ConnectedRealmId]PricelistHistoryDatabaseShards
+}
 
 func (phdBases PricelistHistoryDatabases) GetDatabase(
 	tuple blizzardv2.LoadConnectedRealmTuple,
 ) (PricelistHistoryDatabase, error) {
-	phdBase, ok := phdBases[tuple.RegionName][tuple.ConnectedRealmId][sotah.UnixTimestamp(tuple.LastModified.Unix())]
+	phdBase, ok := phdBases.Databases[tuple.RegionName][tuple.ConnectedRealmId][sotah.UnixTimestamp(
+		tuple.LastModified.Unix(),
+	)]
 	if !ok {
 		logging.WithFields(logrus.Fields{
 			"region":          tuple.RegionName,
