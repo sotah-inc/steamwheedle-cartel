@@ -7,6 +7,8 @@ import (
 	"strconv"
 	"time"
 
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
+
 	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 )
@@ -16,36 +18,33 @@ func RetentionLimit() time.Time {
 }
 
 type databasePathPair struct {
-	FullPath   string
-	TargetTime time.Time
+	FullPath  string
+	Timestamp sotah.UnixTimestamp
 }
 
 func Paths(databaseDir string) ([]databasePathPair, error) {
-	out := []databasePathPair{}
-
 	databaseFilepaths, err := ioutil.ReadDir(databaseDir)
 	if err != nil {
 		logging.WithFields(logrus.Fields{
 			"error": err.Error(),
 			"dir":   databaseDir,
-		}).Error("Failed to read database dir")
+		}).Error("failed to read database dir")
 
 		return []databasePathPair{}, err
 	}
 
+	var out []databasePathPair
 	for _, fPath := range databaseFilepaths {
-		targetTimeUnix, err := strconv.Atoi(fPath.Name()[0 : len(fPath.Name())-len(".db")])
+		targetTimestamp, err := strconv.Atoi(fPath.Name()[0 : len(fPath.Name())-len(".db")])
 		if err != nil {
 			logging.WithFields(logrus.Fields{
 				"error":    err.Error(),
 				"dir":      databaseDir,
 				"pathname": fPath.Name(),
-			}).Error("Failed to parse database filepath")
+			}).Error("failed to parse database filepath")
 
 			return []databasePathPair{}, err
 		}
-
-		targetTime := time.Unix(int64(targetTimeUnix), 0)
 
 		fullPath, err := filepath.Abs(fmt.Sprintf("%s/%s", databaseDir, fPath.Name()))
 		if err != nil {
@@ -53,12 +52,15 @@ func Paths(databaseDir string) ([]databasePathPair, error) {
 				"error":    err.Error(),
 				"dir":      databaseDir,
 				"pathname": fPath.Name(),
-			}).Error("Failed to resolve full path of database file")
+			}).Error("failed to resolve full path of database file")
 
 			return []databasePathPair{}, err
 		}
 
-		out = append(out, databasePathPair{fullPath, targetTime})
+		out = append(out, databasePathPair{
+			FullPath:  fullPath,
+			Timestamp: sotah.UnixTimestamp(targetTimestamp),
+		})
 	}
 
 	return out, nil
