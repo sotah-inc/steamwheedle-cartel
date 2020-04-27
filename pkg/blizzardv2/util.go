@@ -56,9 +56,13 @@ type RegionConnectedRealmTuple struct {
 }
 
 type DownloadConnectedRealmTuple struct {
-	RegionConnectedRealmTuple
+	LoadConnectedRealmTuple
 	RegionHostname string
-	LastModified   time.Time
+}
+
+type LoadConnectedRealmTuple struct {
+	RegionConnectedRealmTuple
+	LastModified time.Time
 }
 
 type RegionHostnameTuple struct {
