@@ -3,36 +3,11 @@ package database
 import (
 	"time"
 
-	"github.com/boltdb/bolt"
 	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 )
-
-func (phdBase PricelistHistoryDatabase) persistEncodedData(data map[blizzardv2.ItemId][]byte) error {
-	logging.WithField("items", len(data)).Info("persisting encoded item-prices")
-
-	err := phdBase.db.Batch(func(tx *bolt.Tx) error {
-		for itemId, payload := range data {
-			bkt, err := tx.CreateBucketIfNotExists(pricelistHistoryBucketName(itemId))
-			if err != nil {
-				return err
-			}
-
-			if err := bkt.Put(pricelistHistoryKeyName(), payload); err != nil {
-				return err
-			}
-		}
-
-		return nil
-	})
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
 
 type PricelistHistoryLoadEncodedDataInJob struct {
 	Tuple       blizzardv2.LoadConnectedRealmTuple
@@ -53,7 +28,7 @@ func (job PricelistHistoryLoadEncodedDataOutJob) ToLogrusFields() logrus.Fields 
 	}
 }
 
-func (phdBases PricelistHistoryDatabases) LoadEncodedData(
+func (phdBases *PricelistHistoryDatabases) LoadEncodedData(
 	in chan PricelistHistoryLoadEncodedDataInJob,
 ) chan PricelistHistoryLoadEncodedDataOutJob {
 	// establishing channels

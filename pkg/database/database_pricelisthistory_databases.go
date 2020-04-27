@@ -13,9 +13,9 @@ import (
 func NewPricelistHistoryDatabases(
 	dirPath string,
 	tuples blizzardv2.RegionConnectedRealmTuples,
-) (PricelistHistoryDatabases, error) {
+) (*PricelistHistoryDatabases, error) {
 	if dirPath == "" {
-		return PricelistHistoryDatabases{}, errors.New("dir-path cannot be blank")
+		return nil, errors.New("dir-path cannot be blank")
 	}
 
 	phdBases := PricelistHistoryDatabases{
@@ -38,20 +38,20 @@ func NewPricelistHistoryDatabases(
 			tuple.ConnectedRealmId,
 		))
 		if err != nil {
-			return PricelistHistoryDatabases{}, err
+			return nil, err
 		}
 
 		for _, dbPathPair := range dbPathPairs {
 			phdBase, err := newPricelistHistoryDatabase(dbPathPair.FullPath, dbPathPair.Timestamp)
 			if err != nil {
-				return PricelistHistoryDatabases{}, err
+				return nil, err
 			}
 
 			phdBases.Databases[tuple.RegionName][tuple.ConnectedRealmId][dbPathPair.Timestamp] = phdBase
 		}
 	}
 
-	return phdBases, nil
+	return &phdBases, nil
 }
 
 type PricelistHistoryDatabases struct {
@@ -59,7 +59,7 @@ type PricelistHistoryDatabases struct {
 	Databases   map[blizzardv2.RegionName]map[blizzardv2.ConnectedRealmId]PricelistHistoryDatabaseShards
 }
 
-func (phdBases PricelistHistoryDatabases) GetDatabase(
+func (phdBases *PricelistHistoryDatabases) GetDatabase(
 	tuple blizzardv2.LoadConnectedRealmTuple,
 ) (PricelistHistoryDatabase, error) {
 	phdBase, ok := phdBases.Databases[tuple.RegionName][tuple.ConnectedRealmId][sotah.UnixTimestamp(
@@ -74,6 +74,31 @@ func (phdBases PricelistHistoryDatabases) GetDatabase(
 
 		return PricelistHistoryDatabase{}, errors.New("failed to find pricelist-history database")
 	}
+
+	return phdBase, nil
+}
+
+func (phdBases *PricelistHistoryDatabases) resolveDatabase(
+	tuple blizzardv2.LoadConnectedRealmTuple,
+) (PricelistHistoryDatabase, error) {
+	normalizedTargetDate := sotah.NormalizeTargetDate(tuple.LastModified)
+	normalizedTargetTimestamp := sotah.UnixTimestamp(normalizedTargetDate.Unix())
+
+	phdBase, ok := phdBases.Databases[tuple.RegionName][tuple.ConnectedRealmId][normalizedTargetTimestamp]
+	if ok {
+		return phdBase, nil
+	}
+
+	dbPath := pricelistHistoryDatabaseFilePath(
+		phdBases.databaseDir,
+		tuple.RegionConnectedRealmTuple,
+		normalizedTargetTimestamp,
+	)
+	phdBase, err := newPricelistHistoryDatabase(dbPath, normalizedTargetTimestamp)
+	if err != nil {
+		return PricelistHistoryDatabase{}, err
+	}
+	phdBases.Databases[tuple.RegionName][tuple.ConnectedRealmId][normalizedTargetTimestamp] = phdBase
 
 	return phdBase, nil
 }
