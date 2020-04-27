@@ -37,12 +37,14 @@ func (region RegionComposite) ToDownloadTuples() []blizzardv2.DownloadConnectedR
 	i := 0
 	for _, composite := range region.ConnectedRealmComposites {
 		out[i] = blizzardv2.DownloadConnectedRealmTuple{
-			RegionConnectedRealmTuple: blizzardv2.RegionConnectedRealmTuple{
-				RegionName:       region.ConfigRegion.Name,
-				ConnectedRealmId: composite.ConnectedRealmResponse.Id,
+			LoadConnectedRealmTuple: blizzardv2.LoadConnectedRealmTuple{
+				RegionConnectedRealmTuple: blizzardv2.RegionConnectedRealmTuple{
+					RegionName:       region.ConfigRegion.Name,
+					ConnectedRealmId: composite.ConnectedRealmResponse.Id,
+				},
+				LastModified: composite.ModificationDates.Downloaded.Time(),
 			},
 			RegionHostname: region.ConfigRegion.Hostname,
-			LastModified:   composite.ModificationDates.Downloaded.Time(),
 		}
 		i += 1
 	}
