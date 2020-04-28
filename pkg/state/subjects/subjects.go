@@ -34,10 +34,13 @@ const (
 )
 
 const (
+	PricelistHistoryIntake Subject = "pricelistHistoryIntake"
+)
+
+const (
 	GenericTestErrors          Subject = "genericTestErrors"
 	PriceList                  Subject = "priceList"
 	PriceListHistory           Subject = "priceListHistory"
-	PricelistHistoriesIntake   Subject = "pricelistHistoriesIntake"
 	AppMetrics                 Subject = "appMetrics"
 	PricelistHistoriesIntakeV2 Subject = "pricelistHistoriesIntakeV2"
 	RealmModificationDates     Subject = "realmModificationDates"

@@ -38,7 +38,7 @@ func (phdBases *PricelistHistoryDatabases) LoadEncodedData(
 	worker := func() {
 		for job := range in {
 			// resolving the live-auctions database and gathering current Stats
-			ladBase, err := phdBases.resolveDatabase(job.Tuple)
+			phdBase, err := phdBases.resolveDatabase(job.Tuple)
 			if err != nil {
 				logging.WithFields(logrus.Fields{
 					"error":           err.Error(),
@@ -54,7 +54,7 @@ func (phdBases *PricelistHistoryDatabases) LoadEncodedData(
 				continue
 			}
 
-			if err := ladBase.persistEncodedData(job.EncodedData); err != nil {
+			if err := phdBase.persistEncodedData(job.EncodedData); err != nil {
 				logging.WithFields(logrus.Fields{
 					"error":           err.Error(),
 					"region":          job.Tuple.RegionName,

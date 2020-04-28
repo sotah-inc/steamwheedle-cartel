@@ -60,6 +60,15 @@ type DownloadConnectedRealmTuple struct {
 	RegionHostname string
 }
 
+func NewLoadConnectedRealmTuples(data []byte) (LoadConnectedRealmTuples, error) {
+	out := LoadConnectedRealmTuples{}
+	if err := json.Unmarshal(data, &out); err != nil {
+		return LoadConnectedRealmTuples{}, err
+	}
+
+	return out, nil
+}
+
 type LoadConnectedRealmTuples []LoadConnectedRealmTuple
 
 func (tuples LoadConnectedRealmTuples) RegionConnectedRealmTuples() RegionConnectedRealmTuples {

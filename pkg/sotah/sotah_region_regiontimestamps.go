@@ -7,15 +7,15 @@ import (
 )
 
 type ConnectedRealmTimestamps struct {
-	Downloaded                 UnixTimestamp `json:"downloaded"`
-	LiveAuctionsReceived       UnixTimestamp `json:"live_auctions_received"`
-	PricelistHistoriesReceived UnixTimestamp `json:"pricelist_histories_received"`
+	Downloaded               UnixTimestamp `json:"downloaded"`
+	LiveAuctionsReceived     UnixTimestamp `json:"live_auctions_received"`
+	PricelistHistoryReceived UnixTimestamp `json:"pricelist_history_received"`
 }
 
 func (timestamps ConnectedRealmTimestamps) IsZero() bool {
 	return !timestamps.Downloaded.IsZero() &&
 		!timestamps.LiveAuctionsReceived.IsZero() &&
-		!timestamps.PricelistHistoriesReceived.IsZero()
+		!timestamps.PricelistHistoryReceived.IsZero()
 }
 
 func (timestamps ConnectedRealmTimestamps) Merge(in ConnectedRealmTimestamps) ConnectedRealmTimestamps {
@@ -27,8 +27,8 @@ func (timestamps ConnectedRealmTimestamps) Merge(in ConnectedRealmTimestamps) Co
 		timestamps.LiveAuctionsReceived = in.LiveAuctionsReceived
 	}
 
-	if !in.PricelistHistoriesReceived.IsZero() {
-		timestamps.PricelistHistoriesReceived = in.PricelistHistoriesReceived
+	if !in.PricelistHistoryReceived.IsZero() {
+		timestamps.PricelistHistoryReceived = in.PricelistHistoryReceived
 	}
 
 	return timestamps
@@ -97,6 +97,21 @@ func (regionTimestamps RegionTimestamps) SetLiveAuctionsReceived(
 	// pushing the new time into the found member
 	result := out[tuple.RegionName][tuple.ConnectedRealmId]
 	result.LiveAuctionsReceived = UnixTimestamp(liveAuctionsReceived.Unix())
+	out[tuple.RegionName][tuple.ConnectedRealmId] = result
+
+	return out
+}
+
+func (regionTimestamps RegionTimestamps) SetPricelistHistoryReceived(
+	tuple blizzardv2.RegionConnectedRealmTuple,
+	liveAuctionsReceived time.Time,
+) RegionTimestamps {
+	// resolving due to missing members
+	out := regionTimestamps.resolve(tuple)
+
+	// pushing the new time into the found member
+	result := out[tuple.RegionName][tuple.ConnectedRealmId]
+	result.PricelistHistoryReceived = UnixTimestamp(liveAuctionsReceived.Unix())
 	out[tuple.RegionName][tuple.ConnectedRealmId] = result
 
 	return out
