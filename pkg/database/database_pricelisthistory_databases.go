@@ -4,6 +4,8 @@ import (
 	"errors"
 	"fmt"
 
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
+
 	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
@@ -16,6 +18,23 @@ func NewPricelistHistoryDatabases(
 ) (*PricelistHistoryDatabases, error) {
 	if dirPath == "" {
 		return nil, errors.New("dir-path cannot be blank")
+	}
+
+	dirPaths := func() []string {
+		out := make([]string, len(tuples))
+		for i, tuple := range tuples {
+			out[i] = fmt.Sprintf(
+				"%s/pricelist-history/%s/%d",
+				dirPath,
+				tuple.RegionName,
+				tuple.ConnectedRealmId,
+			)
+		}
+
+		return out
+	}()
+	if err := util.EnsureDirsExist(dirPaths); err != nil {
+		return nil, err
 	}
 
 	phdBases := PricelistHistoryDatabases{
