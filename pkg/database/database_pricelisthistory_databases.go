@@ -32,7 +32,7 @@ func NewPricelistHistoryDatabases(
 		}
 
 		dbPathPairs, err := Paths(fmt.Sprintf(
-			"%s/pricelist-histories/%s/%d",
+			"%s/pricelist-history/%s/%d",
 			dirPath,
 			tuple.RegionName,
 			tuple.ConnectedRealmId,
