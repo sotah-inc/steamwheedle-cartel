@@ -39,7 +39,7 @@ func (job getEncodedAuctionsByTuplesJob) ToLogrusFields() logrus.Fields {
 }
 
 func (client Client) GetEncodedAuctionsByTuples(
-	tuples []blizzardv2.RegionConnectedRealmTuple,
+	tuples blizzardv2.RegionConnectedRealmTuples,
 ) chan BaseLake.GetEncodedAuctionsByTuplesJob {
 	// establishing channels
 	out := make(chan BaseLake.GetEncodedAuctionsByTuplesJob)
