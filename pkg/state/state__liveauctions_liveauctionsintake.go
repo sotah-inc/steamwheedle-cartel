@@ -85,7 +85,7 @@ func (sta LiveAuctionsState) LiveAuctionsIntake(tuples blizzardv2.RegionConnecte
 
 	// optionally updating region state
 	if !regionTimestamps.IsZero() {
-		sta.RegionsState.ReceiveTimestamps(regionTimestamps)
+		sta.ReceiveRegionTimestamps(regionTimestamps)
 	}
 
 	return nil

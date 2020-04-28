@@ -1,9 +1,11 @@
 package state
 
 import (
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database"
 	BaseLake "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/lake/base"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state/subjects"
 )
 
@@ -12,32 +14,32 @@ type NewLiveAuctionsStateOptions struct {
 	LakeClient BaseLake.Client
 
 	LiveAuctionsDatabasesDir string
-	RegionsState             *RegionsState
+	Tuples                   blizzardv2.RegionConnectedRealmTuples
+	ReceiveRegionTimestamps  func(timestamps sotah.RegionTimestamps)
 }
 
 func NewLiveAuctionsState(opts NewLiveAuctionsStateOptions) (LiveAuctionsState, error) {
-	ladBases, err := database.NewLiveAuctionsDatabases(
-		opts.LiveAuctionsDatabasesDir,
-		opts.RegionsState.RegionComposites.ToTuples(),
-	)
+	ladBases, err := database.NewLiveAuctionsDatabases(opts.LiveAuctionsDatabasesDir, opts.Tuples)
 	if err != nil {
 		return LiveAuctionsState{}, err
 	}
 
 	return LiveAuctionsState{
-		LiveAuctionsDatabases: ladBases,
-		Messenger:             opts.Messenger,
-		LakeClient:            opts.LakeClient,
-		RegionsState:          opts.RegionsState,
+		LiveAuctionsDatabases:   ladBases,
+		Messenger:               opts.Messenger,
+		LakeClient:              opts.LakeClient,
+		Tuples:                  opts.Tuples,
+		ReceiveRegionTimestamps: opts.ReceiveRegionTimestamps,
 	}, nil
 }
 
 type LiveAuctionsState struct {
 	LiveAuctionsDatabases database.LiveAuctionsDatabases
 
-	Messenger    messenger.Messenger
-	LakeClient   BaseLake.Client
-	RegionsState *RegionsState
+	Messenger               messenger.Messenger
+	LakeClient              BaseLake.Client
+	Tuples                  blizzardv2.RegionConnectedRealmTuples
+	ReceiveRegionTimestamps func(timestamps sotah.RegionTimestamps)
 }
 
 func (sta LiveAuctionsState) GetListeners() SubjectListeners {
