@@ -28,7 +28,7 @@ func pricelistHistoryDatabaseFilePath(
 	targetTimestamp sotah.UnixTimestamp,
 ) string {
 	return fmt.Sprintf(
-		"%s/pricelist-histories/%s/%d/%d.db",
+		"%s/pricelist-history/%s/%d/%d.db",
 		dirPath,
 		tuple.RegionName,
 		tuple.ConnectedRealmId,
