@@ -104,3 +104,16 @@ func (phdBases *PricelistHistoryDatabases) resolveDatabase(
 }
 
 type PricelistHistoryDatabaseShards map[sotah.UnixTimestamp]PricelistHistoryDatabase
+
+func (shards PricelistHistoryDatabaseShards) After(limit sotah.UnixTimestamp) PricelistHistoryDatabaseShards {
+	out := PricelistHistoryDatabaseShards{}
+	for timestamp, phdBase := range shards {
+		if timestamp < limit {
+			continue
+		}
+
+		out[timestamp] = phdBase
+	}
+
+	return out
+}
