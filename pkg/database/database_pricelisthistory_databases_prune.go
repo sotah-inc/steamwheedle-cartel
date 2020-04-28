@@ -8,7 +8,7 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 )
 
-func (phdBases *PricelistHistoryDatabases) pruneDatabases(retentionLimitTimestamp sotah.UnixTimestamp) error {
+func (phdBases *PricelistHistoryDatabases) PruneDatabases(retentionLimitTimestamp sotah.UnixTimestamp) error {
 	logging.WithField("limit", retentionLimitTimestamp).Info("checking for databases to prune")
 
 	for rName, realmDatabases := range phdBases.Databases {

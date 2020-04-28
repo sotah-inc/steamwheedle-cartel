@@ -57,6 +57,22 @@ func (sta ApiState) Collect() error {
 		return err
 	}
 
+	if err := sta.PricelistHistoryState.PricelistHistoryIntake(
+		collectAuctionsResults.Tuples,
+	); err != nil {
+		logging.WithField("error", err.Error()).Error("failed to execute pricelist-history-intake")
+
+		return err
+	}
+
+	if err := sta.PricelistHistoryState.PricelistHistoryDatabases.PruneDatabases(
+		sotah.UnixTimestamp(database.RetentionLimit().Unix()),
+	); err != nil {
+		logging.WithField("error", err.Error()).Error("failed to prune pricelist-history databases")
+
+		return err
+	}
+
 	return nil
 }
 
