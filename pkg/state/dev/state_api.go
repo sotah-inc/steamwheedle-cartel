@@ -104,9 +104,16 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 	}
 
 	// loading the items state
+	primaryRegion, err := regions.GetPrimaryRegion()
+	if err != nil {
+		logging.WithField("error", err.Error()).Error("failed to resolve primary region")
+
+		return ApiState{}, err
+	}
+
 	sta.ItemsState, err = state.NewItemsState(state.NewItemsStateOptions{
 		BlizzardState:    sta.BlizzardState,
-		RegionsState:     sta.RegionState,
+		PrimaryRegion:    primaryRegion,
 		Messenger:        mess,
 		ItemsDatabaseDir: config.DatabaseConfig.ItemsDir,
 	})

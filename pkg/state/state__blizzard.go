@@ -111,14 +111,9 @@ func (sta BlizzardState) ResolveAuctions(
 }
 
 func (sta BlizzardState) ResolveItems(
-	regions sotah.RegionList,
+	primaryRegion sotah.Region,
 	ids blizzardv2.ItemIds,
-) (chan blizzardv2.GetItemsOutJob, error) {
-	primaryRegion, err := regions.GetPrimaryRegion()
-	if err != nil {
-		return nil, err
-	}
-
+) chan blizzardv2.GetItemsOutJob {
 	logging.WithField("item-ids", len(ids)).Info("resolving item-ids")
 
 	return blizzardv2.GetItems(blizzardv2.GetItemsOptions{
@@ -128,7 +123,7 @@ func (sta BlizzardState) ResolveItems(
 			)
 		},
 		ItemIds: ids,
-	}), nil
+	})
 }
 
 func (sta BlizzardState) ResolveItemMedias(in chan blizzardv2.GetItemMediasInJob) chan blizzardv2.GetItemMediasOutJob {

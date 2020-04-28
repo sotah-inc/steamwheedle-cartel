@@ -4,12 +4,13 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state/subjects"
 )
 
 type NewItemsStateOptions struct {
 	BlizzardState BlizzardState
-	RegionsState  *RegionsState
+	PrimaryRegion sotah.Region
 	Messenger     messenger.Messenger
 
 	ItemsDatabaseDir string
@@ -25,7 +26,7 @@ func NewItemsState(opts NewItemsStateOptions) (ItemsState, error) {
 
 	return ItemsState{
 		BlizzardState: opts.BlizzardState,
-		RegionsState:  opts.RegionsState,
+		PrimaryRegion: opts.PrimaryRegion,
 		Messenger:     opts.Messenger,
 		ItemsDatabase: itemsDatabase,
 	}, nil
@@ -33,7 +34,7 @@ func NewItemsState(opts NewItemsStateOptions) (ItemsState, error) {
 
 type ItemsState struct {
 	BlizzardState BlizzardState
-	RegionsState  *RegionsState
+	PrimaryRegion sotah.Region
 
 	Messenger     messenger.Messenger
 	ItemsDatabase database.ItemsDatabase

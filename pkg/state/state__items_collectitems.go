@@ -26,13 +26,10 @@ func (sta ItemsState) CollectItems(ids blizzardv2.ItemIds) error {
 	logging.WithField("items", len(itemsSyncPayload.Ids)).Info("collecting items")
 
 	// starting up workers for resolving items
-	itemsOut, err := sta.BlizzardState.ResolveItems(
-		sta.RegionsState.RegionComposites.ToList(),
+	itemsOut := sta.BlizzardState.ResolveItems(
+		sta.PrimaryRegion,
 		itemsSyncPayload.Ids,
 	)
-	if err != nil {
-		return err
-	}
 
 	// starting up workers for resolving item-medias
 	itemMediasIn := make(chan blizzardv2.GetItemMediasInJob)
