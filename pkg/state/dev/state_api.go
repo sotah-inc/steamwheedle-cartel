@@ -14,10 +14,11 @@ import (
 )
 
 type ApiStateDatabaseConfig struct {
-	ItemsDir        string
-	TokensDir       string
-	AreaMapsDir     string
-	LiveAuctionsDir string
+	ItemsDir            string
+	TokensDir           string
+	AreaMapsDir         string
+	LiveAuctionsDir     string
+	PricelistHistoryDir string
 }
 
 type ApiStateConfig struct {
@@ -37,11 +38,17 @@ func (c ApiStateConfig) ToDirList() []string {
 		c.DatabaseConfig.TokensDir,
 		c.DatabaseConfig.LiveAuctionsDir,
 		fmt.Sprintf("%s/live-auctions", c.DatabaseConfig.LiveAuctionsDir),
+		c.DatabaseConfig.PricelistHistoryDir,
+		fmt.Sprintf("%s/pricelist-history", c.DatabaseConfig.PricelistHistoryDir),
 	}
 
 	for _, reg := range c.SotahConfig.FilterInRegions(c.SotahConfig.Regions) {
 		out = append(out, fmt.Sprintf("%s/auctions/%s", c.DiskStoreCacheDir, reg.Name))
-		out = append(out, fmt.Sprintf("%s/live-auctions/%s", c.DiskStoreCacheDir, reg.Name))
+		out = append(out, fmt.Sprintf("%s/live-auctions/%s", c.DatabaseConfig.LiveAuctionsDir, reg.Name))
+		out = append(
+			out,
+			fmt.Sprintf("%s/pricelist-history/%s", c.DatabaseConfig.PricelistHistoryDir, reg.Name),
+		)
 	}
 
 	return out
@@ -165,6 +172,20 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 		return ApiState{}, err
 	}
 
+	// resolving pricelist-history state
+	sta.PricelistHistoryState, err = state.NewPricelistHistoryState(state.NewPricelistHistoryStateOptions{
+		Messenger:                    mess,
+		LakeClient:                   sta.DiskAuctionsState.DiskLakeClient,
+		PricelistHistoryDatabasesDir: config.DatabaseConfig.PricelistHistoryDir,
+		Tuples:                       sta.RegionState.RegionComposites.ToTuples(),
+		ReceiveRegionTimestamps:      sta.RegionState.ReceiveTimestamps,
+	})
+	if err != nil {
+		logging.WithField("error", err.Error()).Error("failed to initialise pricelist-history state")
+
+		return ApiState{}, err
+	}
+
 	// establishing listeners
 	sta.Listeners = state.NewListeners(state.NewSubjectListeners([]state.SubjectListeners{
 		sta.ItemsState.GetListeners(),
@@ -173,6 +194,7 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 		sta.RegionState.GetListeners(),
 		sta.BootState.GetListeners(),
 		sta.LiveAuctionsState.GetListeners(),
+		sta.PricelistHistoryState.GetListeners(),
 	}))
 
 	return sta, nil
@@ -189,5 +211,6 @@ type ApiState struct {
 	DiskAuctionsState state.DiskAuctionsState
 	BootState         state.BootState
 
-	LiveAuctionsState state.LiveAuctionsState
+	LiveAuctionsState     state.LiveAuctionsState
+	PricelistHistoryState state.PricelistHistoryState
 }

@@ -40,3 +40,7 @@ type PricelistHistoryState struct {
 	Tuples                  blizzardv2.RegionConnectedRealmTuples
 	ReceiveRegionTimestamps func(timestamps sotah.RegionTimestamps)
 }
+
+func (sta PricelistHistoryState) GetListeners() SubjectListeners {
+	return SubjectListeners{}
+}
