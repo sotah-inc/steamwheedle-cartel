@@ -9,7 +9,10 @@ import (
 )
 
 func (phdBases *PricelistHistoryDatabases) PruneDatabases(retentionLimitTimestamp sotah.UnixTimestamp) error {
-	logging.WithField("limit", retentionLimitTimestamp).Info("checking for databases to prune")
+	logging.WithFields(logrus.Fields{
+		"limit": retentionLimitTimestamp,
+		"total": phdBases.Total(),
+	}).Info("checking for databases to prune")
 
 	for rName, realmDatabases := range phdBases.Databases {
 		for rSlug, databaseShards := range realmDatabases {
@@ -55,6 +58,11 @@ func (phdBases *PricelistHistoryDatabases) PruneDatabases(retentionLimitTimestam
 			}
 		}
 	}
+
+	logging.WithFields(logrus.Fields{
+		"limit": retentionLimitTimestamp,
+		"total": phdBases.Total(),
+	}).Info("done checking for databases to prune")
 
 	return nil
 }

@@ -78,6 +78,17 @@ type PricelistHistoryDatabases struct {
 	Databases   map[blizzardv2.RegionName]map[blizzardv2.ConnectedRealmId]PricelistHistoryDatabaseShards
 }
 
+func (phdBases *PricelistHistoryDatabases) Total() int {
+	out := 0
+	for _, realmShards := range phdBases.Databases {
+		for _, shards := range realmShards {
+			out += len(shards)
+		}
+	}
+
+	return out
+}
+
 func (phdBases *PricelistHistoryDatabases) GetDatabase(
 	tuple blizzardv2.LoadConnectedRealmTuple,
 ) (PricelistHistoryDatabase, error) {
