@@ -11,6 +11,9 @@ import (
 )
 
 func (sta ApiState) Collect() error {
+	startTime := time.Now()
+	logging.Info("calling collector")
+
 	collectAuctionsResults, err := sta.DiskAuctionsState.CollectAuctions()
 	if err != nil {
 		logging.WithField("error", err.Error()).Error("failed to collect auctions")
@@ -72,6 +75,11 @@ func (sta ApiState) Collect() error {
 
 		return err
 	}
+
+	logging.WithField(
+		"duration-in-ms",
+		time.Since(startTime).Milliseconds(),
+	).Info("finished calling collector")
 
 	return nil
 }
