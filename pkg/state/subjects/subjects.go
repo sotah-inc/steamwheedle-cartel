@@ -31,6 +31,7 @@ const (
 	LiveAuctionsIntake Subject = "liveAuctionsIntake"
 	Auctions           Subject = "auctions"
 	QueryAuctionStats  Subject = "queryAuctionStats"
+	PriceList          Subject = "priceList"
 )
 
 const (
@@ -39,7 +40,6 @@ const (
 
 const (
 	GenericTestErrors          Subject = "genericTestErrors"
-	PriceList                  Subject = "priceList"
 	PriceListHistory           Subject = "priceListHistory"
 	AppMetrics                 Subject = "appMetrics"
 	PricelistHistoriesIntakeV2 Subject = "pricelistHistoriesIntakeV2"
