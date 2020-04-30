@@ -132,3 +132,14 @@ func (phdBases *PricelistHistoryDatabases) resolveDatabase(
 
 	return phdBase, nil
 }
+
+func (phdBases *PricelistHistoryDatabases) GetShards(
+	tuple blizzardv2.RegionConnectedRealmTuple,
+) (PricelistHistoryDatabaseShards, error) {
+	shards, ok := phdBases.Databases[tuple.RegionName][tuple.ConnectedRealmId]
+	if !ok {
+		return PricelistHistoryDatabaseShards{}, errors.New("failed to resolve shards with tuple")
+	}
+
+	return shards, nil
+}
