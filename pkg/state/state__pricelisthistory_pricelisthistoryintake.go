@@ -1,6 +1,8 @@
 package state
 
 import (
+	"time"
+
 	"github.com/nats-io/nats.go"
 	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
@@ -44,6 +46,8 @@ func (sta PricelistHistoryState) ListenForPricelistHistoryIntake(stop ListenStop
 }
 
 func (sta PricelistHistoryState) PricelistHistoryIntake(tuples blizzardv2.LoadConnectedRealmTuples) error {
+	startTime := time.Now()
+
 	// spinning up workers
 	getPricelistHistoryByTuplesOut := sta.LakeClient.GetEncodedPricelistHistoryByTuples(tuples)
 	loadEncodedDataIn := make(chan database.PricelistHistoryLoadEncodedDataInJob)
@@ -67,6 +71,8 @@ func (sta PricelistHistoryState) PricelistHistoryIntake(tuples blizzardv2.LoadCo
 		close(loadEncodedDataIn)
 	}()
 
+	// waiting for it to drain out
+	totalLoaded := 0
 	regionTimestamps := sotah.RegionTimestamps{}
 	for job := range loadEncodedDataOut {
 		if job.Err != nil {
@@ -84,6 +90,8 @@ func (sta PricelistHistoryState) PricelistHistoryIntake(tuples blizzardv2.LoadCo
 			job.Tuple.RegionConnectedRealmTuple,
 			job.ReceivedAt,
 		)
+
+		totalLoaded += 1
 	}
 
 	// optionally updating region state
@@ -99,6 +107,11 @@ func (sta PricelistHistoryState) PricelistHistoryIntake(tuples blizzardv2.LoadCo
 
 		return err
 	}
+
+	logging.WithFields(logrus.Fields{
+		"total":          totalLoaded,
+		"duration-in-ms": time.Since(startTime).Milliseconds(),
+	}).Info("total loaded in pricelist-history")
 
 	return nil
 }

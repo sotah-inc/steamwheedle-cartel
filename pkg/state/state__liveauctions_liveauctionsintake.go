@@ -1,6 +1,8 @@
 package state
 
 import (
+	"time"
+
 	"github.com/nats-io/nats.go"
 	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
@@ -44,6 +46,8 @@ func (sta LiveAuctionsState) ListenForLiveAuctionsIntake(stop ListenStopChan) er
 }
 
 func (sta LiveAuctionsState) LiveAuctionsIntake(tuples blizzardv2.RegionConnectedRealmTuples) error {
+	startTime := time.Now()
+
 	// spinning up workers
 	getAuctionsByTuplesOut := sta.LakeClient.GetEncodedAuctionsByTuples(tuples)
 	loadEncodedDataIn := make(chan database.LiveAuctionsLoadEncodedDataInJob)
@@ -68,6 +72,7 @@ func (sta LiveAuctionsState) LiveAuctionsIntake(tuples blizzardv2.RegionConnecte
 	}()
 
 	// waiting for it to drain out
+	totalLoaded := 0
 	regionTimestamps := sotah.RegionTimestamps{}
 	for job := range loadEncodedDataOut {
 		if job.Err != nil {
@@ -82,6 +87,7 @@ func (sta LiveAuctionsState) LiveAuctionsIntake(tuples blizzardv2.RegionConnecte
 		}).Info("loaded auctions in")
 
 		regionTimestamps = regionTimestamps.SetLiveAuctionsReceived(job.Tuple, job.ReceivedAt)
+		totalLoaded += 1
 	}
 
 	// optionally updating region state
@@ -105,6 +111,11 @@ func (sta LiveAuctionsState) LiveAuctionsIntake(tuples blizzardv2.RegionConnecte
 
 		return err
 	}
+
+	logging.WithFields(logrus.Fields{
+		"total":          totalLoaded,
+		"duration-in-ms": time.Since(startTime).Milliseconds(),
+	}).Info("total loaded in live-auctions")
 
 	return nil
 }
