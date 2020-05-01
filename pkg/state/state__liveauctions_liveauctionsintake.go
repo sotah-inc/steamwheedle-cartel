@@ -67,6 +67,7 @@ func (sta LiveAuctionsState) LiveAuctionsIntake(tuples blizzardv2.RegionConnecte
 		close(loadEncodedDataIn)
 	}()
 
+	// waiting for it to drain out
 	regionTimestamps := sotah.RegionTimestamps{}
 	for job := range loadEncodedDataOut {
 		if job.Err != nil {
@@ -86,6 +87,13 @@ func (sta LiveAuctionsState) LiveAuctionsIntake(tuples blizzardv2.RegionConnecte
 	// optionally updating region state
 	if !regionTimestamps.IsZero() {
 		sta.ReceiveRegionTimestamps(regionTimestamps)
+	}
+
+	// persisting related stats
+	if err := sta.LiveAuctionsDatabases.PersistStats(tuples); err != nil {
+		logging.WithField("error", err.Error()).Error("failed to persist live-auctions stats")
+
+		return err
 	}
 
 	return nil

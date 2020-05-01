@@ -96,7 +96,6 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 		Regions:       regions,
 		Expansions:    config.SotahConfig.Expansions,
 		Professions:   config.SotahConfig.Professions,
-		ItemBlacklist: config.SotahConfig.ItemBlacklist,
 	})
 	if err != nil {
 		logging.WithField("error", err.Error()).Error("failed to establish boot state")

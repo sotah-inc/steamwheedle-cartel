@@ -91,5 +91,14 @@ func (sta PricelistHistoryState) PricelistHistoryIntake(tuples blizzardv2.LoadCo
 		sta.ReceiveRegionTimestamps(regionTimestamps)
 	}
 
+	// pruning databases where applicable
+	if err := sta.PricelistHistoryDatabases.PruneDatabases(
+		sotah.UnixTimestamp(database.RetentionLimit().Unix()),
+	); err != nil {
+		logging.WithField("error", err.Error()).Error("failed to prune pricelist-history databases")
+
+		return err
+	}
+
 	return nil
 }

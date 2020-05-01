@@ -43,14 +43,6 @@ func (sta ApiState) Collect() error {
 		return err
 	}
 
-	if err := sta.LiveAuctionsState.LiveAuctionsDatabases.PersistStats(
-		collectAuctionsResults.Tuples.RegionConnectedRealmTuples(),
-	); err != nil {
-		logging.WithField("error", err.Error()).Error("failed to persist live-auctions stats")
-
-		return err
-	}
-
 	if err := sta.LiveAuctionsState.LiveAuctionsDatabases.PruneStats(
 		collectAuctionsResults.Tuples.RegionConnectedRealmTuples(),
 		sotah.UnixTimestamp(database.RetentionLimit().Unix()),
@@ -64,14 +56,6 @@ func (sta ApiState) Collect() error {
 		collectAuctionsResults.Tuples,
 	); err != nil {
 		logging.WithField("error", err.Error()).Error("failed to execute pricelist-history-intake")
-
-		return err
-	}
-
-	if err := sta.PricelistHistoryState.PricelistHistoryDatabases.PruneDatabases(
-		sotah.UnixTimestamp(database.RetentionLimit().Unix()),
-	); err != nil {
-		logging.WithField("error", err.Error()).Error("failed to prune pricelist-history databases")
 
 		return err
 	}

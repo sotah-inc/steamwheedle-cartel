@@ -12,10 +12,9 @@ type NewBootStateOptions struct {
 	BlizzardState BlizzardState
 	Messenger     messenger.Messenger
 
-	Regions       sotah.RegionList
-	Expansions    []sotah.Expansion
-	Professions   []sotah.Profession
-	ItemBlacklist ItemBlacklist
+	Regions     sotah.RegionList
+	Expansions  []sotah.Expansion
+	Professions []sotah.Profession
 }
 
 func NewBootState(opts NewBootStateOptions) (BootState, error) {
@@ -39,7 +38,6 @@ func NewBootState(opts NewBootStateOptions) (BootState, error) {
 
 			return out
 		}(),
-		ItemBlacklist: opts.ItemBlacklist,
 	}, nil
 }
 
@@ -51,10 +49,9 @@ type BootState struct {
 	ItemClasses   []blizzardv2.ItemClassResponse
 
 	// receiving from config file
-	Regions       sotah.RegionList
-	Expansions    []sotah.Expansion
-	Professions   []sotah.Profession
-	ItemBlacklist ItemBlacklist
+	Regions     sotah.RegionList
+	Expansions  []sotah.Expansion
+	Professions []sotah.Profession
 }
 
 func (sta BootState) GetListeners() SubjectListeners {
