@@ -16,7 +16,7 @@ func (phdBases *PricelistHistoryDatabases) PruneDatabases(retentionLimitTimestam
 
 	for rName, realmDatabases := range phdBases.Databases {
 		for rSlug, databaseShards := range realmDatabases {
-			for unixTimestamp, phdBase := range databaseShards.Before(retentionLimitTimestamp) {
+			for unixTimestamp, phdBase := range databaseShards.Before(retentionLimitTimestamp, false) {
 				logging.WithFields(logrus.Fields{
 					"region":             rName,
 					"realm":              rSlug,
