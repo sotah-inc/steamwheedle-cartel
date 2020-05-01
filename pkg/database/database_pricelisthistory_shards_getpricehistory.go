@@ -18,16 +18,7 @@ func (shards PricelistHistoryDatabaseShards) GetPriceHistory(
 			return sotah.PriceHistory{}, err
 		}
 
-		for targetTimestamp, pricesValue := range receivedHistory {
-			if targetTimestamp < lowerBounds {
-				continue
-			}
-			if targetTimestamp > upperBounds {
-				continue
-			}
-
-			pHistory[targetTimestamp] = pricesValue
-		}
+		pHistory = pHistory.Merge(receivedHistory.Between(lowerBounds, upperBounds))
 	}
 
 	return pHistory, nil
