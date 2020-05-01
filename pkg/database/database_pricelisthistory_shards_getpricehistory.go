@@ -64,7 +64,7 @@ func (shards PricelistHistoryDatabaseShards) GetPriceHistory(
 	pHistory := sotah.PriceHistory{}
 	for job := range out {
 		if job.Err != nil {
-			logging.WithFields(job.ToLogrusFields(id)).Error("failed to fetch pricelist-history for item")
+			logging.WithFields(job.ToLogrusFields(id)).Error("failed to fetch price history for item")
 
 			return sotah.PriceHistory{}, job.Err
 		}
