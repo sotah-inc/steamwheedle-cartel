@@ -81,6 +81,8 @@ type DownloadOptions struct {
 	IfModifiedSince time.Time
 }
 
+const RFC1123Blizzard = "Mon, 2 Jan 2006 15:04:05 MST"
+
 func Download(opts DownloadOptions) (ResponseMeta, error) {
 	// forming a request
 	req, err := http.NewRequest("GET", opts.Uri, nil)
@@ -91,7 +93,7 @@ func Download(opts DownloadOptions) (ResponseMeta, error) {
 
 	// optionally adding if-modified-since header
 	if !opts.IfModifiedSince.IsZero() {
-		req.Header.Add("If-Modified-Since", opts.IfModifiedSince.Format(time.RFC1123))
+		req.Header.Add("If-Modified-Since", opts.IfModifiedSince.Format(RFC1123Blizzard))
 	}
 
 	// running it into a client
@@ -114,7 +116,7 @@ func Download(opts DownloadOptions) (ResponseMeta, error) {
 			return time.Time{}, nil
 		}
 
-		return time.Parse(time.RFC1123, foundLastModified)
+		return time.Parse(RFC1123Blizzard, foundLastModified)
 	}()
 	if err != nil {
 		return ResponseMeta{}, err
