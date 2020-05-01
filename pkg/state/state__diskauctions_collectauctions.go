@@ -25,7 +25,7 @@ func (sta DiskAuctionsState) CollectAuctions() (CollectAuctionsResults, error) {
 	startTime := time.Now()
 
 	// spinning up workers
-	aucsOutJobs := sta.BlizzardState.ResolveAuctions(sta.RegionsState.RegionComposites.ToDownloadTuples())
+	aucsOutJobs := sta.BlizzardState.ResolveAuctions(sta.GetTuples())
 	storeAucsInJobs := make(chan DiskLake.WriteAuctionsWithTuplesInJob)
 	storeAucsOutJobs := sta.DiskLakeClient.WriteAuctionsWithTuples(storeAucsInJobs)
 	resultsInJob := make(chan CollectAuctionsResult)
@@ -113,7 +113,7 @@ func (sta DiskAuctionsState) CollectAuctions() (CollectAuctionsResults, error) {
 
 	// optionally updating region state
 	if !results.RegionTimestamps.IsZero() {
-		sta.RegionsState.ReceiveTimestamps(results.RegionTimestamps)
+		sta.ReceiveRegionTimestamps(results.RegionTimestamps)
 	}
 
 	logging.WithFields(logrus.Fields{

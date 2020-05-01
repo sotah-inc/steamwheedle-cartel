@@ -146,7 +146,7 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 	// resolving disk-auctions state
 	sta.DiskAuctionsState = state.DiskAuctionsState{
 		BlizzardState:           sta.BlizzardState,
-		Tuples:                  sta.RegionState.RegionComposites.ToTuples(),
+		GetTuples:               sta.RegionState.RegionComposites.ToDownloadTuples,
 		ReceiveRegionTimestamps: sta.RegionState.ReceiveTimestamps,
 		DiskLakeClient:          DiskLake.NewClient(config.DiskStoreCacheDir),
 		ItemsDatabase:           sta.ItemsState.ItemsDatabase,

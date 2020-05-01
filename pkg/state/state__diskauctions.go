@@ -9,7 +9,7 @@ import (
 
 type DiskAuctionsState struct {
 	BlizzardState           BlizzardState
-	Tuples                  blizzardv2.RegionConnectedRealmTuples
+	GetTuples               func() []blizzardv2.DownloadConnectedRealmTuple
 	ReceiveRegionTimestamps func(timestamps sotah.RegionTimestamps)
 
 	DiskLakeClient DiskLake.Client
