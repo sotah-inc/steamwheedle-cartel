@@ -6,6 +6,7 @@ import (
 	BaseLake "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/lake/base"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state/subjects"
 )
 
 type NewPricelistHistoryStateOptions struct {
@@ -42,5 +43,8 @@ type PricelistHistoryState struct {
 }
 
 func (sta PricelistHistoryState) GetListeners() SubjectListeners {
-	return SubjectListeners{}
+	return SubjectListeners{
+		subjects.PricelistHistoryIntake: sta.ListenForPricelistHistoryIntake,
+		subjects.PriceListHistory:       sta.ListenForPriceListHistory,
+	}
 }

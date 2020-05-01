@@ -36,11 +36,11 @@ const (
 
 const (
 	PricelistHistoryIntake Subject = "pricelistHistoryIntake"
+	PriceListHistory       Subject = "priceListHistory"
 )
 
 const (
 	GenericTestErrors          Subject = "genericTestErrors"
-	PriceListHistory           Subject = "priceListHistory"
 	AppMetrics                 Subject = "appMetrics"
 	PricelistHistoriesIntakeV2 Subject = "pricelistHistoriesIntakeV2"
 	RealmModificationDates     Subject = "realmModificationDates"
