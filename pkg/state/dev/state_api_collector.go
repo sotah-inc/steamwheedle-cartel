@@ -3,8 +3,6 @@ package dev
 import (
 	"time"
 
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database"
-
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
@@ -39,15 +37,6 @@ func (sta ApiState) Collect() error {
 		collectAuctionsResults.Tuples.RegionConnectedRealmTuples(),
 	); err != nil {
 		logging.WithField("error", err.Error()).Error("failed to execute live-auctions-intake")
-
-		return err
-	}
-
-	if err := sta.LiveAuctionsState.LiveAuctionsDatabases.PruneStats(
-		collectAuctionsResults.Tuples.RegionConnectedRealmTuples(),
-		sotah.UnixTimestamp(database.RetentionLimit().Unix()),
-	); err != nil {
-		logging.WithField("error", err.Error()).Error("failed to prune live-auctions stats")
 
 		return err
 	}

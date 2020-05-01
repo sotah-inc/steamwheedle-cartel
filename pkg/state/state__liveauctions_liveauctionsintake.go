@@ -96,5 +96,15 @@ func (sta LiveAuctionsState) LiveAuctionsIntake(tuples blizzardv2.RegionConnecte
 		return err
 	}
 
+	// pruning stats
+	if err := sta.LiveAuctionsDatabases.PruneStats(
+		tuples,
+		sotah.UnixTimestamp(database.RetentionLimit().Unix()),
+	); err != nil {
+		logging.WithField("error", err.Error()).Error("failed to prune live-auctions stats")
+
+		return err
+	}
+
 	return nil
 }
