@@ -10,7 +10,9 @@ import (
 )
 
 func NewRealmComposite(realmWhitelist blizzardv2.RealmSlugs, res blizzardv2.ConnectedRealmResponse) RealmComposite {
-	res.Realms = res.Realms.FilterIn(realmWhitelist)
+	if len(realmWhitelist) > 0 {
+		res.Realms = res.Realms.FilterIn(realmWhitelist)
+	}
 
 	return RealmComposite{
 		ConnectedRealmResponse: res,
