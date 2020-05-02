@@ -5,7 +5,9 @@ import (
 
 	"github.com/twinj/uuid"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
-	DiskLake "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/lake/disk"
+	BaseCollector "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/collector/base"
+	DiskCollector "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/collector/disk"
+	BaseLake "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/lake/base"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
@@ -27,6 +29,7 @@ type ApiStateConfig struct {
 	DiskStoreCacheDir string
 	BlizzardConfig    blizzardv2.ClientConfig
 	DatabaseConfig    ApiStateDatabaseConfig
+	LakeClient        BaseLake.Client
 }
 
 func (c ApiStateConfig) ToDirList() []string {
@@ -143,18 +146,19 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 		return ApiState{}, err
 	}
 
-	// resolving disk-auctions state
-	sta.DiskAuctionsState = state.DiskAuctionsState{
-		BlizzardState:           sta.BlizzardState,
-		GetTuples:               sta.RegionState.RegionComposites.ToDownloadTuples,
+	// resolving DiskCollector-auctions state
+	sta.Collector = DiskCollector.NewClient(DiskCollector.ClientOptions{
+		ResolveAuctions: func() chan blizzardv2.GetAuctionsJob {
+			return sta.BlizzardState.ResolveAuctions(sta.RegionState.RegionComposites.ToDownloadTuples())
+		},
 		ReceiveRegionTimestamps: sta.RegionState.ReceiveTimestamps,
-		LakeClient:              DiskLake.NewClient(config.DiskStoreCacheDir),
-	}
+		LakeClient:              config.LakeClient,
+	})
 
 	// resolving live-auctions state
 	sta.LiveAuctionsState, err = state.NewLiveAuctionsState(state.NewLiveAuctionsStateOptions{
 		Messenger:                mess,
-		LakeClient:               sta.DiskAuctionsState.LakeClient,
+		LakeClient:               config.LakeClient,
 		LiveAuctionsDatabasesDir: config.DatabaseConfig.LiveAuctionsDir,
 		Tuples:                   sta.RegionState.RegionComposites.ToTuples(),
 		ReceiveRegionTimestamps:  sta.RegionState.ReceiveTimestamps,
@@ -168,7 +172,7 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 	// resolving pricelist-history state
 	sta.PricelistHistoryState, err = state.NewPricelistHistoryState(state.NewPricelistHistoryStateOptions{
 		Messenger:                    mess,
-		LakeClient:                   sta.DiskAuctionsState.LakeClient,
+		LakeClient:                   config.LakeClient,
 		PricelistHistoryDatabasesDir: config.DatabaseConfig.PricelistHistoryDir,
 		Tuples:                       sta.RegionState.RegionComposites.ToTuples(),
 		ReceiveRegionTimestamps:      sta.RegionState.ReceiveTimestamps,
@@ -196,13 +200,13 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 type ApiState struct {
 	state.State
 
-	BlizzardState     state.BlizzardState
-	ItemsState        state.ItemsState
-	AreaMapsState     state.AreaMapsState
-	TokensState       state.TokensState
-	RegionState       *state.RegionsState
-	DiskAuctionsState state.DiskAuctionsState
-	BootState         state.BootState
+	BlizzardState state.BlizzardState
+	ItemsState    state.ItemsState
+	AreaMapsState state.AreaMapsState
+	TokensState   state.TokensState
+	RegionState   *state.RegionsState
+	Collector     BaseCollector.Client
+	BootState     state.BootState
 
 	LiveAuctionsState     state.LiveAuctionsState
 	PricelistHistoryState state.PricelistHistoryState

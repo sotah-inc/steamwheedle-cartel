@@ -2,7 +2,6 @@ package base
 
 import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
-	BaseLake "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/lake/base"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 )
 
@@ -18,10 +17,5 @@ type CollectAuctionsResults interface {
 }
 
 type Client interface {
-	ResolveAuctions(tuples []blizzardv2.DownloadConnectedRealmTuple) chan blizzardv2.GetAuctionsJob
-	GetTuples() []blizzardv2.DownloadConnectedRealmTuple
-	ReceiveRegionTimestamps(timestamps sotah.RegionTimestamps)
-	LakeClient() BaseLake.Client
-
 	CollectAuctions() (CollectAuctionsResults, error)
 }
