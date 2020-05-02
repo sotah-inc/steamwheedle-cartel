@@ -126,7 +126,11 @@ func (sta LiveAuctionsState) LiveAuctionsIntake(tuples blizzardv2.LoadConnectedR
 		return err
 	}
 
-	response, err := sta.Messenger.Request(string(subjects.PricelistHistoryIntake), encodedTuples)
+	response, err := sta.Messenger.Request(messenger.RequestOptions{
+		Subject: string(subjects.PricelistHistoryIntake),
+		Data:    encodedTuples,
+		Timeout: 10 * time.Minute,
+	})
 	if err != nil {
 		logging.WithField("error", err.Error()).Error(
 			"failed to publish message for pricelist-history intake",

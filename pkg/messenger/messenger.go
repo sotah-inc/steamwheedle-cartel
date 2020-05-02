@@ -159,8 +159,22 @@ func (mess Messenger) ReplyTo(natsMsg nats.Msg, m Message) {
 	}
 }
 
-func (mess Messenger) Request(subject string, data []byte) (Message, error) {
-	natsMsg, err := mess.conn.Request(subject, data, 5*time.Second)
+type RequestOptions struct {
+	Subject string
+	Data    []byte
+	Timeout time.Duration
+}
+
+func (mess Messenger) Request(opts RequestOptions) (Message, error) {
+	timeout := func() time.Duration {
+		if opts.Timeout == 0 {
+			return 5 * time.Second
+		}
+
+		return opts.Timeout
+	}()
+
+	natsMsg, err := mess.conn.Request(opts.Subject, opts.Data, timeout)
 	if err != nil {
 		return Message{}, err
 	}
