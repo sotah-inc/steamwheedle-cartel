@@ -28,7 +28,7 @@ func (sta PricelistHistoryState) ListenForPricelistHistoryIntake(stop ListenStop
 		}
 
 		logging.WithField("tuples", len(tuples)).Info("received")
-		if err := sta.PricelistHistoryIntake(tuples); err != nil {
+		if err := sta.pricelistHistoryIntake(tuples); err != nil {
 			m.Err = err.Error()
 			m.Code = codes.GenericError
 			sta.Messenger.ReplyTo(natsMsg, m)
@@ -45,7 +45,7 @@ func (sta PricelistHistoryState) ListenForPricelistHistoryIntake(stop ListenStop
 	return nil
 }
 
-func (sta PricelistHistoryState) PricelistHistoryIntake(tuples blizzardv2.LoadConnectedRealmTuples) error {
+func (sta PricelistHistoryState) pricelistHistoryIntake(tuples blizzardv2.LoadConnectedRealmTuples) error {
 	startTime := time.Now()
 
 	// spinning up workers
