@@ -149,7 +149,6 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 		GetTuples:               sta.RegionState.RegionComposites.ToDownloadTuples,
 		ReceiveRegionTimestamps: sta.RegionState.ReceiveTimestamps,
 		DiskLakeClient:          DiskLake.NewClient(config.DiskStoreCacheDir),
-		ItemsDatabase:           sta.ItemsState.ItemsDatabase,
 	}
 
 	// resolving live-auctions state
