@@ -8,9 +8,9 @@ import (
 )
 
 func (client Client) resolveAuctionsFilepath(tuple blizzardv2.RegionConnectedRealmTuple) (string, error) {
-	if len(client.CacheDir) == 0 {
+	if len(client.cacheDir) == 0 {
 		return "", errors.New("cache dir cannot be blank")
 	}
 
-	return fmt.Sprintf("%s/auctions/%s/%d.json.gz", client.CacheDir, tuple.RegionName, tuple.ConnectedRealmId), nil
+	return fmt.Sprintf("%s/auctions/%s/%d.json.gz", client.cacheDir, tuple.RegionName, tuple.ConnectedRealmId), nil
 }

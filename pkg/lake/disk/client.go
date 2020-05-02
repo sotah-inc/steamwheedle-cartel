@@ -1,7 +1,7 @@
 package disk
 
-func NewClient(cacheDir string) Client { return Client{CacheDir: cacheDir} }
+func NewClient(cacheDir string) Client { return Client{cacheDir: cacheDir} }
 
 type Client struct {
-	CacheDir string
+	cacheDir string
 }
