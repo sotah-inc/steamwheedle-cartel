@@ -18,7 +18,7 @@ func (sta LiveAuctionsState) ListenForLiveAuctionsIntake(stop ListenStopChan) er
 	err := sta.Messenger.Subscribe(string(subjects.LiveAuctionsIntake), stop, func(natsMsg nats.Msg) {
 		m := messenger.NewMessage()
 
-		tuples, err := blizzardv2.NewRegionConnectedRealmTuples(natsMsg.Data)
+		tuples, err := blizzardv2.NewLoadConnectedRealmTuples(natsMsg.Data)
 		if err != nil {
 			m.Err = err.Error()
 			m.Code = codes.MsgJSONParseError
@@ -45,11 +45,11 @@ func (sta LiveAuctionsState) ListenForLiveAuctionsIntake(stop ListenStopChan) er
 	return nil
 }
 
-func (sta LiveAuctionsState) LiveAuctionsIntake(tuples blizzardv2.RegionConnectedRealmTuples) error {
+func (sta LiveAuctionsState) LiveAuctionsIntake(tuples blizzardv2.LoadConnectedRealmTuples) error {
 	startTime := time.Now()
 
 	// spinning up workers
-	getAuctionsByTuplesOut := sta.LakeClient.GetEncodedAuctionsByTuples(tuples)
+	getAuctionsByTuplesOut := sta.LakeClient.GetEncodedAuctionsByTuples(tuples.RegionConnectedRealmTuples())
 	loadEncodedDataIn := make(chan database.LiveAuctionsLoadEncodedDataInJob)
 	loadEncodedDataOut := sta.LiveAuctionsDatabases.LoadEncodedData(loadEncodedDataIn)
 
@@ -96,7 +96,7 @@ func (sta LiveAuctionsState) LiveAuctionsIntake(tuples blizzardv2.RegionConnecte
 	}
 
 	// persisting related stats
-	if err := sta.LiveAuctionsDatabases.PersistStats(tuples); err != nil {
+	if err := sta.LiveAuctionsDatabases.PersistStats(tuples.RegionConnectedRealmTuples()); err != nil {
 		logging.WithField("error", err.Error()).Error("failed to persist live-auctions stats")
 
 		return err
@@ -104,7 +104,7 @@ func (sta LiveAuctionsState) LiveAuctionsIntake(tuples blizzardv2.RegionConnecte
 
 	// pruning stats
 	if err := sta.LiveAuctionsDatabases.PruneStats(
-		tuples,
+		tuples.RegionConnectedRealmTuples(),
 		sotah.UnixTimestamp(database.RetentionLimit().Unix()),
 	); err != nil {
 		logging.WithField("error", err.Error()).Error("failed to prune live-auctions stats")
@@ -116,6 +116,22 @@ func (sta LiveAuctionsState) LiveAuctionsIntake(tuples blizzardv2.RegionConnecte
 		"total":          totalLoaded,
 		"duration-in-ms": time.Since(startTime).Milliseconds(),
 	}).Info("total loaded in live-auctions")
+
+	// forwarding the received tuples to pricelist-history intake
+	encodedTuples, err := tuples.EncodeForDelivery()
+	if err != nil {
+		logging.WithField("error", err.Error()).Error("failed to encode load tuples for delivery")
+
+		return err
+	}
+
+	if err := sta.Messenger.Publish(string(subjects.PricelistHistoryIntake), encodedTuples); err != nil {
+		logging.WithField("error", err.Error()).Error(
+			"failed to publish message for pricelist-history intake",
+		)
+
+		return err
+	}
 
 	return nil
 }

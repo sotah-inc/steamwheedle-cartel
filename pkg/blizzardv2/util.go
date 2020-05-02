@@ -80,6 +80,10 @@ func (tuples LoadConnectedRealmTuples) RegionConnectedRealmTuples() RegionConnec
 	return out
 }
 
+func (tuples LoadConnectedRealmTuples) EncodeForDelivery() ([]byte, error) {
+	return json.Marshal(tuples)
+}
+
 type LoadConnectedRealmTuple struct {
 	RegionConnectedRealmTuple
 	LastModified time.Time

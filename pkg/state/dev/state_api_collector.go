@@ -33,18 +33,8 @@ func (sta ApiState) Collect() error {
 		return err
 	}
 
-	if err := sta.LiveAuctionsState.LiveAuctionsIntake(
-		collectAuctionsResults.Tuples.RegionConnectedRealmTuples(),
-	); err != nil {
+	if err := sta.LiveAuctionsState.LiveAuctionsIntake(collectAuctionsResults.Tuples); err != nil {
 		logging.WithField("error", err.Error()).Error("failed to execute live-auctions-intake")
-
-		return err
-	}
-
-	if err := sta.PricelistHistoryState.PricelistHistoryIntake(
-		collectAuctionsResults.Tuples,
-	); err != nil {
-		logging.WithField("error", err.Error()).Error("failed to execute pricelist-history-intake")
 
 		return err
 	}
