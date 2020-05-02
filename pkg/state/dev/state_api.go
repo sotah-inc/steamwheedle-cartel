@@ -148,13 +148,13 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 		BlizzardState:           sta.BlizzardState,
 		GetTuples:               sta.RegionState.RegionComposites.ToDownloadTuples,
 		ReceiveRegionTimestamps: sta.RegionState.ReceiveTimestamps,
-		DiskLakeClient:          DiskLake.NewClient(config.DiskStoreCacheDir),
+		LakeClient:              DiskLake.NewClient(config.DiskStoreCacheDir),
 	}
 
 	// resolving live-auctions state
 	sta.LiveAuctionsState, err = state.NewLiveAuctionsState(state.NewLiveAuctionsStateOptions{
 		Messenger:                mess,
-		LakeClient:               sta.DiskAuctionsState.DiskLakeClient,
+		LakeClient:               sta.DiskAuctionsState.LakeClient,
 		LiveAuctionsDatabasesDir: config.DatabaseConfig.LiveAuctionsDir,
 		Tuples:                   sta.RegionState.RegionComposites.ToTuples(),
 		ReceiveRegionTimestamps:  sta.RegionState.ReceiveTimestamps,
@@ -168,7 +168,7 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 	// resolving pricelist-history state
 	sta.PricelistHistoryState, err = state.NewPricelistHistoryState(state.NewPricelistHistoryStateOptions{
 		Messenger:                    mess,
-		LakeClient:                   sta.DiskAuctionsState.DiskLakeClient,
+		LakeClient:                   sta.DiskAuctionsState.LakeClient,
 		PricelistHistoryDatabasesDir: config.DatabaseConfig.PricelistHistoryDir,
 		Tuples:                       sta.RegionState.RegionComposites.ToTuples(),
 		ReceiveRegionTimestamps:      sta.RegionState.ReceiveTimestamps,

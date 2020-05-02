@@ -3,6 +3,7 @@ package disk
 import (
 	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
+	BaseLake "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/lake/base"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
@@ -25,38 +26,57 @@ func (client Client) WriteAuctionsWithTuple(
 	return util.WriteFile(dest, gzipEncoded)
 }
 
-type WriteAuctionsWithTuplesInJob struct {
-	Tuple    blizzardv2.RegionConnectedRealmTuple
-	Auctions sotah.MiniAuctionList
-}
-
-type WriteAuctionsWithTuplesOutJob struct {
-	Err   error
-	Tuple blizzardv2.RegionConnectedRealmTuple
-}
-
-func (job WriteAuctionsWithTuplesOutJob) ToLogrusFields() logrus.Fields {
-	return logrus.Fields{
-		"error":           job.Err.Error(),
-		"region":          job.Tuple.RegionName,
-		"connected-realm": job.Tuple.ConnectedRealmId,
+func (client Client) NewWriteAuctionsWithTuplesInJob(
+	tuple blizzardv2.RegionConnectedRealmTuple,
+	auctions sotah.MiniAuctionList,
+) BaseLake.WriteAuctionsWithTuplesInJob {
+	return WriteAuctionsWithTuplesInJob{
+		tuple:    tuple,
+		auctions: auctions,
 	}
 }
 
-func (client Client) WriteAuctionsWithTuples(in chan WriteAuctionsWithTuplesInJob) chan WriteAuctionsWithTuplesOutJob {
+type WriteAuctionsWithTuplesInJob struct {
+	tuple    blizzardv2.RegionConnectedRealmTuple
+	auctions sotah.MiniAuctionList
+}
+
+func (w WriteAuctionsWithTuplesInJob) Tuple() blizzardv2.RegionConnectedRealmTuple { return w.tuple }
+func (w WriteAuctionsWithTuplesInJob) Auctions() sotah.MiniAuctionList             { return w.auctions }
+
+type WriteAuctionsWithTuplesOutJob struct {
+	err   error
+	tuple blizzardv2.RegionConnectedRealmTuple
+}
+
+func (job WriteAuctionsWithTuplesOutJob) Err() error { return job.err }
+func (job WriteAuctionsWithTuplesOutJob) Tuple() blizzardv2.RegionConnectedRealmTuple {
+	return job.tuple
+}
+func (job WriteAuctionsWithTuplesOutJob) ToLogrusFields() logrus.Fields {
+	return logrus.Fields{
+		"error":           job.Err().Error(),
+		"region":          job.Tuple().RegionName,
+		"connected-realm": job.Tuple().ConnectedRealmId,
+	}
+}
+
+func (client Client) WriteAuctionsWithTuples(
+	in chan BaseLake.WriteAuctionsWithTuplesInJob,
+) chan BaseLake.WriteAuctionsWithTuplesOutJob {
 	// establishing channels
-	out := make(chan WriteAuctionsWithTuplesOutJob)
+	out := make(chan BaseLake.WriteAuctionsWithTuplesOutJob)
 
 	// spinning up the workers for writing
 	worker := func() {
 		for job := range in {
-			if err := client.WriteAuctionsWithTuple(job.Tuple, job.Auctions); err != nil {
-				out <- WriteAuctionsWithTuplesOutJob{err, job.Tuple}
+			if err := client.WriteAuctionsWithTuple(job.Tuple(), job.Auctions()); err != nil {
+				out <- WriteAuctionsWithTuplesOutJob{err, job.Tuple()}
 
 				continue
 			}
 
-			out <- WriteAuctionsWithTuplesOutJob{nil, job.Tuple}
+			out <- WriteAuctionsWithTuplesOutJob{nil, job.Tuple()}
 		}
 	}
 	postWork := func() {
@@ -68,8 +88,8 @@ func (client Client) WriteAuctionsWithTuples(in chan WriteAuctionsWithTuplesInJo
 	go func() {
 		for job := range in {
 			logging.WithFields(logrus.Fields{
-				"region":          job.Tuple.RegionName,
-				"connected-realm": job.Tuple.ConnectedRealmId,
+				"region":          job.Tuple().RegionName,
+				"connected-realm": job.Tuple().ConnectedRealmId,
 			}).Debug("queueing up job for writing auctions")
 
 			in <- job

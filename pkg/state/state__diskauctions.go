@@ -2,7 +2,7 @@ package state
 
 import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
-	DiskLake "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/lake/disk"
+	BaseLake "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/lake/base"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 )
 
@@ -11,5 +11,5 @@ type DiskAuctionsState struct {
 	GetTuples               func() []blizzardv2.DownloadConnectedRealmTuple
 	ReceiveRegionTimestamps func(timestamps sotah.RegionTimestamps)
 
-	DiskLakeClient DiskLake.Client
+	LakeClient BaseLake.Client
 }

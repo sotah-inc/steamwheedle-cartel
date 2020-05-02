@@ -5,7 +5,7 @@ import (
 
 	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
-	DiskLake "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/lake/disk"
+	BaseLake "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/lake/base"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 )
@@ -26,8 +26,8 @@ func (sta DiskAuctionsState) CollectAuctions() (CollectAuctionsResults, error) {
 
 	// spinning up workers
 	aucsOutJobs := sta.BlizzardState.ResolveAuctions(sta.GetTuples())
-	storeAucsInJobs := make(chan DiskLake.WriteAuctionsWithTuplesInJob)
-	storeAucsOutJobs := sta.DiskLakeClient.WriteAuctionsWithTuples(storeAucsInJobs)
+	storeAucsInJobs := make(chan BaseLake.WriteAuctionsWithTuplesInJob)
+	storeAucsOutJobs := sta.LakeClient.WriteAuctionsWithTuples(storeAucsInJobs)
 	resultsInJob := make(chan CollectAuctionsResult)
 	resultsOutJob := make(chan CollectAuctionsResults)
 
@@ -49,10 +49,10 @@ func (sta DiskAuctionsState) CollectAuctions() (CollectAuctionsResults, error) {
 				continue
 			}
 
-			storeAucsInJobs <- DiskLake.WriteAuctionsWithTuplesInJob{
-				Tuple:    aucsOutJob.Tuple.RegionConnectedRealmTuple,
-				Auctions: sotah.NewMiniAuctionList(aucsOutJob.AuctionsResponse.Auctions),
-			}
+			storeAucsInJobs <- sta.LakeClient.NewWriteAuctionsWithTuplesInJob(
+				aucsOutJob.Tuple.RegionConnectedRealmTuple,
+				sotah.NewMiniAuctionList(aucsOutJob.AuctionsResponse.Auctions),
+			)
 			resultsInJob <- CollectAuctionsResult{
 				Tuple:   aucsOutJob.Tuple,
 				ItemIds: aucsOutJob.AuctionsResponse.Auctions.ItemIds(),
@@ -99,10 +99,10 @@ func (sta DiskAuctionsState) CollectAuctions() (CollectAuctionsResults, error) {
 	// waiting for store-auctions results to drain out
 	totalPersisted := 0
 	for storeAucsOutJob := range storeAucsOutJobs {
-		if storeAucsOutJob.Err != nil {
+		if storeAucsOutJob.Err() != nil {
 			logging.WithFields(storeAucsOutJob.ToLogrusFields()).Error("failed to store auctions")
 
-			return CollectAuctionsResults{}, storeAucsOutJob.Err
+			return CollectAuctionsResults{}, storeAucsOutJob.Err()
 		}
 
 		totalPersisted += 1
