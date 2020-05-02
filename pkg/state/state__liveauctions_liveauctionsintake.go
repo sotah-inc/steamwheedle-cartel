@@ -1,6 +1,7 @@
 package state
 
 import (
+	"errors"
 	"time"
 
 	"github.com/nats-io/nats.go"
@@ -125,12 +126,19 @@ func (sta LiveAuctionsState) LiveAuctionsIntake(tuples blizzardv2.LoadConnectedR
 		return err
 	}
 
-	if err := sta.Messenger.Publish(string(subjects.PricelistHistoryIntake), encodedTuples); err != nil {
+	response, err := sta.Messenger.Request(string(subjects.PricelistHistoryIntake), encodedTuples)
+	if err != nil {
 		logging.WithField("error", err.Error()).Error(
 			"failed to publish message for pricelist-history intake",
 		)
 
 		return err
+	}
+
+	if response.Code != codes.Ok {
+		logging.WithFields(response.ToLogrusFields()).Error("pricelist-history intake request failed")
+
+		return errors.New(response.Err)
 	}
 
 	return nil

@@ -29,6 +29,13 @@ type Message struct {
 	Code codes.Code `json:"code"`
 }
 
+func (msg Message) ToLogrusFields() logrus.Fields {
+	return logrus.Fields{
+		"error": msg.Err,
+		"code":  msg.Code,
+	}
+}
+
 func NewMessengerFromEnvVars(hostKey string, portKey string) (Messenger, error) {
 	natsHost := os.Getenv(hostKey)
 	natsPort := os.Getenv(portKey)
