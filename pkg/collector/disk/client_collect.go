@@ -15,16 +15,16 @@ func (c Client) Collect() (blizzardv2.ItemIds, error) {
 	startTime := time.Now()
 	logging.Info("calling DiskCollector.Collect()")
 
-	results, err := c.CollectAuctions()
+	results, err := c.collectAuctions()
 	if err != nil {
 		return blizzardv2.ItemIds{}, err
 	}
 
-	if err := c.CallLiveAuctionsIntake(results.Tuples().RegionConnectedRealmTuples()); err != nil {
+	if err := c.CallLiveAuctionsIntake(results.tuples.RegionConnectedRealmTuples()); err != nil {
 		return blizzardv2.ItemIds{}, err
 	}
 
-	if err := c.CallPricelistHistoryIntake(results.Tuples()); err != nil {
+	if err := c.CallPricelistHistoryIntake(results.tuples); err != nil {
 		return blizzardv2.ItemIds{}, err
 	}
 
@@ -33,7 +33,7 @@ func (c Client) Collect() (blizzardv2.ItemIds, error) {
 		time.Since(startTime).Milliseconds(),
 	).Info("finished calling DiskCollector.Collect()")
 
-	return results.ItemIds(), nil
+	return results.itemIds, nil
 }
 
 func (c Client) CallLiveAuctionsIntake(tuples blizzardv2.RegionConnectedRealmTuples) error {

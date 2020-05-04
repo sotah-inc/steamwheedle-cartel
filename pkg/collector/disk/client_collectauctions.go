@@ -5,39 +5,31 @@ import (
 
 	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
-	BaseCollector "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/collector/base"
 	BaseLake "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/lake/base"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 )
 
-type CollectAuctionsResult struct {
+type collectAuctionsResult struct {
 	tuple   blizzardv2.LoadConnectedRealmTuple
 	itemIds blizzardv2.ItemIds
 }
 
-func (c CollectAuctionsResult) Tuple() blizzardv2.LoadConnectedRealmTuple { return c.tuple }
-func (c CollectAuctionsResult) ItemIds() blizzardv2.ItemIds               { return c.itemIds }
-
-type CollectAuctionsResults struct {
+type collectAuctionsResults struct {
 	itemIds          blizzardv2.ItemIds
 	regionTimestamps sotah.RegionTimestamps
 	tuples           blizzardv2.LoadConnectedRealmTuples
 }
 
-func (c CollectAuctionsResults) ItemIds() blizzardv2.ItemIds                 { return c.itemIds }
-func (c CollectAuctionsResults) RegionTimestamps() sotah.RegionTimestamps    { return c.regionTimestamps }
-func (c CollectAuctionsResults) Tuples() blizzardv2.LoadConnectedRealmTuples { return c.tuples }
-
-func (c Client) CollectAuctions() (BaseCollector.CollectAuctionsResults, error) {
+func (c Client) collectAuctions() (collectAuctionsResults, error) {
 	startTime := time.Now()
 
 	// spinning up workers
-	aucsOutJobs := c.resolveAuctions()
+	aucsOutJobs := c.resolveAuctions(c.getTuples())
 	storeAucsInJobs := make(chan BaseLake.WriteAuctionsWithTuplesInJob)
 	storeAucsOutJobs := c.lakeClient.WriteAuctionsWithTuples(storeAucsInJobs)
-	resultsInJob := make(chan BaseCollector.CollectAuctionsResult)
-	resultsOutJob := make(chan BaseCollector.CollectAuctionsResults)
+	resultsInJob := make(chan collectAuctionsResult)
+	resultsOutJob := make(chan collectAuctionsResults)
 
 	// interpolating resolve-auctions-out jobs into store-auctions-in jobs
 	go func() {
@@ -61,7 +53,7 @@ func (c Client) CollectAuctions() (BaseCollector.CollectAuctionsResults, error) 
 				aucsOutJob.Tuple.RegionConnectedRealmTuple,
 				sotah.NewMiniAuctionList(aucsOutJob.AuctionsResponse.Auctions),
 			)
-			resultsInJob <- CollectAuctionsResult{
+			resultsInJob <- collectAuctionsResult{
 				tuple:   aucsOutJob.Tuple,
 				itemIds: aucsOutJob.AuctionsResponse.Auctions.ItemIds(),
 			}
@@ -73,23 +65,23 @@ func (c Client) CollectAuctions() (BaseCollector.CollectAuctionsResults, error) 
 
 	// spinning up a worker for receiving results from auctions-out worker
 	go func() {
-		results := CollectAuctionsResults{
+		results := collectAuctionsResults{
 			itemIds:          blizzardv2.ItemIds{},
 			regionTimestamps: sotah.RegionTimestamps{},
 			tuples:           blizzardv2.LoadConnectedRealmTuples{},
 		}
 		for job := range resultsInJob {
 			// loading last-modified in
-			results.regionTimestamps = results.RegionTimestamps().SetDownloaded(
-				job.Tuple().RegionConnectedRealmTuple,
-				job.Tuple().LastModified,
+			results.regionTimestamps = results.regionTimestamps.SetDownloaded(
+				job.tuple.RegionConnectedRealmTuple,
+				job.tuple.LastModified,
 			)
 
 			// loading item-ids in
-			results.itemIds = results.itemIds.Merge(job.ItemIds())
+			results.itemIds = results.itemIds.Merge(job.itemIds)
 
 			// loading tuple in
-			results.tuples = append(results.Tuples(), job.Tuple())
+			results.tuples = append(results.tuples, job.tuple)
 		}
 
 		results.itemIds = func() blizzardv2.ItemIds {
@@ -110,7 +102,7 @@ func (c Client) CollectAuctions() (BaseCollector.CollectAuctionsResults, error) 
 		if storeAucsOutJob.Err() != nil {
 			logging.WithFields(storeAucsOutJob.ToLogrusFields()).Error("failed to store auctions")
 
-			return CollectAuctionsResults{}, storeAucsOutJob.Err()
+			return collectAuctionsResults{}, storeAucsOutJob.Err()
 		}
 
 		totalPersisted += 1
@@ -120,8 +112,8 @@ func (c Client) CollectAuctions() (BaseCollector.CollectAuctionsResults, error) 
 	results := <-resultsOutJob
 
 	// optionally updating region state
-	if !results.RegionTimestamps().IsZero() {
-		c.receiveRegionTimestamps(results.RegionTimestamps())
+	if !results.regionTimestamps.IsZero() {
+		c.receiveRegionTimestamps(results.regionTimestamps)
 	}
 
 	logging.WithFields(logrus.Fields{
