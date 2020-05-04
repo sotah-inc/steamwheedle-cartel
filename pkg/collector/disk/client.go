@@ -11,8 +11,7 @@ type ClientOptions struct {
 	LakeClient      BaseLake.Client
 	MessengerClient messenger.Messenger
 
-	ResolveAuctions         func(tuples []blizzardv2.DownloadConnectedRealmTuple) chan blizzardv2.GetAuctionsJob
-	GetTuples               func() []blizzardv2.DownloadConnectedRealmTuple
+	ResolveAuctions         func() chan blizzardv2.GetAuctionsJob
 	ReceiveRegionTimestamps func(timestamps sotah.RegionTimestamps)
 }
 
@@ -21,7 +20,6 @@ func NewClient(opts ClientOptions) Client {
 		lakeClient:              opts.LakeClient,
 		messengerClient:         opts.MessengerClient,
 		resolveAuctions:         opts.ResolveAuctions,
-		getTuples:               opts.GetTuples,
 		receiveRegionTimestamps: opts.ReceiveRegionTimestamps,
 	}
 }
@@ -30,7 +28,6 @@ type Client struct {
 	lakeClient      BaseLake.Client
 	messengerClient messenger.Messenger
 
-	resolveAuctions         func(tuples []blizzardv2.DownloadConnectedRealmTuple) chan blizzardv2.GetAuctionsJob
-	getTuples               func() []blizzardv2.DownloadConnectedRealmTuple
+	resolveAuctions         func() chan blizzardv2.GetAuctionsJob
 	receiveRegionTimestamps func(timestamps sotah.RegionTimestamps)
 }

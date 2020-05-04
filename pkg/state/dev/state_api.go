@@ -148,8 +148,9 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 
 	// resolving DiskCollector-auctions state
 	sta.Collector = DiskCollector.NewClient(DiskCollector.ClientOptions{
-		ResolveAuctions:         sta.BlizzardState.ResolveAuctions,
-		GetTuples:               sta.RegionState.RegionComposites.ToDownloadTuples,
+		ResolveAuctions: func() chan blizzardv2.GetAuctionsJob {
+			return sta.BlizzardState.ResolveAuctions(sta.RegionState.RegionComposites.ToDownloadTuples())
+		},
 		ReceiveRegionTimestamps: sta.RegionState.ReceiveTimestamps,
 		LakeClient:              config.LakeClient,
 		MessengerClient:         mess,
