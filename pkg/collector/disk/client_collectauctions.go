@@ -23,6 +23,10 @@ type collectAuctionsResults struct {
 
 func (c Client) collectAuctions() (collectAuctionsResults, error) {
 	startTime := time.Now()
+	logging.Info("calling DiskCollector.collectAuctions()")
+
+	tuples := c.getTuples()
+	logging.WithField("tuples", tuples).Info("with tuples")
 
 	// spinning up workers
 	aucsOutJobs := c.resolveAuctions(c.getTuples())
