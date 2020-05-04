@@ -153,6 +153,7 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 		},
 		ReceiveRegionTimestamps: sta.RegionState.ReceiveTimestamps,
 		LakeClient:              config.LakeClient,
+		MessengerClient:         mess,
 	})
 
 	// resolving live-auctions state
