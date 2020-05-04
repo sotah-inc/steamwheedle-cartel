@@ -41,6 +41,10 @@ func (tuples RegionConnectedRealmTuples) FilterByRegionName(name RegionName) Reg
 	return out
 }
 
+func (tuples RegionConnectedRealmTuples) EncodeForDelivery() ([]byte, error) {
+	return json.Marshal(tuples)
+}
+
 func NewRegionConnectedRealmTuple(data []byte) (RegionConnectedRealmTuple, error) {
 	out := RegionConnectedRealmTuple{}
 	if err := json.Unmarshal(data, &out); err != nil {

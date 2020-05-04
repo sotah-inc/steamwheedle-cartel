@@ -1,7 +1,6 @@
 package state
 
 import (
-	"errors"
 	"time"
 
 	"github.com/nats-io/nats.go"
@@ -117,33 +116,6 @@ func (sta LiveAuctionsState) LiveAuctionsIntake(tuples blizzardv2.LoadConnectedR
 		"total":          totalLoaded,
 		"duration-in-ms": time.Since(startTime).Milliseconds(),
 	}).Info("total loaded in live-auctions")
-
-	// forwarding the received tuples to pricelist-history intake
-	encodedTuples, err := tuples.EncodeForDelivery()
-	if err != nil {
-		logging.WithField("error", err.Error()).Error("failed to encode load tuples for delivery")
-
-		return err
-	}
-
-	response, err := sta.Messenger.Request(messenger.RequestOptions{
-		Subject: string(subjects.PricelistHistoryIntake),
-		Data:    encodedTuples,
-		Timeout: 10 * time.Minute,
-	})
-	if err != nil {
-		logging.WithField("error", err.Error()).Error(
-			"failed to publish message for pricelist-history intake",
-		)
-
-		return err
-	}
-
-	if response.Code != codes.Ok {
-		logging.WithFields(response.ToLogrusFields()).Error("pricelist-history intake request failed")
-
-		return errors.New(response.Err)
-	}
 
 	return nil
 }

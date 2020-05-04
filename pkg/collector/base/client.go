@@ -17,5 +17,8 @@ type CollectAuctionsResults interface {
 }
 
 type Client interface {
+	Collect() (blizzardv2.ItemIds, error)
 	CollectAuctions() (CollectAuctionsResults, error)
+	CallLiveAuctionsIntake(tuples blizzardv2.RegionConnectedRealmTuples) error
+	CallPricelistHistoryIntake(tuples blizzardv2.LoadConnectedRealmTuples) error
 }

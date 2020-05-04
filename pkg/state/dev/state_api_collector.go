@@ -10,18 +10,18 @@ import (
 
 func (sta ApiState) Collect() error {
 	startTime := time.Now()
-	logging.Info("calling collector")
+	logging.Info("calling ApiState.Collect()")
 
-	collectAuctionsResults, err := sta.Collector.CollectAuctions()
+	itemIds, err := sta.Collector.Collect()
 	if err != nil {
 		logging.WithField("error", err.Error()).Error("failed to collect auctions")
 
 		return err
 	}
 
-	logging.WithField("item-ids", len(collectAuctionsResults.ItemIds())).Info("found items in auctions")
+	logging.WithField("item-ids", len(itemIds)).Info("found items in auctions")
 
-	if err := sta.ItemsState.CollectItems(collectAuctionsResults.ItemIds()); err != nil {
+	if err := sta.ItemsState.CollectItems(itemIds); err != nil {
 		logging.WithField("error", err.Error()).Error("failed to collect items")
 
 		return err
@@ -33,16 +33,10 @@ func (sta ApiState) Collect() error {
 		return err
 	}
 
-	if err := sta.LiveAuctionsState.LiveAuctionsIntake(collectAuctionsResults.Tuples()); err != nil {
-		logging.WithField("error", err.Error()).Error("failed to execute live-auctions-intake")
-
-		return err
-	}
-
 	logging.WithField(
 		"duration-in-ms",
 		time.Since(startTime).Milliseconds(),
-	).Info("finished calling collector")
+	).Info("finished calling ApiState.Collect()")
 
 	return nil
 }
