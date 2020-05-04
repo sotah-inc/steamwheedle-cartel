@@ -4,6 +4,8 @@ import (
 	"net/http"
 	"time"
 
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
+
 	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 )
@@ -37,6 +39,7 @@ func GetAuctions(opts GetAuctionsOptions) chan GetAuctionsJob {
 	out := make(chan GetAuctionsJob)
 	worker := func() {
 		for tuple := range in {
+			logging.Info("gathering uri")
 			getAuctionsUri, err := opts.GetAuctionsURL(tuple)
 			if err != nil {
 				out <- GetAuctionsJob{
@@ -51,6 +54,7 @@ func GetAuctions(opts GetAuctionsOptions) chan GetAuctionsJob {
 				continue
 			}
 
+			logging.Info("fetching")
 			auctionsResponse, responseMeta, err := NewAuctionsFromHTTP(getAuctionsUri, tuple.LastModified)
 			if err != nil {
 				out <- GetAuctionsJob{
