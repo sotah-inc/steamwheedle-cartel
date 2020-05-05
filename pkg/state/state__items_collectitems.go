@@ -9,7 +9,7 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 )
 
-func (sta ItemsState) CollectItems(ids blizzardv2.ItemIds) error {
+func (sta ItemsState) ItemsIntake(ids blizzardv2.ItemIds) error {
 	startTime := time.Now()
 
 	// resolving items to sync
