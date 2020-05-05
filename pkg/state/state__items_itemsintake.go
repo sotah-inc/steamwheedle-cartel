@@ -71,7 +71,7 @@ func (sta ItemsState) itemsIntake(ids blizzardv2.ItemIds) error {
 				continue
 			}
 
-			logging.WithField("item-id", job.Id).Info("enqueueing item for persistence")
+			logging.WithField("item-id", job.Id()).Info("enqueueing item for persistence")
 
 			persistItemsIn <- database.PersistEncodedItemsInJob{
 				Id:                    job.Id(),
