@@ -74,8 +74,6 @@ func (client Client) GetEncodedItems(ids blizzardv2.ItemIds) chan BaseLake.GetEn
 				continue
 			}
 
-			logging.WithField("item-id", job.Item.Id).Info("enqueueing item for persistence")
-
 			normalizedName, err := func() (locale.Mapping, error) {
 				foundName := job.Item.Name
 				if _, ok := foundName[locale.EnUS]; !ok {
