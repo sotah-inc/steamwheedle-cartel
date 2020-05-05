@@ -3,11 +3,12 @@ package dev
 import (
 	"fmt"
 
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/lake"
+
 	"github.com/twinj/uuid"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	BaseCollector "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/collector/base"
 	DiskCollector "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/collector/disk"
-	BaseLake "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/lake/base"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
@@ -29,7 +30,7 @@ type ApiStateConfig struct {
 	DiskStoreCacheDir string
 	BlizzardConfig    blizzardv2.ClientConfig
 	DatabaseConfig    ApiStateDatabaseConfig
-	LakeClient        BaseLake.Client
+	UseGCloud         bool
 }
 
 func (c ApiStateConfig) ToDirList() []string {
@@ -54,6 +55,9 @@ func (c ApiStateConfig) ToDirList() []string {
 func NewAPIState(config ApiStateConfig) (ApiState, error) {
 	// establishing an initial state
 	sta := ApiState{State: state.State{RunID: uuid.NewV4(), Listeners: nil, BusListeners: nil}}
+
+	// deriving lake-client
+	lakeClient := lake.NewClient(config.UseGCloud, config.DiskStoreCacheDir)
 
 	// narrowing regions list
 	regions := config.SotahConfig.FilterInRegions(config.SotahConfig.Regions)
@@ -106,17 +110,8 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 		return ApiState{}, err
 	}
 
-	// loading the items state
-	primaryRegion, err := regions.GetPrimaryRegion()
-	if err != nil {
-		logging.WithField("error", err.Error()).Error("failed to resolve primary region")
-
-		return ApiState{}, err
-	}
-
 	sta.ItemsState, err = state.NewItemsState(state.NewItemsStateOptions{
-		BlizzardState:    sta.BlizzardState,
-		PrimaryRegion:    primaryRegion,
+		LakeClient:       lakeClient,
 		Messenger:        mess,
 		ItemsDatabaseDir: config.DatabaseConfig.ItemsDir,
 	})
@@ -152,14 +147,14 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 			return sta.BlizzardState.ResolveAuctions(sta.RegionState.RegionComposites.ToDownloadTuples())
 		},
 		ReceiveRegionTimestamps: sta.RegionState.ReceiveTimestamps,
-		LakeClient:              config.LakeClient,
+		LakeClient:              lakeClient,
 		MessengerClient:         mess,
 	})
 
 	// resolving live-auctions state
 	sta.LiveAuctionsState, err = state.NewLiveAuctionsState(state.NewLiveAuctionsStateOptions{
 		Messenger:                mess,
-		LakeClient:               config.LakeClient,
+		LakeClient:               lakeClient,
 		LiveAuctionsDatabasesDir: config.DatabaseConfig.LiveAuctionsDir,
 		Tuples:                   sta.RegionState.RegionComposites.ToTuples(),
 		ReceiveRegionTimestamps:  sta.RegionState.ReceiveTimestamps,
@@ -173,7 +168,7 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 	// resolving pricelist-history state
 	sta.PricelistHistoryState, err = state.NewPricelistHistoryState(state.NewPricelistHistoryStateOptions{
 		Messenger:                    mess,
-		LakeClient:                   config.LakeClient,
+		LakeClient:                   lakeClient,
 		PricelistHistoryDatabasesDir: config.DatabaseConfig.PricelistHistoryDir,
 		Tuples:                       sta.RegionState.RegionComposites.ToTuples(),
 		ReceiveRegionTimestamps:      sta.RegionState.ReceiveTimestamps,

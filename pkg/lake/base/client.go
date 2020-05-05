@@ -15,4 +15,5 @@ type Client interface {
 		tuple blizzardv2.RegionConnectedRealmTuple,
 		auctions sotah.MiniAuctionList,
 	) WriteAuctionsWithTuplesInJob
+	GetEncodedItems(ids blizzardv2.ItemIds) chan GetEncodedItemJob
 }
