@@ -1,8 +1,6 @@
 package dev
 
 import (
-	"fmt"
-
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/lake"
 
 	"github.com/twinj/uuid"
@@ -13,7 +11,6 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 )
 
 type ApiStateDatabaseConfig struct {
@@ -33,22 +30,6 @@ type ApiStateConfig struct {
 	UseGCloud         bool
 }
 
-func (c ApiStateConfig) ToDirList() []string {
-	out := []string{
-		c.DatabaseConfig.AreaMapsDir,
-		c.DatabaseConfig.ItemsDir,
-		c.DatabaseConfig.TokensDir,
-		c.DatabaseConfig.LiveAuctionsDir,
-		fmt.Sprintf("%s/live-auctions", c.DatabaseConfig.LiveAuctionsDir),
-	}
-
-	for _, reg := range c.SotahConfig.FilterInRegions(c.SotahConfig.Regions) {
-		out = append(out, fmt.Sprintf("%s/live-auctions/%s", c.DatabaseConfig.LiveAuctionsDir, reg.Name))
-	}
-
-	return out
-}
-
 func NewAPIState(config ApiStateConfig) (ApiState, error) {
 	// establishing an initial state
 	sta := ApiState{State: state.State{RunID: uuid.NewV4(), Listeners: nil, BusListeners: nil}}
@@ -61,11 +42,6 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 	if err != nil {
 		logging.WithField("error", err.Error()).Error("failed to resolve primary-region")
 
-		return ApiState{}, err
-	}
-
-	// ensuring related dirs exist
-	if err := util.EnsureDirsExist(config.ToDirList()); err != nil {
 		return ApiState{}, err
 	}
 

@@ -3,6 +3,8 @@ package state
 import (
 	"encoding/json"
 
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
+
 	nats "github.com/nats-io/nats.go"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
@@ -42,6 +44,12 @@ func (amRes AreaMapsResponse) EncodeForMessage() (string, error) {
 }
 
 func NewAreaMapsState(mess messenger.Messenger, areaMapsDatabaseDir string) (AreaMapsState, error) {
+	if err := util.EnsureDirExists(areaMapsDatabaseDir); err != nil {
+		logging.WithField("error", err.Error()).Error("failed to ensure area-maps-database-dir exists")
+
+		return AreaMapsState{}, err
+	}
+
 	areaMapsDatabase, err := database.NewAreaMapsDatabase(areaMapsDatabaseDir)
 	if err != nil {
 		logging.WithField("error", err.Error()).Error("failed to initialise area-maps-database")

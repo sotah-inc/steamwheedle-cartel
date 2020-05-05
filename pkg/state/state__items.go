@@ -6,6 +6,7 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state/subjects"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 )
 
 type NewItemsStateOptions struct {
@@ -16,6 +17,12 @@ type NewItemsStateOptions struct {
 }
 
 func NewItemsState(opts NewItemsStateOptions) (ItemsState, error) {
+	if err := util.EnsureDirExists(opts.ItemsDatabaseDir); err != nil {
+		logging.WithField("error", err.Error()).Error("failed to ensure items-database-dir exists")
+
+		return ItemsState{}, err
+	}
+
 	itemsDatabase, err := database.NewItemsDatabase(opts.ItemsDatabaseDir)
 	if err != nil {
 		logging.WithField("error", err.Error()).Error("failed to initialise items-database")

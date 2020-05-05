@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"time"
 
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
+
 	nats "github.com/nats-io/nats.go"
 	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
@@ -24,6 +26,12 @@ type NewTokensStateOptions struct {
 }
 
 func NewTokensState(opts NewTokensStateOptions) (TokensState, error) {
+	if err := util.EnsureDirExists(opts.TokensDatabaseDir); err != nil {
+		logging.WithField("error", err.Error()).Error("failed to ensure tokens-database-dir exists")
+
+		return TokensState{}, err
+	}
+
 	tokensDatabase, err := database.NewTokensDatabase(opts.TokensDatabaseDir)
 	if err != nil {
 		logging.WithField("error", err.Error()).Error("failed to initialise tokens-database")
