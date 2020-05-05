@@ -9,6 +9,7 @@ import (
 type NewClientOptions struct {
 	UseGCloud         bool
 	CacheDir          string
+	RegionNames       []blizzardv2.RegionName
 	ResolveItems      func(ids blizzardv2.ItemIds) chan blizzardv2.GetItemsOutJob
 	ResolveItemMedias func(in chan blizzardv2.GetItemMediasInJob) chan blizzardv2.GetItemMediasOutJob
 }

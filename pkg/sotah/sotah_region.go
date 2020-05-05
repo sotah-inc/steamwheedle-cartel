@@ -28,6 +28,15 @@ func (rl RegionList) GetRegion(name blizzardv2.RegionName) (Region, error) {
 	return Region{}, errors.New("failed to resolve region from name")
 }
 
+func (rl RegionList) Names() []blizzardv2.RegionName {
+	out := make([]blizzardv2.RegionName, len(rl))
+	for i, region := range rl {
+		out[i] = region.Name
+	}
+
+	return out
+}
+
 type Region struct {
 	Name     blizzardv2.RegionName `json:"name"`
 	Hostname string                `json:"hostname"`

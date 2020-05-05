@@ -63,8 +63,9 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 
 	// deriving lake-client
 	lakeClient, err := lake.NewClient(lake.NewClientOptions{
-		UseGCloud: config.UseGCloud,
-		CacheDir:  config.DiskStoreCacheDir,
+		UseGCloud:   config.UseGCloud,
+		CacheDir:    config.DiskStoreCacheDir,
+		RegionNames: regions.Names(),
 		ResolveItems: func(ids blizzardv2.ItemIds) chan blizzardv2.GetItemsOutJob {
 			return sta.BlizzardState.ResolveItems(primaryRegion, ids)
 		},
