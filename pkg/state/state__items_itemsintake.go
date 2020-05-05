@@ -3,13 +3,49 @@ package state
 import (
 	"time"
 
+	"github.com/nats-io/nats.go"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger/codes"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state/subjects"
+
 	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 )
 
-func (sta ItemsState) ItemsIntake(ids blizzardv2.ItemIds) error {
+func (sta ItemsState) ListenForItemsIntake(stop ListenStopChan) error {
+	err := sta.Messenger.Subscribe(string(subjects.ItemsIntake), stop, func(natsMsg nats.Msg) {
+		m := messenger.NewMessage()
+
+		ids, err := blizzardv2.NewItemIds(natsMsg.Data)
+		if err != nil {
+			m.Err = err.Error()
+			m.Code = codes.MsgJSONParseError
+			sta.Messenger.ReplyTo(natsMsg, m)
+
+			return
+		}
+
+		logging.WithField("items", len(ids)).Info("received")
+		if err := sta.itemsIntake(ids); err != nil {
+			m.Err = err.Error()
+			m.Code = codes.GenericError
+			sta.Messenger.ReplyTo(natsMsg, m)
+
+			return
+		}
+
+		sta.Messenger.ReplyTo(natsMsg, m)
+	})
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (sta ItemsState) itemsIntake(ids blizzardv2.ItemIds) error {
 	startTime := time.Now()
 
 	// resolving items to sync

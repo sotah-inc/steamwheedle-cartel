@@ -21,12 +21,6 @@ func (sta ApiState) Collect() error {
 
 	logging.WithField("item-ids", len(itemIds)).Info("found items in auctions")
 
-	if err := sta.ItemsState.ItemsIntake(itemIds); err != nil {
-		logging.WithField("error", err.Error()).Error("failed to collect items")
-
-		return err
-	}
-
 	if err := sta.TokensState.CollectRegionTokens(sta.RegionState.RegionComposites.ToList()); err != nil {
 		logging.WithField("error", err.Error()).Error("failed to collect region-tokens")
 

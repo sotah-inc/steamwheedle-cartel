@@ -1,6 +1,21 @@
 package blizzardv2
 
+import "encoding/json"
+
+func NewItemIds(data []byte) (ItemIds, error) {
+	out := ItemIds{}
+	if err := json.Unmarshal(data, &out); err != nil {
+		return ItemIds{}, err
+	}
+
+	return out, nil
+}
+
 type ItemIds []ItemId
+
+func (ids ItemIds) EncodeForDelivery() ([]byte, error) {
+	return json.Marshal(ids)
+}
 
 type ItemIdsMap map[ItemId]struct{}
 

@@ -3,8 +3,9 @@ package subjects
 type Subject string
 
 const (
-	Items      Subject = "items"
-	ItemsQuery Subject = "itemsQuery"
+	ItemsIntake Subject = "itemsIntake"
+	Items       Subject = "items"
+	ItemsQuery  Subject = "itemsQuery"
 )
 
 const (

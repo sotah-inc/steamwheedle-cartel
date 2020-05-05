@@ -11,21 +11,25 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state/subjects"
 )
 
-func (c Client) Collect() (blizzardv2.ItemIds, error) {
+func (c Client) Collect() error {
 	startTime := time.Now()
 	logging.Info("calling DiskCollector.Collect()")
 
 	results, err := c.collectAuctions()
 	if err != nil {
-		return blizzardv2.ItemIds{}, err
+		return err
 	}
 
 	if err := c.CallLiveAuctionsIntake(results.tuples.RegionConnectedRealmTuples()); err != nil {
-		return blizzardv2.ItemIds{}, err
+		return err
 	}
 
 	if err := c.CallPricelistHistoryIntake(results.tuples); err != nil {
-		return blizzardv2.ItemIds{}, err
+		return err
+	}
+
+	if err := c.CallItemsIntake(results.itemIds); err != nil {
+		return err
 	}
 
 	logging.WithField(
@@ -33,7 +37,7 @@ func (c Client) Collect() (blizzardv2.ItemIds, error) {
 		time.Since(startTime).Milliseconds(),
 	).Info("finished calling DiskCollector.Collect()")
 
-	return results.itemIds, nil
+	return nil
 }
 
 func (c Client) CallLiveAuctionsIntake(tuples blizzardv2.RegionConnectedRealmTuples) error {
@@ -91,6 +95,37 @@ func (c Client) CallPricelistHistoryIntake(tuples blizzardv2.LoadConnectedRealmT
 
 	if response.Code != codes.Ok {
 		logging.WithFields(response.ToLogrusFields()).Error("pricelist-history intake request failed")
+
+		return errors.New(response.Err)
+	}
+
+	return nil
+}
+
+func (c Client) CallItemsIntake(ids blizzardv2.ItemIds) error {
+	// forwarding the received item-ids to items-history intake
+	encodedTuples, err := ids.EncodeForDelivery()
+	if err != nil {
+		logging.WithField("error", err.Error()).Error("failed to encode item-ids for delivery")
+
+		return err
+	}
+
+	response, err := c.messengerClient.Request(messenger.RequestOptions{
+		Subject: string(subjects.ItemsIntake),
+		Data:    encodedTuples,
+		Timeout: 10 * time.Minute,
+	})
+	if err != nil {
+		logging.WithField("error", err.Error()).Error(
+			"failed to publish message for item-ids intake",
+		)
+
+		return err
+	}
+
+	if response.Code != codes.Ok {
+		logging.WithFields(response.ToLogrusFields()).Error("item-ids intake request failed")
 
 		return errors.New(response.Err)
 	}
