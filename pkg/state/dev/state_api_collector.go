@@ -12,14 +12,11 @@ func (sta ApiState) Collect() error {
 	startTime := time.Now()
 	logging.Info("calling ApiState.Collect()")
 
-	itemIds, err := sta.Collector.Collect()
-	if err != nil {
+	if err := sta.Collector.Collect(); err != nil {
 		logging.WithField("error", err.Error()).Error("failed to collect auctions")
 
 		return err
 	}
-
-	logging.WithField("item-ids", len(itemIds)).Info("found items in auctions")
 
 	if err := sta.TokensState.CollectRegionTokens(sta.RegionState.RegionComposites.ToList()); err != nil {
 		logging.WithField("error", err.Error()).Error("failed to collect region-tokens")
