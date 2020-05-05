@@ -90,7 +90,7 @@ func (c Client) collectAuctions() (collectAuctionsResults, error) {
 				return results.itemIds
 			}
 
-			return results.itemIds[:5]
+			return results.itemIds[:25]
 		}()
 
 		resultsOutJob <- results
