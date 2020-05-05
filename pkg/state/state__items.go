@@ -38,7 +38,8 @@ type ItemsState struct {
 
 func (sta ItemsState) GetListeners() SubjectListeners {
 	return SubjectListeners{
-		subjects.Items:      sta.ListenForItems,
-		subjects.ItemsQuery: sta.ListenForItemsQuery,
+		subjects.Items:       sta.ListenForItems,
+		subjects.ItemsQuery:  sta.ListenForItemsQuery,
+		subjects.ItemsIntake: sta.ListenForItemsIntake,
 	}
 }
