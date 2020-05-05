@@ -56,11 +56,16 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 	// establishing an initial state
 	sta := ApiState{State: state.State{RunID: uuid.NewV4(), Listeners: nil, BusListeners: nil}}
 
-	// deriving lake-client
-	lakeClient := lake.NewClient(config.UseGCloud, config.DiskStoreCacheDir)
-
 	// narrowing regions list
 	regions := config.SotahConfig.FilterInRegions(config.SotahConfig.Regions)
+
+	// resolving primary-region
+	primaryRegion, err := regions.GetPrimaryRegion()
+	if err != nil {
+		logging.WithField("error", err.Error()).Error("failed to resolve primary-region")
+
+		return ApiState{}, err
+	}
 
 	// ensuring related dirs exist
 	if err := util.EnsureDirsExist(config.ToDirList()); err != nil {
@@ -82,6 +87,16 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 
 		return ApiState{}, err
 	}
+
+	// deriving lake-client
+	lakeClient := lake.NewClient(lake.NewClientOptions{
+		UseGCloud: config.UseGCloud,
+		CacheDir:  config.DiskStoreCacheDir,
+		ResolveItems: func(ids blizzardv2.ItemIds) chan blizzardv2.GetItemsOutJob {
+			return sta.BlizzardState.ResolveItems(primaryRegion, ids)
+		},
+		ResolveItemMedias: sta.BlizzardState.ResolveItemMedias,
+	})
 
 	// gathering region state
 	sta.RegionState, err = state.NewRegionState(state.NewRegionStateOptions{

@@ -8,7 +8,13 @@ type NewClientOptions struct {
 	ResolveItemMedias func(in chan blizzardv2.GetItemMediasInJob) chan blizzardv2.GetItemMediasOutJob
 }
 
-func NewClient(cacheDir string) Client { return Client{cacheDir: cacheDir} }
+func NewClient(opts NewClientOptions) Client {
+	return Client{
+		cacheDir:          opts.CacheDir,
+		resolveItems:      opts.ResolveItems,
+		resolveItemMedias: opts.ResolveItemMedias,
+	}
+}
 
 type Client struct {
 	cacheDir          string
