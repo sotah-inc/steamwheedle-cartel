@@ -1,19 +1,35 @@
 package disk
 
-import "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
+import (
+	"fmt"
+
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
+)
 
 type NewClientOptions struct {
 	CacheDir          string
+	RegionNames       []blizzardv2.RegionName
 	ResolveItems      func(ids blizzardv2.ItemIds) chan blizzardv2.GetItemsOutJob
 	ResolveItemMedias func(in chan blizzardv2.GetItemMediasInJob) chan blizzardv2.GetItemMediasOutJob
 }
 
-func NewClient(opts NewClientOptions) Client {
+func NewClient(opts NewClientOptions) (Client, error) {
+	dirList := []string{opts.CacheDir, fmt.Sprintf("%s/auctions", opts.CacheDir)}
+	for _, name := range opts.RegionNames {
+		dirList = append(dirList, fmt.Sprintf("%s/auctions/%s", opts.CacheDir, name))
+	}
+
+	// ensuring related dirs exist
+	if err := util.EnsureDirsExist(dirList); err != nil {
+		return Client{}, err
+	}
+
 	return Client{
 		cacheDir:          opts.CacheDir,
 		resolveItems:      opts.ResolveItems,
 		resolveItemMedias: opts.ResolveItemMedias,
-	}
+	}, nil
 }
 
 type Client struct {

@@ -13,7 +13,7 @@ type NewClientOptions struct {
 	ResolveItemMedias func(in chan blizzardv2.GetItemMediasInJob) chan blizzardv2.GetItemMediasOutJob
 }
 
-func NewClient(opts NewClientOptions) BaseLake.Client {
+func NewClient(opts NewClientOptions) (BaseLake.Client, error) {
 	if opts.UseGCloud {
 		return DiskLake.NewClient(DiskLake.NewClientOptions{
 			CacheDir:          opts.CacheDir,

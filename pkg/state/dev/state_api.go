@@ -35,8 +35,6 @@ type ApiStateConfig struct {
 
 func (c ApiStateConfig) ToDirList() []string {
 	out := []string{
-		c.DiskStoreCacheDir,
-		fmt.Sprintf("%s/auctions", c.DiskStoreCacheDir),
 		c.DatabaseConfig.AreaMapsDir,
 		c.DatabaseConfig.ItemsDir,
 		c.DatabaseConfig.TokensDir,
@@ -45,7 +43,6 @@ func (c ApiStateConfig) ToDirList() []string {
 	}
 
 	for _, reg := range c.SotahConfig.FilterInRegions(c.SotahConfig.Regions) {
-		out = append(out, fmt.Sprintf("%s/auctions/%s", c.DiskStoreCacheDir, reg.Name))
 		out = append(out, fmt.Sprintf("%s/live-auctions/%s", c.DatabaseConfig.LiveAuctionsDir, reg.Name))
 	}
 
@@ -89,7 +86,7 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 	}
 
 	// deriving lake-client
-	lakeClient := lake.NewClient(lake.NewClientOptions{
+	lakeClient, err := lake.NewClient(lake.NewClientOptions{
 		UseGCloud: config.UseGCloud,
 		CacheDir:  config.DiskStoreCacheDir,
 		ResolveItems: func(ids blizzardv2.ItemIds) chan blizzardv2.GetItemsOutJob {
@@ -97,6 +94,11 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 		},
 		ResolveItemMedias: sta.BlizzardState.ResolveItemMedias,
 	})
+	if err != nil {
+		logging.WithField("error", err.Error()).Error("failed to initialise lake-client")
+
+		return ApiState{}, err
+	}
 
 	// gathering region state
 	sta.RegionState, err = state.NewRegionState(state.NewRegionStateOptions{
