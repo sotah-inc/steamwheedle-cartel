@@ -20,6 +20,7 @@ func NewClient(opts NewClientOptions) (BaseLake.Client, error) {
 			CacheDir:          opts.CacheDir,
 			ResolveItems:      opts.ResolveItems,
 			ResolveItemMedias: opts.ResolveItemMedias,
+			RegionNames:       opts.RegionNames,
 		})
 	}
 
@@ -27,5 +28,6 @@ func NewClient(opts NewClientOptions) (BaseLake.Client, error) {
 		CacheDir:          opts.CacheDir,
 		ResolveItems:      opts.ResolveItems,
 		ResolveItemMedias: opts.ResolveItemMedias,
+		RegionNames:       opts.RegionNames,
 	})
 }
