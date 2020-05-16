@@ -10,20 +10,6 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state/subjects"
 )
 
-func NewValidateRegionRealmRequest(data []byte) (ValidateRegionRealmRequest, error) {
-	var out ValidateRegionRealmRequest
-	if err := json.Unmarshal(data, &out); err != nil {
-		return ValidateRegionRealmRequest{}, err
-	}
-
-	return out, nil
-}
-
-type ValidateRegionRealmRequest struct {
-	RegionName blizzardv2.RegionName `json:"region_name"`
-	RealmSlug  blizzardv2.RealmSlug  `json:"realm_slug"`
-}
-
 type ValidateRegionRealmResponse struct {
 	IsValid bool `json:"is_valid"`
 }
@@ -37,11 +23,11 @@ func (res ValidateRegionRealmResponse) EncodeForDelivery() (string, error) {
 	return string(encodedResult), nil
 }
 
-func (sta RegionsState) ListenForValidateRegionRealm(stop ListenStopChan) error {
-	err := sta.Messenger.Subscribe(string(subjects.ValidateRegionRealm), stop, func(natsMsg nats.Msg) {
+func (sta RegionsState) ListenForValidateRegionConnectedRealm(stop ListenStopChan) error {
+	err := sta.Messenger.Subscribe(string(subjects.ValidateRegionConnectedRealm), stop, func(natsMsg nats.Msg) {
 		m := messenger.NewMessage()
 
-		req, err := NewValidateRegionRealmRequest(natsMsg.Data)
+		req, err := blizzardv2.NewRegionConnectedRealmTuple(natsMsg.Data)
 		if err != nil {
 			m.Err = err.Error()
 			m.Code = codes.MsgJSONParseError
@@ -51,7 +37,7 @@ func (sta RegionsState) ListenForValidateRegionRealm(stop ListenStopChan) error 
 		}
 
 		res := ValidateRegionRealmResponse{
-			IsValid: sta.RegionComposites.RegionRealmExists(req.RegionName, req.RealmSlug),
+			IsValid: sta.RegionComposites.RegionConnectedRealmExists(req.RegionName, req.ConnectedRealmId),
 		}
 		encoded, err := res.EncodeForDelivery()
 		if err != nil {

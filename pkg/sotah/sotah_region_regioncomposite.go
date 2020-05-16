@@ -77,9 +77,9 @@ func (regions RegionComposites) FindByRegionName(
 	return RegionComposite{}, errors.New("failed to resolve connected-realms")
 }
 
-func (regions RegionComposites) RegionRealmExists(
+func (regions RegionComposites) RegionConnectedRealmExists(
 	name blizzardv2.RegionName,
-	slug blizzardv2.RealmSlug,
+	id blizzardv2.ConnectedRealmId,
 ) bool {
 	for _, region := range regions {
 		if region.ConfigRegion.Name != name {
@@ -87,10 +87,8 @@ func (regions RegionComposites) RegionRealmExists(
 		}
 
 		for _, connectedRealm := range region.ConnectedRealmComposites {
-			for _, realm := range connectedRealm.ConnectedRealmResponse.Realms {
-				if realm.Slug == slug {
-					return true
-				}
+			if connectedRealm.ConnectedRealmResponse.Id == id {
+				return true
 			}
 		}
 	}
