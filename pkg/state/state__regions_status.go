@@ -1,7 +1,6 @@
 package state
 
 import (
-	"encoding/json"
 	"fmt"
 
 	nats "github.com/nats-io/nats.go"
@@ -11,25 +10,11 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state/subjects"
 )
 
-func NewStatusRequest(payload []byte) (StatusRequest, error) {
-	sr := &StatusRequest{}
-	err := json.Unmarshal(payload, &sr)
-	if err != nil {
-		return StatusRequest{}, err
-	}
-
-	return *sr, nil
-}
-
-type StatusRequest struct {
-	RegionName blizzardv2.RegionName `json:"region_name"`
-}
-
 func (sta RegionsState) ListenForStatus(stop ListenStopChan) error {
 	err := sta.Messenger.Subscribe(string(subjects.Status), stop, func(natsMsg nats.Msg) {
 		m := messenger.NewMessage()
 
-		sRequest, err := NewStatusRequest(natsMsg.Data)
+		sRequest, err := blizzardv2.NewRegionTuple(natsMsg.Data)
 		if err != nil {
 			m.Err = err.Error()
 			m.Code = codes.MsgJSONParseError
