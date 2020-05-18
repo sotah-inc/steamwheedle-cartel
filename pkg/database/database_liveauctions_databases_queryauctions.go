@@ -54,13 +54,8 @@ func (qr QueryAuctionsResponse) EncodeForDelivery() (string, error) {
 }
 
 func (ladBases LiveAuctionsDatabases) QueryAuctions(
-	data []byte,
+	qr QueryAuctionsRequest,
 ) (QueryAuctionsResponse, codes.Code, error) {
-	qr, err := NewQueryRequest(data)
-	if err != nil {
-		return QueryAuctionsResponse{}, codes.MsgJSONParseError, err
-	}
-
 	ladBase, err := ladBases.GetDatabase(qr.Tuple)
 	if err != nil {
 		return QueryAuctionsResponse{}, codes.UserError, err
