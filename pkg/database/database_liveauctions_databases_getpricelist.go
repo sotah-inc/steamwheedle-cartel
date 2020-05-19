@@ -44,13 +44,8 @@ func (plResponse GetPricelistResponse) EncodeForDelivery() (string, error) {
 }
 
 func (ladBases LiveAuctionsDatabases) GetPricelist(
-	data []byte,
+	plRequest GetPricelistRequest,
 ) (GetPricelistResponse, codes.Code, error) {
-	plRequest, err := NewGetPricelistRequest(data)
-	if err != nil {
-		return GetPricelistResponse{}, codes.MsgJSONParseError, err
-	}
-
 	ladBase, err := ladBases.GetDatabase(plRequest.Tuple)
 	if err != nil {
 		return GetPricelistResponse{}, codes.UserError, err
