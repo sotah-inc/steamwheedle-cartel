@@ -24,7 +24,7 @@ func NewItemsRequest(payload []byte) (ItemsRequest, error) {
 }
 
 type ItemsRequest struct {
-	ItemIds []blizzardv2.ItemId `json:"itemIds"`
+	ItemIds blizzardv2.ItemIds `json:"itemIds"`
 }
 
 type ItemsResponse struct {

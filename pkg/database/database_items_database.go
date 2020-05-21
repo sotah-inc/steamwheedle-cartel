@@ -104,7 +104,7 @@ func (idBase ItemsDatabase) GetIdNormalizedNameMap() (sotah.ItemIdNameMap, error
 	return out, nil
 }
 
-func (idBase ItemsDatabase) FindItems(itemIds []blizzardv2.ItemId) (sotah.ItemsMap, error) {
+func (idBase ItemsDatabase) FindItems(itemIds blizzardv2.ItemIds) (sotah.ItemsMap, error) {
 	out := sotah.ItemsMap{}
 	err := idBase.db.View(func(tx *bolt.Tx) error {
 		bkt := tx.Bucket(databaseItemsBucketName())

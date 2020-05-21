@@ -36,11 +36,13 @@ type ItemInventoryType struct {
 	Name locale.Mapping `json:"name"`
 }
 
+type ItemSpellId int
+
 type ItemSpell struct {
 	Spell struct {
 		Key  HrefReference  `json:"key"`
 		Name locale.Mapping `json:"name"`
-		Id   int            `json:"id"`
+		Id   ItemSpellId    `json:"id"`
 	} `json:"spell"`
 	Description locale.Mapping `json:"description"`
 }
