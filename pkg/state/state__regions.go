@@ -1,6 +1,7 @@
 package state
 
 import (
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
@@ -61,10 +62,27 @@ func (sta *RegionsState) ReceiveTimestamps(timestamps sotah.RegionTimestamps) {
 	sta.RegionComposites = result
 }
 
+func (sta *RegionsState) RegionTimestamps() sotah.RegionTimestamps {
+	out := sotah.RegionTimestamps{}
+	for _, regionComposite := range sta.RegionComposites {
+		name := regionComposite.ConfigRegion.Name
+		out[name] = map[blizzardv2.ConnectedRealmId]sotah.ConnectedRealmTimestamps{}
+
+		for _, connectedRealmComposite := range regionComposite.ConnectedRealmComposites {
+			id := connectedRealmComposite.ConnectedRealmResponse.Id
+
+			out[name][id] = connectedRealmComposite.ModificationDates
+		}
+	}
+
+	return out
+}
+
 func (sta *RegionsState) GetListeners() SubjectListeners {
 	return SubjectListeners{
-		subjects.Status:                       sta.ListenForStatus,
-		subjects.ValidateRegionConnectedRealm: sta.ListenForValidateRegionConnectedRealm,
-		subjects.QueryRealmModificationDates:  sta.ListenForQueryRealmModificationDates,
+		subjects.Status:                          sta.ListenForStatus,
+		subjects.ValidateRegionConnectedRealm:    sta.ListenForValidateRegionConnectedRealm,
+		subjects.QueryRealmModificationDates:     sta.ListenForQueryRealmModificationDates,
+		subjects.ConnectedRealmModificationDates: sta.ListenForConnectedRealmModificationDates,
 	}
 }

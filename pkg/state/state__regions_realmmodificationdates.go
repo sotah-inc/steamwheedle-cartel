@@ -3,31 +3,25 @@ package state
 import (
 	"encoding/json"
 
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
-
-	"github.com/sirupsen/logrus"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
-
 	nats "github.com/nats-io/nats.go"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
 	mCodes "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger/codes"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state/subjects"
 )
 
-type QueryRealmModificationDatesResponse struct {
-	sotah.ConnectedRealmTimestamps
-}
+type ConnectedRealmModificationDatesResponse map[blizzardv2.ConnectedRealmId]sotah.ConnectedRealmTimestamps
 
-func (r QueryRealmModificationDatesResponse) EncodeForDelivery() ([]byte, error) {
+func (r ConnectedRealmModificationDatesResponse) EncodeForDelivery() ([]byte, error) {
 	return json.Marshal(r)
 }
 
-func (sta RegionsState) ListenForQueryRealmModificationDates(stop ListenStopChan) error {
-	err := sta.Messenger.Subscribe(string(subjects.QueryRealmModificationDates), stop, func(natsMsg nats.Msg) {
+func (sta RegionsState) ListenForConnectedRealmModificationDates(stop ListenStopChan) error {
+	err := sta.Messenger.Subscribe(string(subjects.ConnectedRealmModificationDates), stop, func(natsMsg nats.Msg) {
 		m := messenger.NewMessage()
 
-		req, err := blizzardv2.NewRegionConnectedRealmTuple(natsMsg.Data)
+		req, err := blizzardv2.NewRegionTuple(natsMsg.Data)
 		if err != nil {
 			m.Err = err.Error()
 			m.Code = mCodes.GenericError
@@ -36,16 +30,8 @@ func (sta RegionsState) ListenForQueryRealmModificationDates(stop ListenStopChan
 			return
 		}
 
-		connectedRealmTimestamps, err := sta.RegionComposites.FindConnectedRealmTimestamps(
-			req.RegionName,
-			req.ConnectedRealmId,
-		)
+		foundTimestamps, err := sta.RegionTimestamps().FindByRegionName(req.RegionName)
 		if err != nil {
-			logging.WithFields(logrus.Fields{
-				"region":          req.RegionName,
-				"connected-realm": req.ConnectedRealmId,
-			}).Error("failed to resolve connected-realm timestamps")
-
 			m.Err = err.Error()
 			m.Code = mCodes.UserError
 			sta.Messenger.ReplyTo(natsMsg, m)
@@ -53,8 +39,7 @@ func (sta RegionsState) ListenForQueryRealmModificationDates(stop ListenStopChan
 			return
 		}
 
-		res := QueryRealmModificationDatesResponse{connectedRealmTimestamps}
-
+		res := ConnectedRealmModificationDatesResponse(foundTimestamps)
 		encodedData, err := res.EncodeForDelivery()
 		if err != nil {
 			m.Err = err.Error()

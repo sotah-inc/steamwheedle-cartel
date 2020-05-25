@@ -1,6 +1,7 @@
 package sotah
 
 import (
+	"errors"
 	"time"
 
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
@@ -35,6 +36,17 @@ func (timestamps ConnectedRealmTimestamps) Merge(in ConnectedRealmTimestamps) Co
 }
 
 type RegionTimestamps map[blizzardv2.RegionName]map[blizzardv2.ConnectedRealmId]ConnectedRealmTimestamps
+
+func (regionTimestamps RegionTimestamps) FindByRegionName(
+	name blizzardv2.RegionName,
+) (map[blizzardv2.ConnectedRealmId]ConnectedRealmTimestamps, error) {
+	found, ok := regionTimestamps[name]
+	if !ok {
+		return nil, errors.New("failed to find region connected-realm timestamps")
+	}
+
+	return found, nil
+}
 
 func (regionTimestamps RegionTimestamps) IsZero() bool {
 	for _, connectedRealmTimestamps := range regionTimestamps {
