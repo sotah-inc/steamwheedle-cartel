@@ -27,6 +27,7 @@ type QueryItemsRequest struct {
 	Query  string        `json:"query"`
 	Locale locale.Locale `json:"locale"`
 }
+
 type QueryItemsItem struct {
 	Target string            `json:"target"`
 	ItemId blizzardv2.ItemId `json:"item_id"`
