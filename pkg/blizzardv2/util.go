@@ -72,6 +72,20 @@ type RegionConnectedRealmTuple struct {
 	ConnectedRealmId ConnectedRealmId `json:"connected_realm_id"`
 }
 
+func NewRegionRealmTuple(data []byte) (RegionRealmTuple, error) {
+	out := RegionRealmTuple{}
+	if err := json.Unmarshal(data, &out); err != nil {
+		return RegionRealmTuple{}, err
+	}
+
+	return out, nil
+}
+
+type RegionRealmTuple struct {
+	RegionName RegionName `json:"region_name"`
+	RealmSlug  RealmSlug  `json:"realm_slug"`
+}
+
 type DownloadConnectedRealmTuple struct {
 	LoadConnectedRealmTuple
 	RegionHostname string

@@ -16,6 +16,7 @@ const (
 const (
 	Status                          Subject = "status"
 	ValidateRegionConnectedRealm    Subject = "validateRegionConnectedRealm"
+	ValidateRegionRealm             Subject = "validateRegionRealm"
 	QueryRealmModificationDates     Subject = "queryRealmModificationDates"
 	ConnectedRealmModificationDates Subject = "connectedRealmModificationDates"
 )

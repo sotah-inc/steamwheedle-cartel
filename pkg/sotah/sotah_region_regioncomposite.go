@@ -95,6 +95,26 @@ func (regions RegionComposites) RegionConnectedRealmExists(
 
 	return false
 }
+func (regions RegionComposites) RegionRealmExists(
+	name blizzardv2.RegionName,
+	slug blizzardv2.RealmSlug,
+) bool {
+	for _, region := range regions {
+		if region.ConfigRegion.Name != name {
+			continue
+		}
+
+		for _, connectedRealm := range region.ConnectedRealmComposites {
+			for _, realm := range connectedRealm.ConnectedRealmResponse.Realms {
+				if realm.Slug == slug {
+					return true
+				}
+			}
+		}
+	}
+
+	return false
+}
 
 func (regions RegionComposites) FindConnectedRealmTimestamps(
 	name blizzardv2.RegionName,

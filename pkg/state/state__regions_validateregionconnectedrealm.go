@@ -10,11 +10,11 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state/subjects"
 )
 
-type ValidateRegionRealmResponse struct {
+type ValidateRegionConnectedRealmResponse struct {
 	IsValid bool `json:"is_valid"`
 }
 
-func (res ValidateRegionRealmResponse) EncodeForDelivery() (string, error) {
+func (res ValidateRegionConnectedRealmResponse) EncodeForDelivery() (string, error) {
 	encodedResult, err := json.Marshal(res)
 	if err != nil {
 		return "", err
@@ -36,7 +36,7 @@ func (sta RegionsState) ListenForValidateRegionConnectedRealm(stop ListenStopCha
 			return
 		}
 
-		res := ValidateRegionRealmResponse{
+		res := ValidateRegionConnectedRealmResponse{
 			IsValid: sta.RegionComposites.RegionConnectedRealmExists(req.RegionName, req.ConnectedRealmId),
 		}
 		encoded, err := res.EncodeForDelivery()

@@ -82,6 +82,7 @@ func (sta *RegionsState) GetListeners() SubjectListeners {
 	return SubjectListeners{
 		subjects.Status:                          sta.ListenForStatus,
 		subjects.ValidateRegionConnectedRealm:    sta.ListenForValidateRegionConnectedRealm,
+		subjects.ValidateRegionRealm:             sta.ListenForValidateRegionRealm,
 		subjects.QueryRealmModificationDates:     sta.ListenForQueryRealmModificationDates,
 		subjects.ConnectedRealmModificationDates: sta.ListenForConnectedRealmModificationDates,
 	}
