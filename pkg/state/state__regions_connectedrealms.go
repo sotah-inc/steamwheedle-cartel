@@ -26,7 +26,7 @@ func (sta RegionsState) ListenForConnectedRealms(stop ListenStopChan) error {
 		region, err := sta.RegionComposites.FindByRegionName(sRequest.RegionName)
 		if err != nil {
 			m.Err = fmt.Sprintf("invalid region name: %s", sRequest.RegionName)
-			m.Code = codes.UserError
+			m.Code = codes.NotFound
 			sta.Messenger.ReplyTo(natsMsg, m)
 
 			return
