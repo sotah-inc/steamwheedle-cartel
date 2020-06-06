@@ -9,6 +9,17 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 )
 
+type RealmComposites []RealmComposite
+
+func (comps RealmComposites) EncodeForDelivery() ([]byte, error) {
+	jsonEncoded, err := json.Marshal(comps)
+	if err != nil {
+		return []byte{}, err
+	}
+
+	return util.GzipEncode(jsonEncoded)
+}
+
 func NewRealmComposite(realmWhitelist blizzardv2.RealmSlugs, res blizzardv2.ConnectedRealmResponse) RealmComposite {
 	if len(realmWhitelist) > 0 {
 		res.Realms = res.Realms.FilterIn(realmWhitelist)
@@ -30,8 +41,8 @@ func (composite RealmComposite) IsZero() bool {
 }
 
 type RegionComposite struct {
-	ConfigRegion             Region           `json:"config_region"`
-	ConnectedRealmComposites []RealmComposite `json:"connected_realms"`
+	ConfigRegion             Region          `json:"config_region"`
+	ConnectedRealmComposites RealmComposites `json:"connected_realms"`
 }
 
 func (region RegionComposite) ToDownloadTuples() []blizzardv2.DownloadConnectedRealmTuple {
