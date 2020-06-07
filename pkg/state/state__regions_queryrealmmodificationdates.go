@@ -47,7 +47,7 @@ func (sta RegionsState) ListenForQueryRealmModificationDates(stop ListenStopChan
 			}).Error("failed to resolve connected-realm timestamps")
 
 			m.Err = err.Error()
-			m.Code = mCodes.UserError
+			m.Code = mCodes.NotFound
 			sta.Messenger.ReplyTo(natsMsg, m)
 
 			return
