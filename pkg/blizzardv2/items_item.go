@@ -7,6 +7,9 @@ import (
 	"net/http"
 
 	"github.com/sirupsen/logrus"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/binding"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/inventorytype"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/itemquality"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/locale"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 )
@@ -22,8 +25,8 @@ type GetItemURLFunc func(string, ItemId, RegionName) string
 type ItemId int
 
 type ItemQuality struct {
-	Type string         `json:"type"`
-	Name locale.Mapping `json:"name"`
+	Type itemquality.ItemQuality `json:"type"`
+	Name locale.Mapping          `json:"name"`
 }
 
 type ItemMedia struct {
@@ -32,8 +35,8 @@ type ItemMedia struct {
 }
 
 type ItemInventoryType struct {
-	Type string         `json:"type"`
-	Name locale.Mapping `json:"name"`
+	Type inventorytype.InventoryType `json:"type"`
+	Name locale.Mapping              `json:"name"`
 }
 
 type ItemSpellId int
@@ -75,8 +78,8 @@ type ItemResponse struct {
 		ItemSubClass  ItemSubClass      `json:"item_subclass"`
 		InventoryType ItemInventoryType `json:"inventory_type"`
 		Binding       struct {
-			Type string         `json:"type"`
-			Name locale.Mapping `json:"name"`
+			Type binding.Binding `json:"type"`
+			Name locale.Mapping  `json:"name"`
 		} `json:"binding"`
 		Spells    []ItemSpell `json:"spells"`
 		SellPrice struct {
