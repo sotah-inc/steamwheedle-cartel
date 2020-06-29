@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"net/http"
 
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/stattype"
+
 	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/binding"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/inventorytype"
@@ -50,6 +52,25 @@ type ItemSpell struct {
 	Description locale.Mapping `json:"description"`
 }
 
+type ItemColor struct {
+	Red   int     `json:"r"`
+	Green int     `json:"g"`
+	Blue  int     `json:"b"`
+	Alpha float32 `json:"a"`
+}
+
+type ItemStat struct {
+	Type struct {
+		Type stattype.StatType `json:"type"`
+		Name locale.Mapping    `json:"name"`
+	} `json:"type"`
+	Value   int `json:"value"`
+	Display struct {
+		DisplayString locale.Mapping `json:"display_string"`
+		Color         ItemColor      `json:"color"`
+	} `json:"display"`
+}
+
 type ItemResponse struct {
 	LinksBase
 	Id            ItemId            `json:"id"`
@@ -81,6 +102,7 @@ type ItemResponse struct {
 			Type binding.Binding `json:"type"`
 			Name locale.Mapping  `json:"name"`
 		} `json:"binding"`
+		Stats     []ItemStat  `json:"stats"`
 		Spells    []ItemSpell `json:"spells"`
 		SellPrice struct {
 			Value  int64          `json:"value"`
@@ -92,12 +114,7 @@ type ItemResponse struct {
 		IsSubClassHidden bool `json:"is_subclass_hidden"`
 		NameDescription  struct {
 			DisplayString locale.Mapping `json:"display_string"`
-			Color         struct {
-				Red   int     `json:"r"`
-				Green int     `json:"g"`
-				Blue  int     `json:"b"`
-				Alpha float32 `json:"a"`
-			} `json:"color"`
+			Color         ItemColor      `json:"color"`
 		} `json:"name_description"`
 	} `json:"preview_item"`
 }
