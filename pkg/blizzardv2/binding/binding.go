@@ -3,7 +3,7 @@ package binding
 type Binding string
 
 const (
-	BindOnEquip   = "ON_EQUIP"
-	BindOnAccount = "TO_BNETACCOUNT"
-	BindOnPickup  = "ON_ACQUIRE"
+	BindOnEquip   Binding = "ON_EQUIP"
+	BindOnAccount Binding = "TO_BNETACCOUNT"
+	BindOnPickup  Binding = "ON_ACQUIRE"
 )
