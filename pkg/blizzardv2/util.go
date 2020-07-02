@@ -124,3 +124,5 @@ type RegionHostnameTuple struct {
 	RegionName     RegionName
 	RegionHostname string
 }
+
+type PriceValue int64

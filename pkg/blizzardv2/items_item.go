@@ -6,13 +6,12 @@ import (
 	"fmt"
 	"net/http"
 
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/stattype"
-
 	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/binding"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/inventorytype"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/itemquality"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/locale"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/stattype"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 )
 
@@ -64,11 +63,18 @@ type ItemStat struct {
 		Type stattype.StatType `json:"type"`
 		Name locale.Mapping    `json:"name"`
 	} `json:"type"`
-	Value   int `json:"value"`
-	Display struct {
-		DisplayString locale.Mapping `json:"display_string"`
-		Color         ItemColor      `json:"color"`
-	} `json:"display"`
+	Value   int         `json:"value"`
+	Display ItemDisplay `json:"display"`
+}
+
+type ItemDisplay struct {
+	DisplayString locale.Mapping `json:"display_string"`
+	Color         ItemColor      `json:"color"`
+}
+
+type ItemValueDisplayStringTuple struct {
+	Value   int         `json:"value"`
+	Display ItemDisplay `json:"display_string"`
 }
 
 type ItemResponse struct {
@@ -82,8 +88,8 @@ type ItemResponse struct {
 	ItemClass     ItemClass         `json:"item_class"`
 	ItemSubClass  ItemSubClass      `json:"item_subclass"`
 	InventoryType ItemInventoryType `json:"inventory_type"`
-	PurchasePrice int64             `json:"purchase_price"`
-	SellPrice     int64             `json:"sell_price"`
+	PurchasePrice PriceValue        `json:"purchase_price"`
+	SellPrice     PriceValue        `json:"sell_price"`
 	MaxCount      int               `json:"max_count"`
 	IsEquippable  bool              `json:"is_equippable"`
 	IsStackable   bool              `json:"is_stackable"`
@@ -102,20 +108,27 @@ type ItemResponse struct {
 			Type binding.Binding `json:"type"`
 			Name locale.Mapping  `json:"name"`
 		} `json:"binding"`
-		Stats     []ItemStat  `json:"stats"`
-		Spells    []ItemSpell `json:"spells"`
-		SellPrice struct {
-			Value  int64          `json:"value"`
-			Header locale.Mapping `json:"header"`
-			Gold   locale.Mapping `json:"gold"`
-			Silver locale.Mapping `json:"silver"`
-			Copper locale.Mapping `json:"copper"`
+		Armor       ItemValueDisplayStringTuple `json:"armor"`
+		ShieldBlock ItemValueDisplayStringTuple `json:"shield_block"`
+		Stats       []ItemStat                  `json:"stats"`
+		Spells      []ItemSpell                 `json:"spells"`
+		SellPrice   struct {
+			Value          PriceValue `json:"value"`
+			DisplayStrings struct {
+				Header locale.Mapping `json:"header"`
+				Gold   locale.Mapping `json:"gold"`
+				Silver locale.Mapping `json:"silver"`
+				Copper locale.Mapping `json:"copper"`
+			} `json:"display_strings"`
 		} `json:"sell_price"`
-		IsSubClassHidden bool `json:"is_subclass_hidden"`
-		NameDescription  struct {
+		Requirements struct {
+			Level         int            `json:"level"`
 			DisplayString locale.Mapping `json:"display_string"`
-			Color         ItemColor      `json:"color"`
-		} `json:"name_description"`
+		} `json:"requirements"`
+		Level            ItemValueDisplayStringTuple `json:"level"`
+		Durability       ItemValueDisplayStringTuple `json:"durability"`
+		IsSubClassHidden bool                        `json:"is_subclass_hidden"`
+		NameDescription  ItemDisplay                 `json:"name_description"`
 	} `json:"preview_item"`
 }
 
