@@ -8,6 +8,8 @@ import (
 
 	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/locale"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/realmpopulation"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/realmstatus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 )
 
@@ -26,12 +28,12 @@ type ConnectedRealmResponse struct {
 	Id       ConnectedRealmId `json:"id"`
 	HasQueue bool             `json:"has_queue"`
 	Status   struct {
-		Type string         `json:"type"`
-		Name locale.Mapping `json:"name"`
+		Type realmstatus.RealmStatus `json:"type"`
+		Name locale.Mapping          `json:"name"`
 	} `json:"status"`
 	Population struct {
-		Type string         `json:"type"`
-		Name locale.Mapping `json:"name"`
+		Type realmpopulation.RealmPopulation `json:"type"`
+		Name locale.Mapping                  `json:"name"`
 	} `json:"population"`
 	Realms             RealmResponses `json:"realms"`
 	MythicLeaderboards HrefReference  `json:"mythic_leaderboards"`

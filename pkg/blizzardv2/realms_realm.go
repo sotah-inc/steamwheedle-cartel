@@ -2,6 +2,7 @@ package blizzardv2
 
 import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/locale"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/realmtype"
 )
 
 type RealmId int
@@ -34,8 +35,8 @@ type RealmResponse struct {
 	Locale         string         `json:"locale"`
 	Timezone       string         `json:"timezone"`
 	Type           struct {
-		Type string         `json:"type"`
-		Name locale.Mapping `json:"string"`
+		Type realmtype.RealmType `json:"type"`
+		Name locale.Mapping      `json:"string"`
 	} `json:"type"`
 	IsTournament bool      `json:"is_tournament"`
 	Slug         RealmSlug `json:"slug"`
