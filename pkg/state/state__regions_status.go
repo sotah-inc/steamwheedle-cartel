@@ -41,7 +41,7 @@ func (sta RegionsState) ListenForStatus(stop ListenStopChan) error {
 			return
 		}
 
-		m.Data = string(encodedStatus)
+		m.Data = encodedStatus
 		sta.Messenger.ReplyTo(natsMsg, m)
 	})
 	if err != nil {

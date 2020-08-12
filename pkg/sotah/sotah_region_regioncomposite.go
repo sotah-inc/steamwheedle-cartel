@@ -1,23 +1,28 @@
 package sotah
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
-
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 )
 
 type RealmComposites []RealmComposite
 
-func (comps RealmComposites) EncodeForDelivery() ([]byte, error) {
+func (comps RealmComposites) EncodeForDelivery() (string, error) {
 	jsonEncoded, err := json.Marshal(comps)
 	if err != nil {
-		return []byte{}, err
+		return "", err
 	}
 
-	return util.GzipEncode(jsonEncoded)
+	gzipEncoded, err := util.GzipEncode(jsonEncoded)
+	if err != nil {
+		return "", err
+	}
+
+	return base64.StdEncoding.EncodeToString(gzipEncoded), nil
 }
 
 func NewRealmComposite(realmWhitelist blizzardv2.RealmSlugs, res blizzardv2.ConnectedRealmResponse) RealmComposite {
@@ -65,13 +70,18 @@ func (region RegionComposite) ToDownloadTuples() []blizzardv2.DownloadConnectedR
 	return out
 }
 
-func (region RegionComposite) EncodeForDelivery() ([]byte, error) {
+func (region RegionComposite) EncodeForDelivery() (string, error) {
 	jsonEncoded, err := json.Marshal(region)
 	if err != nil {
-		return []byte{}, err
+		return "", err
 	}
 
-	return util.GzipEncode(jsonEncoded)
+	gzipEncoded, err := util.GzipEncode(jsonEncoded)
+	if err != nil {
+		return "", err
+	}
+
+	return base64.StdEncoding.EncodeToString(gzipEncoded), nil
 }
 
 type RegionComposites []RegionComposite

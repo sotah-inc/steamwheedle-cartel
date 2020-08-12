@@ -41,7 +41,7 @@ func (sta RegionsState) ListenForConnectedRealms(stop ListenStopChan) error {
 			return
 		}
 
-		m.Data = string(encoded)
+		m.Data = encoded
 		sta.Messenger.ReplyTo(natsMsg, m)
 	})
 	if err != nil {
