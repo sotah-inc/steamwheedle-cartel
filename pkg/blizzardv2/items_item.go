@@ -122,8 +122,8 @@ type ItemResponse struct {
 			} `json:"display_strings"`
 		} `json:"sell_price"`
 		Requirements struct {
-			Level         int            `json:"level"`
-			DisplayString locale.Mapping `json:"display_string"`
+			Level         ItemValueDisplayStringTuple `json:"level"`
+			DisplayString locale.Mapping              `json:"display_string"`
 		} `json:"requirements"`
 		Level            ItemValueDisplayStringTuple `json:"level"`
 		Durability       ItemValueDisplayStringTuple `json:"durability"`
