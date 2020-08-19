@@ -107,6 +107,26 @@ func (regions RegionComposites) FindByRegionName(
 	return RegionComposite{}, errors.New("failed to resolve connected-realms")
 }
 
+func (regions RegionComposites) FindConnectedRealm(tuple blizzardv2.RegionRealmTuple) (RealmComposite, error) {
+	for _, region := range regions {
+		if region.ConfigRegion.Name != tuple.RegionName {
+			continue
+		}
+
+		for _, connectedRealm := range region.ConnectedRealmComposites {
+			for _, realm := range connectedRealm.ConnectedRealmResponse.Realms {
+				if realm.Slug != tuple.RealmSlug {
+					continue
+				}
+
+				return connectedRealm, nil
+			}
+		}
+	}
+
+	return RealmComposite{}, errors.New("failed to find connected-realm")
+}
+
 func (regions RegionComposites) RegionConnectedRealmExists(
 	name blizzardv2.RegionName,
 	id blizzardv2.ConnectedRealmId,
