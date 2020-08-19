@@ -13,7 +13,7 @@ import (
 )
 
 type ResolveConnectedRealmResponse struct {
-	ConnectedRealm sotah.RealmComposite
+	ConnectedRealm sotah.RealmComposite `json:"connected_realm"`
 }
 
 func (res ResolveConnectedRealmResponse) EncodeForDelivery() (string, error) {
