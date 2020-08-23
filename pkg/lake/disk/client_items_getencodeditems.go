@@ -103,7 +103,7 @@ func (client Client) GetEncodedItems(ids blizzardv2.ItemIds) chan BaseLake.GetEn
 					NormalizedName: normalizedName,
 					ItemIconMeta: sotah.ItemIconMeta{
 						URL:        blizzardv2.DefaultGetItemIconURL(itemIcon),
-						ObjectName: sotah.NewItemObjectName(sotah.IconName(itemIcon)),
+						ObjectName: "",
 						Icon:       sotah.IconName(itemIcon),
 					},
 				},
