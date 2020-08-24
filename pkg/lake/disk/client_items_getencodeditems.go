@@ -75,17 +75,17 @@ func (client Client) GetEncodedItems(ids blizzardv2.ItemIds) chan BaseLake.GetEn
 			}
 
 			normalizedName, err := func() (locale.Mapping, error) {
-				foundName := job.Item.Name
-				if _, ok := foundName[locale.EnUS]; !ok {
+				foundName, ok := job.Item.Name[locale.EnUS]
+				if !ok {
 					return locale.Mapping{}, errors.New("failed to resolve enUS name")
 				}
 
-				foundName[locale.EnUS], err = sotah.NormalizeString(foundName[locale.EnUS])
+				normalizedName, err := sotah.NormalizeString(foundName)
 				if err != nil {
 					return locale.Mapping{}, err
 				}
 
-				return foundName, nil
+				return locale.Mapping{locale.EnUS: normalizedName}, nil
 			}()
 			if err != nil {
 				logging.WithFields(logrus.Fields{
