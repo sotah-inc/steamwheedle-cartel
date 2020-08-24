@@ -21,6 +21,8 @@ type collectAuctionsResults struct {
 	tuples           blizzardv2.LoadConnectedRealmTuples
 }
 
+const itemIdsLimit = 500
+
 func (c Client) collectAuctions() (collectAuctionsResults, error) {
 	startTime := time.Now()
 	logging.Info("calling DiskCollector.collectAuctions()")
@@ -86,11 +88,11 @@ func (c Client) collectAuctions() (collectAuctionsResults, error) {
 		}
 
 		results.itemIds = func() blizzardv2.ItemIds {
-			if len(results.itemIds) < 5 {
+			if len(results.itemIds) < itemIdsLimit {
 				return results.itemIds
 			}
 
-			return results.itemIds[:25]
+			return results.itemIds[:itemIdsLimit]
 		}()
 
 		resultsOutJob <- results
