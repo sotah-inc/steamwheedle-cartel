@@ -27,7 +27,7 @@ func newMiniAuction(auc blizzardv2.Auction) miniAuction {
 
 	return miniAuction{
 		auc.Item.Id,
-		auc.Buyout,
+		buyout,
 		buyoutPer,
 		auc.Quantity,
 		auc.TimeLeft,
