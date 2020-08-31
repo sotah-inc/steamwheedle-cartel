@@ -18,7 +18,7 @@ func newMiniAuction(auc blizzardv2.Auction) miniAuction {
 		return 0
 	}()
 	buyoutPer := func() float64 {
-		if auc.Buyout > int64(0) {
+		if auc.Buyout > 0 {
 			return float64(auc.Buyout) / float64(auc.Quantity)
 		}
 
