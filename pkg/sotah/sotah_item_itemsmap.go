@@ -23,3 +23,15 @@ func (iMap ItemsMap) EncodeForDatabase() ([]byte, error) {
 
 	return gzipEncodedData, nil
 }
+
+func (iMap ItemsMap) ToList() []Item {
+	out := make([]Item, len(iMap))
+	i := 0
+	for _, item := range iMap {
+		out[i] = item
+
+		i++
+	}
+
+	return out
+}

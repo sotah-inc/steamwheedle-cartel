@@ -28,7 +28,7 @@ type ItemsRequest struct {
 }
 
 type ItemsResponse struct {
-	Items sotah.ItemsMap `json:"items"`
+	Items []sotah.Item `json:"items"`
 }
 
 func (iResponse ItemsResponse) EncodeForMessage() (string, error) {
@@ -68,7 +68,7 @@ func (sta ItemsState) ListenForItems(stop ListenStopChan) error {
 			return
 		}
 
-		iResponse := ItemsResponse{Items: iMap}
+		iResponse := ItemsResponse{Items: iMap.ToList()}
 		data, err := iResponse.EncodeForMessage()
 		if err != nil {
 			m.Err = err.Error()
