@@ -1,6 +1,6 @@
 [submodule "extern/steamwheedle-cartel-server"]
 	path = extern/steamwheedle-cartel-server
-	url = ssh://adrian@sotah.info@source.developers.google.com:2022/p/sotah-prod/r/steamwheedle-cartel-server
+	url = ssh://ihsw.aparker.kilabuk@gmail.com@source.developers.google.com:2022/p/sotah-prod/r/steamwheedle-cartel-server
 [submodule "extern/infra"]
 	path = extern/infra
-	url = ssh://adrian@sotah.info@source.developers.google.com:2022/p/sotah-prod/r/infra
+	url = ssh://ihsw.aparker.kilabuk@gmail.com@source.developers.google.com:2022/p/sotah-prod/r/infra
