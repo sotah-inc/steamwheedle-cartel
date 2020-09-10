@@ -4,6 +4,8 @@ import (
 	"encoding/base64"
 	"encoding/json"
 
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/locale"
+
 	nats "github.com/nats-io/nats.go"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
@@ -24,11 +26,12 @@ func NewItemsRequest(payload []byte) (ItemsRequest, error) {
 }
 
 type ItemsRequest struct {
+	Locale  locale.Locale      `json:"locale"`
 	ItemIds blizzardv2.ItemIds `json:"itemIds"`
 }
 
 type ItemsResponse struct {
-	Items []sotah.Item `json:"items"`
+	Items sotah.ShortItemList `json:"items"`
 }
 
 func (iResponse ItemsResponse) EncodeForMessage() (string, error) {
@@ -59,6 +62,14 @@ func (sta ItemsState) ListenForItems(stop ListenStopChan) error {
 			return
 		}
 
+		if iRequest.Locale.IsZero() {
+			m.Err = "locale was zero"
+			m.Code = codes.UserError
+			sta.Messenger.ReplyTo(natsMsg, m)
+
+			return
+		}
+
 		iMap, err := sta.ItemsDatabase.FindItems(iRequest.ItemIds)
 		if err != nil {
 			m.Err = err.Error()
@@ -68,7 +79,16 @@ func (sta ItemsState) ListenForItems(stop ListenStopChan) error {
 			return
 		}
 
-		iResponse := ItemsResponse{Items: iMap.ToList()}
+		resolvedShortItems, err := sotah.NewShortItemList(iMap.ToList(), iRequest.Locale)
+		if err != nil {
+			m.Err = err.Error()
+			m.Code = codes.GenericError
+			sta.Messenger.ReplyTo(natsMsg, m)
+
+			return
+		}
+
+		iResponse := ItemsResponse{Items: resolvedShortItems}
 		data, err := iResponse.EncodeForMessage()
 		if err != nil {
 			m.Err = err.Error()

@@ -1,8 +1,15 @@
 package locale
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"errors"
+)
 
 type Locale string
+
+func (locale Locale) IsZero() bool {
+	return len(locale) == 0
+}
 
 func NewMapping(data []byte) (Mapping, error) {
 	out := Mapping{}
@@ -30,6 +37,15 @@ func (m Mapping) IsZero() bool {
 
 func (m Mapping) EncodeForStorage() ([]byte, error) {
 	return json.Marshal(m)
+}
+
+func (m Mapping) Find(locale Locale) (string, error) {
+	found, ok := m[locale]
+	if !ok {
+		return "", errors.New("could not resolve locale")
+	}
+
+	return found, nil
 }
 
 const (
