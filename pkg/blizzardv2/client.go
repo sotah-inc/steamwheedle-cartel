@@ -59,7 +59,7 @@ type refreshResponse struct {
 
 func (c *Client) RefreshFromHTTP(uri string) error {
 	// forming a request
-	req, err := http.NewRequest("GET", uri, nil)
+	req, err := http.NewRequest("POST", uri, nil)
 	if err != nil {
 		return err
 	}
