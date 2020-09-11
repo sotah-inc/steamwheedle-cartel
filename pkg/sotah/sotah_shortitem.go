@@ -52,7 +52,8 @@ type ShortItemQuality struct {
 type ShortItem struct {
 	SotahMeta ItemMeta `json:"sotah_meta"`
 
-	Id      blizzardv2.ItemId `json:"id"`
-	Name    string            `json:"name"`
-	Quality ShortItemQuality  `json:"quality"`
+	Id       blizzardv2.ItemId `json:"id"`
+	Name     string            `json:"name"`
+	Quality  ShortItemQuality  `json:"quality"`
+	MaxCount int               `json:"max_count"`
 }
