@@ -11,14 +11,14 @@ import (
 )
 
 func NewPricesFromEncoded(gzipEncoded []byte) (Prices, error) {
-	logging.WithField("data", gzipEncoded).Info("gzip-decoding")
+	logging.WithField("data", string(gzipEncoded)).Info("gzip-decoding")
 
 	gzipDecoded, err := util.GzipDecode(gzipEncoded)
 	if err != nil {
 		return Prices{}, err
 	}
 
-	logging.WithField("data", gzipDecoded).Info("json-unmarshaling")
+	logging.WithField("data", string(gzipDecoded)).Info("json-unmarshaling")
 
 	var out Prices
 	if err := json.Unmarshal(gzipDecoded, &out); err != nil {
