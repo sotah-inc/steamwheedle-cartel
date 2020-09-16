@@ -226,5 +226,5 @@ func (pHistory PriceHistory) Between(
 	lowerLimit UnixTimestamp,
 	upperLimit UnixTimestamp,
 ) PriceHistory {
-	return pHistory.After(lowerLimit, true).After(upperLimit, true)
+	return pHistory.After(lowerLimit, true).Before(upperLimit, true)
 }
