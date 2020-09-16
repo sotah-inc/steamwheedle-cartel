@@ -1,8 +1,6 @@
 package database
 
 import (
-	"github.com/sirupsen/logrus"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 )
 
@@ -19,11 +17,6 @@ func (shards PricelistHistoryDatabaseShards) Before(
 		}
 	}
 
-	logging.WithFields(logrus.Fields{
-		"out":   len(out),
-		"limit": limit,
-	}).Info("found before")
-
 	return out
 }
 
@@ -37,11 +30,6 @@ func (shards PricelistHistoryDatabaseShards) After(
 			out[timestamp] = phdBase
 		}
 	}
-
-	logging.WithFields(logrus.Fields{
-		"out":   len(out),
-		"limit": limit,
-	}).Info("found after")
 
 	return out
 }
