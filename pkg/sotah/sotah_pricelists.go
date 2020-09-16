@@ -10,7 +10,6 @@ import (
 	"strconv"
 
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 )
 
@@ -154,8 +153,6 @@ func NewPriceHistoryFromBytes(data []byte) (PriceHistory, error) {
 	if err != nil {
 		return PriceHistory{}, err
 	}
-
-	logging.WithField("data", string(gzipDecoded)).Info("decoding")
 
 	out := PriceHistory{}
 	if err := json.Unmarshal(gzipDecoded, &out); err != nil {
