@@ -8,14 +8,9 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 )
 
-func NewPricesFromEncoded(gzipEncoded []byte) (Prices, error) {
-	gzipDecoded, err := util.GzipDecode(gzipEncoded)
-	if err != nil {
-		return Prices{}, err
-	}
-
+func NewPricesFromEncoded(jsonEncoded []byte) (Prices, error) {
 	var out Prices
-	if err := json.Unmarshal(gzipDecoded, &out); err != nil {
+	if err := json.Unmarshal(jsonEncoded, &out); err != nil {
 		return Prices{}, err
 	}
 
