@@ -6,8 +6,8 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 )
 
-func (phdBase PricelistHistoryDatabase) getItemPriceHistory(id blizzardv2.ItemId) (sotah.PriceHistory, error) {
-	out := sotah.PriceHistory{}
+func (phdBase PricelistHistoryDatabase) getItemPriceHistory(id blizzardv2.ItemId) (sotah.Prices, error) {
+	out := sotah.Prices{}
 
 	err := phdBase.db.View(func(tx *bolt.Tx) error {
 		bkt := tx.Bucket(pricelistHistoryBucketName(id))
@@ -21,7 +21,7 @@ func (phdBase PricelistHistoryDatabase) getItemPriceHistory(id blizzardv2.ItemId
 		}
 
 		var err error
-		out, err = sotah.NewPriceHistoryFromBytes(value)
+		out, err = sotah.NewPricesFromEncoded(value)
 		if err != nil {
 			return err
 		}
@@ -29,7 +29,7 @@ func (phdBase PricelistHistoryDatabase) getItemPriceHistory(id blizzardv2.ItemId
 		return nil
 	})
 	if err != nil {
-		return sotah.PriceHistory{}, err
+		return sotah.Prices{}, err
 	}
 
 	return out, nil

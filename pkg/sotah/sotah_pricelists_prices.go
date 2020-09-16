@@ -8,6 +8,20 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 )
 
+func NewPricesFromEncoded(gzipEncoded []byte) (Prices, error) {
+	gzipDecoded, err := util.GzipDecode(gzipEncoded)
+	if err != nil {
+		return Prices{}, err
+	}
+
+	var out Prices
+	if err := json.Unmarshal(gzipDecoded, &out); err != nil {
+		return Prices{}, err
+	}
+
+	return out, nil
+}
+
 type Prices struct {
 	MinBuyoutPer     float64 `json:"min_buyout_per"`
 	MaxBuyoutPer     float64 `json:"max_buyout_per"`
