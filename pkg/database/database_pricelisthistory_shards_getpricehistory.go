@@ -32,7 +32,7 @@ func (shards PricelistHistoryDatabaseShards) GetPriceHistory(
 	// spinning up workers for querying price-histories
 	worker := func() {
 		for phdBase := range in {
-			receivedHistory, err := phdBase.getItemPriceHistory(id)
+			itemPrices, err := phdBase.getItemPrices(id)
 			if err != nil {
 				out <- GetPriceHistoryJob{
 					Err:          err,
@@ -44,7 +44,7 @@ func (shards PricelistHistoryDatabaseShards) GetPriceHistory(
 
 			out <- GetPriceHistoryJob{
 				Err:          nil,
-				PriceHistory: receivedHistory,
+				PriceHistory: sotah.PriceHistory{phdBase.targetTimestamp: itemPrices},
 			}
 		}
 	}
