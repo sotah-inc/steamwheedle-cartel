@@ -4,6 +4,8 @@ import (
 	"encoding/base64"
 	"encoding/json"
 
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
+
 	"github.com/nats-io/nats.go"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
@@ -61,6 +63,8 @@ func (sta PricelistHistoryState) ListenForPriceListHistory(stop ListenStopChan) 
 			return
 		}
 
+		logging.WithField("req", req).Info("received request")
+
 		shards, err := sta.PricelistHistoryDatabases.GetShards(req.Tuple)
 		if err != nil {
 			m.Err = err.Error()
@@ -69,6 +73,8 @@ func (sta PricelistHistoryState) ListenForPriceListHistory(stop ListenStopChan) 
 
 			return
 		}
+
+		logging.WithField("shards", len(shards)).Info("found shards")
 
 		itemPriceHistories, err := shards.Between(req.LowerBounds, req.UpperBounds).GetItemPriceHistories(
 			req.ItemIds,
