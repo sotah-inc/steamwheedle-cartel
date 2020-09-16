@@ -6,22 +6,19 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
-
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 )
 
 func NewPricesFromEncoded(gzipEncoded []byte) (Prices, error) {
-	logging.WithField("data", string(gzipEncoded)).Info("gzip-decoding")
-
 	gzipDecoded, err := util.GzipDecode(gzipEncoded)
 	if err != nil {
 		return Prices{}, err
 	}
 
-	logging.WithField("data", string(gzipDecoded)).Info("json-unmarshaling")
-
 	var out Prices
 	if err := json.Unmarshal(gzipDecoded, &out); err != nil {
+		logging.WithField("gzipDecoded", string(gzipDecoded)).Error("failed to decode")
+
 		return Prices{}, err
 	}
 
