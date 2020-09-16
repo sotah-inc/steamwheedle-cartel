@@ -26,13 +26,6 @@ func (shards PricelistHistoryDatabaseShards) GetItemPriceHistories(
 	lowerBounds sotah.UnixTimestamp,
 	upperBounds sotah.UnixTimestamp,
 ) (sotah.ItemPriceHistories, error) {
-	logging.WithFields(logrus.Fields{
-		"shards":       len(shards),
-		"item-ids":     ids,
-		"lower-bounds": lowerBounds,
-		"upper-bounds": upperBounds,
-	})
-
 	// establish channels
 	in := make(chan blizzardv2.ItemId)
 	out := make(chan GetItemPriceHistoriesJob)
@@ -78,11 +71,6 @@ func (shards PricelistHistoryDatabaseShards) GetItemPriceHistories(
 
 			return sotah.ItemPriceHistories{}, job.Err
 		}
-
-		logging.WithFields(logrus.Fields{
-			"item":    job.Id,
-			"history": len(job.PriceHistory),
-		}).Info("received job")
 
 		priceHistory := func() sotah.PriceHistory {
 			found, ok := itemPriceHistories[job.Id]
