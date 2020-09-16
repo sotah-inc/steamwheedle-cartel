@@ -42,6 +42,12 @@ func (shards PricelistHistoryDatabaseShards) GetPriceHistory(
 				continue
 			}
 
+			logging.WithFields(logrus.Fields{
+				"item":             id,
+				"target-timestamp": phdBase.targetTimestamp,
+				"prices":           itemPrices,
+			}).Info("found prices at timestamp")
+
 			out <- GetPriceHistoryJob{
 				Err:          nil,
 				PriceHistory: sotah.PriceHistory{phdBase.targetTimestamp: itemPrices},
