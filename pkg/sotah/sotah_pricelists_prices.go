@@ -3,8 +3,6 @@ package sotah
 import (
 	"encoding/json"
 
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
-
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 )
@@ -17,8 +15,6 @@ func NewPricesFromEncoded(gzipEncoded []byte) (Prices, error) {
 
 	var out Prices
 	if err := json.Unmarshal(gzipDecoded, &out); err != nil {
-		logging.WithField("gzipDecoded", string(gzipDecoded)).Error("failed to decode")
-
 		return Prices{}, err
 	}
 

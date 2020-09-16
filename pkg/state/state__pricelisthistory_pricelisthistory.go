@@ -83,7 +83,9 @@ func (sta PricelistHistoryState) ListenForPriceListHistory(stop ListenStopChan) 
 			return
 		}
 
-		data, err := itemPriceHistories.EncodeForPersistence()
+		res := PricelistHistoryResponse{History: itemPriceHistories}
+
+		data, err := res.EncodeForDelivery()
 		if err != nil {
 			m.Err = err.Error()
 			m.Code = codes.GenericError
