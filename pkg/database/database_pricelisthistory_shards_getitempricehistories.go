@@ -79,6 +79,11 @@ func (shards PricelistHistoryDatabaseShards) GetItemPriceHistories(
 			return sotah.ItemPriceHistories{}, job.Err
 		}
 
+		logging.WithFields(logrus.Fields{
+			"item":    job.Id,
+			"history": len(job.PriceHistory),
+		}).Info("received job")
+
 		priceHistory := func() sotah.PriceHistory {
 			found, ok := itemPriceHistories[job.Id]
 			if !ok {

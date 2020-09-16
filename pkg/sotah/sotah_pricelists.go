@@ -9,6 +9,9 @@ import (
 	"io/ioutil"
 	"strconv"
 
+	"github.com/sirupsen/logrus"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
+
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 )
@@ -181,6 +184,11 @@ func (pHistory PriceHistory) EncodeForPersistence() ([]byte, error) {
 func (pHistory PriceHistory) Merge(in PriceHistory) PriceHistory {
 	for timestamp, prices := range in {
 		pHistory[timestamp] = prices
+
+		logging.WithFields(logrus.Fields{
+			"timestamp": timestamp,
+			"prices":    prices,
+		}).Info("merging in")
 	}
 
 	return pHistory
