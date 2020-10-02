@@ -34,9 +34,12 @@ func NewShortItem(item Item, locale locale.Locale) (ShortItem, error) {
 	foundInventoryType := item.BlizzardMeta.PreviewItem.InventoryType.Name.FindOr(locale, "")
 	foundItemSubclass := item.BlizzardMeta.ItemSubClass.Name.FindOr(locale, "")
 	foundDurability := item.BlizzardMeta.PreviewItem.Durability.Display.DisplayString.FindOr(locale, "")
-	foundStats := make([]string, len(item.BlizzardMeta.PreviewItem.Stats))
+	foundStats := make([]ShortItemStat, len(item.BlizzardMeta.PreviewItem.Stats))
 	for i, stat := range item.BlizzardMeta.PreviewItem.Stats {
-		foundStats[i] = stat.Display.DisplayString.FindOr(locale, "")
+		foundStats[i] = ShortItemStat{
+			Value:     stat.Display.DisplayString.FindOr(locale, ""),
+			IsNegated: stat.IsNegated,
+		}
 	}
 	foundArmor := item.BlizzardMeta.PreviewItem.Armor.Display.DisplayString.FindOr(locale, "")
 
@@ -77,6 +80,11 @@ type ShortItemSellPrice struct {
 	Header string                `json:"header"`
 }
 
+type ShortItemStat struct {
+	Value     string `json:"value"`
+	IsNegated bool   `json:"is_negated"`
+}
+
 type ShortItem struct {
 	SotahMeta ItemMeta `json:"sotah_meta"`
 
@@ -94,6 +102,6 @@ type ShortItem struct {
 	InventoryType    string             `json:"inventory_type"`
 	ItemSubclass     string             `json:"item_subclass"`
 	Durability       string             `json:"durability"`
-	Stats            []string           `json:"stats"`
+	Stats            []ShortItemStat    `json:"stats"`
 	Armor            string             `json:"armor"`
 }

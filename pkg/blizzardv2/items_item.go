@@ -63,8 +63,9 @@ type ItemStat struct {
 		Type stattype.StatType `json:"type"`
 		Name locale.Mapping    `json:"name"`
 	} `json:"type"`
-	Value   int         `json:"value"`
-	Display ItemDisplay `json:"display"`
+	Value     int         `json:"value"`
+	IsNegated bool        `json:"is_negated"`
+	Display   ItemDisplay `json:"display"`
 }
 
 type ItemDisplay struct {
