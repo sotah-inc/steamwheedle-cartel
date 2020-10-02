@@ -41,6 +41,7 @@ func NewShortItem(item Item, locale locale.Locale) (ShortItem, error) {
 			IsNegated:    stat.IsNegated,
 			Type:         stat.Type.Name.FindOr(locale, ""),
 			Value:        stat.Value,
+			IsEquipBonus: stat.IsEquipBonus,
 		}
 	}
 	foundArmor := item.BlizzardMeta.PreviewItem.Armor.Display.DisplayString.FindOr(locale, "")
@@ -92,6 +93,7 @@ type ShortItemStat struct {
 	IsNegated    bool   `json:"is_negated"`
 	Type         string `json:"type"`
 	Value        int    `json:"value"`
+	IsEquipBonus bool   `json:"is_equip_bonus"`
 }
 
 type ShortItem struct {
