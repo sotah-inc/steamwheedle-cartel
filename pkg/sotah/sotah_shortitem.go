@@ -1,9 +1,11 @@
 package sotah
 
 import (
+	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/itemquality"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/locale"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 )
 
 func NewShortItemList(itemsList []Item, locale locale.Locale) (ShortItemList, error) {
@@ -30,16 +32,34 @@ func NewShortItem(item Item, locale locale.Locale) (ShortItem, error) {
 
 	foundQualityName, err := item.BlizzardMeta.Quality.Name.Find(locale)
 	if err != nil {
+		logging.WithFields(logrus.Fields{
+			"error":   err.Error(),
+			"item_id": item.BlizzardMeta.Id,
+			"locale":  locale,
+		}).Error("failed to resolve item.BlizzardMeta.Quality.Name")
+
 		return ShortItem{}, err
 	}
 
 	foundBinding, err := item.BlizzardMeta.PreviewItem.Binding.Name.Find(locale)
 	if err != nil {
+		logging.WithFields(logrus.Fields{
+			"error":   err.Error(),
+			"item_id": item.BlizzardMeta.Id,
+			"locale":  locale,
+		}).Error("failed to resolve item.BlizzardMeta.PreviewItem.Binding.Name")
+
 		return ShortItem{}, err
 	}
 
 	foundHeader, err := item.BlizzardMeta.PreviewItem.SellPrice.DisplayStrings.Header.Find(locale)
 	if err != nil {
+		logging.WithFields(logrus.Fields{
+			"error":   err.Error(),
+			"item_id": item.BlizzardMeta.Id,
+			"locale":  locale,
+		}).Error("failed to resolve preview item.BlizzardMeta.PreviewItem.SellPrice.DisplayStrings.Header")
+
 		return ShortItem{}, err
 	}
 
