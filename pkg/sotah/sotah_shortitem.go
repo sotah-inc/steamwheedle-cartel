@@ -24,12 +24,16 @@ func NewShortItemList(itemsList []Item, locale locale.Locale) (ShortItemList, er
 type ShortItemList []ShortItem
 
 func NewShortItem(item Item, locale locale.Locale) (ShortItem, error) {
-	foundName := item.BlizzardMeta.Name.FindOr(locale, "")
-	foundQualityName := item.BlizzardMeta.Quality.Name.FindOr(locale, "")
+	foundName := item.BlizzardMeta.PreviewItem.Name.FindOr(locale, "")
+	foundQualityName := item.BlizzardMeta.PreviewItem.Quality.Name.FindOr(locale, "")
 	foundBinding := item.BlizzardMeta.PreviewItem.Binding.Name.FindOr(locale, "")
 	foundHeader := item.BlizzardMeta.PreviewItem.SellPrice.DisplayStrings.Header.FindOr(locale, "")
 	foundContainerSlots := item.BlizzardMeta.PreviewItem.ContainerSlots.DisplayString.FindOr(locale, "")
-	foundDescription := item.BlizzardMeta.Description.FindOr(locale, "")
+	foundDescription := item.BlizzardMeta.PreviewItem.Description.FindOr(locale, "")
+	foundLevelRequirement := item.BlizzardMeta.PreviewItem.Requirements.Level.DisplayString.FindOr(locale, "")
+	foundInventoryType := item.BlizzardMeta.PreviewItem.InventoryType.Name.FindOr(locale, "")
+	foundItemSubclass := item.BlizzardMeta.ItemSubClass.Name.FindOr(locale, "")
+	foundDurability := item.BlizzardMeta.PreviewItem.Durability.Display.DisplayString.FindOr(locale, "")
 
 	return ShortItem{
 		SotahMeta: item.SotahMeta,
@@ -47,8 +51,12 @@ func NewShortItem(item Item, locale locale.Locale) (ShortItem, error) {
 			Value:  item.BlizzardMeta.PreviewItem.SellPrice.Value,
 			Header: foundHeader,
 		},
-		ContainerSlots: foundContainerSlots,
-		Description:    foundDescription,
+		ContainerSlots:   foundContainerSlots,
+		Description:      foundDescription,
+		LevelRequirement: foundLevelRequirement,
+		InventoryType:    foundInventoryType,
+		ItemSubclass:     foundItemSubclass,
+		Durability:       foundDurability,
 	}, nil
 }
 
@@ -65,14 +73,18 @@ type ShortItemSellPrice struct {
 type ShortItem struct {
 	SotahMeta ItemMeta `json:"sotah_meta"`
 
-	Id             blizzardv2.ItemId  `json:"id"`
-	Name           string             `json:"name"`
-	Quality        ShortItemQuality   `json:"quality"`
-	MaxCount       int                `json:"max_count"`
-	Level          int                `json:"level"`
-	ItemClassId    itemclass.Id       `json:"item_class_id"`
-	Binding        string             `json:"binding"`
-	SellPrice      ShortItemSellPrice `json:"sell_price"`
-	ContainerSlots string             `json:"container_slots"`
-	Description    string             `json:"description"`
+	Id               blizzardv2.ItemId  `json:"id"`
+	Name             string             `json:"name"`
+	Quality          ShortItemQuality   `json:"quality"`
+	MaxCount         int                `json:"max_count"`
+	Level            int                `json:"level"`
+	ItemClassId      itemclass.Id       `json:"item_class_id"`
+	Binding          string             `json:"binding"`
+	SellPrice        ShortItemSellPrice `json:"sell_price"`
+	ContainerSlots   string             `json:"container_slots"`
+	Description      string             `json:"description"`
+	LevelRequirement string             `json:"level_requirement"`
+	InventoryType    string             `json:"inventory_type"`
+	ItemSubclass     string             `json:"item_subclass"`
+	Durability       string             `json:"durability"`
 }
