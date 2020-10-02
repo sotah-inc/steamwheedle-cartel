@@ -131,9 +131,11 @@ type ItemResponse struct {
 		// item-class-id: -1 (unknown)
 		ShieldBlock      ItemValueDisplayStringTuple `json:"shield_block"`
 		NameDescription  ItemDisplay                 `json:"name_description"`
-		Spells           []ItemSpell                 `json:"spells"`
 		IsSubClassHidden bool                        `json:"is_subclass_hidden"`
 		Description      locale.Mapping              `json:"description"`
+
+		// item-class-id: 0 (Consumable)
+		Spells []ItemSpell `json:"spells"`
 
 		// item-class-id: 1 (Container)
 		ContainerSlots struct {
