@@ -94,7 +94,7 @@ func (sta PricelistHistoryState) ListenForPriceListHistory(stop ListenStopChan) 
 			return
 		}
 
-		m.Data = string(data)
+		m.Data = data
 
 		sta.Messenger.ReplyTo(natsMsg, m)
 	})

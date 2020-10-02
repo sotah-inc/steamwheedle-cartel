@@ -2,6 +2,7 @@ package sotah
 
 import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/itemclass"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/itemquality"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/locale"
 )
@@ -28,6 +29,7 @@ func NewShortItem(item Item, locale locale.Locale) (ShortItem, error) {
 	foundBinding := item.BlizzardMeta.PreviewItem.Binding.Name.FindOr(locale, "")
 	foundHeader := item.BlizzardMeta.PreviewItem.SellPrice.DisplayStrings.Header.FindOr(locale, "")
 	foundContainerSlots := item.BlizzardMeta.PreviewItem.ContainerSlots.DisplayString.FindOr(locale, "")
+	foundDescription := item.BlizzardMeta.Description.FindOr(locale, "")
 
 	return ShortItem{
 		SotahMeta: item.SotahMeta,
@@ -46,6 +48,7 @@ func NewShortItem(item Item, locale locale.Locale) (ShortItem, error) {
 			Header: foundHeader,
 		},
 		ContainerSlots: foundContainerSlots,
+		Description:    foundDescription,
 	}, nil
 }
 
@@ -62,13 +65,14 @@ type ShortItemSellPrice struct {
 type ShortItem struct {
 	SotahMeta ItemMeta `json:"sotah_meta"`
 
-	Id             blizzardv2.ItemId      `json:"id"`
-	Name           string                 `json:"name"`
-	Quality        ShortItemQuality       `json:"quality"`
-	MaxCount       int                    `json:"max_count"`
-	Level          int                    `json:"level"`
-	ItemClassId    blizzardv2.ItemClassId `json:"item_class_id"`
-	Binding        string                 `json:"binding"`
-	SellPrice      ShortItemSellPrice     `json:"sell_price"`
-	ContainerSlots string                 `json:"container_slots"`
+	Id             blizzardv2.ItemId  `json:"id"`
+	Name           string             `json:"name"`
+	Quality        ShortItemQuality   `json:"quality"`
+	MaxCount       int                `json:"max_count"`
+	Level          int                `json:"level"`
+	ItemClassId    itemclass.Id       `json:"item_class_id"`
+	Binding        string             `json:"binding"`
+	SellPrice      ShortItemSellPrice `json:"sell_price"`
+	ContainerSlots string             `json:"container_slots"`
+	Description    string             `json:"description"`
 }

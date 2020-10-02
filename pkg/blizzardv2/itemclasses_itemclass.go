@@ -7,17 +7,18 @@ import (
 	"net/http"
 
 	"github.com/sirupsen/logrus"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/itemclass"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/locale"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 )
 
 const itemClassURLFormat = "https://%s/data/wow/item-class/%d?namespace=static-%s"
 
-func DefaultGetItemClassURL(regionHostname string, regionName RegionName, id ItemClassId) string {
+func DefaultGetItemClassURL(regionHostname string, regionName RegionName, id itemclass.Id) string {
 	return fmt.Sprintf(itemClassURLFormat, regionHostname, id, regionName)
 }
 
-type GetItemClassURLFunc func(string, RegionName, ItemClassId) string
+type GetItemClassURLFunc func(string, RegionName, itemclass.Id) string
 
 type ItemSubClassId int
 
@@ -29,7 +30,7 @@ type ItemSubClass struct {
 
 type ItemClassResponse struct {
 	LinksBase
-	ClassId        ItemClassId    `json:"class_id"`
+	ClassId        itemclass.Id   `json:"class_id"`
 	Name           locale.Mapping `json:"name"`
 	ItemSubClasses []ItemSubClass `json:"item_subclasses"`
 }

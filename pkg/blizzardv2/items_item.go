@@ -77,6 +77,15 @@ type ItemValueDisplayStringTuple struct {
 	Display ItemDisplay `json:"display_string"`
 }
 
+type ItemRecipeReagent struct {
+	Reagent struct {
+		Key  HrefReference  `json:"key"`
+		Name locale.Mapping `json:"name"`
+		Id   ItemId         `json:"id"`
+	} `json:"reagent"`
+	Quantity int `json:"quantity"`
+}
+
 type ItemResponse struct {
 	LinksBase
 	Id            ItemId            `json:"id"`
@@ -93,6 +102,7 @@ type ItemResponse struct {
 	MaxCount      int               `json:"max_count"`
 	IsEquippable  bool              `json:"is_equippable"`
 	IsStackable   bool              `json:"is_stackable"`
+	Description   locale.Mapping    `json:"description"`
 	PreviewItem   struct {
 		Item struct {
 			Key HrefReference `json:"key"`
@@ -104,15 +114,7 @@ type ItemResponse struct {
 		ItemClass     ItemClass         `json:"item_class"`
 		ItemSubClass  ItemSubClass      `json:"item_subclass"`
 		InventoryType ItemInventoryType `json:"inventory_type"`
-		Binding       struct {
-			Type binding.Binding `json:"type"`
-			Name locale.Mapping  `json:"name"`
-		} `json:"binding"`
-		Armor       ItemValueDisplayStringTuple `json:"armor"`
-		ShieldBlock ItemValueDisplayStringTuple `json:"shield_block"`
-		Stats       []ItemStat                  `json:"stats"`
-		Spells      []ItemSpell                 `json:"spells"`
-		SellPrice   struct {
+		SellPrice     struct {
 			Value          PriceValue `json:"value"`
 			DisplayStrings struct {
 				Header locale.Mapping `json:"header"`
@@ -121,18 +123,53 @@ type ItemResponse struct {
 				Copper locale.Mapping `json:"copper"`
 			} `json:"display_strings"`
 		} `json:"sell_price"`
+
+		// item-class-id: 1 (Container)
 		ContainerSlots struct {
 			Value         int            `json:"value"`
 			DisplayString locale.Mapping `json:"display_string"`
 		} `json:"container_slots"`
+		// item-class-id: 9 (Recipe)
 		Requirements struct {
-			Level         ItemValueDisplayStringTuple `json:"level"`
-			DisplayString locale.Mapping              `json:"display_string"`
+			Skill struct {
+				Profession struct {
+					Key  HrefReference  `json:"key"`
+					Name locale.Mapping `json:"name"`
+					Id   ProfessionId   `json:"id"`
+				} `json:"profession"`
+				Level         int            `json:"level"`
+				DisplayString locale.Mapping `json:"display_string"`
+			} `json:"skill"`
 		} `json:"requirements"`
-		Level            ItemValueDisplayStringTuple `json:"level"`
-		Durability       ItemValueDisplayStringTuple `json:"durability"`
-		IsSubClassHidden bool                        `json:"is_subclass_hidden"`
-		NameDescription  ItemDisplay                 `json:"name_description"`
+		// unknown
+		Binding struct {
+			Type binding.Binding `json:"type"`
+			Name locale.Mapping  `json:"name"`
+		} `json:"binding"`
+		// unknown
+		Armor ItemValueDisplayStringTuple `json:"armor"`
+		// unknown
+		ShieldBlock ItemValueDisplayStringTuple `json:"shield_block"`
+		// unknown
+		Stats []ItemStat `json:"stats"`
+		// unknown
+		Spells []ItemSpell `json:"spells"`
+
+		Description locale.Mapping `json:"description"`
+
+		// item-class-id: 9 (Recipe)
+		Recipe struct {
+			Reagents              []ItemRecipeReagent `json:"reagents"`
+			ReagentsDisplayString locale.Locale       `json:"reagents_display_string"`
+		} `json:"recipe"`
+		// unknown
+		Level ItemValueDisplayStringTuple `json:"level"`
+		// unknown
+		Durability ItemValueDisplayStringTuple `json:"durability"`
+		// unknown
+		NameDescription ItemDisplay `json:"name_description"`
+
+		IsSubClassHidden bool `json:"is_subclass_hidden"`
 	} `json:"preview_item"`
 }
 

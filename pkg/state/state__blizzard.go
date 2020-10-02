@@ -3,6 +3,8 @@ package state
 import (
 	"errors"
 
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/itemclass"
+
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
@@ -66,7 +68,7 @@ func (sta BlizzardState) ResolveItemClasses(regions sotah.RegionList) ([]blizzar
 				blizzardv2.DefaultGetItemClassIndexURL(primaryRegion.Hostname, primaryRegion.Name),
 			)
 		},
-		GetItemClassURL: func(id blizzardv2.ItemClassId) (string, error) {
+		GetItemClassURL: func(id itemclass.Id) (string, error) {
 			return sta.BlizzardClient.AppendAccessToken(
 				blizzardv2.DefaultGetItemClassURL(primaryRegion.Hostname, primaryRegion.Name, id),
 			)

@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"net/http"
 
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/itemclass"
+
 	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/locale"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
@@ -19,12 +21,10 @@ func DefaultGetItemClassIndexURL(regionHostname string, regionName RegionName) s
 
 type GetItemClassIndexURLFunc func(string, RegionName) string
 
-type ItemClassId int
-
 type ItemClass struct {
 	Key  HrefReference  `json:"key"`
 	Name locale.Mapping `json:"string"`
-	Id   ItemClassId    `json:"id"`
+	Id   itemclass.Id   `json:"id"`
 }
 
 type ItemClassIndexResponse struct {
