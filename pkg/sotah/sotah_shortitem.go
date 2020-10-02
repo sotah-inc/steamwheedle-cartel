@@ -49,6 +49,7 @@ func NewShortItem(item Item, locale locale.Locale) (ShortItem, error) {
 	for i, spell := range item.BlizzardMeta.PreviewItem.Spells {
 		foundSpells[i] = spell.Description.FindOr(locale, "")
 	}
+	foundSkillRequirement := item.BlizzardMeta.PreviewItem.Requirements.Skill.DisplayString.FindOr(locale, "")
 
 	return ShortItem{
 		SotahMeta: item.SotahMeta,
@@ -75,6 +76,7 @@ func NewShortItem(item Item, locale locale.Locale) (ShortItem, error) {
 		Stats:            foundStats,
 		Armor:            foundArmor,
 		Spells:           foundSpells,
+		SkillRequirement: foundSkillRequirement,
 	}, nil
 }
 
@@ -116,4 +118,5 @@ type ShortItem struct {
 	Stats            []ShortItemStat    `json:"stats"`
 	Armor            string             `json:"armor"`
 	Spells           []string           `json:"spells"`
+	SkillRequirement string             `json:"skill_requirement"`
 }

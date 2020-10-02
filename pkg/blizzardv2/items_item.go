@@ -163,6 +163,7 @@ type ItemResponse struct {
 				DisplayString locale.Mapping `json:"display_string"`
 			} `json:"level"`
 
+			// item-class-id: 4 (Armor)
 			// item-class-id: 9 (Recipe)
 			Skill struct {
 				Profession struct {
