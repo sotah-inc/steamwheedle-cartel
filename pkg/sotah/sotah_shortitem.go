@@ -37,8 +37,10 @@ func NewShortItem(item Item, locale locale.Locale) (ShortItem, error) {
 	foundStats := make([]ShortItemStat, len(item.BlizzardMeta.PreviewItem.Stats))
 	for i, stat := range item.BlizzardMeta.PreviewItem.Stats {
 		foundStats[i] = ShortItemStat{
-			Value:     stat.Display.DisplayString.FindOr(locale, ""),
-			IsNegated: stat.IsNegated,
+			DisplayValue: stat.Display.DisplayString.FindOr(locale, ""),
+			IsNegated:    stat.IsNegated,
+			Type:         stat.Type.Name.FindOr(locale, ""),
+			Value:        stat.Value,
 		}
 	}
 	foundArmor := item.BlizzardMeta.PreviewItem.Armor.Display.DisplayString.FindOr(locale, "")
@@ -81,8 +83,10 @@ type ShortItemSellPrice struct {
 }
 
 type ShortItemStat struct {
-	Value     string `json:"value"`
-	IsNegated bool   `json:"is_negated"`
+	DisplayValue string `json:"display_value"`
+	IsNegated    bool   `json:"is_negated"`
+	Type         string `json:"type"`
+	Value        int    `json:"value"`
 }
 
 type ShortItem struct {
