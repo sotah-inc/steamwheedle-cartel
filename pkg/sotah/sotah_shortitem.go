@@ -27,6 +27,7 @@ func NewShortItem(item Item, locale locale.Locale) (ShortItem, error) {
 	foundQualityName := item.BlizzardMeta.Quality.Name.FindOr(locale, "")
 	foundBinding := item.BlizzardMeta.PreviewItem.Binding.Name.FindOr(locale, "")
 	foundHeader := item.BlizzardMeta.PreviewItem.SellPrice.DisplayStrings.Header.FindOr(locale, "")
+	foundContainerSlots := item.BlizzardMeta.PreviewItem.ContainerSlots.DisplayString.FindOr(locale, "")
 
 	return ShortItem{
 		SotahMeta: item.SotahMeta,
@@ -44,6 +45,7 @@ func NewShortItem(item Item, locale locale.Locale) (ShortItem, error) {
 			Value:  item.BlizzardMeta.PreviewItem.SellPrice.Value,
 			Header: foundHeader,
 		},
+		ContainerSlots: foundContainerSlots,
 	}, nil
 }
 
@@ -60,12 +62,13 @@ type ShortItemSellPrice struct {
 type ShortItem struct {
 	SotahMeta ItemMeta `json:"sotah_meta"`
 
-	Id          blizzardv2.ItemId      `json:"id"`
-	Name        string                 `json:"name"`
-	Quality     ShortItemQuality       `json:"quality"`
-	MaxCount    int                    `json:"max_count"`
-	Level       int                    `json:"level"`
-	ItemClassId blizzardv2.ItemClassId `json:"item_class_id"`
-	Binding     string                 `json:"binding"`
-	SellPrice   ShortItemSellPrice     `json:"sell_price"`
+	Id             blizzardv2.ItemId      `json:"id"`
+	Name           string                 `json:"name"`
+	Quality        ShortItemQuality       `json:"quality"`
+	MaxCount       int                    `json:"max_count"`
+	Level          int                    `json:"level"`
+	ItemClassId    blizzardv2.ItemClassId `json:"item_class_id"`
+	Binding        string                 `json:"binding"`
+	SellPrice      ShortItemSellPrice     `json:"sell_price"`
+	ContainerSlots string                 `json:"container_slots"`
 }

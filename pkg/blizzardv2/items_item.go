@@ -121,6 +121,10 @@ type ItemResponse struct {
 				Copper locale.Mapping `json:"copper"`
 			} `json:"display_strings"`
 		} `json:"sell_price"`
+		ContainerSlots struct {
+			Value         int            `json:"value"`
+			DisplayString locale.Mapping `json:"display_string"`
+		} `json:"container_slots"`
 		Requirements struct {
 			Level         ItemValueDisplayStringTuple `json:"level"`
 			DisplayString locale.Mapping              `json:"display_string"`
