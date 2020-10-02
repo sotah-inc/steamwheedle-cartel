@@ -74,7 +74,7 @@ type ItemDisplay struct {
 
 type ItemValueDisplayStringTuple struct {
 	Value   int         `json:"value"`
-	Display ItemDisplay `json:"display_string"`
+	Display ItemDisplay `json:"display"`
 }
 
 type ItemRecipeReagent struct {
