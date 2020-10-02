@@ -25,14 +25,14 @@ type Mapping map[Locale]string
 func (m Mapping) ResolveDefaultName() string {
 	found, ok := m[EnUS]
 	if !ok {
-		return "NO NAME FOUND"
+		return ""
 	}
 
 	return found
 }
 
 func (m Mapping) IsZero() bool {
-	return m.ResolveDefaultName() == ""
+	return len(m) == 0
 }
 
 func (m Mapping) EncodeForStorage() ([]byte, error) {
@@ -46,6 +46,15 @@ func (m Mapping) Find(locale Locale) (string, error) {
 	}
 
 	return found, nil
+}
+
+func (m Mapping) FindOr(locale Locale, defaultValue string) string {
+	found, ok := m[locale]
+	if !ok {
+		return defaultValue
+	}
+
+	return found
 }
 
 const (
