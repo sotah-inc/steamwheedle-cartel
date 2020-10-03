@@ -33,7 +33,7 @@ func NewShortItem(item Item, locale locale.Locale) (ShortItem, error) {
 	foundLevelRequirement := item.BlizzardMeta.PreviewItem.Requirements.Level.DisplayString.FindOr(locale, "")
 	foundInventoryType := item.BlizzardMeta.PreviewItem.InventoryType.Name.FindOr(locale, "")
 	foundItemSubclass := item.BlizzardMeta.ItemSubClass.Name.FindOr(locale, "")
-	foundDurability := item.BlizzardMeta.PreviewItem.Durability.Display.DisplayString.FindOr(locale, "")
+	foundDurability := item.BlizzardMeta.PreviewItem.Durability.DisplayString.FindOr(locale, "")
 	foundStats := make([]ShortItemStat, len(item.BlizzardMeta.PreviewItem.Stats))
 	for i, stat := range item.BlizzardMeta.PreviewItem.Stats {
 		foundStats[i] = ShortItemStat{
