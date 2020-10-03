@@ -40,6 +40,11 @@ type ItemInventoryType struct {
 	Name locale.Mapping              `json:"name"`
 }
 
+type ValueDisplayStringTuple struct {
+	Value         int            `json:"value"`
+	DisplayString locale.Mapping `json:"display_string"`
+}
+
 type ItemSpellId int
 
 type ItemSpell struct {
@@ -139,10 +144,7 @@ type ItemResponse struct {
 		Spells []ItemSpell `json:"spells"`
 
 		// item-class-id: 1 (Container)
-		ContainerSlots struct {
-			Value         int            `json:"value"`
-			DisplayString locale.Mapping `json:"display_string"`
-		} `json:"container_slots"`
+		ContainerSlots ValueDisplayStringTuple `json:"container_slots"`
 
 		// item-class-id: 4 (Armor)
 		Binding struct {
@@ -152,16 +154,13 @@ type ItemResponse struct {
 		Armor      ItemValueDisplayStringTuple `json:"armor"`
 		Stats      []ItemStat                  `json:"stats"`
 		Level      ItemValueDisplayStringTuple `json:"level"`
-		Durability ItemValueDisplayStringTuple `json:"durability"`
+		Durability ValueDisplayStringTuple     `json:"durability"`
 
 		// item-class-id: 4 (Armor)
 		// item-class-id: 9 (Recipe)
 		Requirements struct {
 			// item-class-id: 4 (Armor)
-			Level struct {
-				Value         int            `json:"value"`
-				DisplayString locale.Mapping `json:"display_string"`
-			} `json:"level"`
+			Level ValueDisplayStringTuple `json:"level"`
 
 			// item-class-id: 4 (Armor)
 			// item-class-id: 9 (Recipe)
