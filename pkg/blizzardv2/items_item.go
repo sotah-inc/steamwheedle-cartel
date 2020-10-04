@@ -178,7 +178,7 @@ type ItemResponse struct {
 		// item-class-id: 9 (Recipe)
 		Recipe struct {
 			Reagents              []ItemRecipeReagent `json:"reagents"`
-			ReagentsDisplayString locale.Locale       `json:"reagents_display_string"`
+			ReagentsDisplayString locale.Mapping      `json:"reagents_display_string"`
 		} `json:"recipe"`
 	} `json:"preview_item"`
 
