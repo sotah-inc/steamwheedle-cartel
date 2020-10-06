@@ -50,6 +50,7 @@ func NewShortItem(item Item, locale locale.Locale) (ShortItem, error) {
 		foundSpells[i] = spell.Description.FindOr(locale, "")
 	}
 	foundSkillRequirement := item.BlizzardMeta.PreviewItem.Requirements.Skill.DisplayString.FindOr(locale, "")
+	foundCraftingReagent := item.BlizzardMeta.PreviewItem.CraftingReagent.FindOr(locale, "")
 
 	return ShortItem{
 		SotahMeta: item.SotahMeta,
@@ -78,6 +79,7 @@ func NewShortItem(item Item, locale locale.Locale) (ShortItem, error) {
 		Spells:           foundSpells,
 		SkillRequirement: foundSkillRequirement,
 		ItemSubClassId:   item.BlizzardMeta.ItemSubClass.Id,
+		CraftingReagent:  foundCraftingReagent,
 	}, nil
 }
 
@@ -121,4 +123,5 @@ type ShortItem struct {
 	Spells           []string                  `json:"spells"`
 	SkillRequirement string                    `json:"skill_requirement"`
 	ItemSubClassId   blizzardv2.ItemSubClassId `json:"item_subclass_id"`
+	CraftingReagent  string                    `json:"crafting_reagent"`
 }

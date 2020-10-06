@@ -175,6 +175,10 @@ type ItemResponse struct {
 			} `json:"skill"`
 		} `json:"requirements"`
 
+		// item-class-id: 7 (Tradeskill)
+		// item-subclass-id: 9 (Herb)
+		CraftingReagent locale.Mapping `json:"crafting_reagent"`
+
 		// item-class-id: 9 (Recipe)
 		Recipe struct {
 			Reagents              []ItemRecipeReagent `json:"reagents"`
