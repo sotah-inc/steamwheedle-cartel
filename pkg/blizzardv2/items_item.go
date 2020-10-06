@@ -146,6 +146,27 @@ type ItemResponse struct {
 		// item-class-id: 1 (Container)
 		ContainerSlots ValueDisplayStringTuple `json:"container_slots"`
 
+		// item-class-id: 2 (Weapon)
+		Weapon struct {
+			Damage struct {
+				MinValue      int            `json:"min_value"`
+				MaxValue      int            `json:"max_value"`
+				DisplayString locale.Mapping `json:"display_string"`
+				DamageClass   struct {
+					Type string         `json:"type"`
+					Name locale.Mapping `json:"name"`
+				} `json:"damage_class"`
+			} `json:"damage"`
+			AttackSpeed struct {
+				Value         int            `json:"value"`
+				DisplayString locale.Mapping `json:"display_string"`
+			} `json:"attack_speed"`
+			Dps struct {
+				Value         float32        `json:"value"`
+				DisplayString locale.Mapping `json:"display_string"`
+			} `json:"dps"`
+		} `json:"weapon"`
+
 		// item-class-id: 4 (Armor)
 		Binding struct {
 			Type binding.Binding `json:"type"`

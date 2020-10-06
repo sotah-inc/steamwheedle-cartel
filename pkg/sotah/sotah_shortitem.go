@@ -51,6 +51,9 @@ func NewShortItem(item Item, locale locale.Locale) (ShortItem, error) {
 	}
 	foundSkillRequirement := item.BlizzardMeta.PreviewItem.Requirements.Skill.DisplayString.FindOr(locale, "")
 	foundCraftingReagent := item.BlizzardMeta.PreviewItem.CraftingReagent.FindOr(locale, "")
+	foundDamage := item.BlizzardMeta.PreviewItem.Weapon.Damage.DisplayString.FindOr(locale, "")
+	foundAttackSpeed := item.BlizzardMeta.PreviewItem.Weapon.AttackSpeed.DisplayString.FindOr(locale, "")
+	foundDps := item.BlizzardMeta.PreviewItem.Weapon.Dps.DisplayString.FindOr(locale, "")
 
 	return ShortItem{
 		SotahMeta: item.SotahMeta,
@@ -80,6 +83,9 @@ func NewShortItem(item Item, locale locale.Locale) (ShortItem, error) {
 		SkillRequirement: foundSkillRequirement,
 		ItemSubClassId:   item.BlizzardMeta.ItemSubClass.Id,
 		CraftingReagent:  foundCraftingReagent,
+		Damage:           foundDamage,
+		AttackSpeed:      foundAttackSpeed,
+		Dps:              foundDps,
 	}, nil
 }
 
@@ -124,4 +130,7 @@ type ShortItem struct {
 	SkillRequirement string                    `json:"skill_requirement"`
 	ItemSubClassId   blizzardv2.ItemSubClassId `json:"item_subclass_id"`
 	CraftingReagent  string                    `json:"crafting_reagent"`
+	Damage           string                    `json:"damage"`
+	AttackSpeed      string                    `json:"attack_speed"`
+	Dps              string                    `json:"dps"`
 }
