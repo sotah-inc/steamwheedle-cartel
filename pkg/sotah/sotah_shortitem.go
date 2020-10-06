@@ -77,6 +77,7 @@ func NewShortItem(item Item, locale locale.Locale) (ShortItem, error) {
 		Armor:            foundArmor,
 		Spells:           foundSpells,
 		SkillRequirement: foundSkillRequirement,
+		ItemSubClassId:   item.BlizzardMeta.ItemSubClass.Id,
 	}, nil
 }
 
@@ -101,22 +102,23 @@ type ShortItemStat struct {
 type ShortItem struct {
 	SotahMeta ItemMeta `json:"sotah_meta"`
 
-	Id               blizzardv2.ItemId  `json:"id"`
-	Name             string             `json:"name"`
-	Quality          ShortItemQuality   `json:"quality"`
-	MaxCount         int                `json:"max_count"`
-	Level            int                `json:"level"`
-	ItemClassId      itemclass.Id       `json:"item_class_id"`
-	Binding          string             `json:"binding"`
-	SellPrice        ShortItemSellPrice `json:"sell_price"`
-	ContainerSlots   string             `json:"container_slots"`
-	Description      string             `json:"description"`
-	LevelRequirement string             `json:"level_requirement"`
-	InventoryType    string             `json:"inventory_type"`
-	ItemSubclass     string             `json:"item_subclass"`
-	Durability       string             `json:"durability"`
-	Stats            []ShortItemStat    `json:"stats"`
-	Armor            string             `json:"armor"`
-	Spells           []string           `json:"spells"`
-	SkillRequirement string             `json:"skill_requirement"`
+	Id               blizzardv2.ItemId         `json:"id"`
+	Name             string                    `json:"name"`
+	Quality          ShortItemQuality          `json:"quality"`
+	MaxCount         int                       `json:"max_count"`
+	Level            int                       `json:"level"`
+	ItemClassId      itemclass.Id              `json:"item_class_id"`
+	Binding          string                    `json:"binding"`
+	SellPrice        ShortItemSellPrice        `json:"sell_price"`
+	ContainerSlots   string                    `json:"container_slots"`
+	Description      string                    `json:"description"`
+	LevelRequirement string                    `json:"level_requirement"`
+	InventoryType    string                    `json:"inventory_type"`
+	ItemSubclass     string                    `json:"item_subclass"`
+	Durability       string                    `json:"durability"`
+	Stats            []ShortItemStat           `json:"stats"`
+	Armor            string                    `json:"armor"`
+	Spells           []string                  `json:"spells"`
+	SkillRequirement string                    `json:"skill_requirement"`
+	ItemSubClassId   blizzardv2.ItemSubClassId `json:"item_subclass_id"`
 }
