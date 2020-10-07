@@ -144,6 +144,7 @@ type ItemResponse struct {
 		NameDescription  ItemDisplay                 `json:"name_description"`
 		IsSubClassHidden bool                        `json:"is_subclass_hidden"`
 		Description      locale.Mapping              `json:"description"`
+		UniqueEquipped   locale.Mapping              `json:"unique_equipped"`
 
 		// item-class-id: 0 (Consumable)
 		Spells []ItemSpell `json:"spells"`

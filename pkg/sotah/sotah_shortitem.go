@@ -74,6 +74,7 @@ func NewShortItem(item Item, locale locale.Locale) (ShortItem, error) {
 		}
 	}
 	foundSocketBonus := item.BlizzardMeta.PreviewItem.SocketBonus.FindOr(locale, "")
+	foundUniqueEquipped := item.BlizzardMeta.PreviewItem.UniqueEquipped.FindOr(locale, "")
 
 	return ShortItem{
 		SotahMeta: item.SotahMeta,
@@ -112,6 +113,7 @@ func NewShortItem(item Item, locale locale.Locale) (ShortItem, error) {
 		PlayableClasses:  foundPlayableClasses,
 		Sockets:          foundSockets,
 		SocketBonus:      foundSocketBonus,
+		UniqueEquipped:   foundUniqueEquipped,
 	}, nil
 }
 
@@ -162,4 +164,5 @@ type ShortItem struct {
 	PlayableClasses  string                    `json:"playable_classes"`
 	Sockets          []ShortItemSocket         `json:"sockets"`
 	SocketBonus      string                    `json:"socket_bonus"`
+	UniqueEquipped   string                    `json:"unique_equipped"`
 }
