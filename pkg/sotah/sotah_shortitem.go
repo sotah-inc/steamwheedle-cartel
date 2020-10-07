@@ -54,6 +54,7 @@ func NewShortItem(item Item, locale locale.Locale) (ShortItem, error) {
 	foundDamage := item.BlizzardMeta.PreviewItem.Weapon.Damage.DisplayString.FindOr(locale, "")
 	foundAttackSpeed := item.BlizzardMeta.PreviewItem.Weapon.AttackSpeed.DisplayString.FindOr(locale, "")
 	foundDps := item.BlizzardMeta.PreviewItem.Weapon.Dps.DisplayString.FindOr(locale, "")
+	foundPlayableClasses := item.BlizzardMeta.PreviewItem.Requirements.PlayableClasses.DisplayString.FindOr(locale, "")
 
 	return ShortItem{
 		SotahMeta: item.SotahMeta,
@@ -86,6 +87,7 @@ func NewShortItem(item Item, locale locale.Locale) (ShortItem, error) {
 		Damage:           foundDamage,
 		AttackSpeed:      foundAttackSpeed,
 		Dps:              foundDps,
+		PlayableClasses:  foundPlayableClasses,
 	}, nil
 }
 
@@ -133,4 +135,5 @@ type ShortItem struct {
 	Damage           string                    `json:"damage"`
 	AttackSpeed      string                    `json:"attack_speed"`
 	Dps              string                    `json:"dps"`
+	PlayableClasses  string                    `json:"playable_classes"`
 }

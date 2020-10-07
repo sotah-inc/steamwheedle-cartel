@@ -194,6 +194,11 @@ type ItemResponse struct {
 				Level         int            `json:"level"`
 				DisplayString locale.Mapping `json:"display_string"`
 			} `json:"skill"`
+
+			// item-class-id: 4 (Armor)
+			PlayableClasses struct {
+				DisplayString locale.Mapping `json:"display_string"`
+			} `json:"playable_classes"`
 		} `json:"requirements"`
 
 		// item-class-id: 7 (Tradeskill)
