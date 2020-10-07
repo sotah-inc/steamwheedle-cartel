@@ -75,6 +75,7 @@ func NewShortItem(item Item, locale locale.Locale) (ShortItem, error) {
 	}
 	foundSocketBonus := item.BlizzardMeta.PreviewItem.SocketBonus.FindOr(locale, "")
 	foundUniqueEquipped := item.BlizzardMeta.PreviewItem.UniqueEquipped.FindOr(locale, "")
+	foundReagentsDisplayString := item.BlizzardMeta.PreviewItem.Recipe.ReagentsDisplayString.FindOr(locale, "")
 
 	return ShortItem{
 		SotahMeta: item.SotahMeta,
@@ -99,21 +100,22 @@ func NewShortItem(item Item, locale locale.Locale) (ShortItem, error) {
 			Type:          item.BlizzardMeta.InventoryType.Type,
 			DisplayString: foundInventoryType,
 		},
-		ItemSubclass:     foundItemSubclass,
-		Durability:       foundDurability,
-		Stats:            foundStats,
-		Armor:            foundArmor,
-		Spells:           foundSpells,
-		SkillRequirement: foundSkillRequirement,
-		ItemSubClassId:   item.BlizzardMeta.ItemSubClass.Id,
-		CraftingReagent:  foundCraftingReagent,
-		Damage:           foundDamage,
-		AttackSpeed:      foundAttackSpeed,
-		Dps:              foundDps,
-		PlayableClasses:  foundPlayableClasses,
-		Sockets:          foundSockets,
-		SocketBonus:      foundSocketBonus,
-		UniqueEquipped:   foundUniqueEquipped,
+		ItemSubclass:          foundItemSubclass,
+		Durability:            foundDurability,
+		Stats:                 foundStats,
+		Armor:                 foundArmor,
+		Spells:                foundSpells,
+		SkillRequirement:      foundSkillRequirement,
+		ItemSubClassId:        item.BlizzardMeta.ItemSubClass.Id,
+		CraftingReagent:       foundCraftingReagent,
+		Damage:                foundDamage,
+		AttackSpeed:           foundAttackSpeed,
+		Dps:                   foundDps,
+		PlayableClasses:       foundPlayableClasses,
+		Sockets:               foundSockets,
+		SocketBonus:           foundSocketBonus,
+		UniqueEquipped:        foundUniqueEquipped,
+		ReagentsDisplayString: foundReagentsDisplayString,
 	}, nil
 }
 
@@ -138,31 +140,32 @@ type ShortItemStat struct {
 type ShortItem struct {
 	SotahMeta ItemMeta `json:"sotah_meta"`
 
-	Id               blizzardv2.ItemId         `json:"id"`
-	Name             string                    `json:"name"`
-	Quality          ShortItemQuality          `json:"quality"`
-	MaxCount         int                       `json:"max_count"`
-	Level            int                       `json:"level"`
-	ItemClassId      itemclass.Id              `json:"item_class_id"`
-	Binding          string                    `json:"binding"`
-	SellPrice        ShortItemSellPrice        `json:"sell_price"`
-	ContainerSlots   string                    `json:"container_slots"`
-	Description      string                    `json:"description"`
-	LevelRequirement string                    `json:"level_requirement"`
-	InventoryType    ShortItemInventoryType    `json:"inventory_type"`
-	ItemSubclass     string                    `json:"item_subclass"`
-	Durability       string                    `json:"durability"`
-	Stats            []ShortItemStat           `json:"stats"`
-	Armor            string                    `json:"armor"`
-	Spells           []string                  `json:"spells"`
-	SkillRequirement string                    `json:"skill_requirement"`
-	ItemSubClassId   blizzardv2.ItemSubClassId `json:"item_subclass_id"`
-	CraftingReagent  string                    `json:"crafting_reagent"`
-	Damage           string                    `json:"damage"`
-	AttackSpeed      string                    `json:"attack_speed"`
-	Dps              string                    `json:"dps"`
-	PlayableClasses  string                    `json:"playable_classes"`
-	Sockets          []ShortItemSocket         `json:"sockets"`
-	SocketBonus      string                    `json:"socket_bonus"`
-	UniqueEquipped   string                    `json:"unique_equipped"`
+	Id                    blizzardv2.ItemId         `json:"id"`
+	Name                  string                    `json:"name"`
+	Quality               ShortItemQuality          `json:"quality"`
+	MaxCount              int                       `json:"max_count"`
+	Level                 int                       `json:"level"`
+	ItemClassId           itemclass.Id              `json:"item_class_id"`
+	Binding               string                    `json:"binding"`
+	SellPrice             ShortItemSellPrice        `json:"sell_price"`
+	ContainerSlots        string                    `json:"container_slots"`
+	Description           string                    `json:"description"`
+	LevelRequirement      string                    `json:"level_requirement"`
+	InventoryType         ShortItemInventoryType    `json:"inventory_type"`
+	ItemSubclass          string                    `json:"item_subclass"`
+	Durability            string                    `json:"durability"`
+	Stats                 []ShortItemStat           `json:"stats"`
+	Armor                 string                    `json:"armor"`
+	Spells                []string                  `json:"spells"`
+	SkillRequirement      string                    `json:"skill_requirement"`
+	ItemSubClassId        blizzardv2.ItemSubClassId `json:"item_subclass_id"`
+	CraftingReagent       string                    `json:"crafting_reagent"`
+	Damage                string                    `json:"damage"`
+	AttackSpeed           string                    `json:"attack_speed"`
+	Dps                   string                    `json:"dps"`
+	PlayableClasses       string                    `json:"playable_classes"`
+	Sockets               []ShortItemSocket         `json:"sockets"`
+	SocketBonus           string                    `json:"socket_bonus"`
+	UniqueEquipped        string                    `json:"unique_equipped"`
+	ReagentsDisplayString string                    `json:"reagents_display_string"`
 }
