@@ -2,6 +2,7 @@ package sotah
 
 import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/inventorytype"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/itemclass"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/itemquality"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/locale"
@@ -19,6 +20,11 @@ func NewShortItemList(itemsList []Item, locale locale.Locale) (ShortItemList, er
 	}
 
 	return out, nil
+}
+
+type ShortItemInventoryType struct {
+	Type          inventorytype.InventoryType `json:"type"`
+	DisplayString string                      `json:"display_string"`
 }
 
 type ShortItemList []ShortItem
@@ -75,7 +81,10 @@ func NewShortItem(item Item, locale locale.Locale) (ShortItem, error) {
 		ContainerSlots:   foundContainerSlots,
 		Description:      foundDescription,
 		LevelRequirement: foundLevelRequirement,
-		InventoryType:    foundInventoryType,
+		InventoryType: ShortItemInventoryType{
+			Type:          item.BlizzardMeta.InventoryType.Type,
+			DisplayString: foundInventoryType,
+		},
 		ItemSubclass:     foundItemSubclass,
 		Durability:       foundDurability,
 		Stats:            foundStats,
@@ -123,7 +132,7 @@ type ShortItem struct {
 	ContainerSlots   string                    `json:"container_slots"`
 	Description      string                    `json:"description"`
 	LevelRequirement string                    `json:"level_requirement"`
-	InventoryType    string                    `json:"inventory_type"`
+	InventoryType    ShortItemInventoryType    `json:"inventory_type"`
 	ItemSubclass     string                    `json:"item_subclass"`
 	Durability       string                    `json:"durability"`
 	Stats            []ShortItemStat           `json:"stats"`
