@@ -7,11 +7,9 @@ import (
 	"net/http"
 
 	"github.com/sirupsen/logrus"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/binding"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/inventorytype"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/itemquality"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/locale"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/stattype"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 )
 
@@ -40,63 +38,7 @@ type ItemInventoryType struct {
 	Name locale.Mapping              `json:"name"`
 }
 
-type ValueDisplayStringTuple struct {
-	Value         int            `json:"value"`
-	DisplayString locale.Mapping `json:"display_string"`
-}
-
 type ItemSpellId int
-
-type ItemSpell struct {
-	Spell struct {
-		Key  HrefReference  `json:"key"`
-		Name locale.Mapping `json:"name"`
-		Id   ItemSpellId    `json:"id"`
-	} `json:"spell"`
-	Description locale.Mapping `json:"description"`
-}
-
-type ItemColor struct {
-	Red   int     `json:"r"`
-	Green int     `json:"g"`
-	Blue  int     `json:"b"`
-	Alpha float32 `json:"a"`
-}
-
-type ItemStat struct {
-	Type struct {
-		Type stattype.StatType `json:"type"`
-		Name locale.Mapping    `json:"name"`
-	} `json:"type"`
-	Value        int         `json:"value"`
-	IsNegated    bool        `json:"is_negated"`
-	Display      ItemDisplay `json:"display"`
-	IsEquipBonus bool        `json:"is_equip_bonus"`
-}
-
-type ItemDisplay struct {
-	DisplayString locale.Mapping `json:"display_string"`
-	Color         ItemColor      `json:"color"`
-}
-
-type ItemValueDisplayStringTuple struct {
-	Value   int         `json:"value"`
-	Display ItemDisplay `json:"display"`
-}
-
-type ItemRecipeReagent struct {
-	Reagent struct {
-		Key  HrefReference  `json:"key"`
-		Name locale.Mapping `json:"name"`
-		Id   ItemId         `json:"id"`
-	} `json:"reagent"`
-	Quantity int `json:"quantity"`
-}
-
-type ItemSocket struct {
-	Type string         `json:"type"`
-	Name locale.Mapping `json:"name"`
-}
 
 type ItemResponse struct {
 	LinksBase
@@ -118,107 +60,7 @@ type ItemResponse struct {
 	// item-class-id: 9 (Recipe)
 	Description locale.Mapping `json:"description"`
 
-	PreviewItem struct {
-		Item struct {
-			Key HrefReference `json:"key"`
-			Id  ItemId        `json:"id"`
-		} `json:"item"`
-		Quality       ItemQuality       `json:"quality"`
-		Name          locale.Mapping    `json:"name"`
-		Media         ItemMedia         `json:"media"`
-		ItemClass     ItemClass         `json:"item_class"`
-		ItemSubClass  ItemSubClass      `json:"item_subclass"`
-		InventoryType ItemInventoryType `json:"inventory_type"`
-		SellPrice     struct {
-			Value          PriceValue `json:"value"`
-			DisplayStrings struct {
-				Header locale.Mapping `json:"header"`
-				Gold   locale.Mapping `json:"gold"`
-				Silver locale.Mapping `json:"silver"`
-				Copper locale.Mapping `json:"copper"`
-			} `json:"display_strings"`
-		} `json:"sell_price"`
-
-		// item-class-id: -1 (unknown)
-		ShieldBlock      ItemValueDisplayStringTuple `json:"shield_block"`
-		NameDescription  ItemDisplay                 `json:"name_description"`
-		IsSubClassHidden bool                        `json:"is_subclass_hidden"`
-		Description      locale.Mapping              `json:"description"`
-		UniqueEquipped   locale.Mapping              `json:"unique_equipped"`
-
-		// item-class-id: 0 (Consumable)
-		Spells []ItemSpell `json:"spells"`
-
-		// item-class-id: 1 (Container)
-		ContainerSlots ValueDisplayStringTuple `json:"container_slots"`
-
-		// item-class-id: 2 (Weapon)
-		Weapon struct {
-			Damage struct {
-				MinValue      int            `json:"min_value"`
-				MaxValue      int            `json:"max_value"`
-				DisplayString locale.Mapping `json:"display_string"`
-				DamageClass   struct {
-					Type string         `json:"type"`
-					Name locale.Mapping `json:"name"`
-				} `json:"damage_class"`
-			} `json:"damage"`
-			AttackSpeed struct {
-				Value         int            `json:"value"`
-				DisplayString locale.Mapping `json:"display_string"`
-			} `json:"attack_speed"`
-			Dps struct {
-				Value         float32        `json:"value"`
-				DisplayString locale.Mapping `json:"display_string"`
-			} `json:"dps"`
-		} `json:"weapon"`
-
-		// item-class-id: 4 (Armor)
-		Binding struct {
-			Type binding.Binding `json:"type"`
-			Name locale.Mapping  `json:"name"`
-		} `json:"binding"`
-		Armor       ItemValueDisplayStringTuple `json:"armor"`
-		Stats       []ItemStat                  `json:"stats"`
-		Level       ItemValueDisplayStringTuple `json:"level"`
-		Durability  ValueDisplayStringTuple     `json:"durability"`
-		Sockets     []ItemSocket                `json:"sockets"`
-		SocketBonus locale.Mapping              `json:"socket_bonus"`
-
-		// item-class-id: 4 (Armor)
-		// item-class-id: 9 (Recipe)
-		Requirements struct {
-			// item-class-id: 4 (Armor)
-			Level ValueDisplayStringTuple `json:"level"`
-
-			// item-class-id: 4 (Armor)
-			// item-class-id: 9 (Recipe)
-			Skill struct {
-				Profession struct {
-					Key  HrefReference  `json:"key"`
-					Name locale.Mapping `json:"name"`
-					Id   ProfessionId   `json:"id"`
-				} `json:"profession"`
-				Level         int            `json:"level"`
-				DisplayString locale.Mapping `json:"display_string"`
-			} `json:"skill"`
-
-			// item-class-id: 4 (Armor)
-			PlayableClasses struct {
-				DisplayString locale.Mapping `json:"display_string"`
-			} `json:"playable_classes"`
-		} `json:"requirements"`
-
-		// item-class-id: 7 (Tradeskill)
-		// item-subclass-id: 9 (Herb)
-		CraftingReagent locale.Mapping `json:"crafting_reagent"`
-
-		// item-class-id: 9 (Recipe)
-		Recipe struct {
-			Reagents              []ItemRecipeReagent `json:"reagents"`
-			ReagentsDisplayString locale.Mapping      `json:"reagents_display_string"`
-		} `json:"recipe"`
-	} `json:"preview_item"`
+	PreviewItem ItemPreviewItem `json:"preview_item"`
 
 	// unknown
 	PurchaseQuantity int `json:"purchase_quantity"`
