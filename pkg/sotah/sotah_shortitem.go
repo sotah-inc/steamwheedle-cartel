@@ -27,6 +27,11 @@ type ShortItemInventoryType struct {
 	DisplayString string                      `json:"display_string"`
 }
 
+type ShortItemSocket struct {
+	Type string `json:"type"`
+	Name string `json:"name"`
+}
+
 type ShortItemList []ShortItem
 
 func NewShortItem(item Item, locale locale.Locale) (ShortItem, error) {
@@ -61,6 +66,14 @@ func NewShortItem(item Item, locale locale.Locale) (ShortItem, error) {
 	foundAttackSpeed := item.BlizzardMeta.PreviewItem.Weapon.AttackSpeed.DisplayString.FindOr(locale, "")
 	foundDps := item.BlizzardMeta.PreviewItem.Weapon.Dps.DisplayString.FindOr(locale, "")
 	foundPlayableClasses := item.BlizzardMeta.PreviewItem.Requirements.PlayableClasses.DisplayString.FindOr(locale, "")
+	foundSockets := make([]ShortItemSocket, len(item.BlizzardMeta.PreviewItem.Sockets))
+	for i, socket := range item.BlizzardMeta.PreviewItem.Sockets {
+		foundSockets[i] = ShortItemSocket{
+			Type: socket.Type,
+			Name: socket.Name.FindOr(locale, ""),
+		}
+	}
+	foundSocketBonus := item.BlizzardMeta.PreviewItem.SocketBonus.FindOr(locale, "")
 
 	return ShortItem{
 		SotahMeta: item.SotahMeta,
@@ -97,6 +110,8 @@ func NewShortItem(item Item, locale locale.Locale) (ShortItem, error) {
 		AttackSpeed:      foundAttackSpeed,
 		Dps:              foundDps,
 		PlayableClasses:  foundPlayableClasses,
+		Sockets:          foundSockets,
+		SocketBonus:      foundSocketBonus,
 	}, nil
 }
 
@@ -145,4 +160,6 @@ type ShortItem struct {
 	AttackSpeed      string                    `json:"attack_speed"`
 	Dps              string                    `json:"dps"`
 	PlayableClasses  string                    `json:"playable_classes"`
+	Sockets          []ShortItemSocket         `json:"sockets"`
+	SocketBonus      string                    `json:"socket_bonus"`
 }

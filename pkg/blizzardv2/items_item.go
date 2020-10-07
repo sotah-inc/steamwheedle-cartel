@@ -93,6 +93,11 @@ type ItemRecipeReagent struct {
 	Quantity int `json:"quantity"`
 }
 
+type ItemSocket struct {
+	Type string         `json:"type"`
+	Name locale.Mapping `json:"name"`
+}
+
 type ItemResponse struct {
 	LinksBase
 	Id            ItemId            `json:"id"`
@@ -172,10 +177,12 @@ type ItemResponse struct {
 			Type binding.Binding `json:"type"`
 			Name locale.Mapping  `json:"name"`
 		} `json:"binding"`
-		Armor      ItemValueDisplayStringTuple `json:"armor"`
-		Stats      []ItemStat                  `json:"stats"`
-		Level      ItemValueDisplayStringTuple `json:"level"`
-		Durability ValueDisplayStringTuple     `json:"durability"`
+		Armor       ItemValueDisplayStringTuple `json:"armor"`
+		Stats       []ItemStat                  `json:"stats"`
+		Level       ItemValueDisplayStringTuple `json:"level"`
+		Durability  ValueDisplayStringTuple     `json:"durability"`
+		Sockets     []ItemSocket                `json:"sockets"`
+		SocketBonus locale.Mapping              `json:"socket_bonus"`
 
 		// item-class-id: 4 (Armor)
 		// item-class-id: 9 (Recipe)
