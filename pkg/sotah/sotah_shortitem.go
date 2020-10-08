@@ -35,69 +35,87 @@ type ShortItemSocket struct {
 type ShortItemList []ShortItem
 
 func NewShortItem(item Item, locale locale.Locale) (ShortItem, error) {
-	foundName := item.BlizzardMeta.PreviewItem.Name.FindOr(locale, "")
-	foundQualityName := item.BlizzardMeta.PreviewItem.Quality.Name.FindOr(locale, "")
-	foundBinding := item.BlizzardMeta.PreviewItem.Binding.Name.FindOr(locale, "")
-	foundHeader := item.BlizzardMeta.PreviewItem.SellPrice.DisplayStrings.Header.FindOr(locale, "")
-	foundContainerSlots := item.BlizzardMeta.PreviewItem.ContainerSlots.DisplayString.FindOr(locale, "")
-	foundDescription := item.BlizzardMeta.PreviewItem.Description.FindOr(locale, "")
-	foundLevelRequirement := item.BlizzardMeta.PreviewItem.Requirements.Level.DisplayString.FindOr(locale, "")
-	foundInventoryType := item.BlizzardMeta.PreviewItem.InventoryType.Name.FindOr(locale, "")
-	foundItemSubclass := item.BlizzardMeta.ItemSubClass.Name.FindOr(locale, "")
-	foundDurability := item.BlizzardMeta.PreviewItem.Durability.DisplayString.FindOr(locale, "")
-	foundStats := make([]ShortItemStat, len(item.BlizzardMeta.PreviewItem.Stats))
-	for i, stat := range item.BlizzardMeta.PreviewItem.Stats {
+	return NewShortItemFromPreviewItem(ShortItemParams{
+		previewItem: item.BlizzardMeta.PreviewItem,
+		locale:      locale,
+		sotahMeta:   item.SotahMeta,
+		id:          item.BlizzardMeta.Id,
+		maxCount:    item.BlizzardMeta.MaxCount,
+	})
+}
+
+type ShortItemParams struct {
+	previewItem blizzardv2.ItemPreviewItem
+	locale      locale.Locale
+	sotahMeta   ItemMeta
+	id          blizzardv2.ItemId
+	maxCount    int
+}
+
+func NewShortItemFromPreviewItem(params ShortItemParams) (ShortItem, error) {
+	foundName := params.previewItem.Name.FindOr(params.locale, "")
+	foundQualityName := params.previewItem.Quality.Name.FindOr(params.locale, "")
+	foundBinding := params.previewItem.Binding.Name.FindOr(params.locale, "")
+	foundHeader := params.previewItem.SellPrice.DisplayStrings.Header.FindOr(params.locale, "")
+	foundContainerSlots := params.previewItem.ContainerSlots.DisplayString.FindOr(params.locale, "")
+	foundDescription := params.previewItem.Description.FindOr(params.locale, "")
+	foundLevelRequirement := params.previewItem.Requirements.Level.DisplayString.FindOr(params.locale, "")
+	foundInventoryType := params.previewItem.InventoryType.Name.FindOr(params.locale, "")
+	foundItemSubclass := params.previewItem.ItemSubClass.Name.FindOr(params.locale, "")
+	foundDurability := params.previewItem.Durability.DisplayString.FindOr(params.locale, "")
+	foundStats := make([]ShortItemStat, len(params.previewItem.Stats))
+	for i, stat := range params.previewItem.Stats {
 		foundStats[i] = ShortItemStat{
-			DisplayValue: stat.Display.DisplayString.FindOr(locale, ""),
+			DisplayValue: stat.Display.DisplayString.FindOr(params.locale, ""),
 			IsNegated:    stat.IsNegated,
-			Type:         stat.Type.Name.FindOr(locale, ""),
+			Type:         stat.Type.Name.FindOr(params.locale, ""),
 			Value:        stat.Value,
 			IsEquipBonus: stat.IsEquipBonus,
 		}
 	}
-	foundArmor := item.BlizzardMeta.PreviewItem.Armor.Display.DisplayString.FindOr(locale, "")
-	foundSpells := make([]string, len(item.BlizzardMeta.PreviewItem.Spells))
-	for i, spell := range item.BlizzardMeta.PreviewItem.Spells {
-		foundSpells[i] = spell.Description.FindOr(locale, "")
+	foundArmor := params.previewItem.Armor.Display.DisplayString.FindOr(params.locale, "")
+	foundSpells := make([]string, len(params.previewItem.Spells))
+	for i, spell := range params.previewItem.Spells {
+		foundSpells[i] = spell.Description.FindOr(params.locale, "")
 	}
-	foundSkillRequirement := item.BlizzardMeta.PreviewItem.Requirements.Skill.DisplayString.FindOr(locale, "")
-	foundCraftingReagent := item.BlizzardMeta.PreviewItem.CraftingReagent.FindOr(locale, "")
-	foundDamage := item.BlizzardMeta.PreviewItem.Weapon.Damage.DisplayString.FindOr(locale, "")
-	foundAttackSpeed := item.BlizzardMeta.PreviewItem.Weapon.AttackSpeed.DisplayString.FindOr(locale, "")
-	foundDps := item.BlizzardMeta.PreviewItem.Weapon.Dps.DisplayString.FindOr(locale, "")
-	foundPlayableClasses := item.BlizzardMeta.PreviewItem.Requirements.PlayableClasses.DisplayString.FindOr(locale, "")
-	foundSockets := make([]ShortItemSocket, len(item.BlizzardMeta.PreviewItem.Sockets))
-	for i, socket := range item.BlizzardMeta.PreviewItem.Sockets {
+	foundSkillRequirement := params.previewItem.Requirements.Skill.DisplayString.FindOr(params.locale, "")
+	foundCraftingReagent := params.previewItem.CraftingReagent.FindOr(params.locale, "")
+	foundDamage := params.previewItem.Weapon.Damage.DisplayString.FindOr(params.locale, "")
+	foundAttackSpeed := params.previewItem.Weapon.AttackSpeed.DisplayString.FindOr(params.locale, "")
+	foundDps := params.previewItem.Weapon.Dps.DisplayString.FindOr(params.locale, "")
+	foundPlayableClasses := params.previewItem.Requirements.PlayableClasses.DisplayString.FindOr(params.locale, "")
+	foundSockets := make([]ShortItemSocket, len(params.previewItem.Sockets))
+	for i, socket := range params.previewItem.Sockets {
 		foundSockets[i] = ShortItemSocket{
 			Type: socket.Type,
-			Name: socket.Name.FindOr(locale, ""),
+			Name: socket.Name.FindOr(params.locale, ""),
 		}
 	}
-	foundSocketBonus := item.BlizzardMeta.PreviewItem.SocketBonus.FindOr(locale, "")
-	foundUniqueEquipped := item.BlizzardMeta.PreviewItem.UniqueEquipped.FindOr(locale, "")
-	foundReagentsDisplayString := item.BlizzardMeta.PreviewItem.Recipe.ReagentsDisplayString.FindOr(locale, "")
+	foundSocketBonus := params.previewItem.SocketBonus.FindOr(params.locale, "")
+	foundUniqueEquipped := params.previewItem.UniqueEquipped.FindOr(params.locale, "")
+	foundReagentsDisplayString := params.previewItem.Recipe.ReagentsDisplayString.FindOr(params.locale, "")
 
 	return ShortItem{
-		SotahMeta: item.SotahMeta,
-		Id:        item.BlizzardMeta.Id,
+		SotahMeta: params.sotahMeta,
+		Id:        params.id,
 		Name:      foundName,
 		Quality: ShortItemQuality{
-			Type: item.BlizzardMeta.Quality.Type,
+			Type: params.previewItem.Quality.Type,
 			Name: foundQualityName,
 		},
-		MaxCount:    item.BlizzardMeta.MaxCount,
-		Level:       item.BlizzardMeta.Level,
-		ItemClassId: item.BlizzardMeta.ItemClass.Id,
+		MaxCount:    params.maxCount,
+		Level:       params.previewItem.Level.Value,
+		ItemClassId: params.previewItem.ItemClass.Id,
 		Binding:     foundBinding,
 		SellPrice: ShortItemSellPrice{
-			Value:  item.BlizzardMeta.PreviewItem.SellPrice.Value,
+			Value:  params.previewItem.SellPrice.Value,
 			Header: foundHeader,
 		},
 		ContainerSlots:   foundContainerSlots,
 		Description:      foundDescription,
 		LevelRequirement: foundLevelRequirement,
 		InventoryType: ShortItemInventoryType{
-			Type:          item.BlizzardMeta.InventoryType.Type,
+			Type:          params.previewItem.InventoryType.Type,
 			DisplayString: foundInventoryType,
 		},
 		ItemSubclass:          foundItemSubclass,
@@ -106,7 +124,7 @@ func NewShortItem(item Item, locale locale.Locale) (ShortItem, error) {
 		Armor:                 foundArmor,
 		Spells:                foundSpells,
 		SkillRequirement:      foundSkillRequirement,
-		ItemSubClassId:        item.BlizzardMeta.ItemSubClass.Id,
+		ItemSubClassId:        params.previewItem.ItemSubClass.Id,
 		CraftingReagent:       foundCraftingReagent,
 		Damage:                foundDamage,
 		AttackSpeed:           foundAttackSpeed,
@@ -135,6 +153,10 @@ type ShortItemStat struct {
 	Type         string `json:"type"`
 	Value        int    `json:"value"`
 	IsEquipBonus bool   `json:"is_equip_bonus"`
+}
+
+type ShortItemRecipeItem struct {
+	Item ShortItem `json:"item"`
 }
 
 type ShortItem struct {
