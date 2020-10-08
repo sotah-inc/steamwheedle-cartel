@@ -99,8 +99,8 @@ func NewShortItemFromPreviewItem(params ShortItemParams) ShortItemBase {
 	foundSockets := make([]ShortItemSocket, len(params.previewItem.Sockets))
 	for i, socket := range params.previewItem.Sockets {
 		foundSockets[i] = ShortItemSocket{
-			Type: socket.Type,
-			Name: socket.Name.FindOr(params.locale, ""),
+			Type: socket.SocketType.Type,
+			Name: socket.SocketType.Name.FindOr(params.locale, ""),
 		}
 	}
 	foundSocketBonus := params.previewItem.SocketBonus.FindOr(params.locale, "")

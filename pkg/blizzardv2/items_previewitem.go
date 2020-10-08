@@ -58,8 +58,10 @@ type ItemRecipeReagent struct {
 }
 
 type ItemSocket struct {
-	Type string         `json:"type"`
-	Name locale.Mapping `json:"name"`
+	SocketType struct {
+		Type string         `json:"type"`
+		Name locale.Mapping `json:"name"`
+	} `json:"socket_type"`
 }
 
 type ItemRecipe struct {
