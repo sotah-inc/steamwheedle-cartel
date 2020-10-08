@@ -62,7 +62,18 @@ type ItemSocket struct {
 	Name locale.Mapping `json:"name"`
 }
 
-type ItemPreviewItem struct {
+type ItemRecipe struct {
+	Reagents              []ItemRecipeReagent `json:"reagents"`
+	ReagentsDisplayString locale.Mapping      `json:"reagents_display_string"`
+}
+
+type ItemRecipeWithItem struct {
+	ItemRecipe
+
+	Item ItemPreviewItemWithoutRecipeItem `json:"item"`
+}
+
+type ItemPreviewItemBase struct {
 	Item struct {
 		Key HrefReference `json:"key"`
 		Id  ItemId        `json:"id"`
@@ -156,10 +167,18 @@ type ItemPreviewItem struct {
 	// item-class-id: 7 (Tradeskill)
 	// item-subclass-id: 9 (Herb)
 	CraftingReagent locale.Mapping `json:"crafting_reagent"`
+}
+
+type ItemPreviewItem struct {
+	ItemPreviewItemBase
 
 	// item-class-id: 9 (Recipe)
-	Recipe struct {
-		Reagents              []ItemRecipeReagent `json:"reagents"`
-		ReagentsDisplayString locale.Mapping      `json:"reagents_display_string"`
-	} `json:"recipe"`
+	Recipe ItemRecipeWithItem `json:"recipe"`
+}
+
+type ItemPreviewItemWithoutRecipeItem struct {
+	ItemPreviewItemBase
+
+	// item-class-id: 9 (Recipe)
+	Recipe ItemRecipe `json:"recipe"`
 }
