@@ -39,6 +39,7 @@ func NewShortItem(item Item, locale locale.Locale) ShortItem {
 			sotahMeta:   item.SotahMeta,
 			id:          item.BlizzardMeta.Id,
 			maxCount:    item.BlizzardMeta.MaxCount,
+			level:       item.BlizzardMeta.Level,
 		}),
 		RecipeItem: ShortItemWithoutRecipeItem{
 			ShortItemBase: NewShortItemFromPreviewItem(ShortItemParams{
@@ -47,6 +48,7 @@ func NewShortItem(item Item, locale locale.Locale) ShortItem {
 				sotahMeta:   item.SotahMeta,
 				id:          item.BlizzardMeta.PreviewItem.Recipe.Item.ItemPreviewItemBase.Item.Id,
 				maxCount:    0,
+				level:       item.BlizzardMeta.PreviewItem.Recipe.Item.Level.Value,
 			}),
 		},
 		ReagentsDisplayString: foundReagentsDisplayString,
