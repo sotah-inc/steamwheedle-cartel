@@ -59,6 +59,7 @@ type ShortItemParams struct {
 	sotahMeta   ItemMeta
 	id          blizzardv2.ItemId
 	maxCount    int
+	level       int
 }
 
 func NewShortItemFromPreviewItem(params ShortItemParams) ShortItemBase {
@@ -112,7 +113,7 @@ func NewShortItemFromPreviewItem(params ShortItemParams) ShortItemBase {
 			Name: foundQualityName,
 		},
 		MaxCount:    params.maxCount,
-		Level:       params.previewItem.Level.Value,
+		Level:       params.level,
 		ItemClassId: params.previewItem.ItemClass.Id,
 		Binding:     foundBinding,
 		SellPrice: ShortItemSellPrice{
