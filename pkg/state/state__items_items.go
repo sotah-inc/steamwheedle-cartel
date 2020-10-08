@@ -79,14 +79,7 @@ func (sta ItemsState) ListenForItems(stop ListenStopChan) error {
 			return
 		}
 
-		resolvedShortItems, err := sotah.NewShortItemList(iMap.ToList(), iRequest.Locale)
-		if err != nil {
-			m.Err = err.Error()
-			m.Code = codes.GenericError
-			sta.Messenger.ReplyTo(natsMsg, m)
-
-			return
-		}
+		resolvedShortItems := sotah.NewShortItemList(iMap.ToList(), iRequest.Locale)
 
 		iResponse := ItemsResponse{Items: resolvedShortItems}
 		data, err := iResponse.EncodeForMessage()
