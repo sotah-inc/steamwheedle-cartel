@@ -99,7 +99,6 @@ func NewShortItemFromPreviewItem(params ShortItemParams) ShortItemBase {
 	foundDamage := params.previewItem.Weapon.Damage.DisplayString.FindOr(params.locale, "")
 	foundAttackSpeed := params.previewItem.Weapon.AttackSpeed.DisplayString.FindOr(params.locale, "")
 	foundDps := params.previewItem.Weapon.Dps.DisplayString.FindOr(params.locale, "")
-	foundPlayableClasses := params.previewItem.Requirements.PlayableClasses.DisplayString.FindOr(params.locale, "")
 	foundSockets := make([]ShortItemSocket, len(params.previewItem.Sockets))
 	for i, socket := range params.previewItem.Sockets {
 		foundSockets[i] = ShortItemSocket{
@@ -115,6 +114,13 @@ func NewShortItemFromPreviewItem(params ShortItemParams) ShortItemBase {
 	foundLimitCategory := params.previewItem.LimitCategory.FindOr(params.locale, "")
 	foundNameDescription := params.previewItem.NameDescription.DisplayString.FindOr(params.locale, "")
 	foundReputationRequirement := params.previewItem.Requirements.Reputation.DisplayString.FindOr(params.locale, "")
+	foundPlayableClasses := make([]ShortItemPlayableClass, len(params.previewItem.Requirements.PlayableClasses.Links))
+	for i, link := range params.previewItem.Requirements.PlayableClasses.Links {
+		foundPlayableClasses[i] = ShortItemPlayableClass{
+			Name: link.Name.FindOr(params.locale, ""),
+			Id:   link.Id,
+		}
+	}
 
 	return ShortItemBase{
 		SotahMeta: params.sotahMeta,
@@ -185,6 +191,11 @@ type ShortItemRecipeItem struct {
 	Item ShortItem `json:"item"`
 }
 
+type ShortItemPlayableClass struct {
+	Name string `json:"name"`
+	Id   int    `json:"id"`
+}
+
 type ShortItemBase struct {
 	SotahMeta ItemMeta `json:"sotah_meta"`
 
@@ -211,7 +222,7 @@ type ShortItemBase struct {
 	Damage                string                    `json:"damage"`
 	AttackSpeed           string                    `json:"attack_speed"`
 	Dps                   string                    `json:"dps"`
-	PlayableClasses       string                    `json:"playable_classes"`
+	PlayableClasses       []ShortItemPlayableClass  `json:"playable_classes"`
 	Sockets               []ShortItemSocket         `json:"sockets"`
 	SocketBonus           string                    `json:"socket_bonus"`
 	UniqueEquipped        string                    `json:"unique_equipped"`

@@ -88,6 +88,12 @@ type ItemSetItem struct {
 	} `json:"item"`
 }
 
+type ItemPlayableClassLink struct {
+	Key  HrefReference  `json:"key"`
+	Name locale.Mapping `json:"name"`
+	Id   int            `json:"id"`
+}
+
 type ItemPreviewItemBase struct {
 	Item struct {
 		Key HrefReference `json:"key"`
@@ -185,7 +191,8 @@ type ItemPreviewItemBase struct {
 
 		// item-class-id: 4 (Armor)
 		PlayableClasses struct {
-			DisplayString locale.Mapping `json:"display_string"`
+			Links         []ItemPlayableClassLink `json:"links"`
+			DisplayString locale.Mapping          `json:"display_string"`
 		} `json:"playable_classes"`
 
 		// item-class-id: 15 (Misc)
