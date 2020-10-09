@@ -47,7 +47,7 @@ func NewShortItem(item Item, locale locale.Locale) ShortItem {
 				locale:      locale,
 				sotahMeta:   item.SotahMeta,
 				id:          item.BlizzardMeta.PreviewItem.Recipe.Item.ItemPreviewItemBase.Item.Id,
-				maxCount:    0,
+				maxCount:    item.BlizzardMeta.Level,
 				level:       item.BlizzardMeta.PreviewItem.Recipe.Item.Level.Value,
 			}),
 		},
