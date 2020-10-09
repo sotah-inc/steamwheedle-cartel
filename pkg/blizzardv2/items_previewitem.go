@@ -198,6 +198,16 @@ type ItemPreviewItemBase struct {
 			} `json:"spell"`
 			DisplayString locale.Mapping `json:"display_string"`
 		} `json:"ability"`
+
+		Reputation struct {
+			Faction struct {
+				Key  HrefReference  `json:"key"`
+				Name locale.Mapping `json:"name"`
+				Id   int            `json:"id"`
+			} `json:"faction"`
+			MinReputationLevel int            `json:"min_reputation_level"`
+			DisplayString      locale.Mapping `json:"display_string"`
+		} `json:"reputation"`
 	} `json:"requirements"`
 
 	// item-class-id: 4 (Armor)
