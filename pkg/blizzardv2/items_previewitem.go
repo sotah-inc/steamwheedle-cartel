@@ -151,6 +151,7 @@ type ItemPreviewItemBase struct {
 			DisplayString locale.Mapping `json:"display_string"`
 		} `json:"min_item_level"`
 	} `json:"gem_properties"`
+	LimitCategory locale.Mapping `json:"limit_category"`
 
 	// item-class-id: 4 (Armor)
 	Binding struct {
