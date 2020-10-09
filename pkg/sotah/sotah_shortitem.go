@@ -113,6 +113,7 @@ func NewShortItemFromPreviewItem(params ShortItemParams) ShortItemBase {
 	foundGemMinItemLevel := params.previewItem.GemProperties.MinItemLevel.DisplayString.FindOr(params.locale, "")
 	foundAbilityRequirement := params.previewItem.Requirements.Ability.DisplayString.FindOr(params.locale, "")
 	foundLimitCategory := params.previewItem.LimitCategory.FindOr(params.locale, "")
+	foundNameDescription := params.previewItem.NameDescription.DisplayString.FindOr(params.locale, "")
 
 	return ShortItemBase{
 		SotahMeta: params.sotahMeta,
@@ -156,6 +157,7 @@ func NewShortItemFromPreviewItem(params ShortItemParams) ShortItemBase {
 		GemMinItemLevel:    foundGemMinItemLevel,
 		AbilityRequirement: foundAbilityRequirement,
 		LimitCategory:      foundLimitCategory,
+		NameDescription:    foundNameDescription,
 	}
 }
 
@@ -215,6 +217,7 @@ type ShortItemBase struct {
 	GemMinItemLevel    string                    `json:"gem_min_item_level"`
 	AbilityRequirement string                    `json:"ability_requirement"`
 	LimitCategory      string                    `json:"limit_category"`
+	NameDescription    string                    `json:"name_description"`
 }
 
 type ShortItem struct {
