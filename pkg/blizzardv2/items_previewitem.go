@@ -75,6 +75,19 @@ type ItemRecipeWithItem struct {
 	Item ItemPreviewItemWithoutRecipeItem `json:"item"`
 }
 
+type ItemSetEffect struct {
+	DisplayString locale.Mapping `json:"display_string"`
+	RequiredCount int            `json:"required_count"`
+}
+
+type ItemSetItem struct {
+	Item struct {
+		Key  HrefReference  `json:"key"`
+		Name locale.Mapping `json:"name"`
+		Id   ItemId         `json:"id"`
+	} `json:"item"`
+}
+
 type ItemPreviewItemBase struct {
 	Item struct {
 		Key HrefReference `json:"key"`
@@ -185,6 +198,19 @@ type ItemPreviewItemBase struct {
 			DisplayString locale.Mapping `json:"display_string"`
 		} `json:"ability"`
 	} `json:"requirements"`
+
+	// item-class-id: 4 (Armor)
+	Set struct {
+		ItemSet struct {
+			Key  HrefReference  `json:"key"`
+			Name locale.Mapping `json:"name"`
+			Id   ItemSetId      `json:"id"`
+		} `json:"item_set"`
+		Items         []ItemSetItem   `json:"items"`
+		Effects       []ItemSetEffect `json:"effects"`
+		Legacy        locale.Mapping  `json:"legacy"`
+		DisplayString locale.Mapping  `json:"display_string"`
+	} `json:"set"`
 
 	// item-class-id: 7 (Tradeskill)
 	// item-subclass-id: 9 (Herb)
