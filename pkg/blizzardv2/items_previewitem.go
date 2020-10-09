@@ -130,6 +130,11 @@ type ItemPreviewItemBase struct {
 		} `json:"dps"`
 	} `json:"weapon"`
 
+	// item-class-id: 3 (Gem)
+	GemProperties struct {
+		Effect locale.Mapping `json:"effect"`
+	} `json:"gem_properties"`
+
 	// item-class-id: 4 (Armor)
 	Binding struct {
 		Type binding.Binding `json:"type"`
