@@ -111,6 +111,7 @@ func NewShortItemFromPreviewItem(params ShortItemParams) ShortItemBase {
 	foundUniqueEquipped := params.previewItem.UniqueEquipped.FindOr(params.locale, "")
 	foundGemEffect := params.previewItem.GemProperties.Effect.FindOr(params.locale, "")
 	foundGemMinItemLevel := params.previewItem.GemProperties.MinItemLevel.DisplayString.FindOr(params.locale, "")
+	foundAbilityRequirement := params.previewItem.Requirements.Ability.DisplayString.FindOr(params.locale, "")
 
 	return ShortItemBase{
 		SotahMeta: params.sotahMeta,
@@ -135,23 +136,24 @@ func NewShortItemFromPreviewItem(params ShortItemParams) ShortItemBase {
 			Type:          params.previewItem.InventoryType.Type,
 			DisplayString: foundInventoryType,
 		},
-		ItemSubclass:     foundItemSubclass,
-		Durability:       foundDurability,
-		Stats:            foundStats,
-		Armor:            foundArmor,
-		Spells:           foundSpells,
-		SkillRequirement: foundSkillRequirement,
-		ItemSubClassId:   params.previewItem.ItemSubClass.Id,
-		CraftingReagent:  foundCraftingReagent,
-		Damage:           foundDamage,
-		AttackSpeed:      foundAttackSpeed,
-		Dps:              foundDps,
-		PlayableClasses:  foundPlayableClasses,
-		Sockets:          foundSockets,
-		SocketBonus:      foundSocketBonus,
-		UniqueEquipped:   foundUniqueEquipped,
-		GemEffect:        foundGemEffect,
-		GemMinItemLevel:  foundGemMinItemLevel,
+		ItemSubclass:       foundItemSubclass,
+		Durability:         foundDurability,
+		Stats:              foundStats,
+		Armor:              foundArmor,
+		Spells:             foundSpells,
+		SkillRequirement:   foundSkillRequirement,
+		ItemSubClassId:     params.previewItem.ItemSubClass.Id,
+		CraftingReagent:    foundCraftingReagent,
+		Damage:             foundDamage,
+		AttackSpeed:        foundAttackSpeed,
+		Dps:                foundDps,
+		PlayableClasses:    foundPlayableClasses,
+		Sockets:            foundSockets,
+		SocketBonus:        foundSocketBonus,
+		UniqueEquipped:     foundUniqueEquipped,
+		GemEffect:          foundGemEffect,
+		GemMinItemLevel:    foundGemMinItemLevel,
+		AbilityRequirement: foundAbilityRequirement,
 	}
 }
 
@@ -180,35 +182,36 @@ type ShortItemRecipeItem struct {
 type ShortItemBase struct {
 	SotahMeta ItemMeta `json:"sotah_meta"`
 
-	Id               blizzardv2.ItemId         `json:"id"`
-	Name             string                    `json:"name"`
-	Quality          ShortItemQuality          `json:"quality"`
-	MaxCount         int                       `json:"max_count"`
-	Level            int                       `json:"level"`
-	ItemClassId      itemclass.Id              `json:"item_class_id"`
-	Binding          string                    `json:"binding"`
-	SellPrice        ShortItemSellPrice        `json:"sell_price"`
-	ContainerSlots   string                    `json:"container_slots"`
-	Description      string                    `json:"description"`
-	LevelRequirement string                    `json:"level_requirement"`
-	InventoryType    ShortItemInventoryType    `json:"inventory_type"`
-	ItemSubclass     string                    `json:"item_subclass"`
-	Durability       string                    `json:"durability"`
-	Stats            []ShortItemStat           `json:"stats"`
-	Armor            string                    `json:"armor"`
-	Spells           []string                  `json:"spells"`
-	SkillRequirement string                    `json:"skill_requirement"`
-	ItemSubClassId   blizzardv2.ItemSubClassId `json:"item_subclass_id"`
-	CraftingReagent  string                    `json:"crafting_reagent"`
-	Damage           string                    `json:"damage"`
-	AttackSpeed      string                    `json:"attack_speed"`
-	Dps              string                    `json:"dps"`
-	PlayableClasses  string                    `json:"playable_classes"`
-	Sockets          []ShortItemSocket         `json:"sockets"`
-	SocketBonus      string                    `json:"socket_bonus"`
-	UniqueEquipped   string                    `json:"unique_equipped"`
-	GemEffect        string                    `json:"gem_effect"`
-	GemMinItemLevel  string                    `json:"gem_min_item_level"`
+	Id                 blizzardv2.ItemId         `json:"id"`
+	Name               string                    `json:"name"`
+	Quality            ShortItemQuality          `json:"quality"`
+	MaxCount           int                       `json:"max_count"`
+	Level              int                       `json:"level"`
+	ItemClassId        itemclass.Id              `json:"item_class_id"`
+	Binding            string                    `json:"binding"`
+	SellPrice          ShortItemSellPrice        `json:"sell_price"`
+	ContainerSlots     string                    `json:"container_slots"`
+	Description        string                    `json:"description"`
+	LevelRequirement   string                    `json:"level_requirement"`
+	InventoryType      ShortItemInventoryType    `json:"inventory_type"`
+	ItemSubclass       string                    `json:"item_subclass"`
+	Durability         string                    `json:"durability"`
+	Stats              []ShortItemStat           `json:"stats"`
+	Armor              string                    `json:"armor"`
+	Spells             []string                  `json:"spells"`
+	SkillRequirement   string                    `json:"skill_requirement"`
+	ItemSubClassId     blizzardv2.ItemSubClassId `json:"item_subclass_id"`
+	CraftingReagent    string                    `json:"crafting_reagent"`
+	Damage             string                    `json:"damage"`
+	AttackSpeed        string                    `json:"attack_speed"`
+	Dps                string                    `json:"dps"`
+	PlayableClasses    string                    `json:"playable_classes"`
+	Sockets            []ShortItemSocket         `json:"sockets"`
+	SocketBonus        string                    `json:"socket_bonus"`
+	UniqueEquipped     string                    `json:"unique_equipped"`
+	GemEffect          string                    `json:"gem_effect"`
+	GemMinItemLevel    string                    `json:"gem_min_item_level"`
+	AbilityRequirement string                    `json:"ability_requirement"`
 }
 
 type ShortItem struct {

@@ -173,6 +173,17 @@ type ItemPreviewItemBase struct {
 		PlayableClasses struct {
 			DisplayString locale.Mapping `json:"display_string"`
 		} `json:"playable_classes"`
+
+		// item-class-id: 15 (Misc)
+		// item-sub-class-id: 5 (Mount)
+		Ability struct {
+			Spell struct {
+				Key  HrefReference  `json:"key"`
+				Name locale.Mapping `json:"name"`
+				Id   ItemSpellId    `json:"id"`
+			} `json:"spell"`
+			DisplayString locale.Mapping `json:"display_string"`
+		} `json:"ability"`
 	} `json:"requirements"`
 
 	// item-class-id: 7 (Tradeskill)
