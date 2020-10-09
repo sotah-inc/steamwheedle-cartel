@@ -121,6 +121,14 @@ type ItemPreviewItemBase struct {
 	IsSubClassHidden bool                        `json:"is_subclass_hidden"`
 	Description      locale.Mapping              `json:"description"`
 	UniqueEquipped   locale.Mapping              `json:"unique_equipped"`
+	ItemStartsQuest  struct {
+		Quest struct {
+			Key  HrefReference  `json:"key"`
+			Name locale.Mapping `json:"name"`
+			Id   int            `json:"id"`
+		} `json:"quest"`
+		DisplayString locale.Mapping `json:"display_string"`
+	} `json:"item_starts_quest"`
 
 	// item-class-id: 0 (Consumable)
 	Spells []ItemSpell `json:"spells"`

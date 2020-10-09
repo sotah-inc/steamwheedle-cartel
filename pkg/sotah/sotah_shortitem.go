@@ -121,6 +121,7 @@ func NewShortItemFromPreviewItem(params ShortItemParams) ShortItemBase {
 			Id:   link.Id,
 		}
 	}
+	foundItemStartsQuest := params.previewItem.ItemStartsQuest.DisplayString.FindOr(params.locale, "")
 
 	return ShortItemBase{
 		SotahMeta: params.sotahMeta,
@@ -166,6 +167,7 @@ func NewShortItemFromPreviewItem(params ShortItemParams) ShortItemBase {
 		LimitCategory:         foundLimitCategory,
 		NameDescription:       foundNameDescription,
 		ReputationRequirement: foundReputationRequirement,
+		ItemStartsQuest:       foundItemStartsQuest,
 	}
 }
 
@@ -232,6 +234,7 @@ type ShortItemBase struct {
 	LimitCategory         string                    `json:"limit_category"`
 	NameDescription       string                    `json:"name_description"`
 	ReputationRequirement string                    `json:"reputation_requirement"`
+	ItemStartsQuest       string                    `json:"item_starts_quest"`
 }
 
 type ShortItem struct {
