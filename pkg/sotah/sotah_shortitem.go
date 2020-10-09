@@ -110,6 +110,7 @@ func NewShortItemFromPreviewItem(params ShortItemParams) ShortItemBase {
 	foundSocketBonus := params.previewItem.SocketBonus.FindOr(params.locale, "")
 	foundUniqueEquipped := params.previewItem.UniqueEquipped.FindOr(params.locale, "")
 	foundGemEffect := params.previewItem.GemProperties.Effect.FindOr(params.locale, "")
+	foundGemMinItemLevel := params.previewItem.GemProperties.MinItemLevel.DisplayString.FindOr(params.locale, "")
 
 	return ShortItemBase{
 		SotahMeta: params.sotahMeta,
@@ -150,6 +151,7 @@ func NewShortItemFromPreviewItem(params ShortItemParams) ShortItemBase {
 		SocketBonus:      foundSocketBonus,
 		UniqueEquipped:   foundUniqueEquipped,
 		GemEffect:        foundGemEffect,
+		GemMinItemLevel:  foundGemMinItemLevel,
 	}
 }
 
@@ -206,6 +208,7 @@ type ShortItemBase struct {
 	SocketBonus      string                    `json:"socket_bonus"`
 	UniqueEquipped   string                    `json:"unique_equipped"`
 	GemEffect        string                    `json:"gem_effect"`
+	GemMinItemLevel  string                    `json:"gem_min_item_level"`
 }
 
 type ShortItem struct {
