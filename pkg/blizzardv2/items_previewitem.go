@@ -132,7 +132,11 @@ type ItemPreviewItemBase struct {
 
 	// item-class-id: 3 (Gem)
 	GemProperties struct {
-		Effect locale.Mapping `json:"effect"`
+		Effect       locale.Mapping `json:"effect"`
+		MinItemLevel struct {
+			Value         int            `json:"value"`
+			DisplayString locale.Mapping `json:"display_string"`
+		} `json:"min_item_level"`
 	} `json:"gem_properties"`
 
 	// item-class-id: 4 (Armor)
