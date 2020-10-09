@@ -31,6 +31,10 @@ type ShortItemList []ShortItem
 
 func NewShortItem(item Item, locale locale.Locale) ShortItem {
 	foundReagentsDisplayString := item.BlizzardMeta.PreviewItem.Recipe.ReagentsDisplayString.FindOr(locale, "")
+	foundLevel := item.BlizzardMeta.PreviewItem.Recipe.Item.Level.Value
+	if foundLevel == 0 {
+		foundLevel = item.BlizzardMeta.Level
+	}
 
 	return ShortItem{
 		ShortItemBase: NewShortItemFromPreviewItem(ShortItemParams{
@@ -47,8 +51,8 @@ func NewShortItem(item Item, locale locale.Locale) ShortItem {
 				locale:      locale,
 				sotahMeta:   item.SotahMeta,
 				id:          item.BlizzardMeta.PreviewItem.Recipe.Item.ItemPreviewItemBase.Item.Id,
-				maxCount:    item.BlizzardMeta.Level,
-				level:       item.BlizzardMeta.PreviewItem.Recipe.Item.Level.Value,
+				maxCount:    0,
+				level:       foundLevel,
 			}),
 		},
 		ReagentsDisplayString: foundReagentsDisplayString,
