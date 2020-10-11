@@ -122,6 +122,16 @@ func NewShortItemFromPreviewItem(params ShortItemParams) ShortItemBase {
 		}
 	}
 	foundItemStartsQuest := params.previewItem.ItemStartsQuest.DisplayString.FindOr(params.locale, "")
+	foundSetDisplayString := params.previewItem.Set.DisplayString.FindOr(params.locale, "")
+	foundSetLegacy := params.previewItem.Set.Legacy.FindOr(params.locale, "")
+	foundSetEffects := make([]string, len(params.previewItem.Set.Effects))
+	for i, effect := range params.previewItem.Set.Effects {
+		foundSetEffects[i] = effect.DisplayString.FindOr(params.locale, "")
+	}
+	foundSetItems := make([]string, len(params.previewItem.Set.Items))
+	for i, item := range params.previewItem.Set.Items {
+		foundSetItems[i] = item.Item.Name.FindOr(params.locale, "")
+	}
 
 	return ShortItemBase{
 		SotahMeta: params.sotahMeta,
@@ -168,6 +178,12 @@ func NewShortItemFromPreviewItem(params ShortItemParams) ShortItemBase {
 		NameDescription:       foundNameDescription,
 		ReputationRequirement: foundReputationRequirement,
 		ItemStartsQuest:       foundItemStartsQuest,
+		Set: ShortItemSet{
+			DisplayString: foundSetDisplayString,
+			Legacy:        foundSetLegacy,
+			Effects:       foundSetEffects,
+			Items:         foundSetItems,
+		},
 	}
 }
 
@@ -196,6 +212,13 @@ type ShortItemRecipeItem struct {
 type ShortItemPlayableClass struct {
 	Name string `json:"name"`
 	Id   int    `json:"id"`
+}
+
+type ShortItemSet struct {
+	DisplayString string   `json:"display_string"`
+	Legacy        string   `json:"legacy"`
+	Effects       []string `json:"effects"`
+	Items         []string `json:"items"`
 }
 
 type ShortItemBase struct {
@@ -235,6 +258,7 @@ type ShortItemBase struct {
 	NameDescription       string                    `json:"name_description"`
 	ReputationRequirement string                    `json:"reputation_requirement"`
 	ItemStartsQuest       string                    `json:"item_starts_quest"`
+	Set                   ShortItemSet              `json:"set"`
 }
 
 type ShortItem struct {
