@@ -10,8 +10,6 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 )
 
-type IconName string
-
 func NewItemObjectName(name IconName) string {
 	return fmt.Sprintf(
 		"%s/%s.jpg",

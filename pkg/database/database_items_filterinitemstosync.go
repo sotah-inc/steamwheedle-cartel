@@ -56,7 +56,7 @@ func (idBase ItemsDatabase) FilterInItemsToSync(ids []blizzardv2.ItemId) (ItemsS
 	iconsToSync := sotah.IconIdsMap{}
 
 	// peeking into the items database
-	err := idBase.db.Update(func(tx *bolt.Tx) error {
+	err := idBase.db.View(func(tx *bolt.Tx) error {
 		itemsBucket, err := tx.CreateBucketIfNotExists(databaseItemsBucketName())
 		if err != nil {
 			return err
