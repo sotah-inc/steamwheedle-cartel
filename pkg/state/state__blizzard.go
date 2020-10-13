@@ -131,3 +131,20 @@ func (sta BlizzardState) ResolveItems(
 func (sta BlizzardState) ResolveItemMedias(in chan blizzardv2.GetItemMediasInJob) chan blizzardv2.GetItemMediasOutJob {
 	return blizzardv2.GetItemMedias(in, sta.BlizzardClient.AppendAccessToken)
 }
+
+func (sta BlizzardState) ResolvePets(
+	primaryRegion sotah.Region,
+	blacklist []blizzardv2.PetId,
+) (chan blizzardv2.GetAllPetsJob, error) {
+	logging.WithField("pet-ids", len(blacklist)).Info("resolving pets with blacklist")
+
+	return blizzardv2.GetAllPets(blizzardv2.GetAllPetsOptions{
+		GetPetIndexURL: func() (string, error) {
+			return sta.BlizzardClient.AppendAccessToken(
+				blizzardv2.DefaultPetIndexURL(primaryRegion.Hostname, primaryRegion.Name),
+			)
+		},
+		GetPetURL: sta.BlizzardClient.AppendAccessToken,
+		Blacklist: blacklist,
+	})
+}
