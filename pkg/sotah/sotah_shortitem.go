@@ -29,8 +29,8 @@ type ShortItemSocket struct {
 
 type ShortItemList []ShortItem
 
-func NewShortItem(item Item, locale locale.Locale) ShortItem {
-	foundReagentsDisplayString := item.BlizzardMeta.PreviewItem.Recipe.ReagentsDisplayString.FindOr(locale, "")
+func NewShortItem(item Item, providedLocale locale.Locale) ShortItem {
+	foundReagentsDisplayString := item.BlizzardMeta.PreviewItem.Recipe.ReagentsDisplayString.FindOr(providedLocale, "")
 	foundLevel := item.BlizzardMeta.PreviewItem.Recipe.Item.Level.Value
 	if foundLevel == 0 {
 		foundLevel = item.BlizzardMeta.Level
@@ -39,7 +39,7 @@ func NewShortItem(item Item, locale locale.Locale) ShortItem {
 	return ShortItem{
 		ShortItemBase: NewShortItemFromPreviewItem(ShortItemParams{
 			previewItem: item.BlizzardMeta.PreviewItem.ItemPreviewItemBase,
-			locale:      locale,
+			locale:      providedLocale,
 			sotahMeta:   item.SotahMeta,
 			id:          item.BlizzardMeta.Id,
 			maxCount:    item.BlizzardMeta.MaxCount,
@@ -48,7 +48,7 @@ func NewShortItem(item Item, locale locale.Locale) ShortItem {
 		RecipeItem: ShortItemWithoutRecipeItem{
 			ShortItemBase: NewShortItemFromPreviewItem(ShortItemParams{
 				previewItem: item.BlizzardMeta.PreviewItem.Recipe.Item.ItemPreviewItemBase,
-				locale:      locale,
+				locale:      providedLocale,
 				sotahMeta:   item.SotahMeta,
 				id:          item.BlizzardMeta.PreviewItem.Recipe.Item.ItemPreviewItemBase.Item.Id,
 				maxCount:    0,

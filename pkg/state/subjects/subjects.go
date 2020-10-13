@@ -9,6 +9,10 @@ const (
 )
 
 const (
+	Pets Subject = "pets"
+)
+
+const (
 	AreaMapsQuery Subject = "areaMapsQuery"
 	AreaMaps      Subject = "areaMaps"
 )

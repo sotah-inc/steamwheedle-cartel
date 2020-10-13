@@ -5,6 +5,7 @@ import (
 	BaseLake "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/lake/base"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state/subjects"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 )
 
@@ -43,5 +44,7 @@ type PetsState struct {
 }
 
 func (sta PetsState) GetListeners() SubjectListeners {
-	return SubjectListeners{}
+	return SubjectListeners{
+		subjects.Pets: sta.ListenForPets,
+	}
 }
