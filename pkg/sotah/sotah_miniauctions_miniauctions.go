@@ -36,8 +36,11 @@ func (mAuctions MiniAuctions) Insert(auc blizzardv2.Auction) MiniAuctions {
 
 func newMiniAuctionHash(auc blizzardv2.Auction) miniAuctionHash {
 	return miniAuctionHash(fmt.Sprintf(
-		"%d-%d-%d-%s",
-		auc.Item,
+		"%d-%d-%d-%d-%d-%d-%s",
+		auc.Item.Id,
+		auc.Item.PetSpeciesId,
+		auc.Item.PetQualityId,
+		auc.Item.PetLevel,
 		auc.Buyout,
 		auc.Quantity,
 		auc.TimeLeft,

@@ -31,6 +31,9 @@ func newMiniAuction(auc blizzardv2.Auction) miniAuction {
 
 	return miniAuction{
 		auc.Item.Id,
+		auc.Item.PetSpeciesId,
+		auc.Item.PetQualityId,
+		auc.Item.PetLevel,
 		buyout,
 		buyoutPer,
 		auc.Quantity,
@@ -40,10 +43,13 @@ func newMiniAuction(auc blizzardv2.Auction) miniAuction {
 }
 
 type miniAuction struct {
-	ItemId    blizzardv2.ItemId      `json:"itemId"`
-	Buyout    int64                  `json:"buyout"`
-	BuyoutPer float64                `json:"buyoutPer"`
-	Quantity  int                    `json:"quantity"`
-	TimeLeft  string                 `json:"timeLeft"`
-	AucList   []blizzardv2.AuctionId `json:"aucList"`
+	ItemId       blizzardv2.ItemId      `json:"itemId"`
+	PetSpeciesId blizzardv2.PetId       `json:"pet_species_id"`
+	PetQualityId int                    `json:"pet_quality_id"`
+	PetLevel     int                    `json:"pet_level"`
+	Buyout       int64                  `json:"buyout"`
+	BuyoutPer    float64                `json:"buyoutPer"`
+	Quantity     int                    `json:"quantity"`
+	TimeLeft     string                 `json:"timeLeft"`
+	AucList      []blizzardv2.AuctionId `json:"aucList"`
 }
