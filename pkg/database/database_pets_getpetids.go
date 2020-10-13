@@ -5,7 +5,7 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 )
 
-func (pdBase PetsDatabase) FilterInPetsToSync(ids []blizzardv2.PetId) ([]blizzardv2.PetId, error) {
+func (pdBase PetsDatabase) GetPetIds() ([]blizzardv2.PetId, error) {
 	var out []blizzardv2.PetId
 
 	// peeking into the items database
@@ -15,16 +15,16 @@ func (pdBase PetsDatabase) FilterInPetsToSync(ids []blizzardv2.PetId) ([]blizzar
 			return err
 		}
 
-		for _, id := range ids {
-			value := petsBucket.Get(petsKeyName(id))
-			if value != nil {
-				continue
+		return petsBucket.ForEach(func(k []byte, v []byte) error {
+			petId, err := petIdFromPetNameKeyName(k)
+			if err != nil {
+				return err
 			}
 
-			out = append(out, id)
-		}
+			out = append(out, petId)
 
-		return nil
+			return nil
+		})
 	})
 	if err != nil {
 		return []blizzardv2.PetId{}, err
