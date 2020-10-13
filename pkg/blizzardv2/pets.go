@@ -26,18 +26,18 @@ func (job GetAllPetsJob) ToLogrusFields() logrus.Fields {
 	}
 }
 
-func GetAllPets(opts GetAllPetsOptions) ([]PetResponse, error) {
+func GetAllPets(opts GetAllPetsOptions) (chan GetAllPetsJob, error) {
 	// querying index
 	uri, err := opts.GetPetIndexURL()
 	if err != nil {
-		return []PetResponse{}, err
+		return nil, err
 	}
 
 	pIndex, _, err := NewPetIndexFromHTTP(uri)
 	if err != nil {
 		logging.WithField("error", err.Error()).Error("failed to get pet-index")
 
-		return []PetResponse{}, err
+		return nil, err
 	}
 
 	// starting up workers for gathering individual pets
@@ -98,17 +98,5 @@ func GetAllPets(opts GetAllPetsOptions) ([]PetResponse, error) {
 		close(in)
 	}()
 
-	// waiting for it all to drain out
-	result := make([]PetResponse, len(pIndex.Pets))
-	i := 0
-	for outJob := range out {
-		if outJob.Err != nil {
-			return []PetResponse{}, outJob.Err
-		}
-
-		result[i] = outJob.PetResponse
-		i += 1
-	}
-
-	return result, nil
+	return out, nil
 }
