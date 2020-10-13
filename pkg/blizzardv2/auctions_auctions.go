@@ -36,7 +36,7 @@ type Auction struct {
 		PetBreedId   int                   `json:"pet_breed_id"`
 		PetLevel     int                   `json:"pet_level"`
 		PetQualityId int                   `json:"pet_quality_id"`
-		PetSpeciesId int                   `json:"pet_species_id"`
+		PetSpeciesId PetId                 `json:"pet_species_id"`
 	} `json:"item"`
 	Buyout    int64  `json:"buyout"`
 	Quantity  int    `json:"quantity"`
