@@ -30,19 +30,18 @@ func NewPetsState(opts NewPetsStateOptions) (PetsState, error) {
 	}
 
 	return PetsState{
-		LakeClient:    opts.LakeClient,
-		Messenger:     opts.Messenger,
+		LakeClient:   opts.LakeClient,
+		Messenger:    opts.Messenger,
 		PetsDatabase: petsDatabase,
 	}, nil
 }
 
 type PetsState struct {
-	LakeClient    BaseLake.Client
-	Messenger     messenger.Messenger
+	LakeClient   BaseLake.Client
+	Messenger    messenger.Messenger
 	PetsDatabase database.PetsDatabase
 }
 
 func (sta PetsState) GetListeners() SubjectListeners {
-	return SubjectListeners{
-	}
+	return SubjectListeners{}
 }
