@@ -35,5 +35,6 @@ func NewClient(opts NewClientOptions) (Client, error) {
 type Client struct {
 	cacheDir          string
 	resolveItems      func(ids blizzardv2.ItemIds) chan blizzardv2.GetItemsOutJob
+	resolvePets       func(blacklist []blizzardv2.PetId) chan blizzardv2.GetAllPetsJob
 	resolveItemMedias func(in chan blizzardv2.GetItemMediasInJob) chan blizzardv2.GetItemMediasOutJob
 }

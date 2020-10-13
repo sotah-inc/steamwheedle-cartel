@@ -9,6 +9,8 @@ import (
 type GetAllPetsOptions struct {
 	GetPetIndexURL func() (string, error)
 	GetPetURL      func(string) (string, error)
+
+	Blacklist []PetId
 }
 
 type GetAllPetsJob struct {
@@ -77,9 +79,19 @@ func GetAllPets(opts GetAllPetsOptions) ([]PetResponse, error) {
 	}
 	util.Work(4, worker, postWork)
 
+	// converting blacklist to map for filtering
+	blacklistMap := map[PetId]struct{}{}
+	for _, id := range opts.Blacklist {
+		blacklistMap[id] = struct{}{}
+	}
+
 	// queueing it up
 	go func() {
 		for _, pet := range pIndex.Pets {
+			if _, ok := blacklistMap[pet.Id]; ok {
+				continue
+			}
+
 			in <- pet.Key
 		}
 
