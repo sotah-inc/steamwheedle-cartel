@@ -45,6 +45,7 @@ type PetsState struct {
 
 func (sta PetsState) GetListeners() SubjectListeners {
 	return SubjectListeners{
-		subjects.Pets: sta.ListenForPets,
+		subjects.Pets:       sta.ListenForPets,
+		subjects.PetsIntake: sta.ListenForPetsIntake,
 	}
 }

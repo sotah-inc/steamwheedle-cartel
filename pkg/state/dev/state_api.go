@@ -14,6 +14,7 @@ import (
 
 type ApiStateDatabaseConfig struct {
 	ItemsDir            string
+	PetsDir             string
 	TokensDir           string
 	AreaMapsDir         string
 	LiveAuctionsDir     string
@@ -103,6 +104,7 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 		return ApiState{}, err
 	}
 
+	// resolving items state
 	sta.ItemsState, err = state.NewItemsState(state.NewItemsStateOptions{
 		LakeClient:       lakeClient,
 		Messenger:        mess,
@@ -110,6 +112,18 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 	})
 	if err != nil {
 		logging.WithField("error", err.Error()).Error("failed to initialise items state")
+
+		return ApiState{}, err
+	}
+
+	// resolving pets state
+	sta.PetsState, err = state.NewPetsState(state.NewPetsStateOptions{
+		LakeClient:      lakeClient,
+		Messenger:       mess,
+		PetsDatabaseDir: config.DatabaseConfig.PetsDir,
+	})
+	if err != nil {
+		logging.WithField("error", err.Error()).Error("failed to initialise pets state")
 
 		return ApiState{}, err
 	}
@@ -134,7 +148,7 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 		return ApiState{}, err
 	}
 
-	// resolving DiskCollector-auctions state
+	// resolving disk-collector-auctions state
 	sta.Collector = DiskCollector.NewClient(DiskCollector.ClientOptions{
 		ResolveAuctions: func() chan blizzardv2.GetAuctionsJob {
 			return sta.BlizzardState.ResolveAuctions(sta.RegionState.RegionComposites.ToDownloadTuples())
@@ -175,6 +189,7 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 	// establishing listeners
 	sta.Listeners = state.NewListeners(state.NewSubjectListeners([]state.SubjectListeners{
 		sta.ItemsState.GetListeners(),
+		sta.PetsState.GetListeners(),
 		sta.AreaMapsState.GetListeners(),
 		sta.TokensState.GetListeners(),
 		sta.RegionState.GetListeners(),
@@ -191,6 +206,7 @@ type ApiState struct {
 
 	BlizzardState state.BlizzardState
 	ItemsState    state.ItemsState
+	PetsState     state.PetsState
 	AreaMapsState state.AreaMapsState
 	TokensState   state.TokensState
 	RegionState   *state.RegionsState

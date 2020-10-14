@@ -16,4 +16,5 @@ type Client interface {
 		auctions sotah.MiniAuctionList,
 	) WriteAuctionsWithTuplesInJob
 	GetEncodedItems(ids blizzardv2.ItemIds) chan GetEncodedItemJob
+	GetEncodedPets(blacklist []blizzardv2.PetId) chan GetEncodedPetJob
 }

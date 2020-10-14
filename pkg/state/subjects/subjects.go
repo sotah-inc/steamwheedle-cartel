@@ -9,7 +9,8 @@ const (
 )
 
 const (
-	Pets Subject = "pets"
+	Pets       Subject = "pets"
+	PetsIntake Subject = "petsIntake"
 )
 
 const (
