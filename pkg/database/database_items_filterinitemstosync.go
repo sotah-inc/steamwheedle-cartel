@@ -57,14 +57,14 @@ func (idBase ItemsDatabase) FilterInItemsToSync(ids []blizzardv2.ItemId) (ItemsS
 
 	// peeking into the items database
 	err := idBase.db.View(func(tx *bolt.Tx) error {
-		itemsBucket, err := tx.CreateBucketIfNotExists(databaseItemsBucketName())
-		if err != nil {
-			return err
+		itemsBucket := tx.Bucket(databaseItemsBucketName())
+		if itemsBucket == nil {
+			return nil
 		}
 
-		itemNamesBucket, err := tx.CreateBucketIfNotExists(databaseItemNamesBucketName())
-		if err != nil {
-			return err
+		itemNamesBucket := tx.Bucket(databaseItemNamesBucketName())
+		if itemNamesBucket == nil {
+			return nil
 		}
 
 		for _, id := range ids {
