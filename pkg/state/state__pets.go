@@ -47,5 +47,6 @@ func (sta PetsState) GetListeners() SubjectListeners {
 	return SubjectListeners{
 		subjects.Pets:       sta.ListenForPets,
 		subjects.PetsIntake: sta.ListenForPetsIntake,
+		subjects.PetsQuery:  sta.ListenForPetsQuery,
 	}
 }

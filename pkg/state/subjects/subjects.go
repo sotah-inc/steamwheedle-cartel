@@ -11,6 +11,7 @@ const (
 const (
 	Pets       Subject = "pets"
 	PetsIntake Subject = "petsIntake"
+	PetsQuery  Subject = "petsQuery"
 )
 
 const (
