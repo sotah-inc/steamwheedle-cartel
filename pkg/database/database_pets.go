@@ -25,6 +25,15 @@ func petNameKeyName(id blizzardv2.PetId) []byte {
 	return []byte(fmt.Sprintf("pet-name-%d", id))
 }
 
+func petIdFromPetKeyName(key []byte) (blizzardv2.PetId, error) {
+	unparsedId, err := strconv.Atoi(string(key)[len("pet-"):])
+	if err != nil {
+		return blizzardv2.PetId(0), err
+	}
+
+	return blizzardv2.PetId(unparsedId), nil
+}
+
 func petIdFromPetNameKeyName(key []byte) (blizzardv2.PetId, error) {
 	unparsedId, err := strconv.Atoi(string(key)[len("pet-name-"):])
 	if err != nil {

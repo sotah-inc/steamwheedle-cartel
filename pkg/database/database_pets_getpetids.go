@@ -16,7 +16,7 @@ func (pdBase PetsDatabase) GetPetIds() ([]blizzardv2.PetId, error) {
 		}
 
 		return petsBucket.ForEach(func(k []byte, v []byte) error {
-			petId, err := petIdFromPetNameKeyName(k)
+			petId, err := petIdFromPetKeyName(k)
 			if err != nil {
 				return err
 			}
