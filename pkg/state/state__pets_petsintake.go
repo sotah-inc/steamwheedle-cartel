@@ -48,7 +48,12 @@ func (sta PetsState) petsIntake() error {
 	logging.WithField("pets-blacklist", len(petIds)).Info("collecting pets sans blacklist")
 
 	// starting up an intake queue
-	getEncodedPetsOut := sta.LakeClient.GetEncodedPets(petIds)
+	getEncodedPetsOut, err := sta.LakeClient.GetEncodedPets(petIds)
+	if err != nil {
+		logging.WithField("error", err.Error()).Error("failed to initiate encoded-pets fetching")
+
+		return err
+	}
 	persistPetsIn := make(chan database.PersistEncodedPetsInJob)
 
 	// queueing it all up
