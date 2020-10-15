@@ -12,6 +12,7 @@ type NewClientOptions struct {
 	RegionNames       []blizzardv2.RegionName
 	ResolveItems      func(ids blizzardv2.ItemIds) chan blizzardv2.GetItemsOutJob
 	ResolveItemMedias func(in chan blizzardv2.GetItemMediasInJob) chan blizzardv2.GetItemMediasOutJob
+	ResolvePets       func(blacklist []blizzardv2.PetId) (chan blizzardv2.GetAllPetsJob, error)
 }
 
 func NewClient(opts NewClientOptions) (Client, error) {
@@ -29,12 +30,13 @@ func NewClient(opts NewClientOptions) (Client, error) {
 		cacheDir:          opts.CacheDir,
 		resolveItems:      opts.ResolveItems,
 		resolveItemMedias: opts.ResolveItemMedias,
+		resolvePets:       opts.ResolvePets,
 	}, nil
 }
 
 type Client struct {
 	cacheDir          string
 	resolveItems      func(ids blizzardv2.ItemIds) chan blizzardv2.GetItemsOutJob
-	resolvePets       func(blacklist []blizzardv2.PetId) chan blizzardv2.GetAllPetsJob
 	resolveItemMedias func(in chan blizzardv2.GetItemMediasInJob) chan blizzardv2.GetItemMediasOutJob
+	resolvePets       func(blacklist []blizzardv2.PetId) (chan blizzardv2.GetAllPetsJob, error)
 }

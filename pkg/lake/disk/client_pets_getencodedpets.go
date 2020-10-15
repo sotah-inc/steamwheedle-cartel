@@ -29,11 +29,14 @@ func (g getEncodedPetJob) ToLogrusFields() logrus.Fields {
 	}
 }
 
-func (client Client) GetEncodedPets(blacklist []blizzardv2.PetId) chan BaseLake.GetEncodedPetJob {
+func (client Client) GetEncodedPets(blacklist []blizzardv2.PetId) (chan BaseLake.GetEncodedPetJob, error) {
 	out := make(chan BaseLake.GetEncodedPetJob)
 
 	// starting up workers for resolving items
-	petsOut := client.resolvePets(blacklist)
+	petsOut, err := client.resolvePets(blacklist)
+	if err != nil {
+		return nil, err
+	}
 
 	// queueing it all up
 	go func() {
@@ -103,5 +106,5 @@ func (client Client) GetEncodedPets(blacklist []blizzardv2.PetId) chan BaseLake.
 		close(out)
 	}()
 
-	return out
+	return out, nil
 }

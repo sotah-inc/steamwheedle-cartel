@@ -70,6 +70,9 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 			return sta.BlizzardState.ResolveItems(primaryRegion, ids)
 		},
 		ResolveItemMedias: sta.BlizzardState.ResolveItemMedias,
+		ResolvePets: func(blacklist []blizzardv2.PetId) (chan blizzardv2.GetAllPetsJob, error) {
+			return sta.BlizzardState.ResolvePets(primaryRegion, blacklist)
+		},
 	})
 	if err != nil {
 		logging.WithField("error", err.Error()).Error("failed to initialise lake-client")

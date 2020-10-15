@@ -12,6 +12,7 @@ type NewClientOptions struct {
 	RegionNames       []blizzardv2.RegionName
 	ResolveItems      func(ids blizzardv2.ItemIds) chan blizzardv2.GetItemsOutJob
 	ResolveItemMedias func(in chan blizzardv2.GetItemMediasInJob) chan blizzardv2.GetItemMediasOutJob
+	ResolvePets       func(blacklist []blizzardv2.PetId) (chan blizzardv2.GetAllPetsJob, error)
 }
 
 func NewClient(opts NewClientOptions) (BaseLake.Client, error) {
@@ -21,6 +22,7 @@ func NewClient(opts NewClientOptions) (BaseLake.Client, error) {
 			ResolveItems:      opts.ResolveItems,
 			ResolveItemMedias: opts.ResolveItemMedias,
 			RegionNames:       opts.RegionNames,
+			ResolvePets:       opts.ResolvePets,
 		})
 	}
 
@@ -29,5 +31,6 @@ func NewClient(opts NewClientOptions) (BaseLake.Client, error) {
 		ResolveItems:      opts.ResolveItems,
 		ResolveItemMedias: opts.ResolveItemMedias,
 		RegionNames:       opts.RegionNames,
+		ResolvePets:       opts.ResolvePets,
 	})
 }
