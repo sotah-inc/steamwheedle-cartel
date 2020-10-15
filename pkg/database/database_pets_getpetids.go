@@ -10,9 +10,9 @@ func (pdBase PetsDatabase) GetPetIds() ([]blizzardv2.PetId, error) {
 
 	// peeking into the items database
 	err := pdBase.db.View(func(tx *bolt.Tx) error {
-		petsBucket, err := tx.CreateBucketIfNotExists(databasePetsBucketName())
-		if err != nil {
-			return err
+		petsBucket := tx.Bucket(databasePetsBucketName())
+		if petsBucket == nil {
+			return nil
 		}
 
 		return petsBucket.ForEach(func(k []byte, v []byte) error {
