@@ -11,6 +11,7 @@ type GetAllPetsOptions struct {
 	GetPetURL      func(string) (string, error)
 
 	Blacklist []PetId
+	Limit     int
 }
 
 type GetAllPetsJob struct {
@@ -87,12 +88,19 @@ func GetAllPets(opts GetAllPetsOptions) (chan GetAllPetsJob, error) {
 
 	// queueing it up
 	go func() {
+		total := 0
 		for _, pet := range pIndex.Pets {
+			if total > opts.Limit {
+				break
+			}
+
 			if _, ok := blacklistMap[pet.Id]; ok {
 				continue
 			}
 
 			in <- pet.Key
+
+			total += 1
 		}
 
 		close(in)
