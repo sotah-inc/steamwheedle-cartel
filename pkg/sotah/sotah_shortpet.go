@@ -1,6 +1,9 @@
 package sotah
 
-import "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/locale"
+import (
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/locale"
+)
 
 func NewShortPetList(pets []Pet, locale locale.Locale) []ShortPet {
 	out := make([]ShortPet, len(pets))
@@ -21,10 +24,12 @@ type ShortPetParams struct {
 
 func NewShortPet(params ShortPetParams) ShortPet {
 	return ShortPet{
+		Id:   params.Pet.BlizzardMeta.Id,
 		Name: params.Pet.BlizzardMeta.Name.FindOr(params.Locale, ""),
 	}
 }
 
 type ShortPet struct {
-	Name string `json:"name"`
+	Id   blizzardv2.PetId `json:"id"`
+	Name string           `json:"name"`
 }
