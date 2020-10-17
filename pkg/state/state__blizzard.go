@@ -146,6 +146,6 @@ func (sta BlizzardState) ResolvePets(
 		},
 		GetPetURL: sta.BlizzardClient.AppendAccessToken,
 		Blacklist: blacklist,
-		Limit:     500,
+		Limit:     250,
 	})
 }

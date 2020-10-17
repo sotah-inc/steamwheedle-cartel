@@ -21,7 +21,7 @@ type collectAuctionsResults struct {
 	tuples           blizzardv2.LoadConnectedRealmTuples
 }
 
-const itemIdsLimit = 500
+const itemIdsLimit = 250
 
 func (c Client) collectAuctions() (collectAuctionsResults, error) {
 	startTime := time.Now()
