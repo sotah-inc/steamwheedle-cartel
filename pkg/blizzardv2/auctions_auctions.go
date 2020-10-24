@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/sirupsen/logrus"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/petquality"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 )
 
@@ -35,7 +36,7 @@ type Auction struct {
 		Modifiers    []AuctionItemModifier `json:"modifiers"`
 		PetBreedId   int                   `json:"pet_breed_id"`
 		PetLevel     int                   `json:"pet_level"`
-		PetQualityId int                   `json:"pet_quality_id"`
+		PetQualityId petquality.PetQuality `json:"pet_quality_id"`
 		PetSpeciesId PetId                 `json:"pet_species_id"`
 	} `json:"item"`
 	Buyout    int64  `json:"buyout"`
