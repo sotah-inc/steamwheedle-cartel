@@ -24,8 +24,9 @@ type ShortPetParams struct {
 
 func NewShortPet(params ShortPetParams) ShortPet {
 	return ShortPet{
-		Id:   params.Pet.BlizzardMeta.Id,
-		Name: params.Pet.BlizzardMeta.Name.FindOr(params.Locale, ""),
+		Id:      params.Pet.BlizzardMeta.Id,
+		Name:    params.Pet.BlizzardMeta.Name.FindOr(params.Locale, ""),
+		IconUrl: params.Pet.BlizzardMeta.Icon,
 	}
 }
 
