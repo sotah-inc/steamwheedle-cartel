@@ -30,6 +30,7 @@ func NewShortPet(params ShortPetParams) ShortPet {
 }
 
 type ShortPet struct {
-	Id   blizzardv2.PetId `json:"id"`
-	Name string           `json:"name"`
+	Id      blizzardv2.PetId `json:"id"`
+	Name    string           `json:"name"`
+	IconUrl string           `json:"icon_url"`
 }

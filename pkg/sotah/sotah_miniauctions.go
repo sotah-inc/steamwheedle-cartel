@@ -2,6 +2,7 @@ package sotah
 
 import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/petquality"
 )
 
 // miniauction
@@ -45,7 +46,7 @@ func newMiniAuction(auc blizzardv2.Auction) miniAuction {
 type miniAuction struct {
 	ItemId       blizzardv2.ItemId      `json:"itemId"`
 	PetSpeciesId blizzardv2.PetId       `json:"pet_species_id"`
-	PetQualityId int                    `json:"pet_quality_id"`
+	PetQualityId petquality.PetQuality  `json:"pet_quality_id"`
 	PetLevel     int                    `json:"pet_level"`
 	Buyout       int64                  `json:"buyout"`
 	BuyoutPer    float64                `json:"buyoutPer"`
