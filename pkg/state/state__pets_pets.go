@@ -27,7 +27,7 @@ func NewPetsRequest(payload []byte) (PetsRequest, error) {
 
 type PetsRequest struct {
 	Locale locale.Locale      `json:"locale"`
-	PetIds []blizzardv2.PetId `json:"petId"`
+	PetIds []blizzardv2.PetId `json:"petIds"`
 }
 
 type PetsResponse struct {
