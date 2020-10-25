@@ -31,6 +31,7 @@ type QueryAuctionsRequest struct {
 	SortDirection sortdirections.SortDirection         `json:"sort_direction"`
 	SortKind      sortkinds.SortKind                   `json:"sort_kind"`
 	ItemFilters   blizzardv2.ItemIds                   `json:"item_filters"`
+	PetFilters    []blizzardv2.PetId                   `json:"pet_filters"`
 }
 
 type QueryAuctionsResponse struct {
@@ -81,6 +82,11 @@ func (ladBases LiveAuctionsDatabases) QueryAuctions(
 	// filtering in auctions by items
 	if len(qr.ItemFilters) > 0 {
 		aResponse.AuctionList = aResponse.AuctionList.FilterByItemIds(qr.ItemFilters)
+	}
+
+	// filtering in auctions by pets
+	if len(qr.PetFilters) > 0 {
+		aResponse.AuctionList = aResponse.AuctionList.FilterByPetIds(qr.PetFilters)
 	}
 
 	// calculating the total for paging

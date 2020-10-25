@@ -76,6 +76,19 @@ func (maList MiniAuctionList) FilterByItemIds(itemIds []blizzardv2.ItemId) MiniA
 	return out
 }
 
+func (maList MiniAuctionList) FilterByPetIds(petIds []blizzardv2.PetId) MiniAuctionList {
+	out := MiniAuctionList{}
+	for _, ma := range maList {
+		for _, id := range petIds {
+			if ma.PetSpeciesId == id {
+				out = append(out, ma)
+			}
+		}
+	}
+
+	return out
+}
+
 func (maList MiniAuctionList) ItemIds() []blizzardv2.ItemId {
 	result := map[blizzardv2.ItemId]struct{}{}
 	for _, ma := range maList {
