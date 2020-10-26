@@ -17,20 +17,6 @@ func (ids ItemIds) EncodeForDelivery() ([]byte, error) {
 	return json.Marshal(ids)
 }
 
-type ItemIdsMap map[ItemId]struct{}
-
-func (idsMap ItemIdsMap) ToItemIds() ItemIds {
-	out := make(ItemIds, len(idsMap))
-	i := 0
-	for id := range idsMap {
-		out[i] = id
-
-		i += 1
-	}
-
-	return out
-}
-
 func (ids ItemIds) ToUniqueMap() ItemIdsMap {
 	out := ItemIdsMap{}
 	for _, id := range ids {
@@ -47,4 +33,24 @@ func (ids ItemIds) Merge(providedIds ItemIds) ItemIds {
 	}
 
 	return results.ToItemIds()
+}
+
+type ItemIdsMap map[ItemId]struct{}
+
+func (idsMap ItemIdsMap) ToItemIds() ItemIds {
+	out := make(ItemIds, len(idsMap))
+	i := 0
+	for id := range idsMap {
+		out[i] = id
+
+		i += 1
+	}
+
+	return out
+}
+
+func (idsMap ItemIdsMap) Exists(id ItemId) bool {
+	_, ok := idsMap[id]
+
+	return ok
 }

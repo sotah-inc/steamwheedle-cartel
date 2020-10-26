@@ -148,3 +148,29 @@ func (maList MiniAuctionList) ToItemBuyoutPerListMap() blizzardv2.ItemBuyoutPerS
 
 	return blizzardv2.NewItemBuyoutPerSummaryMap(result)
 }
+
+func (maList MiniAuctionList) FilterByItemIds(itemIds []blizzardv2.ItemId) MiniAuctionList {
+	out := MiniAuctionList{}
+	for _, ma := range maList {
+		for _, id := range itemIds {
+			if ma.ItemId == id {
+				out = append(out, ma)
+			}
+		}
+	}
+
+	return out
+}
+
+func (maList MiniAuctionList) FilterByPetIds(petIds []blizzardv2.PetId) MiniAuctionList {
+	out := MiniAuctionList{}
+	for _, ma := range maList {
+		for _, id := range petIds {
+			if ma.PetSpeciesId == id {
+				out = append(out, ma)
+			}
+		}
+	}
+
+	return out
+}
