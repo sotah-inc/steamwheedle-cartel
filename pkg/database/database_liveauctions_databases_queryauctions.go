@@ -79,14 +79,13 @@ func (ladBases LiveAuctionsDatabases) QueryAuctions(
 	// initial response format
 	aResponse := QueryAuctionsResponse{Total: -1, TotalCount: -1, AuctionList: maList}
 
-	// filtering in auctions by items
-	if len(qr.ItemFilters) > 0 {
-		aResponse.AuctionList = aResponse.AuctionList.FilterByItemIds(qr.ItemFilters)
+	filterCriteria := sotah.MiniAuctionListFilterCriteria{
+		ItemIds: qr.ItemFilters,
+		PetIds:  qr.PetFilters,
 	}
-
-	// filtering in auctions by pets
-	if len(qr.PetFilters) > 0 {
-		aResponse.AuctionList = aResponse.AuctionList.FilterByPetIds(qr.PetFilters)
+	if !filterCriteria.IsEmpty() {
+		mafList := sotah.NewMiniAuctionFlaggedList(maList)
+		aResponse.AuctionList = mafList.Flag(filterCriteria).FilterInFlagged().ToMiniAuctionList()
 	}
 
 	// calculating the total for paging
