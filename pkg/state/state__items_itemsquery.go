@@ -2,8 +2,8 @@ package state
 
 import (
 	nats "github.com/nats-io/nats.go"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database"
 	dCodes "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database/codes"
+	ItemsDatabase "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database/items"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
 	mCodes "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger/codes"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state/subjects"
@@ -14,7 +14,7 @@ func (sta ItemsState) ListenForItemsQuery(stop ListenStopChan) error {
 		m := messenger.NewMessage()
 
 		// resolving the request
-		request, err := database.NewQueryItemsRequest(natsMsg.Data)
+		request, err := ItemsDatabase.NewQueryItemsRequest(natsMsg.Data)
 		if err != nil {
 			m.Err = err.Error()
 			m.Code = mCodes.MsgJSONParseError

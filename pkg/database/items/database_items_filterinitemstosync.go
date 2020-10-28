@@ -1,4 +1,4 @@
-package database
+package items
 
 import (
 	"encoding/base64"

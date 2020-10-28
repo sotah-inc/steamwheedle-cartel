@@ -4,14 +4,13 @@ import (
 	"time"
 
 	"github.com/nats-io/nats.go"
+	"github.com/sirupsen/logrus"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
+	ItemsDatabase "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database/items"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger/codes"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state/subjects"
-
-	"github.com/sirupsen/logrus"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 )
 
 func (sta ItemsState) ListenForItemsIntake(stop ListenStopChan) error {
@@ -60,7 +59,7 @@ func (sta ItemsState) itemsIntake(ids blizzardv2.ItemIds) error {
 
 	// starting up an intake queue
 	getEncodedItemsOut := sta.LakeClient.GetEncodedItems(itemsSyncPayload.Ids)
-	persistItemsIn := make(chan database.PersistEncodedItemsInJob)
+	persistItemsIn := make(chan ItemsDatabase.PersistEncodedItemsInJob)
 
 	// queueing it all up
 	go func() {
@@ -73,7 +72,7 @@ func (sta ItemsState) itemsIntake(ids blizzardv2.ItemIds) error {
 
 			logging.WithField("item-id", job.Id()).Info("enqueueing item for persistence")
 
-			persistItemsIn <- database.PersistEncodedItemsInJob{
+			persistItemsIn <- ItemsDatabase.PersistEncodedItemsInJob{
 				Id:                    job.Id(),
 				EncodedItem:           job.EncodedItem(),
 				EncodedNormalizedName: job.EncodedNormalizedName(),

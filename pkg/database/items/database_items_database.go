@@ -1,4 +1,4 @@
-package database
+package items
 
 import (
 	"strconv"

@@ -1,7 +1,7 @@
 package state
 
 import (
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database"
+	ItemsDatabase "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database/items"
 	BaseLake "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/lake/base"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
@@ -23,7 +23,7 @@ func NewItemsState(opts NewItemsStateOptions) (ItemsState, error) {
 		return ItemsState{}, err
 	}
 
-	itemsDatabase, err := database.NewItemsDatabase(opts.ItemsDatabaseDir)
+	itemsDatabase, err := ItemsDatabase.NewItemsDatabase(opts.ItemsDatabaseDir)
 	if err != nil {
 		logging.WithField("error", err.Error()).Error("failed to initialise items-database")
 
@@ -40,7 +40,7 @@ func NewItemsState(opts NewItemsStateOptions) (ItemsState, error) {
 type ItemsState struct {
 	LakeClient    BaseLake.Client
 	Messenger     messenger.Messenger
-	ItemsDatabase database.ItemsDatabase
+	ItemsDatabase ItemsDatabase.ItemsDatabase
 }
 
 func (sta ItemsState) GetListeners() SubjectListeners {
