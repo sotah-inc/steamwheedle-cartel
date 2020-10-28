@@ -54,7 +54,7 @@ func GetAllConnectedRealms(opts GetAllConnectedRealmsOptions) ([]ConnectedRealmR
 				continue
 			}
 
-			cRealm, _, err := NewConnectedRealmFromHTTP(getConnectedRealmUri)
+			cRealm, _, err := NewConnectedRealmResponseFromHTTP(getConnectedRealmUri)
 			if err != nil {
 				out <- GetAllConnectedRealmsJob{
 					Err:                    err,

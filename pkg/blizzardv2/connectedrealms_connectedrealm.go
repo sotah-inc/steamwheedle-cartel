@@ -40,7 +40,7 @@ type ConnectedRealmResponse struct {
 	Auctions           HrefReference  `json:"auctions"`
 }
 
-func NewConnectedRealmFromHTTP(uri string) (ConnectedRealmResponse, ResponseMeta, error) {
+func NewConnectedRealmResponseFromHTTP(uri string) (ConnectedRealmResponse, ResponseMeta, error) {
 	resp, err := Download(DownloadOptions{Uri: uri})
 	if err != nil {
 		logging.WithFields(logrus.Fields{
