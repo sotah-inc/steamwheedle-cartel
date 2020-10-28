@@ -1,4 +1,4 @@
-package database
+package pricelisthistory
 
 import (
 	"github.com/boltdb/bolt"

@@ -1,4 +1,4 @@
-package database
+package pricelisthistory
 
 import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"

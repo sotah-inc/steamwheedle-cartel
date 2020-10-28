@@ -2,7 +2,7 @@ package state
 
 import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database"
+	PricelistHistoryDatabase "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database/pricelisthistory"
 	BaseLake "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/lake/base"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
@@ -19,7 +19,7 @@ type NewPricelistHistoryStateOptions struct {
 }
 
 func NewPricelistHistoryState(opts NewPricelistHistoryStateOptions) (PricelistHistoryState, error) {
-	phdBases, err := database.NewPricelistHistoryDatabases(opts.PricelistHistoryDatabasesDir, opts.Tuples)
+	phdBases, err := PricelistHistoryDatabase.NewPricelistHistoryDatabases(opts.PricelistHistoryDatabasesDir, opts.Tuples)
 	if err != nil {
 		return PricelistHistoryState{}, err
 	}
@@ -34,7 +34,7 @@ func NewPricelistHistoryState(opts NewPricelistHistoryStateOptions) (PricelistHi
 }
 
 type PricelistHistoryState struct {
-	PricelistHistoryDatabases *database.PricelistHistoryDatabases
+	PricelistHistoryDatabases *PricelistHistoryDatabase.PricelistHistoryDatabases
 
 	Messenger               messenger.Messenger
 	LakeClient              BaseLake.Client

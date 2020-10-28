@@ -3,10 +3,11 @@ package state
 import (
 	"time"
 
+	PricelistHistoryDatabase "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database/pricelisthistory"
+
 	"github.com/nats-io/nats.go"
 	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database"
 	BaseDatabase "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database/base"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
@@ -51,7 +52,7 @@ func (sta PricelistHistoryState) pricelistHistoryIntake(tuples blizzardv2.LoadCo
 
 	// spinning up workers
 	getPricelistHistoryByTuplesOut := sta.LakeClient.GetEncodedPricelistHistoryByTuples(tuples)
-	loadEncodedDataIn := make(chan database.PricelistHistoryLoadEncodedDataInJob)
+	loadEncodedDataIn := make(chan PricelistHistoryDatabase.PricelistHistoryLoadEncodedDataInJob)
 	loadEncodedDataOut := sta.PricelistHistoryDatabases.LoadEncodedData(loadEncodedDataIn)
 
 	// loading it in
@@ -63,7 +64,7 @@ func (sta PricelistHistoryState) pricelistHistoryIntake(tuples blizzardv2.LoadCo
 				continue
 			}
 
-			loadEncodedDataIn <- database.PricelistHistoryLoadEncodedDataInJob{
+			loadEncodedDataIn <- PricelistHistoryDatabase.PricelistHistoryLoadEncodedDataInJob{
 				Tuple:       job.Tuple(),
 				EncodedData: job.EncodedPricelistHistory(),
 			}
