@@ -10,6 +10,8 @@ type ProfessionSkillTier struct {
 	Id   ProfessionSkillTierId `json:"id"`
 }
 
+type ProfessionId int
+
 type Profession struct {
 	LinksBase
 	Id          ProfessionId   `json:"id"`
