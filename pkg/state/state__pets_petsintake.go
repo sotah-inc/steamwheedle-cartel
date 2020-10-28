@@ -3,13 +3,14 @@ package state
 import (
 	"time"
 
+	PetsDatabase "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database/pets"
+
 	"github.com/nats-io/nats.go"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger/codes"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state/subjects"
 
 	"github.com/sirupsen/logrus"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 )
 
@@ -54,7 +55,7 @@ func (sta PetsState) petsIntake() error {
 
 		return err
 	}
-	persistPetsIn := make(chan database.PersistEncodedPetsInJob)
+	persistPetsIn := make(chan PetsDatabase.PersistEncodedPetsInJob)
 
 	// queueing it all up
 	go func() {
@@ -67,7 +68,7 @@ func (sta PetsState) petsIntake() error {
 
 			logging.WithField("pet-id", job.Id()).Info("enqueueing pet for persistence")
 
-			persistPetsIn <- database.PersistEncodedPetsInJob{
+			persistPetsIn <- PetsDatabase.PersistEncodedPetsInJob{
 				Id:                    job.Id(),
 				EncodedPet:            job.EncodedPet(),
 				EncodedNormalizedName: job.EncodedNormalizedName(),
