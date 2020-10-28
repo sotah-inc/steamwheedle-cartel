@@ -9,7 +9,7 @@ import (
 	nats "github.com/nats-io/nats.go"
 	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database"
+	TokensDatabase "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database/tokens"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
 	mCodes "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger/codes"
@@ -32,7 +32,7 @@ func NewTokensState(opts NewTokensStateOptions) (TokensState, error) {
 		return TokensState{}, err
 	}
 
-	tokensDatabase, err := database.NewTokensDatabase(opts.TokensDatabaseDir)
+	tokensDatabase, err := TokensDatabase.NewTokensDatabase(opts.TokensDatabaseDir)
 	if err != nil {
 		logging.WithField("error", err.Error()).Error("failed to initialise tokens-database")
 
@@ -51,7 +51,7 @@ type TokensState struct {
 	BlizzardState BlizzardState
 
 	Messenger      messenger.Messenger
-	TokensDatabase database.TokensDatabase
+	TokensDatabase TokensDatabase.TokensDatabase
 	Reporter       metric.Reporter
 }
 
@@ -133,9 +133,9 @@ func (sta TokensState) CollectRegionTokens(regions sotah.RegionList) error {
 	}
 
 	// formatting appropriately
-	regionTokenHistory := database.RegionTokenHistory{}
+	regionTokenHistory := TokensDatabase.RegionTokenHistory{}
 	for regionName, token := range tokens {
-		regionTokenHistory[regionName] = database.TokenHistory{token.LastUpdatedTimestamp: token.Price}
+		regionTokenHistory[regionName] = TokensDatabase.TokenHistory{token.LastUpdatedTimestamp: token.Price}
 	}
 
 	if err := sta.TokensDatabase.PersistHistory(regionTokenHistory); err != nil {
