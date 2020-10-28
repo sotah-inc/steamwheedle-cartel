@@ -8,24 +8,24 @@ import (
 )
 
 // bucketing
-func databaseItemsBucketName() []byte {
+func baseBucketName() []byte {
 	return []byte("items")
 }
 
-func databaseItemNamesBucketName() []byte {
+func namesBucketName() []byte {
 	return []byte("item-names")
 }
 
 // keying
-func itemsKeyName(id blizzardv2.ItemId) []byte {
+func baseKeyName(id blizzardv2.ItemId) []byte {
 	return []byte(fmt.Sprintf("item-%d", id))
 }
 
-func itemNameKeyName(id blizzardv2.ItemId) []byte {
+func nameKeyName(id blizzardv2.ItemId) []byte {
 	return []byte(fmt.Sprintf("item-name-%d", id))
 }
 
-func itemIdFromItemNameKeyName(key []byte) (blizzardv2.ItemId, error) {
+func itemIdFromNameKeyName(key []byte) (blizzardv2.ItemId, error) {
 	unparsedItemId, err := strconv.Atoi(string(key)[len("item-name-"):])
 	if err != nil {
 		return blizzardv2.ItemId(0), err
@@ -35,6 +35,6 @@ func itemIdFromItemNameKeyName(key []byte) (blizzardv2.ItemId, error) {
 }
 
 // db
-func ItemsDatabasePath(dbDir string) (string, error) {
+func DatabasePath(dbDir string) (string, error) {
 	return fmt.Sprintf("%s/items.db", dbDir), nil
 }

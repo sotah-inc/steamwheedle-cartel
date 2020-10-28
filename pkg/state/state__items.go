@@ -23,7 +23,7 @@ func NewItemsState(opts NewItemsStateOptions) (ItemsState, error) {
 		return ItemsState{}, err
 	}
 
-	itemsDatabase, err := ItemsDatabase.NewItemsDatabase(opts.ItemsDatabaseDir)
+	itemsDatabase, err := ItemsDatabase.NewDatabase(opts.ItemsDatabaseDir)
 	if err != nil {
 		logging.WithField("error", err.Error()).Error("failed to initialise items-database")
 
@@ -40,7 +40,7 @@ func NewItemsState(opts NewItemsStateOptions) (ItemsState, error) {
 type ItemsState struct {
 	LakeClient    BaseLake.Client
 	Messenger     messenger.Messenger
-	ItemsDatabase ItemsDatabase.ItemsDatabase
+	ItemsDatabase ItemsDatabase.Database
 }
 
 func (sta ItemsState) GetListeners() SubjectListeners {

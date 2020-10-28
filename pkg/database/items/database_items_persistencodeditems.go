@@ -12,7 +12,7 @@ type PersistEncodedItemsInJob struct {
 	EncodedNormalizedName []byte
 }
 
-func (idBase ItemsDatabase) PersistEncodedItems(
+func (idBase Database) PersistEncodedItems(
 	in chan PersistEncodedItemsInJob,
 ) (int, error) {
 	logging.Info("persisting encoded items")
@@ -20,22 +20,22 @@ func (idBase ItemsDatabase) PersistEncodedItems(
 	totalPersisted := 0
 
 	err := idBase.db.Batch(func(tx *bolt.Tx) error {
-		itemsBucket, err := tx.CreateBucketIfNotExists(databaseItemsBucketName())
+		itemsBucket, err := tx.CreateBucketIfNotExists(baseBucketName())
 		if err != nil {
 			return err
 		}
 
-		itemNamesBucket, err := tx.CreateBucketIfNotExists(databaseItemNamesBucketName())
+		itemNamesBucket, err := tx.CreateBucketIfNotExists(namesBucketName())
 		if err != nil {
 			return err
 		}
 
 		for job := range in {
-			if err := itemsBucket.Put(itemsKeyName(job.Id), job.EncodedItem); err != nil {
+			if err := itemsBucket.Put(baseKeyName(job.Id), job.EncodedItem); err != nil {
 				return err
 			}
 
-			if err := itemNamesBucket.Put(itemNameKeyName(job.Id), job.EncodedNormalizedName); err != nil {
+			if err := itemNamesBucket.Put(nameKeyName(job.Id), job.EncodedNormalizedName); err != nil {
 				return err
 			}
 

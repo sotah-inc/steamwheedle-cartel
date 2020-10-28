@@ -14,39 +14,39 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 )
 
-func NewQueryItemsRequest(data []byte) (QueryItemsRequest, error) {
-	var out QueryItemsRequest
+func NewQueryRequest(data []byte) (QueryRequest, error) {
+	var out QueryRequest
 	if err := json.Unmarshal(data, &out); err != nil {
-		return QueryItemsRequest{}, err
+		return QueryRequest{}, err
 	}
 
 	return out, nil
 }
 
-type QueryItemsRequest struct {
+type QueryRequest struct {
 	Query  string        `json:"query"`
 	Locale locale.Locale `json:"locale"`
 }
 
-type QueryItemsItem struct {
+type QueryItem struct {
 	Target string            `json:"target"`
 	ItemId blizzardv2.ItemId `json:"item_id"`
 	Rank   int               `json:"rank"`
 }
 
-func NewQueryItemsItems(
+func NewQueryItems(
 	idNormalizedNameMap sotah.ItemIdNameMap,
 	providedLocale locale.Locale,
-) (QueryItemsItems, error) {
-	out := make(QueryItemsItems, len(idNormalizedNameMap))
+) (QueryItemList, error) {
+	out := make(QueryItemList, len(idNormalizedNameMap))
 	i := 0
 	for id, normalizedName := range idNormalizedNameMap {
 		foundName, ok := normalizedName[providedLocale]
 		if !ok {
-			return QueryItemsItems{}, fmt.Errorf("could not resolve normalized-name from locale %s", providedLocale)
+			return QueryItemList{}, fmt.Errorf("could not resolve normalized-name from locale %s", providedLocale)
 		}
 
-		out[i] = QueryItemsItem{ItemId: id, Target: foundName}
+		out[i] = QueryItem{ItemId: id, Target: foundName}
 
 		i += 1
 	}
@@ -54,15 +54,15 @@ func NewQueryItemsItems(
 	return out, nil
 }
 
-type QueryItemsItems []QueryItemsItem
+type QueryItemList []QueryItem
 
-func (iqItems QueryItemsItems) Limit() QueryItemsItems {
+func (iqItems QueryItemList) Limit() QueryItemList {
 	listLength := len(iqItems)
 	if listLength > 10 {
 		listLength = 10
 	}
 
-	out := make(QueryItemsItems, listLength)
+	out := make(QueryItemList, listLength)
 	for i := 0; i < listLength; i++ {
 		out[i] = iqItems[i]
 	}
@@ -70,8 +70,8 @@ func (iqItems QueryItemsItems) Limit() QueryItemsItems {
 	return out
 }
 
-func (iqItems QueryItemsItems) FilterLowRank() QueryItemsItems {
-	out := QueryItemsItems{}
+func (iqItems QueryItemList) FilterLowRank() QueryItemList {
+	out := QueryItemList{}
 	for _, itemValue := range iqItems {
 		if itemValue.Rank == -1 {
 			continue
@@ -82,37 +82,37 @@ func (iqItems QueryItemsItems) FilterLowRank() QueryItemsItems {
 	return out
 }
 
-type QueryItemsItemsByTarget QueryItemsItems
+type QueryItemListByTarget QueryItemList
 
-func (by QueryItemsItemsByTarget) Len() int           { return len(by) }
-func (by QueryItemsItemsByTarget) Swap(i, j int)      { by[i], by[j] = by[j], by[i] }
-func (by QueryItemsItemsByTarget) Less(i, j int) bool { return by[i].Target < by[j].Target }
+func (by QueryItemListByTarget) Len() int           { return len(by) }
+func (by QueryItemListByTarget) Swap(i, j int)      { by[i], by[j] = by[j], by[i] }
+func (by QueryItemListByTarget) Less(i, j int) bool { return by[i].Target < by[j].Target }
 
-type QueryItemsItemsByRank QueryItemsItems
+type QueryItemListByRank QueryItemList
 
-func (by QueryItemsItemsByRank) Len() int           { return len(by) }
-func (by QueryItemsItemsByRank) Swap(i, j int)      { by[i], by[j] = by[j], by[i] }
-func (by QueryItemsItemsByRank) Less(i, j int) bool { return by[i].Rank < by[j].Rank }
+func (by QueryItemListByRank) Len() int           { return len(by) }
+func (by QueryItemListByRank) Swap(i, j int)      { by[i], by[j] = by[j], by[i] }
+func (by QueryItemListByRank) Less(i, j int) bool { return by[i].Rank < by[j].Rank }
 
-type QueryItemsResponse struct {
-	Items QueryItemsItems `json:"items"`
+type QueryResponse struct {
+	Items QueryItemList `json:"items"`
 }
 
-func (r QueryItemsResponse) EncodeForDelivery() ([]byte, error) {
+func (r QueryResponse) EncodeForDelivery() ([]byte, error) {
 	return json.Marshal(r)
 }
 
-func (idBase ItemsDatabase) QueryItems(req QueryItemsRequest) (QueryItemsResponse, codes.Code, error) {
+func (idBase Database) QueryItems(req QueryRequest) (QueryResponse, codes.Code, error) {
 	// gathering items
 	idNormalizedNameMap, err := idBase.GetIdNormalizedNameMap()
 	if err != nil {
-		return QueryItemsResponse{}, codes.GenericError, err
+		return QueryResponse{}, codes.GenericError, err
 	}
 
 	// reformatting into query-items-items
-	queryItems, err := NewQueryItemsItems(idNormalizedNameMap, req.Locale)
+	queryItems, err := NewQueryItems(idNormalizedNameMap, req.Locale)
 	if err != nil {
-		return QueryItemsResponse{}, codes.UserError, err
+		return QueryResponse{}, codes.UserError, err
 	}
 
 	// optionally sorting by rank or sorting by name
@@ -122,13 +122,13 @@ func (idBase ItemsDatabase) QueryItems(req QueryItemsRequest) (QueryItemsRespons
 			queryItems[i] = iqItem
 		}
 		queryItems = queryItems.FilterLowRank()
-		sort.Sort(QueryItemsItemsByRank(queryItems))
+		sort.Sort(QueryItemListByRank(queryItems))
 	} else {
-		sort.Sort(QueryItemsItemsByTarget(queryItems))
+		sort.Sort(QueryItemListByTarget(queryItems))
 	}
 
 	// truncating
 	queryItems = queryItems.Limit()
 
-	return QueryItemsResponse{Items: queryItems}, codes.Ok, nil
+	return QueryResponse{Items: queryItems}, codes.Ok, nil
 }

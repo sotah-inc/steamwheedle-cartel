@@ -10,31 +10,31 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 )
 
-func NewItemsSyncPayload(data string) (ItemsSyncPayload, error) {
+func NewSyncPayload(data string) (SyncPayload, error) {
 	base64Decoded, err := base64.StdEncoding.DecodeString(data)
 	if err != nil {
-		return ItemsSyncPayload{}, err
+		return SyncPayload{}, err
 	}
 
 	gzipDecoded, err := util.GzipDecode(base64Decoded)
 	if err != nil {
-		return ItemsSyncPayload{}, err
+		return SyncPayload{}, err
 	}
 
-	var out ItemsSyncPayload
+	var out SyncPayload
 	if err := json.Unmarshal(gzipDecoded, &out); err != nil {
-		return ItemsSyncPayload{}, err
+		return SyncPayload{}, err
 	}
 
 	return out, nil
 }
 
-type ItemsSyncPayload struct {
+type SyncPayload struct {
 	Ids        blizzardv2.ItemIds
 	IconIdsMap sotah.IconIdsMap
 }
 
-func (p ItemsSyncPayload) EncodeForDelivery() (string, error) {
+func (p SyncPayload) EncodeForDelivery() (string, error) {
 	jsonEncoded, err := json.Marshal(p)
 	if err != nil {
 		return "", err
@@ -48,7 +48,7 @@ func (p ItemsSyncPayload) EncodeForDelivery() (string, error) {
 	return base64.StdEncoding.EncodeToString(gzipEncoded), nil
 }
 
-func (idBase ItemsDatabase) FilterInItemsToSync(ids []blizzardv2.ItemId) (ItemsSyncPayload, error) {
+func (idBase Database) FilterInItemsToSync(ids []blizzardv2.ItemId) (SyncPayload, error) {
 	// producing a blank whitelist
 	syncWhitelist := sotah.NewItemSyncWhitelist(ids)
 
@@ -57,18 +57,18 @@ func (idBase ItemsDatabase) FilterInItemsToSync(ids []blizzardv2.ItemId) (ItemsS
 
 	// peeking into the items database
 	err := idBase.db.View(func(tx *bolt.Tx) error {
-		itemsBucket := tx.Bucket(databaseItemsBucketName())
+		itemsBucket := tx.Bucket(baseBucketName())
 		if itemsBucket == nil {
 			return nil
 		}
 
-		itemNamesBucket := tx.Bucket(databaseItemNamesBucketName())
+		itemNamesBucket := tx.Bucket(namesBucketName())
 		if itemNamesBucket == nil {
 			return nil
 		}
 
 		for _, id := range ids {
-			value := itemsBucket.Get(itemsKeyName(id))
+			value := itemsBucket.Get(baseKeyName(id))
 			if value == nil {
 				syncWhitelist[id] = true
 
@@ -98,7 +98,7 @@ func (idBase ItemsDatabase) FilterInItemsToSync(ids []blizzardv2.ItemId) (ItemsS
 			}
 
 			isMissingNames := item.SotahMeta.NormalizedName.IsZero()
-			isMissingNormalizedName := itemNamesBucket.Get(itemNameKeyName(id)) == nil
+			isMissingNormalizedName := itemNamesBucket.Get(nameKeyName(id)) == nil
 			if isMissingNames || isMissingNormalizedName {
 				syncWhitelist[id] = true
 			}
@@ -107,8 +107,8 @@ func (idBase ItemsDatabase) FilterInItemsToSync(ids []blizzardv2.ItemId) (ItemsS
 		return nil
 	})
 	if err != nil {
-		return ItemsSyncPayload{}, err
+		return SyncPayload{}, err
 	}
 
-	return ItemsSyncPayload{Ids: syncWhitelist.ToItemIds(), IconIdsMap: iconsToSync}, nil
+	return SyncPayload{Ids: syncWhitelist.ToItemIds(), IconIdsMap: iconsToSync}, nil
 }

@@ -14,7 +14,7 @@ func (sta ItemsState) ListenForItemsQuery(stop ListenStopChan) error {
 		m := messenger.NewMessage()
 
 		// resolving the request
-		request, err := ItemsDatabase.NewQueryItemsRequest(natsMsg.Data)
+		request, err := ItemsDatabase.NewQueryRequest(natsMsg.Data)
 		if err != nil {
 			m.Err = err.Error()
 			m.Code = mCodes.MsgJSONParseError

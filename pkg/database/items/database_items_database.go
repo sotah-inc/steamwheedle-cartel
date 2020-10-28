@@ -12,32 +12,32 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 )
 
-func NewItemsDatabase(dbDir string) (ItemsDatabase, error) {
-	dbFilepath, err := ItemsDatabasePath(dbDir)
+func NewDatabase(dbDir string) (Database, error) {
+	dbFilepath, err := DatabasePath(dbDir)
 	if err != nil {
-		return ItemsDatabase{}, err
+		return Database{}, err
 	}
 
 	logging.WithField("filepath", dbFilepath).Info("initializing items database")
 
 	db, err := bolt.Open(dbFilepath, 0600, nil)
 	if err != nil {
-		return ItemsDatabase{}, err
+		return Database{}, err
 	}
 
-	return ItemsDatabase{db}, nil
+	return Database{db}, nil
 }
 
-type ItemsDatabase struct {
+type Database struct {
 	db *bolt.DB
 }
 
 // gathering items
-func (idBase ItemsDatabase) GetItems() (sotah.ItemsMap, error) {
+func (idBase Database) GetItems() (sotah.ItemsMap, error) {
 	out := sotah.ItemsMap{}
 
 	err := idBase.db.View(func(tx *bolt.Tx) error {
-		bkt := tx.Bucket(databaseItemsBucketName())
+		bkt := tx.Bucket(baseBucketName())
 		if bkt == nil {
 			return nil
 		}
@@ -69,17 +69,17 @@ func (idBase ItemsDatabase) GetItems() (sotah.ItemsMap, error) {
 	return out, nil
 }
 
-func (idBase ItemsDatabase) GetIdNormalizedNameMap() (sotah.ItemIdNameMap, error) {
+func (idBase Database) GetIdNormalizedNameMap() (sotah.ItemIdNameMap, error) {
 	out := sotah.ItemIdNameMap{}
 
 	err := idBase.db.View(func(tx *bolt.Tx) error {
-		bkt := tx.Bucket(databaseItemNamesBucketName())
+		bkt := tx.Bucket(namesBucketName())
 		if bkt == nil {
 			return nil
 		}
 
 		err := bkt.ForEach(func(k, v []byte) error {
-			itemId, err := itemIdFromItemNameKeyName(k)
+			itemId, err := itemIdFromNameKeyName(k)
 			if err != nil {
 				return err
 			}
@@ -104,16 +104,16 @@ func (idBase ItemsDatabase) GetIdNormalizedNameMap() (sotah.ItemIdNameMap, error
 	return out, nil
 }
 
-func (idBase ItemsDatabase) FindItems(itemIds blizzardv2.ItemIds) (sotah.ItemsMap, error) {
+func (idBase Database) FindItems(itemIds blizzardv2.ItemIds) (sotah.ItemsMap, error) {
 	out := sotah.ItemsMap{}
 	err := idBase.db.View(func(tx *bolt.Tx) error {
-		bkt := tx.Bucket(databaseItemsBucketName())
+		bkt := tx.Bucket(baseBucketName())
 		if bkt == nil {
 			return nil
 		}
 
 		for _, id := range itemIds {
-			value := bkt.Get(itemsKeyName(id))
+			value := bkt.Get(baseKeyName(id))
 			if value == nil {
 				continue
 			}
