@@ -1,4 +1,4 @@
-package database
+package areamaps
 
 import (
 	"github.com/boltdb/bolt"

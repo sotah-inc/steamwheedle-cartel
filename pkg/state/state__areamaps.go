@@ -3,10 +3,11 @@ package state
 import (
 	"encoding/json"
 
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database/areamaps"
+
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 
 	nats "github.com/nats-io/nats.go"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger/codes"
@@ -50,7 +51,7 @@ func NewAreaMapsState(mess messenger.Messenger, areaMapsDatabaseDir string) (Are
 		return AreaMapsState{}, err
 	}
 
-	areaMapsDatabase, err := database.NewAreaMapsDatabase(areaMapsDatabaseDir)
+	areaMapsDatabase, err := areamaps.NewAreaMapsDatabase(areaMapsDatabaseDir)
 	if err != nil {
 		logging.WithField("error", err.Error()).Error("failed to initialise area-maps-database")
 
@@ -65,7 +66,7 @@ func NewAreaMapsState(mess messenger.Messenger, areaMapsDatabaseDir string) (Are
 
 type AreaMapsState struct {
 	Messenger        messenger.Messenger
-	AreaMapsDatabase database.AreaMapsDatabase
+	AreaMapsDatabase areamaps.AreaMapsDatabase
 }
 
 func (sta AreaMapsState) GetListeners() SubjectListeners {
@@ -123,7 +124,7 @@ func (sta AreaMapsState) ListenForAreaMapsQuery(stop ListenStopChan) error {
 		m := messenger.NewMessage()
 
 		// resolving the request
-		request, err := database.NewAreaMapsQueryRequest(natsMsg.Data)
+		request, err := areamaps.NewAreaMapsQueryRequest(natsMsg.Data)
 		if err != nil {
 			m.Err = err.Error()
 			m.Code = mCodes.MsgJSONParseError
