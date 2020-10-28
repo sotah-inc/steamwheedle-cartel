@@ -2,7 +2,7 @@ package state
 
 import (
 	"github.com/nats-io/nats.go"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database"
+	LiveAuctionsDatabase "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database/liveauctions"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger/codes"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state/subjects"
@@ -12,7 +12,7 @@ func (sta LiveAuctionsState) ListenForPriceList(stop ListenStopChan) error {
 	err := sta.Messenger.Subscribe(string(subjects.PriceList), stop, func(natsMsg nats.Msg) {
 		m := messenger.NewMessage()
 
-		req, err := database.NewGetPricelistRequest(natsMsg.Data)
+		req, err := LiveAuctionsDatabase.NewGetPricelistRequest(natsMsg.Data)
 		if err != nil {
 			m.Err = err.Error()
 			m.Code = codes.GenericError

@@ -1,6 +1,8 @@
-package database
+package liveauctions
 
 import (
+	"time"
+
 	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
@@ -8,12 +10,12 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 )
 
-type PruneStatsJob struct {
+type PersistRealmStatsJob struct {
 	Err   error
 	Tuple blizzardv2.RegionConnectedRealmTuple
 }
 
-func (job PruneStatsJob) ToLogrusFields() logrus.Fields {
+func (job PersistRealmStatsJob) ToLogrusFields() logrus.Fields {
 	return logrus.Fields{
 		"error":           job.Err.Error(),
 		"region":          job.Tuple.RegionName,
@@ -21,30 +23,29 @@ func (job PruneStatsJob) ToLogrusFields() logrus.Fields {
 	}
 }
 
-func (ladBases LiveAuctionsDatabases) PruneStats(
-	tuples blizzardv2.RegionConnectedRealmTuples,
-	retentionLimit sotah.UnixTimestamp,
-) error {
+func (ladBases LiveAuctionsDatabases) PersistStats(tuples blizzardv2.RegionConnectedRealmTuples) error {
 	in := make(chan blizzardv2.RegionConnectedRealmTuple)
-	out := make(chan PruneStatsJob)
+	out := make(chan PersistRealmStatsJob)
+
+	currentTimestamp := sotah.UnixTimestamp(time.Now().Unix())
 
 	worker := func() {
 		for tuple := range in {
 			ladBase, err := ladBases.GetDatabase(tuple)
 			if err != nil {
-				out <- PruneStatsJob{err, tuple}
+				out <- PersistRealmStatsJob{err, tuple}
 
 				continue
 			}
 
-			err = ladBase.pruneStats(retentionLimit)
+			err = ladBase.persistStats(currentTimestamp)
 			if err != nil {
-				out <- PruneStatsJob{err, tuple}
+				out <- PersistRealmStatsJob{err, tuple}
 
 				continue
 			}
 
-			out <- PruneStatsJob{nil, tuple}
+			out <- PersistRealmStatsJob{nil, tuple}
 		}
 	}
 	postWork := func() {
@@ -62,7 +63,7 @@ func (ladBases LiveAuctionsDatabases) PruneStats(
 
 	for job := range out {
 		if job.Err != nil {
-			logging.WithFields(job.ToLogrusFields()).Error("failed to prune auction-stats")
+			logging.WithFields(job.ToLogrusFields()).Error("failed to persist auction-stats")
 
 			return job.Err
 		}

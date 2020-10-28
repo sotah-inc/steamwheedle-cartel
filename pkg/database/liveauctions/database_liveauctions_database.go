@@ -1,4 +1,4 @@
-package database
+package liveauctions
 
 import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"

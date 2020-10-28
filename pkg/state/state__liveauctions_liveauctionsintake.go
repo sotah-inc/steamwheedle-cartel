@@ -3,10 +3,11 @@ package state
 import (
 	"time"
 
+	LiveAuctionsDatabase "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database/liveauctions"
+
 	"github.com/nats-io/nats.go"
 	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database"
 	BaseDatabase "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database/base"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
@@ -51,7 +52,7 @@ func (sta LiveAuctionsState) LiveAuctionsIntake(tuples blizzardv2.LoadConnectedR
 
 	// spinning up workers
 	getAuctionsByTuplesOut := sta.LakeClient.GetEncodedAuctionsByTuples(tuples.RegionConnectedRealmTuples())
-	loadEncodedDataIn := make(chan database.LiveAuctionsLoadEncodedDataInJob)
+	loadEncodedDataIn := make(chan LiveAuctionsDatabase.LiveAuctionsLoadEncodedDataInJob)
 	loadEncodedDataOut := sta.LiveAuctionsDatabases.LoadEncodedData(loadEncodedDataIn)
 
 	// loading it in
@@ -63,7 +64,7 @@ func (sta LiveAuctionsState) LiveAuctionsIntake(tuples blizzardv2.LoadConnectedR
 				continue
 			}
 
-			loadEncodedDataIn <- database.LiveAuctionsLoadEncodedDataInJob{
+			loadEncodedDataIn <- LiveAuctionsDatabase.LiveAuctionsLoadEncodedDataInJob{
 				Tuple:       job.Tuple(),
 				EncodedData: job.EncodedAuctions(),
 			}

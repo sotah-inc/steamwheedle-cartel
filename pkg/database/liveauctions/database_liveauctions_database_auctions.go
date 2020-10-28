@@ -1,4 +1,4 @@
-package database
+package liveauctions
 
 import (
 	"github.com/boltdb/bolt"

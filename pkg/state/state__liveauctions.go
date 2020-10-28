@@ -3,11 +3,10 @@ package state
 import (
 	"fmt"
 
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
-
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database"
+	LiveAuctionsDatabase "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database/liveauctions"
 	BaseLake "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/lake/base"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state/subjects"
@@ -42,7 +41,7 @@ func NewLiveAuctionsState(opts NewLiveAuctionsStateOptions) (LiveAuctionsState, 
 		return LiveAuctionsState{}, err
 	}
 
-	ladBases, err := database.NewLiveAuctionsDatabases(opts.LiveAuctionsDatabasesDir, opts.Tuples)
+	ladBases, err := LiveAuctionsDatabase.NewLiveAuctionsDatabases(opts.LiveAuctionsDatabasesDir, opts.Tuples)
 	if err != nil {
 		return LiveAuctionsState{}, err
 	}
@@ -57,7 +56,7 @@ func NewLiveAuctionsState(opts NewLiveAuctionsStateOptions) (LiveAuctionsState, 
 }
 
 type LiveAuctionsState struct {
-	LiveAuctionsDatabases database.LiveAuctionsDatabases
+	LiveAuctionsDatabases LiveAuctionsDatabase.LiveAuctionsDatabases
 
 	Messenger               messenger.Messenger
 	LakeClient              BaseLake.Client
