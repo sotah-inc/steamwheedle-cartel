@@ -7,7 +7,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database/base"
+	BaseDatabase "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database/base"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger/codes"
@@ -106,7 +106,7 @@ func (sta LiveAuctionsState) LiveAuctionsIntake(tuples blizzardv2.LoadConnectedR
 	// pruning stats
 	if err := sta.LiveAuctionsDatabases.PruneStats(
 		tuples.RegionConnectedRealmTuples(),
-		sotah.UnixTimestamp(base.RetentionLimit().Unix()),
+		sotah.UnixTimestamp(BaseDatabase.RetentionLimit().Unix()),
 	); err != nil {
 		logging.WithField("error", err.Error()).Error("failed to prune live-auctions stats")
 
