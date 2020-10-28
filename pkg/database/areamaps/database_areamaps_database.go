@@ -5,22 +5,22 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 )
 
-func NewAreaMapsDatabase(dbDir string) (AreaMapsDatabase, error) {
-	dbFilepath, err := AreaMapsDatabasePath(dbDir)
+func NewAreaMapsDatabase(dbDir string) (Database, error) {
+	dbFilepath, err := databasePath(dbDir)
 	if err != nil {
-		return AreaMapsDatabase{}, err
+		return Database{}, err
 	}
 
 	logging.WithField("filepath", dbFilepath).Info("initializing area-maps database")
 
 	db, err := bolt.Open(dbFilepath, 0600, nil)
 	if err != nil {
-		return AreaMapsDatabase{}, err
+		return Database{}, err
 	}
 
-	return AreaMapsDatabase{db}, nil
+	return Database{db}, nil
 }
 
-type AreaMapsDatabase struct {
+type Database struct {
 	db *bolt.DB
 }

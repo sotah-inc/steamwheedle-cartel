@@ -64,7 +64,7 @@ func NewAreaMapsState(mess messenger.Messenger, areaMapsDatabaseDir string) (Are
 
 type AreaMapsState struct {
 	Messenger        messenger.Messenger
-	AreaMapsDatabase AreaMapsDatabase.AreaMapsDatabase
+	AreaMapsDatabase AreaMapsDatabase.Database
 }
 
 func (sta AreaMapsState) GetListeners() SubjectListeners {
@@ -122,7 +122,7 @@ func (sta AreaMapsState) ListenForAreaMapsQuery(stop ListenStopChan) error {
 		m := messenger.NewMessage()
 
 		// resolving the request
-		request, err := AreaMapsDatabase.NewAreaMapsQueryRequest(natsMsg.Data)
+		request, err := AreaMapsDatabase.NewQueryRequest(natsMsg.Data)
 		if err != nil {
 			m.Err = err.Error()
 			m.Code = mCodes.MsgJSONParseError

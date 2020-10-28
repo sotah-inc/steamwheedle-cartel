@@ -9,11 +9,11 @@ import (
 )
 
 // gathering area-maps
-func (amBase AreaMapsDatabase) GetAreaMaps() (sotah.AreaMapMap, error) {
+func (amBase Database) GetAreaMaps() (sotah.AreaMapMap, error) {
 	out := sotah.AreaMapMap{}
 
 	err := amBase.db.View(func(tx *bolt.Tx) error {
-		bkt := tx.Bucket(databaseAreaMapsBucketName())
+		bkt := tx.Bucket(baseBucketName())
 		if bkt == nil {
 			return nil
 		}
@@ -47,17 +47,17 @@ func (amBase AreaMapsDatabase) GetAreaMaps() (sotah.AreaMapMap, error) {
 	return out, nil
 }
 
-func (amBase AreaMapsDatabase) GetIdNormalizedNameMap() (sotah.AreaMapIdNameMap, error) {
+func (amBase Database) GetIdNormalizedNameMap() (sotah.AreaMapIdNameMap, error) {
 	out := sotah.AreaMapIdNameMap{}
 
 	err := amBase.db.View(func(tx *bolt.Tx) error {
-		bkt := tx.Bucket(databaseAreaMapNamesBucketName())
+		bkt := tx.Bucket(namesBucketName())
 		if bkt == nil {
 			return nil
 		}
 
 		err := bkt.ForEach(func(k, v []byte) error {
-			areaMapId, err := areaMapIdFromAreaMapNameKeyName(k)
+			areaMapId, err := idFromNameKeyName(k)
 			if err != nil {
 				return err
 			}
@@ -79,16 +79,16 @@ func (amBase AreaMapsDatabase) GetIdNormalizedNameMap() (sotah.AreaMapIdNameMap,
 	return out, nil
 }
 
-func (amBase AreaMapsDatabase) FindAreaMaps(areaMapIds []sotah.AreaMapId) (sotah.AreaMapMap, error) {
+func (amBase Database) FindAreaMaps(areaMapIds []sotah.AreaMapId) (sotah.AreaMapMap, error) {
 	out := sotah.AreaMapMap{}
 	err := amBase.db.View(func(tx *bolt.Tx) error {
-		bkt := tx.Bucket(databaseAreaMapsBucketName())
+		bkt := tx.Bucket(baseBucketName())
 		if bkt == nil {
 			return nil
 		}
 
 		for _, id := range areaMapIds {
-			value := bkt.Get(areaMapsKeyName(id))
+			value := bkt.Get(baseKeyName(id))
 			if value == nil {
 				continue
 			}
@@ -111,16 +111,16 @@ func (amBase AreaMapsDatabase) FindAreaMaps(areaMapIds []sotah.AreaMapId) (sotah
 }
 
 // persisting
-func (amBase AreaMapsDatabase) PersistAreaMaps(aMapMap sotah.AreaMapMap) error {
+func (amBase Database) PersistAreaMaps(aMapMap sotah.AreaMapMap) error {
 	logging.WithField("area-maps", len(aMapMap)).Debug("persisting area-maps")
 
 	err := amBase.db.Batch(func(tx *bolt.Tx) error {
-		areaMapsBucket, err := tx.CreateBucketIfNotExists(databaseAreaMapsBucketName())
+		areaMapsBucket, err := tx.CreateBucketIfNotExists(baseBucketName())
 		if err != nil {
 			return err
 		}
 
-		areaMapNamesBucket, err := tx.CreateBucketIfNotExists(databaseAreaMapNamesBucketName())
+		areaMapNamesBucket, err := tx.CreateBucketIfNotExists(namesBucketName())
 		if err != nil {
 			return err
 		}
@@ -131,7 +131,7 @@ func (amBase AreaMapsDatabase) PersistAreaMaps(aMapMap sotah.AreaMapMap) error {
 				return err
 			}
 
-			if err := areaMapsBucket.Put(areaMapsKeyName(id), jsonEncoded); err != nil {
+			if err := areaMapsBucket.Put(baseKeyName(id), jsonEncoded); err != nil {
 				return err
 			}
 
@@ -140,7 +140,7 @@ func (amBase AreaMapsDatabase) PersistAreaMaps(aMapMap sotah.AreaMapMap) error {
 				return err
 			}
 
-			if err := areaMapNamesBucket.Put(areaMapNameKeyName(id), []byte(normalizedName)); err != nil {
+			if err := areaMapNamesBucket.Put(nameKeyName(id), []byte(normalizedName)); err != nil {
 				return err
 			}
 		}
