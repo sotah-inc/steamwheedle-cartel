@@ -3,9 +3,9 @@ package database
 import (
 	"encoding/json"
 
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
-
 	"github.com/boltdb/bolt"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database/base"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 )
 
@@ -104,7 +104,7 @@ func (tBase TokensDatabase) PersistHistory(rtHistory RegionTokenHistory) error {
 
 // pruning
 func (tBase TokensDatabase) Prune(regionNames []blizzardv2.RegionName) error {
-	earliestUnixTimestamp := RetentionLimit().Unix()
+	earliestUnixTimestamp := base.RetentionLimit().Unix()
 
 	err := tBase.db.Update(func(tx *bolt.Tx) error {
 		for _, regionName := range regionNames {

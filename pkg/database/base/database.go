@@ -1,4 +1,4 @@
-package database
+package base
 
 import (
 	"fmt"
@@ -7,10 +7,9 @@ import (
 	"strconv"
 	"time"
 
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
-
 	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 )
 
 func RetentionLimit() time.Time {

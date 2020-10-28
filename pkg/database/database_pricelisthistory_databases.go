@@ -4,12 +4,12 @@ import (
 	"errors"
 	"fmt"
 
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
-
 	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database/base"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 )
 
 func NewPricelistHistoryDatabases(
@@ -50,7 +50,7 @@ func NewPricelistHistoryDatabases(
 			phdBases.Databases[tuple.RegionName][tuple.ConnectedRealmId] = PricelistHistoryDatabaseShards{}
 		}
 
-		dbPathPairs, err := Paths(fmt.Sprintf(
+		dbPathPairs, err := base.Paths(fmt.Sprintf(
 			"%s/pricelist-history/%s/%d",
 			dirPath,
 			tuple.RegionName,
