@@ -44,7 +44,7 @@ type Config struct {
 	Whitelist   RegionRealmSlugWhitelist `json:"whitelist"`
 	UseGCloud   bool                     `json:"use_gcloud"`
 	Expansions  []Expansion              `json:"expansions"`
-	Professions []Profession             `json:"professions"`
+	Professions []ConfigProfession       `json:"professions"`
 }
 
 func (c Config) FilterInRegions(regs RegionList) RegionList {

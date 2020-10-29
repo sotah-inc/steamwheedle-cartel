@@ -8,11 +8,12 @@ import (
 )
 
 type NewClientOptions struct {
-	CacheDir          string
-	RegionNames       []blizzardv2.RegionName
-	ResolveItems      func(ids blizzardv2.ItemIds) chan blizzardv2.GetItemsOutJob
-	ResolveItemMedias func(in chan blizzardv2.GetItemMediasInJob) chan blizzardv2.GetItemMediasOutJob
-	ResolvePets       func(blacklist []blizzardv2.PetId) (chan blizzardv2.GetAllPetsJob, error)
+	CacheDir           string
+	RegionNames        []blizzardv2.RegionName
+	ResolveItems       func(ids blizzardv2.ItemIds) chan blizzardv2.GetItemsOutJob
+	ResolveItemMedias  func(in chan blizzardv2.GetItemMediasInJob) chan blizzardv2.GetItemMediasOutJob
+	ResolvePets        func(blacklist []blizzardv2.PetId) (chan blizzardv2.GetAllPetsJob, error)
+	ResolveProfessions func(blacklist []blizzardv2.ProfessionId) (chan blizzardv2.GetAllProfessionsJob, error)
 }
 
 func NewClient(opts NewClientOptions) (Client, error) {
@@ -27,16 +28,18 @@ func NewClient(opts NewClientOptions) (Client, error) {
 	}
 
 	return Client{
-		cacheDir:          opts.CacheDir,
-		resolveItems:      opts.ResolveItems,
-		resolveItemMedias: opts.ResolveItemMedias,
-		resolvePets:       opts.ResolvePets,
+		cacheDir:           opts.CacheDir,
+		resolveItems:       opts.ResolveItems,
+		resolveItemMedias:  opts.ResolveItemMedias,
+		resolvePets:        opts.ResolvePets,
+		resolveProfessions: opts.ResolveProfessions,
 	}, nil
 }
 
 type Client struct {
-	cacheDir          string
-	resolveItems      func(ids blizzardv2.ItemIds) chan blizzardv2.GetItemsOutJob
-	resolveItemMedias func(in chan blizzardv2.GetItemMediasInJob) chan blizzardv2.GetItemMediasOutJob
-	resolvePets       func(blacklist []blizzardv2.PetId) (chan blizzardv2.GetAllPetsJob, error)
+	cacheDir           string
+	resolveItems       func(ids blizzardv2.ItemIds) chan blizzardv2.GetItemsOutJob
+	resolveItemMedias  func(in chan blizzardv2.GetItemMediasInJob) chan blizzardv2.GetItemMediasOutJob
+	resolvePets        func(blacklist []blizzardv2.PetId) (chan blizzardv2.GetAllPetsJob, error)
+	resolveProfessions func(blacklist []blizzardv2.ProfessionId) (chan blizzardv2.GetAllProfessionsJob, error)
 }

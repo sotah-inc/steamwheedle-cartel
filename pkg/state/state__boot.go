@@ -14,7 +14,7 @@ type NewBootStateOptions struct {
 
 	Regions     sotah.RegionList
 	Expansions  []sotah.Expansion
-	Professions []sotah.Profession
+	Professions []sotah.ConfigProfession
 }
 
 func NewBootState(opts NewBootStateOptions) (BootState, error) {
@@ -29,8 +29,8 @@ func NewBootState(opts NewBootStateOptions) (BootState, error) {
 		SessionSecret: uuid.NewV4(),
 		ItemClasses:   itemClasses,
 		Expansions:    opts.Expansions,
-		Professions: func() []sotah.Profession {
-			out := make([]sotah.Profession, len(opts.Professions))
+		Professions: func() []sotah.ConfigProfession {
+			out := make([]sotah.ConfigProfession, len(opts.Professions))
 			for i, prof := range opts.Professions {
 				prof.IconURL = blizzardv2.DefaultGetItemIconURL(opts.Professions[i].Icon)
 				out[i] = prof
@@ -51,7 +51,7 @@ type BootState struct {
 	// receiving from config file
 	Regions     sotah.RegionList
 	Expansions  []sotah.Expansion
-	Professions []sotah.Profession
+	Professions []sotah.ConfigProfession
 }
 
 func (sta BootState) GetListeners() SubjectListeners {

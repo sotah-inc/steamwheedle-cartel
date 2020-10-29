@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-type Profession struct {
+type ConfigProfession struct {
 	Name    string `json:"name"`
 	Label   string `json:"label"`
 	Icon    string `json:"icon"`
