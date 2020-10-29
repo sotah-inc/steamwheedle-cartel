@@ -14,12 +14,12 @@ func (ladBase LiveAuctionsDatabase) persistEncodedData(encodedData []byte) error
 	}).Debug("persisting mini-auction-list via encoded-data")
 
 	err := ladBase.db.Update(func(tx *bolt.Tx) error {
-		bkt, err := tx.CreateBucketIfNotExists(liveAuctionsBucketName())
+		bkt, err := tx.CreateBucketIfNotExists(baseBucketName())
 		if err != nil {
 			return err
 		}
 
-		if err := bkt.Put(liveAuctionsMainKeyName(), encodedData); err != nil {
+		if err := bkt.Put(baseKeyName(), encodedData); err != nil {
 			return err
 		}
 
@@ -36,18 +36,18 @@ func (ladBase LiveAuctionsDatabase) GetMiniAuctionList() (sotah.MiniAuctionList,
 	out := sotah.MiniAuctionList{}
 
 	err := ladBase.db.View(func(tx *bolt.Tx) error {
-		bkt := tx.Bucket(liveAuctionsBucketName())
+		bkt := tx.Bucket(baseBucketName())
 		if bkt == nil {
 			logging.WithFields(logrus.Fields{
 				"db":          ladBase.db.Path(),
-				"bucket-name": string(liveAuctionsBucketName()),
+				"bucket-name": string(baseBucketName()),
 			}).Error("live-auctions bucket not found")
 
 			return nil
 		}
 
 		var err error
-		out, err = sotah.NewMiniAuctionListFromGzipped(bkt.Get(liveAuctionsMainKeyName()))
+		out, err = sotah.NewMiniAuctionListFromGzipped(bkt.Get(baseKeyName()))
 		if err != nil {
 			return err
 		}

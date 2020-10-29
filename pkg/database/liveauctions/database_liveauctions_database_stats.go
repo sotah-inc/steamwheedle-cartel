@@ -43,12 +43,12 @@ func (ladBase LiveAuctionsDatabase) persistStats(currentTimestamp sotah.UnixTime
 	}).Debug("persisting mini-auction-stats via encoded-data")
 
 	err = ladBase.db.Update(func(tx *bolt.Tx) error {
-		bkt, err := tx.CreateBucketIfNotExists(liveAuctionsStatsBucketName())
+		bkt, err := tx.CreateBucketIfNotExists(statsBucketName())
 		if err != nil {
 			return err
 		}
 
-		if err := bkt.Put(liveAuctionsStatsKeyName(currentTimestamp), encodedData); err != nil {
+		if err := bkt.Put(statsKeyName(currentTimestamp), encodedData); err != nil {
 			return err
 		}
 
@@ -65,7 +65,7 @@ func (ladBase LiveAuctionsDatabase) AuctionStats() (sotah.AuctionStats, error) {
 	out := sotah.AuctionStats{}
 
 	err := ladBase.db.View(func(tx *bolt.Tx) error {
-		bkt := tx.Bucket(liveAuctionsStatsBucketName())
+		bkt := tx.Bucket(statsBucketName())
 		if bkt == nil {
 			return nil
 		}

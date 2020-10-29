@@ -10,25 +10,25 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 )
 
-func liveAuctionsDatabasePath(dirPath string, tuple blizzardv2.RegionConnectedRealmTuple) string {
+func databasePath(dirPath string, tuple blizzardv2.RegionConnectedRealmTuple) string {
 	return fmt.Sprintf("%s/live-auctions/%s/%d.db", dirPath, tuple.RegionName, tuple.ConnectedRealmId)
 }
 
 // bucket, key for current live-auctions
-func liveAuctionsBucketName() []byte {
+func baseBucketName() []byte {
 	return []byte("live-auctions")
 }
 
-func liveAuctionsMainKeyName() []byte {
+func baseKeyName() []byte {
 	return []byte("live-auctions")
 }
 
 // bucket, key for live-auctions stats
-func liveAuctionsStatsBucketName() []byte {
+func statsBucketName() []byte {
 	return []byte("live-auctions-stats")
 }
 
-func liveAuctionsStatsKeyName(lastUpdated sotah.UnixTimestamp) []byte {
+func statsKeyName(lastUpdated sotah.UnixTimestamp) []byte {
 	return []byte(fmt.Sprintf("live-auctions-stats-%d", lastUpdated))
 }
 

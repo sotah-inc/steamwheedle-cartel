@@ -7,7 +7,7 @@ import (
 )
 
 func newLiveAuctionsDatabase(dirPath string, tuple blizzardv2.RegionConnectedRealmTuple) (LiveAuctionsDatabase, error) {
-	dbFilepath := liveAuctionsDatabasePath(dirPath, tuple)
+	dbFilepath := databasePath(dirPath, tuple)
 	db, err := bolt.Open(dbFilepath, 0600, nil)
 	if err != nil {
 		return LiveAuctionsDatabase{}, err

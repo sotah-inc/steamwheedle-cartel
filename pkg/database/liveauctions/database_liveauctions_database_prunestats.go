@@ -21,13 +21,13 @@ func (ladBase LiveAuctionsDatabase) pruneStats(retentionLimit sotah.UnixTimestam
 	}).Debug("pruning timestamps")
 
 	err = ladBase.db.Update(func(tx *bolt.Tx) error {
-		bkt, err := tx.CreateBucketIfNotExists(liveAuctionsStatsBucketName())
+		bkt, err := tx.CreateBucketIfNotExists(statsBucketName())
 		if err != nil {
 			return err
 		}
 
 		for _, expiredTimestamp := range expiredTimestamps {
-			if err := bkt.Delete(liveAuctionsStatsKeyName(expiredTimestamp)); err != nil {
+			if err := bkt.Delete(statsKeyName(expiredTimestamp)); err != nil {
 				return err
 			}
 		}
@@ -44,7 +44,7 @@ func (ladBase LiveAuctionsDatabase) pruneStats(retentionLimit sotah.UnixTimestam
 func (ladBase LiveAuctionsDatabase) getStatsTimestamps() (sotah.UnixTimestamps, error) {
 	var out sotah.UnixTimestamps
 	err := ladBase.db.View(func(tx *bolt.Tx) error {
-		bkt := tx.Bucket(liveAuctionsStatsBucketName())
+		bkt := tx.Bucket(statsBucketName())
 		if bkt == nil {
 			return nil
 		}
