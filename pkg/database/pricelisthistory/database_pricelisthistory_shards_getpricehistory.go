@@ -20,13 +20,13 @@ func (job GetPriceHistoryJob) ToLogrusFields(id blizzardv2.ItemId) logrus.Fields
 	}
 }
 
-func (shards PricelistHistoryDatabaseShards) GetPriceHistory(
+func (shards DatabaseShards) GetPriceHistory(
 	id blizzardv2.ItemId,
 	lowerBounds sotah.UnixTimestamp,
 	upperBounds sotah.UnixTimestamp,
 ) (sotah.PriceHistory, error) {
 	// establish channels
-	in := make(chan PricelistHistoryDatabase)
+	in := make(chan Database)
 	out := make(chan GetPriceHistoryJob)
 
 	// spinning up workers for querying price-histories

@@ -4,13 +4,13 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 )
 
-type PricelistHistoryDatabaseShards map[sotah.UnixTimestamp]PricelistHistoryDatabase
+type DatabaseShards map[sotah.UnixTimestamp]Database
 
-func (shards PricelistHistoryDatabaseShards) Before(
+func (shards DatabaseShards) Before(
 	limit sotah.UnixTimestamp,
 	inclusive bool,
-) PricelistHistoryDatabaseShards {
-	out := PricelistHistoryDatabaseShards{}
+) DatabaseShards {
+	out := DatabaseShards{}
 	for timestamp, phdBase := range shards {
 		if timestamp < limit || timestamp == limit && inclusive {
 			out[timestamp] = phdBase
@@ -20,11 +20,11 @@ func (shards PricelistHistoryDatabaseShards) Before(
 	return out
 }
 
-func (shards PricelistHistoryDatabaseShards) After(
+func (shards DatabaseShards) After(
 	limit sotah.UnixTimestamp,
 	inclusive bool,
-) PricelistHistoryDatabaseShards {
-	out := PricelistHistoryDatabaseShards{}
+) DatabaseShards {
+	out := DatabaseShards{}
 	for timestamp, phdBase := range shards {
 		if inclusive && timestamp == limit || timestamp > limit {
 			out[timestamp] = phdBase
@@ -34,9 +34,9 @@ func (shards PricelistHistoryDatabaseShards) After(
 	return out
 }
 
-func (shards PricelistHistoryDatabaseShards) Between(
+func (shards DatabaseShards) Between(
 	lowerLimit sotah.UnixTimestamp,
 	upperLimit sotah.UnixTimestamp,
-) PricelistHistoryDatabaseShards {
+) DatabaseShards {
 	return shards.After(lowerLimit, true).Before(upperLimit, true)
 }

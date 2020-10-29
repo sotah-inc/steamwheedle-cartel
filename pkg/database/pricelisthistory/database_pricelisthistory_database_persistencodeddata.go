@@ -6,17 +6,17 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 )
 
-func (phdBase PricelistHistoryDatabase) persistEncodedData(data map[blizzardv2.ItemId][]byte) error {
+func (phdBase Database) persistEncodedData(data map[blizzardv2.ItemId][]byte) error {
 	logging.WithField("items", len(data)).Info("persisting encoded item-prices")
 
 	err := phdBase.db.Batch(func(tx *bolt.Tx) error {
 		for itemId, payload := range data {
-			bkt, err := tx.CreateBucketIfNotExists(pricelistHistoryBucketName(itemId))
+			bkt, err := tx.CreateBucketIfNotExists(baseBucketName(itemId))
 			if err != nil {
 				return err
 			}
 
-			if err := bkt.Put(pricelistHistoryKeyName(), payload); err != nil {
+			if err := bkt.Put(baseKeyName(), payload); err != nil {
 				return err
 			}
 		}

@@ -9,7 +9,7 @@ import (
 )
 
 // keying
-func pricelistHistoryKeyName() []byte {
+func baseKeyName() []byte {
 	key := make([]byte, 8)
 	binary.LittleEndian.PutUint64(key, 1)
 
@@ -17,12 +17,12 @@ func pricelistHistoryKeyName() []byte {
 }
 
 // bucketing
-func pricelistHistoryBucketName(ID blizzardv2.ItemId) []byte {
+func baseBucketName(ID blizzardv2.ItemId) []byte {
 	return []byte(fmt.Sprintf("item-prices/%d", ID))
 }
 
 // db
-func pricelistHistoryDatabaseFilePath(
+func databaseFilePath(
 	dirPath string,
 	tuple blizzardv2.RegionConnectedRealmTuple,
 	targetTimestamp sotah.UnixTimestamp,

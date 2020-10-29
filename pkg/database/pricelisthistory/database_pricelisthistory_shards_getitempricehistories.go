@@ -21,7 +21,7 @@ func (job GetItemPriceHistoriesJob) ToLogrusFields() logrus.Fields {
 	}
 }
 
-func (shards PricelistHistoryDatabaseShards) GetItemPriceHistories(
+func (shards DatabaseShards) GetItemPriceHistories(
 	ids blizzardv2.ItemIds,
 	lowerBounds sotah.UnixTimestamp,
 	upperBounds sotah.UnixTimestamp,

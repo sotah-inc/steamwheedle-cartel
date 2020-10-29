@@ -5,22 +5,22 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 )
 
-func newPricelistHistoryDatabase(
+func newDatabase(
 	dbFilepath string,
 	targetTimestamp sotah.UnixTimestamp,
-) (PricelistHistoryDatabase, error) {
+) (Database, error) {
 	db, err := bolt.Open(dbFilepath, 0600, nil)
 	if err != nil {
-		return PricelistHistoryDatabase{}, err
+		return Database{}, err
 	}
 
-	return PricelistHistoryDatabase{
+	return Database{
 		db:              db,
 		targetTimestamp: targetTimestamp,
 	}, nil
 }
 
-type PricelistHistoryDatabase struct {
+type Database struct {
 	db              *bolt.DB
 	targetTimestamp sotah.UnixTimestamp
 }

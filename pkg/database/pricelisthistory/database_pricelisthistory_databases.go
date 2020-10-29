@@ -12,10 +12,10 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 )
 
-func NewPricelistHistoryDatabases(
+func NewDatabases(
 	dirPath string,
 	tuples blizzardv2.RegionConnectedRealmTuples,
-) (*PricelistHistoryDatabases, error) {
+) (*Databases, error) {
 	if dirPath == "" {
 		return nil, errors.New("dir-path cannot be blank")
 	}
@@ -37,17 +37,17 @@ func NewPricelistHistoryDatabases(
 		return nil, err
 	}
 
-	phdBases := PricelistHistoryDatabases{
+	phdBases := Databases{
 		databaseDir: dirPath,
-		Databases:   map[blizzardv2.RegionName]map[blizzardv2.ConnectedRealmId]PricelistHistoryDatabaseShards{},
+		Databases:   map[blizzardv2.RegionName]map[blizzardv2.ConnectedRealmId]DatabaseShards{},
 	}
 
 	for _, tuple := range tuples {
 		if _, ok := phdBases.Databases[tuple.RegionName]; !ok {
-			phdBases.Databases[tuple.RegionName] = map[blizzardv2.ConnectedRealmId]PricelistHistoryDatabaseShards{}
+			phdBases.Databases[tuple.RegionName] = map[blizzardv2.ConnectedRealmId]DatabaseShards{}
 		}
 		if _, ok := phdBases.Databases[tuple.RegionName][tuple.ConnectedRealmId]; !ok {
-			phdBases.Databases[tuple.RegionName][tuple.ConnectedRealmId] = PricelistHistoryDatabaseShards{}
+			phdBases.Databases[tuple.RegionName][tuple.ConnectedRealmId] = DatabaseShards{}
 		}
 
 		dbPathPairs, err := BaseDatabase.Paths(fmt.Sprintf(
@@ -61,7 +61,7 @@ func NewPricelistHistoryDatabases(
 		}
 
 		for _, dbPathPair := range dbPathPairs {
-			phdBase, err := newPricelistHistoryDatabase(dbPathPair.FullPath, dbPathPair.Timestamp)
+			phdBase, err := newDatabase(dbPathPair.FullPath, dbPathPair.Timestamp)
 			if err != nil {
 				return nil, err
 			}
@@ -73,12 +73,12 @@ func NewPricelistHistoryDatabases(
 	return &phdBases, nil
 }
 
-type PricelistHistoryDatabases struct {
+type Databases struct {
 	databaseDir string
-	Databases   map[blizzardv2.RegionName]map[blizzardv2.ConnectedRealmId]PricelistHistoryDatabaseShards
+	Databases   map[blizzardv2.RegionName]map[blizzardv2.ConnectedRealmId]DatabaseShards
 }
 
-func (phdBases *PricelistHistoryDatabases) Total() int {
+func (phdBases *Databases) Total() int {
 	out := 0
 	for _, realmShards := range phdBases.Databases {
 		for _, shards := range realmShards {
@@ -89,9 +89,9 @@ func (phdBases *PricelistHistoryDatabases) Total() int {
 	return out
 }
 
-func (phdBases *PricelistHistoryDatabases) GetDatabase(
+func (phdBases *Databases) GetDatabase(
 	tuple blizzardv2.LoadConnectedRealmTuple,
-) (PricelistHistoryDatabase, error) {
+) (Database, error) {
 	phdBase, ok := phdBases.Databases[tuple.RegionName][tuple.ConnectedRealmId][sotah.UnixTimestamp(
 		tuple.LastModified.Unix(),
 	)]
@@ -102,15 +102,15 @@ func (phdBases *PricelistHistoryDatabases) GetDatabase(
 			"last-modified":   tuple.LastModified.Unix(),
 		}).Error("failed to find pricelist-history database")
 
-		return PricelistHistoryDatabase{}, errors.New("failed to find pricelist-history database")
+		return Database{}, errors.New("failed to find pricelist-history database")
 	}
 
 	return phdBase, nil
 }
 
-func (phdBases *PricelistHistoryDatabases) resolveDatabase(
+func (phdBases *Databases) resolveDatabase(
 	tuple blizzardv2.LoadConnectedRealmTuple,
-) (PricelistHistoryDatabase, error) {
+) (Database, error) {
 	normalizedTargetDate := sotah.NormalizeTargetDate(tuple.LastModified)
 	normalizedTargetTimestamp := sotah.UnixTimestamp(normalizedTargetDate.Unix())
 
@@ -119,26 +119,26 @@ func (phdBases *PricelistHistoryDatabases) resolveDatabase(
 		return phdBase, nil
 	}
 
-	dbPath := pricelistHistoryDatabaseFilePath(
+	dbPath := databaseFilePath(
 		phdBases.databaseDir,
 		tuple.RegionConnectedRealmTuple,
 		normalizedTargetTimestamp,
 	)
-	phdBase, err := newPricelistHistoryDatabase(dbPath, normalizedTargetTimestamp)
+	phdBase, err := newDatabase(dbPath, normalizedTargetTimestamp)
 	if err != nil {
-		return PricelistHistoryDatabase{}, err
+		return Database{}, err
 	}
 	phdBases.Databases[tuple.RegionName][tuple.ConnectedRealmId][normalizedTargetTimestamp] = phdBase
 
 	return phdBase, nil
 }
 
-func (phdBases *PricelistHistoryDatabases) GetShards(
+func (phdBases *Databases) GetShards(
 	tuple blizzardv2.RegionConnectedRealmTuple,
-) (PricelistHistoryDatabaseShards, error) {
+) (DatabaseShards, error) {
 	shards, ok := phdBases.Databases[tuple.RegionName][tuple.ConnectedRealmId]
 	if !ok {
-		return PricelistHistoryDatabaseShards{}, errors.New("failed to resolve shards with tuple")
+		return DatabaseShards{}, errors.New("failed to resolve shards with tuple")
 	}
 
 	return shards, nil

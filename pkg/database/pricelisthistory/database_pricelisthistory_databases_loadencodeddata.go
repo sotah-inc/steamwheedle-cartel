@@ -9,18 +9,18 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 )
 
-type PricelistHistoryLoadEncodedDataInJob struct {
+type LoadEncodedDataInJob struct {
 	Tuple       blizzardv2.LoadConnectedRealmTuple
 	EncodedData map[blizzardv2.ItemId][]byte
 }
 
-type PricelistHistoryLoadEncodedDataOutJob struct {
+type LoadEncodedDataOutJob struct {
 	Err        error
 	Tuple      blizzardv2.LoadConnectedRealmTuple
 	ReceivedAt time.Time
 }
 
-func (job PricelistHistoryLoadEncodedDataOutJob) ToLogrusFields() logrus.Fields {
+func (job LoadEncodedDataOutJob) ToLogrusFields() logrus.Fields {
 	return logrus.Fields{
 		"error":           job.Err.Error(),
 		"region":          job.Tuple.RegionName,
@@ -28,11 +28,11 @@ func (job PricelistHistoryLoadEncodedDataOutJob) ToLogrusFields() logrus.Fields 
 	}
 }
 
-func (phdBases *PricelistHistoryDatabases) LoadEncodedData(
-	in chan PricelistHistoryLoadEncodedDataInJob,
-) chan PricelistHistoryLoadEncodedDataOutJob {
+func (phdBases *Databases) LoadEncodedData(
+	in chan LoadEncodedDataInJob,
+) chan LoadEncodedDataOutJob {
 	// establishing channels
-	out := make(chan PricelistHistoryLoadEncodedDataOutJob)
+	out := make(chan LoadEncodedDataOutJob)
 
 	// spinning up workers for receiving encoded-data and persisting it
 	worker := func() {
@@ -46,7 +46,7 @@ func (phdBases *PricelistHistoryDatabases) LoadEncodedData(
 					"connected-realm": job.Tuple.ConnectedRealmId,
 				}).Error("failed to find database by tuple")
 
-				out <- PricelistHistoryLoadEncodedDataOutJob{
+				out <- LoadEncodedDataOutJob{
 					Err:   err,
 					Tuple: job.Tuple,
 				}
@@ -61,7 +61,7 @@ func (phdBases *PricelistHistoryDatabases) LoadEncodedData(
 					"connected-realm": job.Tuple.ConnectedRealmId,
 				}).Error("failed to persist encoded-data")
 
-				out <- PricelistHistoryLoadEncodedDataOutJob{
+				out <- LoadEncodedDataOutJob{
 					Err:   err,
 					Tuple: job.Tuple,
 				}
@@ -69,7 +69,7 @@ func (phdBases *PricelistHistoryDatabases) LoadEncodedData(
 				continue
 			}
 
-			out <- PricelistHistoryLoadEncodedDataOutJob{
+			out <- LoadEncodedDataOutJob{
 				Err:        nil,
 				Tuple:      job.Tuple,
 				ReceivedAt: time.Now(),

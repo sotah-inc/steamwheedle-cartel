@@ -19,7 +19,7 @@ type NewPricelistHistoryStateOptions struct {
 }
 
 func NewPricelistHistoryState(opts NewPricelistHistoryStateOptions) (PricelistHistoryState, error) {
-	phdBases, err := PricelistHistoryDatabase.NewPricelistHistoryDatabases(opts.PricelistHistoryDatabasesDir, opts.Tuples)
+	phdBases, err := PricelistHistoryDatabase.NewDatabases(opts.PricelistHistoryDatabasesDir, opts.Tuples)
 	if err != nil {
 		return PricelistHistoryState{}, err
 	}
@@ -34,7 +34,7 @@ func NewPricelistHistoryState(opts NewPricelistHistoryStateOptions) (PricelistHi
 }
 
 type PricelistHistoryState struct {
-	PricelistHistoryDatabases *PricelistHistoryDatabase.PricelistHistoryDatabases
+	PricelistHistoryDatabases *PricelistHistoryDatabase.Databases
 
 	Messenger               messenger.Messenger
 	LakeClient              BaseLake.Client
