@@ -32,7 +32,7 @@ func NewTokensState(opts NewTokensStateOptions) (TokensState, error) {
 		return TokensState{}, err
 	}
 
-	tokensDatabase, err := TokensDatabase.NewTokensDatabase(opts.TokensDatabaseDir)
+	tokensDatabase, err := TokensDatabase.NewDatabase(opts.TokensDatabaseDir)
 	if err != nil {
 		logging.WithField("error", err.Error()).Error("failed to initialise tokens-database")
 
@@ -51,7 +51,7 @@ type TokensState struct {
 	BlizzardState BlizzardState
 
 	Messenger      messenger.Messenger
-	TokensDatabase TokensDatabase.TokensDatabase
+	TokensDatabase TokensDatabase.Database
 	Reporter       metric.Reporter
 }
 
