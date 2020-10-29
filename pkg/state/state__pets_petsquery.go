@@ -14,7 +14,7 @@ func (sta PetsState) ListenForPetsQuery(stop ListenStopChan) error {
 		m := messenger.NewMessage()
 
 		// resolving the request
-		request, err := PetsDatabase.NewQueryPetsRequest(natsMsg.Data)
+		request, err := PetsDatabase.NewQueryRequest(natsMsg.Data)
 		if err != nil {
 			m.Err = err.Error()
 			m.Code = mCodes.MsgJSONParseError

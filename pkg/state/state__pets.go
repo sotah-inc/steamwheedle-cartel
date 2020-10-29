@@ -23,7 +23,7 @@ func NewPetsState(opts NewPetsStateOptions) (PetsState, error) {
 		return PetsState{}, err
 	}
 
-	petsDatabase, err := PetsDatabase.NewPetsDatabase(opts.PetsDatabaseDir)
+	petsDatabase, err := PetsDatabase.NewDatabase(opts.PetsDatabaseDir)
 	if err != nil {
 		logging.WithField("error", err.Error()).Error("failed to initialise pets-database")
 
@@ -40,7 +40,7 @@ func NewPetsState(opts NewPetsStateOptions) (PetsState, error) {
 type PetsState struct {
 	LakeClient   BaseLake.Client
 	Messenger    messenger.Messenger
-	PetsDatabase PetsDatabase.PetsDatabase
+	PetsDatabase PetsDatabase.Database
 }
 
 func (sta PetsState) GetListeners() SubjectListeners {

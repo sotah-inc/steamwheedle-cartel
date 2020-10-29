@@ -12,7 +12,7 @@ type PersistEncodedPetsInJob struct {
 	EncodedNormalizedName []byte
 }
 
-func (pdBase PetsDatabase) PersistEncodedPets(
+func (pdBase Database) PersistEncodedPets(
 	in chan PersistEncodedPetsInJob,
 ) (int, error) {
 	logging.Info("persisting encoded pets")
@@ -20,22 +20,22 @@ func (pdBase PetsDatabase) PersistEncodedPets(
 	totalPersisted := 0
 
 	err := pdBase.db.Batch(func(tx *bolt.Tx) error {
-		petsBucket, err := tx.CreateBucketIfNotExists(databasePetsBucketName())
+		petsBucket, err := tx.CreateBucketIfNotExists(baseBucketName())
 		if err != nil {
 			return err
 		}
 
-		petNamesBucket, err := tx.CreateBucketIfNotExists(databasePetNamesBucketName())
+		petNamesBucket, err := tx.CreateBucketIfNotExists(namesBucketName())
 		if err != nil {
 			return err
 		}
 
 		for job := range in {
-			if err := petsBucket.Put(petsKeyName(job.Id), job.EncodedPet); err != nil {
+			if err := petsBucket.Put(baseKeyName(job.Id), job.EncodedPet); err != nil {
 				return err
 			}
 
-			if err := petNamesBucket.Put(petNameKeyName(job.Id), job.EncodedNormalizedName); err != nil {
+			if err := petNamesBucket.Put(nameKeyName(job.Id), job.EncodedNormalizedName); err != nil {
 				return err
 			}
 

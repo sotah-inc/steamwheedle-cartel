@@ -10,32 +10,32 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 )
 
-func NewPetsDatabase(dbDir string) (PetsDatabase, error) {
-	dbFilepath, err := PetsDatabasePath(dbDir)
+func NewDatabase(dbDir string) (Database, error) {
+	dbFilepath, err := DatabasePath(dbDir)
 	if err != nil {
-		return PetsDatabase{}, err
+		return Database{}, err
 	}
 
 	logging.WithField("filepath", dbFilepath).Info("initializing pets database")
 
 	db, err := bolt.Open(dbFilepath, 0600, nil)
 	if err != nil {
-		return PetsDatabase{}, err
+		return Database{}, err
 	}
 
-	return PetsDatabase{db}, nil
+	return Database{db}, nil
 }
 
-type PetsDatabase struct {
+type Database struct {
 	db *bolt.DB
 }
 
 // gathering pets
-func (pdBase PetsDatabase) GetPets() ([]sotah.Pet, error) {
+func (pdBase Database) GetPets() ([]sotah.Pet, error) {
 	var out []sotah.Pet
 
 	err := pdBase.db.View(func(tx *bolt.Tx) error {
-		bkt := tx.Bucket(databasePetsBucketName())
+		bkt := tx.Bucket(baseBucketName())
 		if bkt == nil {
 			return nil
 		}
@@ -63,17 +63,17 @@ func (pdBase PetsDatabase) GetPets() ([]sotah.Pet, error) {
 	return out, nil
 }
 
-func (pdBase PetsDatabase) GetIdNormalizedNameMap() (sotah.PetIdNameMap, error) {
+func (pdBase Database) GetIdNormalizedNameMap() (sotah.PetIdNameMap, error) {
 	out := sotah.PetIdNameMap{}
 
 	err := pdBase.db.View(func(tx *bolt.Tx) error {
-		bkt := tx.Bucket(databasePetNamesBucketName())
+		bkt := tx.Bucket(namesBucketName())
 		if bkt == nil {
 			return nil
 		}
 
 		err := bkt.ForEach(func(k, v []byte) error {
-			petId, err := petIdFromPetNameKeyName(k)
+			petId, err := petIdFromNameKeyName(k)
 			if err != nil {
 				return err
 			}
@@ -98,16 +98,16 @@ func (pdBase PetsDatabase) GetIdNormalizedNameMap() (sotah.PetIdNameMap, error) 
 	return out, nil
 }
 
-func (pdBase PetsDatabase) FindPets(petIds []blizzardv2.PetId) ([]sotah.Pet, error) {
+func (pdBase Database) FindPets(petIds []blizzardv2.PetId) ([]sotah.Pet, error) {
 	var out []sotah.Pet
 	err := pdBase.db.View(func(tx *bolt.Tx) error {
-		bkt := tx.Bucket(databasePetsBucketName())
+		bkt := tx.Bucket(baseBucketName())
 		if bkt == nil {
 			return nil
 		}
 
 		for _, id := range petIds {
-			value := bkt.Get(petsKeyName(id))
+			value := bkt.Get(baseKeyName(id))
 			if value == nil {
 				continue
 			}
