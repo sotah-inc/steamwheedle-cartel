@@ -6,17 +6,17 @@ import (
 	"github.com/boltdb/bolt"
 )
 
-func newLiveAuctionsDatabase(dirPath string, tuple blizzardv2.RegionConnectedRealmTuple) (LiveAuctionsDatabase, error) {
+func newDatabase(dirPath string, tuple blizzardv2.RegionConnectedRealmTuple) (Database, error) {
 	dbFilepath := databasePath(dirPath, tuple)
 	db, err := bolt.Open(dbFilepath, 0600, nil)
 	if err != nil {
-		return LiveAuctionsDatabase{}, err
+		return Database{}, err
 	}
 
-	return LiveAuctionsDatabase{db, tuple}, nil
+	return Database{db, tuple}, nil
 }
 
-type LiveAuctionsDatabase struct {
+type Database struct {
 	db    *bolt.DB
 	tuple blizzardv2.RegionConnectedRealmTuple
 }

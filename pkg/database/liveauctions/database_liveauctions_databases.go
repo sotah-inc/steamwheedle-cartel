@@ -6,26 +6,26 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 )
 
-func NewLiveAuctionsDatabases(
+func NewDatabases(
 	dirPath string,
 	tuples []blizzardv2.RegionConnectedRealmTuple,
-) (LiveAuctionsDatabases, error) {
-	ladBases := LiveAuctionsDatabases{}
+) (Databases, error) {
+	ladBases := Databases{}
 
 	for _, tuple := range tuples {
-		connectedRealmDatabases := func() map[blizzardv2.ConnectedRealmId]LiveAuctionsDatabase {
+		connectedRealmDatabases := func() map[blizzardv2.ConnectedRealmId]Database {
 			out, ok := ladBases[tuple.RegionName]
 			if !ok {
-				return map[blizzardv2.ConnectedRealmId]LiveAuctionsDatabase{}
+				return map[blizzardv2.ConnectedRealmId]Database{}
 			}
 
 			return out
 		}()
 
 		var err error
-		connectedRealmDatabases[tuple.ConnectedRealmId], err = newLiveAuctionsDatabase(dirPath, tuple)
+		connectedRealmDatabases[tuple.ConnectedRealmId], err = newDatabase(dirPath, tuple)
 		if err != nil {
-			return LiveAuctionsDatabases{}, err
+			return Databases{}, err
 		}
 
 		ladBases[tuple.RegionName] = connectedRealmDatabases
@@ -34,19 +34,19 @@ func NewLiveAuctionsDatabases(
 	return ladBases, nil
 }
 
-type LiveAuctionsDatabases map[blizzardv2.RegionName]map[blizzardv2.ConnectedRealmId]LiveAuctionsDatabase
+type Databases map[blizzardv2.RegionName]map[blizzardv2.ConnectedRealmId]Database
 
-func (ladBases LiveAuctionsDatabases) GetDatabase(
+func (ladBases Databases) GetDatabase(
 	tuple blizzardv2.RegionConnectedRealmTuple,
-) (LiveAuctionsDatabase, error) {
+) (Database, error) {
 	shards, ok := ladBases[tuple.RegionName]
 	if !ok {
-		return LiveAuctionsDatabase{}, fmt.Errorf("shard not found for region %s", tuple.RegionName)
+		return Database{}, fmt.Errorf("shard not found for region %s", tuple.RegionName)
 	}
 
 	db, ok := shards[tuple.ConnectedRealmId]
 	if !ok {
-		return LiveAuctionsDatabase{}, fmt.Errorf("db not found for connected-realm %d", tuple.ConnectedRealmId)
+		return Database{}, fmt.Errorf("db not found for connected-realm %d", tuple.ConnectedRealmId)
 	}
 
 	return db, nil

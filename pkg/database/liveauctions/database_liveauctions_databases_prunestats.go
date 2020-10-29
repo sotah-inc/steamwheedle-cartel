@@ -21,7 +21,7 @@ func (job PruneStatsJob) ToLogrusFields() logrus.Fields {
 	}
 }
 
-func (ladBases LiveAuctionsDatabases) PruneStats(
+func (ladBases Databases) PruneStats(
 	tuples blizzardv2.RegionConnectedRealmTuples,
 	retentionLimit sotah.UnixTimestamp,
 ) error {

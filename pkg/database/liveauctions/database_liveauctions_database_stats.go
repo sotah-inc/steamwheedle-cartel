@@ -7,7 +7,7 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 )
 
-func (ladBase LiveAuctionsDatabase) Stats() (sotah.MiniAuctionListStats, error) {
+func (ladBase Database) Stats() (sotah.MiniAuctionListStats, error) {
 	maList, err := ladBase.GetMiniAuctionList()
 	if err != nil {
 		return sotah.MiniAuctionListStats{}, err
@@ -26,7 +26,7 @@ func (ladBase LiveAuctionsDatabase) Stats() (sotah.MiniAuctionListStats, error) 
 	return out, nil
 }
 
-func (ladBase LiveAuctionsDatabase) persistStats(currentTimestamp sotah.UnixTimestamp) error {
+func (ladBase Database) persistStats(currentTimestamp sotah.UnixTimestamp) error {
 	stats, err := ladBase.Stats()
 	if err != nil {
 		return err
@@ -61,7 +61,7 @@ func (ladBase LiveAuctionsDatabase) persistStats(currentTimestamp sotah.UnixTime
 	return nil
 }
 
-func (ladBase LiveAuctionsDatabase) AuctionStats() (sotah.AuctionStats, error) {
+func (ladBase Database) AuctionStats() (sotah.AuctionStats, error) {
 	out := sotah.AuctionStats{}
 
 	err := ladBase.db.View(func(tx *bolt.Tx) error {
@@ -71,7 +71,7 @@ func (ladBase LiveAuctionsDatabase) AuctionStats() (sotah.AuctionStats, error) {
 		}
 
 		err := bkt.ForEach(func(k, v []byte) error {
-			lastUpdated, err := unixTimestampFromLiveAuctionsStatsKeyName(k)
+			lastUpdated, err := unixTimestampFromStatsKeyName(k)
 			if err != nil {
 				return err
 			}
@@ -84,7 +84,7 @@ func (ladBase LiveAuctionsDatabase) AuctionStats() (sotah.AuctionStats, error) {
 			out = out.Set(sotah.AuctionStatsSetOptions{
 				LastUpdatedTimestamp: lastUpdated,
 				Stats:                stats,
-				NormalizeFunc:        normalizeLiveAuctionsStatsLastUpdated,
+				NormalizeFunc:        normalizeStatsLastUpdated,
 			})
 
 			return nil

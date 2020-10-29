@@ -43,7 +43,7 @@ func (plResponse GetPricelistResponse) EncodeForDelivery() (string, error) {
 	return base64.StdEncoding.EncodeToString(gzipEncoded), nil
 }
 
-func (ladBases LiveAuctionsDatabases) GetPricelist(
+func (ladBases Databases) GetPricelist(
 	plRequest GetPricelistRequest,
 ) (GetPricelistResponse, codes.Code, error) {
 	ladBase, err := ladBases.GetDatabase(plRequest.Tuple)

@@ -7,7 +7,7 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 )
 
-func (ladBase LiveAuctionsDatabase) pruneStats(retentionLimit sotah.UnixTimestamp) error {
+func (ladBase Database) pruneStats(retentionLimit sotah.UnixTimestamp) error {
 	timestamps, err := ladBase.getStatsTimestamps()
 	if err != nil {
 		return err
@@ -41,7 +41,7 @@ func (ladBase LiveAuctionsDatabase) pruneStats(retentionLimit sotah.UnixTimestam
 	return nil
 }
 
-func (ladBase LiveAuctionsDatabase) getStatsTimestamps() (sotah.UnixTimestamps, error) {
+func (ladBase Database) getStatsTimestamps() (sotah.UnixTimestamps, error) {
 	var out sotah.UnixTimestamps
 	err := ladBase.db.View(func(tx *bolt.Tx) error {
 		bkt := tx.Bucket(statsBucketName())
@@ -50,7 +50,7 @@ func (ladBase LiveAuctionsDatabase) getStatsTimestamps() (sotah.UnixTimestamps, 
 		}
 
 		err := bkt.ForEach(func(k, v []byte) error {
-			parsedKey, err := unixTimestampFromLiveAuctionsStatsKeyName(k)
+			parsedKey, err := unixTimestampFromStatsKeyName(k)
 			if err != nil {
 				return err
 			}

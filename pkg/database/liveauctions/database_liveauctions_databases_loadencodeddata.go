@@ -9,18 +9,18 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 )
 
-type LiveAuctionsLoadEncodedDataInJob struct {
+type LoadEncodedDataInJob struct {
 	Tuple       blizzardv2.RegionConnectedRealmTuple
 	EncodedData []byte
 }
 
-type LiveAuctionsLoadEncodedDataOutJob struct {
+type LoadEncodedDataOutJob struct {
 	Err        error
 	Tuple      blizzardv2.RegionConnectedRealmTuple
 	ReceivedAt time.Time
 }
 
-func (job LiveAuctionsLoadEncodedDataOutJob) ToLogrusFields() logrus.Fields {
+func (job LoadEncodedDataOutJob) ToLogrusFields() logrus.Fields {
 	return logrus.Fields{
 		"error":           job.Err.Error(),
 		"region":          job.Tuple.RegionName,
@@ -28,11 +28,11 @@ func (job LiveAuctionsLoadEncodedDataOutJob) ToLogrusFields() logrus.Fields {
 	}
 }
 
-func (ladBases LiveAuctionsDatabases) LoadEncodedData(
-	in chan LiveAuctionsLoadEncodedDataInJob,
-) chan LiveAuctionsLoadEncodedDataOutJob {
+func (ladBases Databases) LoadEncodedData(
+	in chan LoadEncodedDataInJob,
+) chan LoadEncodedDataOutJob {
 	// establishing channels
-	out := make(chan LiveAuctionsLoadEncodedDataOutJob)
+	out := make(chan LoadEncodedDataOutJob)
 
 	// spinning up workers for receiving encoded-data and persisting it
 	worker := func() {
@@ -46,7 +46,7 @@ func (ladBases LiveAuctionsDatabases) LoadEncodedData(
 					"connected-realm": job.Tuple.ConnectedRealmId,
 				}).Error("failed to find database by tuple")
 
-				out <- LiveAuctionsLoadEncodedDataOutJob{
+				out <- LoadEncodedDataOutJob{
 					Err:   err,
 					Tuple: job.Tuple,
 				}
@@ -61,7 +61,7 @@ func (ladBases LiveAuctionsDatabases) LoadEncodedData(
 					"connected-realm": job.Tuple.ConnectedRealmId,
 				}).Error("failed to persist encoded-data")
 
-				out <- LiveAuctionsLoadEncodedDataOutJob{
+				out <- LoadEncodedDataOutJob{
 					Err:   err,
 					Tuple: job.Tuple,
 				}
@@ -69,7 +69,7 @@ func (ladBases LiveAuctionsDatabases) LoadEncodedData(
 				continue
 			}
 
-			out <- LiveAuctionsLoadEncodedDataOutJob{
+			out <- LoadEncodedDataOutJob{
 				Err:        nil,
 				Tuple:      job.Tuple,
 				ReceivedAt: time.Now(),

@@ -41,7 +41,7 @@ func NewLiveAuctionsState(opts NewLiveAuctionsStateOptions) (LiveAuctionsState, 
 		return LiveAuctionsState{}, err
 	}
 
-	ladBases, err := LiveAuctionsDatabase.NewLiveAuctionsDatabases(opts.LiveAuctionsDatabasesDir, opts.Tuples)
+	ladBases, err := LiveAuctionsDatabase.NewDatabases(opts.LiveAuctionsDatabasesDir, opts.Tuples)
 	if err != nil {
 		return LiveAuctionsState{}, err
 	}
@@ -56,7 +56,7 @@ func NewLiveAuctionsState(opts NewLiveAuctionsStateOptions) (LiveAuctionsState, 
 }
 
 type LiveAuctionsState struct {
-	LiveAuctionsDatabases LiveAuctionsDatabase.LiveAuctionsDatabases
+	LiveAuctionsDatabases LiveAuctionsDatabase.Databases
 
 	Messenger               messenger.Messenger
 	LakeClient              BaseLake.Client

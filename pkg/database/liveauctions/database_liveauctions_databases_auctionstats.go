@@ -22,7 +22,7 @@ func (job AuctionStatsWithTuplesOutJob) ToLogrusFields() logrus.Fields {
 	}
 }
 
-func (ladBases LiveAuctionsDatabases) AuctionStatsWithTuples(
+func (ladBases Databases) AuctionStatsWithTuples(
 	tuples blizzardv2.RegionConnectedRealmTuples,
 ) (sotah.AuctionStats, error) {
 	in := make(chan blizzardv2.RegionConnectedRealmTuple)

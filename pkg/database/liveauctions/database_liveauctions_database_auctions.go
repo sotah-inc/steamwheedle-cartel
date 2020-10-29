@@ -7,7 +7,7 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 )
 
-func (ladBase LiveAuctionsDatabase) persistEncodedData(encodedData []byte) error {
+func (ladBase Database) persistEncodedData(encodedData []byte) error {
 	logging.WithFields(logrus.Fields{
 		"db":           ladBase.db.Path(),
 		"encoded-data": len(encodedData),
@@ -32,7 +32,7 @@ func (ladBase LiveAuctionsDatabase) persistEncodedData(encodedData []byte) error
 	return nil
 }
 
-func (ladBase LiveAuctionsDatabase) GetMiniAuctionList() (sotah.MiniAuctionList, error) {
+func (ladBase Database) GetMiniAuctionList() (sotah.MiniAuctionList, error) {
 	out := sotah.MiniAuctionList{}
 
 	err := ladBase.db.View(func(tx *bolt.Tx) error {

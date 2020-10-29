@@ -23,7 +23,7 @@ func (job PersistRealmStatsJob) ToLogrusFields() logrus.Fields {
 	}
 }
 
-func (ladBases LiveAuctionsDatabases) PersistStats(tuples blizzardv2.RegionConnectedRealmTuples) error {
+func (ladBases Databases) PersistStats(tuples blizzardv2.RegionConnectedRealmTuples) error {
 	in := make(chan blizzardv2.RegionConnectedRealmTuple)
 	out := make(chan PersistRealmStatsJob)
 

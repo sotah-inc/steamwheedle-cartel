@@ -52,7 +52,7 @@ func (sta LiveAuctionsState) LiveAuctionsIntake(tuples blizzardv2.LoadConnectedR
 
 	// spinning up workers
 	getAuctionsByTuplesOut := sta.LakeClient.GetEncodedAuctionsByTuples(tuples.RegionConnectedRealmTuples())
-	loadEncodedDataIn := make(chan LiveAuctionsDatabase.LiveAuctionsLoadEncodedDataInJob)
+	loadEncodedDataIn := make(chan LiveAuctionsDatabase.LoadEncodedDataInJob)
 	loadEncodedDataOut := sta.LiveAuctionsDatabases.LoadEncodedData(loadEncodedDataIn)
 
 	// loading it in
@@ -64,7 +64,7 @@ func (sta LiveAuctionsState) LiveAuctionsIntake(tuples blizzardv2.LoadConnectedR
 				continue
 			}
 
-			loadEncodedDataIn <- LiveAuctionsDatabase.LiveAuctionsLoadEncodedDataInJob{
+			loadEncodedDataIn <- LiveAuctionsDatabase.LoadEncodedDataInJob{
 				Tuple:       job.Tuple(),
 				EncodedData: job.EncodedAuctions(),
 			}
