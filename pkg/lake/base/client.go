@@ -17,4 +17,5 @@ type Client interface {
 	) WriteAuctionsWithTuplesInJob
 	GetEncodedItems(ids blizzardv2.ItemIds) chan GetEncodedItemJob
 	GetEncodedPets(blacklist []blizzardv2.PetId) (chan GetEncodedPetJob, error)
+	GetEncodedProfessions(blacklist []blizzardv2.ProfessionId) (chan GetEncodedProfessionJob, error)
 }

@@ -15,6 +15,10 @@ const (
 )
 
 const (
+	ProfessionsIntake Subject = "professionsIntake"
+)
+
+const (
 	AreaMapsQuery Subject = "areaMapsQuery"
 	AreaMaps      Subject = "areaMaps"
 )
