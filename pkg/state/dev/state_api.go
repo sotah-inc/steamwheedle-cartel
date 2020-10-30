@@ -15,6 +15,7 @@ import (
 type ApiStateDatabaseConfig struct {
 	ItemsDir            string
 	PetsDir             string
+	ProfessionsDir      string
 	TokensDir           string
 	AreaMapsDir         string
 	LiveAuctionsDir     string
@@ -73,6 +74,9 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 		ResolvePets: func(blacklist []blizzardv2.PetId) (chan blizzardv2.GetAllPetsJob, error) {
 			return sta.BlizzardState.ResolvePets(primaryRegion, blacklist)
 		},
+		ResolveProfessions: func(blacklist []blizzardv2.ProfessionId) (chan blizzardv2.GetAllProfessionsJob, error) {
+			return sta.BlizzardState.ResolveProfessions(primaryRegion, blacklist)
+		},
 	})
 	if err != nil {
 		logging.WithField("error", err.Error()).Error("failed to initialise lake-client")
@@ -127,6 +131,18 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 	})
 	if err != nil {
 		logging.WithField("error", err.Error()).Error("failed to initialise pets state")
+
+		return ApiState{}, err
+	}
+
+	// resolving professions state
+	sta.ProfessionsState, err = state.NewProfessionsState(state.NewProfessionsStateOptions{
+		LakeClient:             lakeClient,
+		Messenger:              mess,
+		ProfessionsDatabaseDir: config.DatabaseConfig.ProfessionsDir,
+	})
+	if err != nil {
+		logging.WithField("error", err.Error()).Error("failed to initialise professions state")
 
 		return ApiState{}, err
 	}
@@ -207,14 +223,15 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 type ApiState struct {
 	state.State
 
-	BlizzardState state.BlizzardState
-	ItemsState    state.ItemsState
-	PetsState     state.PetsState
-	AreaMapsState state.AreaMapsState
-	TokensState   state.TokensState
-	RegionState   *state.RegionsState
-	Collector     BaseCollector.Client
-	BootState     state.BootState
+	BlizzardState    state.BlizzardState
+	ItemsState       state.ItemsState
+	PetsState        state.PetsState
+	ProfessionsState state.ProfessionsState
+	AreaMapsState    state.AreaMapsState
+	TokensState      state.TokensState
+	RegionState      *state.RegionsState
+	Collector        BaseCollector.Client
+	BootState        state.BootState
 
 	LiveAuctionsState     state.LiveAuctionsState
 	PricelistHistoryState state.PricelistHistoryState

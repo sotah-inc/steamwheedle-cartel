@@ -3,12 +3,21 @@ package blizzardv2
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/locale"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 )
+
+const professionIndexURLFormat = "https://%s/data/wow/profession/index?namespace=static-%s"
+
+func DefaultProfessionIndexURL(regionHostname string, regionName RegionName) string {
+	return fmt.Sprintf(professionIndexURLFormat, regionHostname, regionName)
+}
+
+type GetProfessionIndexURLFunc func(string) string
 
 type ProfessionsIndexProfession struct {
 	Key  HrefReference  `json:"key"`

@@ -149,3 +149,20 @@ func (sta BlizzardState) ResolvePets(
 		Limit:     250,
 	})
 }
+
+func (sta BlizzardState) ResolveProfessions(
+	primaryRegion sotah.Region,
+	blacklist []blizzardv2.ProfessionId,
+) (chan blizzardv2.GetAllProfessionsJob, error) {
+	logging.WithField("profession-ids", len(blacklist)).Info("resolving professions with blacklist")
+
+	return blizzardv2.GetAllProfessions(blizzardv2.GetAllProfessionsOptions{
+		GetProfessionIndexURL: func() (string, error) {
+			return sta.BlizzardClient.AppendAccessToken(
+				blizzardv2.DefaultProfessionIndexURL(primaryRegion.Hostname, primaryRegion.Name),
+			)
+		},
+		GetProfessionURL: sta.BlizzardClient.AppendAccessToken,
+		Blacklist:        blacklist,
+	})
+}

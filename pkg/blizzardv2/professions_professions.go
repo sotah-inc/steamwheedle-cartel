@@ -11,7 +11,6 @@ type GetAllProfessionsOptions struct {
 	GetProfessionURL      func(string) (string, error)
 
 	Blacklist []ProfessionId
-	Limit     int
 }
 
 type GetAllProfessionsJob struct {
@@ -90,10 +89,6 @@ func GetAllProfessions(opts GetAllProfessionsOptions) (chan GetAllProfessionsJob
 	go func() {
 		total := 0
 		for _, profession := range pIndex.Professions {
-			if total > opts.Limit {
-				break
-			}
-
 			if _, ok := blacklistMap[profession.Id]; ok {
 				continue
 			}
