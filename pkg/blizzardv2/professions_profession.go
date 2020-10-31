@@ -10,9 +10,7 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 )
 
-type ProfessionSkillTierId int
-
-type ProfessionSkillTier struct {
+type ProfessionResponseSkillTier struct {
 	Key  HrefReference         `json:"key"`
 	Name locale.Mapping        `json:"name"`
 	Id   ProfessionSkillTierId `json:"id"`
@@ -33,7 +31,7 @@ type ProfessionResponse struct {
 		Key HrefReference `json:"key"`
 		Id  ProfessionId  `json:"id"`
 	} `json:"media"`
-	SkillTiers []ProfessionSkillTier `json:"skill_tiers"`
+	SkillTiers []ProfessionResponseSkillTier `json:"skill_tiers"`
 }
 
 func NewProfessionResponseFromHTTP(uri string) (ProfessionResponse, ResponseMeta, error) {
