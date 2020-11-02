@@ -17,7 +17,7 @@ type NewClientOptions struct {
 	ResolveSkillTiers  func(
 		idList []blizzardv2.SkillTierId,
 		blacklist []blizzardv2.SkillTierId,
-	) (chan blizzardv2.GetAllSkillTiersJob, error)
+	) chan blizzardv2.GetAllSkillTiersJob
 }
 
 func NewClient(opts NewClientOptions) (Client, error) {
@@ -50,5 +50,5 @@ type Client struct {
 	resolveSkillTiers  func(
 		idList []blizzardv2.SkillTierId,
 		blacklist []blizzardv2.SkillTierId,
-	) (chan blizzardv2.GetAllSkillTiersJob, error)
+	) chan blizzardv2.GetAllSkillTiersJob
 }

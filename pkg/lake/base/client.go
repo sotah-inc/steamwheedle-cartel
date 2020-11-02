@@ -20,6 +20,6 @@ type Client interface {
 	GetEncodedProfessions(blacklist []blizzardv2.ProfessionId) (chan GetEncodedProfessionJob, error)
 	GetEncodedSkillTiers(
 		idList []blizzardv2.SkillTierId,
-		blacklist []blizzardv2.ProfessionId,
-	) (chan GetEncodedProfessionJob, error)
+		blacklist []blizzardv2.SkillTierId,
+	) chan GetEncodedSkillTierJob
 }

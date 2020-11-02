@@ -27,14 +27,11 @@ func (g getEncodedSkillTierJob) ToLogrusFields() logrus.Fields {
 func (client Client) GetEncodedSkillTiers(
 	idList []blizzardv2.SkillTierId,
 	blacklist []blizzardv2.SkillTierId,
-) (chan BaseLake.GetEncodedSkillTierJob, error) {
+) chan BaseLake.GetEncodedSkillTierJob {
 	out := make(chan BaseLake.GetEncodedSkillTierJob)
 
 	// starting up workers for resolving skill-tiers
-	skillTiersOut, err := client.resolveSkillTiers(idList, blacklist)
-	if err != nil {
-		return nil, err
-	}
+	skillTiersOut := client.resolveSkillTiers(idList, blacklist)
 
 	// queueing it all up
 	go func() {
@@ -70,5 +67,5 @@ func (client Client) GetEncodedSkillTiers(
 		close(out)
 	}()
 
-	return out, nil
+	return out
 }

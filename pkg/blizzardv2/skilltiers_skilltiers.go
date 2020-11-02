@@ -25,7 +25,7 @@ func (job GetAllSkillTiersJob) ToLogrusFields() logrus.Fields {
 	}
 }
 
-func GetAllSkillTiers(opts GetAllSkillTiersOptions) (chan GetAllSkillTiersJob, error) {
+func GetAllSkillTiers(opts GetAllSkillTiersOptions) chan GetAllSkillTiersJob {
 	// starting up workers for gathering individual skillTiers
 	in := make(chan SkillTierId)
 	out := make(chan GetAllSkillTiersJob)
@@ -87,5 +87,5 @@ func GetAllSkillTiers(opts GetAllSkillTiersOptions) (chan GetAllSkillTiersJob, e
 		close(in)
 	}()
 
-	return out, nil
+	return out
 }
