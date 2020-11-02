@@ -3,6 +3,8 @@ package state
 import (
 	"errors"
 
+	"github.com/sirupsen/logrus"
+
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/itemclass"
 
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
@@ -164,5 +166,31 @@ func (sta BlizzardState) ResolveProfessions(
 		},
 		GetProfessionURL: sta.BlizzardClient.AppendAccessToken,
 		Blacklist:        blacklist,
+	})
+}
+
+func (sta BlizzardState) ResolveSkillTiers(
+	primaryRegion sotah.Region,
+	professionId blizzardv2.ProfessionId,
+	idList []blizzardv2.SkillTierId,
+	blacklist []blizzardv2.SkillTierId,
+) chan blizzardv2.GetAllSkillTiersJob {
+	logging.WithFields(logrus.Fields{
+		"profession":    professionId,
+		"provided-ids":  len(idList),
+		"blacklist-ids": len(blacklist),
+	}).Info("resolving skill-tiers with blacklist")
+
+	return blizzardv2.GetAllSkillTiers(blizzardv2.GetAllSkillTiersOptions{
+		GetSkillTierURL: func(id blizzardv2.SkillTierId) (string, error) {
+			return sta.BlizzardClient.AppendAccessToken(blizzardv2.DefaultSkillTierURL(
+				primaryRegion.Hostname,
+				professionId,
+				id,
+				primaryRegion.Name,
+			))
+		},
+		Blacklist:       blacklist,
+		SkillTierIdList: idList,
 	})
 }
