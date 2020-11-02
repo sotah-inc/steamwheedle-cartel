@@ -209,6 +209,7 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 	sta.Listeners = state.NewListeners(state.NewSubjectListeners([]state.SubjectListeners{
 		sta.ItemsState.GetListeners(),
 		sta.PetsState.GetListeners(),
+		sta.ProfessionsState.GetListeners(),
 		sta.AreaMapsState.GetListeners(),
 		sta.TokensState.GetListeners(),
 		sta.RegionState.GetListeners(),
