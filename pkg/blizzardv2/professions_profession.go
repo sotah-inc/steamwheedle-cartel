@@ -11,9 +11,9 @@ import (
 )
 
 type ProfessionResponseSkillTier struct {
-	Key  HrefReference         `json:"key"`
-	Name locale.Mapping        `json:"name"`
-	Id   ProfessionSkillTierId `json:"id"`
+	Key  HrefReference  `json:"key"`
+	Name locale.Mapping `json:"name"`
+	Id   SkillTierId    `json:"id"`
 }
 
 type ProfessionId int
