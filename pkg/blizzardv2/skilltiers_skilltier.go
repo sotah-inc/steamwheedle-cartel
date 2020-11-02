@@ -22,7 +22,7 @@ func DefaultSkillTierURL(
 	return fmt.Sprintf(skillTierURLFormat, regionHostname, professionId, skillTierId, regionName)
 }
 
-type GetSkillTierURLFunc func(string) string
+type GetSkillTierURLFunc func(string, ProfessionId, SkillTierId, RegionName) string
 
 type SkillTierId int
 
