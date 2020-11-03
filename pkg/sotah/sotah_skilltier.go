@@ -22,3 +22,20 @@ func (SkillTier SkillTier) EncodeForStorage() ([]byte, error) {
 
 	return util.GzipEncode(jsonEncoded)
 }
+
+func NewSkillTiersIntakeRequest(body []byte) (SkillTiersIntakeRequest, error) {
+	out := &SkillTiersIntakeRequest{}
+	if err := json.Unmarshal(body, out); err != nil {
+		return SkillTiersIntakeRequest{}, err
+	}
+
+	return *out, nil
+}
+
+type SkillTiersIntakeRequest struct {
+	ProfessionId blizzardv2.ProfessionId `json:"profession_id"`
+}
+
+func (req SkillTiersIntakeRequest) EncodeForDelivery() ([]byte, error) {
+	return json.Marshal(req)
+}

@@ -1,7 +1,6 @@
 package state
 
 import (
-	"encoding/json"
 	"time"
 
 	"github.com/nats-io/nats.go"
@@ -11,6 +10,7 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger/codes"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state/subjects"
 )
 
@@ -18,7 +18,7 @@ func (sta ProfessionsState) ListenForSkillTiersIntake(stop ListenStopChan) error
 	err := sta.Messenger.Subscribe(string(subjects.SkillTiersIntake), stop, func(natsMsg nats.Msg) {
 		m := messenger.NewMessage()
 
-		req, err := NewSkillTiersIntakeRequest([]byte(m.Data))
+		req, err := sotah.NewSkillTiersIntakeRequest([]byte(m.Data))
 		if err != nil {
 			m.Err = err.Error()
 			m.Code = codes.MsgJSONParseError
@@ -42,23 +42,6 @@ func (sta ProfessionsState) ListenForSkillTiersIntake(stop ListenStopChan) error
 	}
 
 	return nil
-}
-
-func NewSkillTiersIntakeRequest(body []byte) (SkillTiersIntakeRequest, error) {
-	out := &SkillTiersIntakeRequest{}
-	if err := json.Unmarshal(body, out); err != nil {
-		return SkillTiersIntakeRequest{}, err
-	}
-
-	return *out, nil
-}
-
-type SkillTiersIntakeRequest struct {
-	ProfessionId blizzardv2.ProfessionId `json:"profession_id"`
-}
-
-func (req SkillTiersIntakeRequest) EncodeForDelivery() ([]byte, error) {
-	return json.Marshal(req)
 }
 
 func (sta ProfessionsState) SkillTiersIntake(professionId blizzardv2.ProfessionId) error {
