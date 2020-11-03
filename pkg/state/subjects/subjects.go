@@ -15,6 +15,7 @@ const (
 )
 
 const (
+	Professions       Subject = "professions"
 	ProfessionsIntake Subject = "professionsIntake"
 	SkillTiersIntake  Subject = "skillTiersIntake"
 )
