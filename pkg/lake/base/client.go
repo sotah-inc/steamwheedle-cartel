@@ -19,6 +19,7 @@ type Client interface {
 	GetEncodedPets(blacklist []blizzardv2.PetId) (chan GetEncodedPetJob, error)
 	GetEncodedProfessions(blacklist []blizzardv2.ProfessionId) (chan GetEncodedProfessionJob, error)
 	GetEncodedSkillTiers(
+		professionId blizzardv2.ProfessionId,
 		idList []blizzardv2.SkillTierId,
 		blacklist []blizzardv2.SkillTierId,
 	) chan GetEncodedSkillTierJob

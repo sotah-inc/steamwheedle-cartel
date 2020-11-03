@@ -77,6 +77,13 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 		ResolveProfessions: func(blacklist []blizzardv2.ProfessionId) (chan blizzardv2.GetAllProfessionsJob, error) {
 			return sta.BlizzardState.ResolveProfessions(primaryRegion, blacklist)
 		},
+		ResolveSkillTiers: func(
+			professionId blizzardv2.ProfessionId,
+			idList []blizzardv2.SkillTierId,
+			blacklist []blizzardv2.SkillTierId,
+		) chan blizzardv2.GetAllSkillTiersJob {
+			return sta.BlizzardState.ResolveSkillTiers(primaryRegion, professionId, idList, blacklist)
+		},
 	})
 	if err != nil {
 		logging.WithField("error", err.Error()).Error("failed to initialise lake-client")

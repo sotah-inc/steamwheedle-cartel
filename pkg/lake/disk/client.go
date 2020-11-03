@@ -15,6 +15,7 @@ type NewClientOptions struct {
 	ResolvePets        func(blacklist []blizzardv2.PetId) (chan blizzardv2.GetAllPetsJob, error)
 	ResolveProfessions func(blacklist []blizzardv2.ProfessionId) (chan blizzardv2.GetAllProfessionsJob, error)
 	ResolveSkillTiers  func(
+		professionId blizzardv2.ProfessionId,
 		idList []blizzardv2.SkillTierId,
 		blacklist []blizzardv2.SkillTierId,
 	) chan blizzardv2.GetAllSkillTiersJob
@@ -48,6 +49,7 @@ type Client struct {
 	resolvePets        func(blacklist []blizzardv2.PetId) (chan blizzardv2.GetAllPetsJob, error)
 	resolveProfessions func(blacklist []blizzardv2.ProfessionId) (chan blizzardv2.GetAllProfessionsJob, error)
 	resolveSkillTiers  func(
+		professionId blizzardv2.ProfessionId,
 		idList []blizzardv2.SkillTierId,
 		blacklist []blizzardv2.SkillTierId,
 	) chan blizzardv2.GetAllSkillTiersJob
