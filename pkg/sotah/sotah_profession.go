@@ -9,6 +9,15 @@ import (
 
 type ProfessionMeta struct{}
 
+func NewProfession(data []byte) (Profession, error) {
+	out := Profession{}
+	if err := json.Unmarshal(data, &out); err != nil {
+		return Profession{}, err
+	}
+
+	return out, nil
+}
+
 type Profession struct {
 	BlizzardMeta blizzardv2.ProfessionResponse `json:"blizzard_meta"`
 	SotahMeta    ProfessionMeta                `json:"sotah_meta"`
