@@ -16,6 +16,7 @@ const (
 
 const (
 	ProfessionsIntake Subject = "professionsIntake"
+	SkillTiersIntake  Subject = "skillTiersIntake"
 )
 
 const (
