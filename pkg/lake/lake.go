@@ -19,6 +19,7 @@ type NewClientOptions struct {
 		idList []blizzardv2.SkillTierId,
 		blacklist []blizzardv2.SkillTierId,
 	) chan blizzardv2.GetAllSkillTiersJob
+	ResolveRecipes func(ids []blizzardv2.RecipeId) chan blizzardv2.GetRecipesJob
 }
 
 func NewClient(opts NewClientOptions) (BaseLake.Client, error) {
@@ -31,6 +32,7 @@ func NewClient(opts NewClientOptions) (BaseLake.Client, error) {
 			ResolvePets:        opts.ResolvePets,
 			ResolveProfessions: opts.ResolveProfessions,
 			ResolveSkillTiers:  opts.ResolveSkillTiers,
+			ResolveRecipes:     opts.ResolveRecipes,
 		})
 	}
 
@@ -42,5 +44,6 @@ func NewClient(opts NewClientOptions) (BaseLake.Client, error) {
 		ResolvePets:        opts.ResolvePets,
 		ResolveProfessions: opts.ResolveProfessions,
 		ResolveSkillTiers:  opts.ResolveSkillTiers,
+		ResolveRecipes:     opts.ResolveRecipes,
 	})
 }
