@@ -18,7 +18,7 @@ func (sta ProfessionsState) ListenForSkillTiersIntake(stop ListenStopChan) error
 	err := sta.Messenger.Subscribe(string(subjects.SkillTiersIntake), stop, func(natsMsg nats.Msg) {
 		m := messenger.NewMessage()
 
-		req, err := sotah.NewSkillTiersIntakeRequest([]byte(m.Data))
+		req, err := sotah.NewSkillTiersIntakeRequest(natsMsg.Data)
 		if err != nil {
 			m.Err = err.Error()
 			m.Code = codes.MsgJSONParseError
