@@ -5,35 +5,35 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 )
 
-type GetAllRecipesOptions struct {
+type GetRecipesOptions struct {
 	GetRecipeURL func(RecipeId) (string, error)
 
 	RecipeIds []RecipeId
 	Limit     int
 }
 
-type GetAllRecipesJob struct {
+type GetRecipesJob struct {
 	Err            error
 	Id             RecipeId
 	RecipeResponse RecipeResponse
 }
 
-func (job GetAllRecipesJob) ToLogrusFields() logrus.Fields {
+func (job GetRecipesJob) ToLogrusFields() logrus.Fields {
 	return logrus.Fields{
 		"error": job.Err.Error(),
 		"id":    job.Id,
 	}
 }
 
-func GetAllRecipes(opts GetAllRecipesOptions) chan GetAllRecipesJob {
+func GetRecipes(opts GetRecipesOptions) chan GetRecipesJob {
 	// starting up workers for gathering individual recipes
 	in := make(chan RecipeId)
-	out := make(chan GetAllRecipesJob)
+	out := make(chan GetRecipesJob)
 	worker := func() {
 		for id := range in {
 			getRecipeUri, err := opts.GetRecipeURL(id)
 			if err != nil {
-				out <- GetAllRecipesJob{
+				out <- GetRecipesJob{
 					Err:            err,
 					Id:             id,
 					RecipeResponse: RecipeResponse{},
@@ -44,7 +44,7 @@ func GetAllRecipes(opts GetAllRecipesOptions) chan GetAllRecipesJob {
 
 			recipeResp, _, err := NewRecipeResponseFromHTTP(getRecipeUri)
 			if err != nil {
-				out <- GetAllRecipesJob{
+				out <- GetRecipesJob{
 					Err:            err,
 					Id:             id,
 					RecipeResponse: RecipeResponse{},
@@ -53,7 +53,7 @@ func GetAllRecipes(opts GetAllRecipesOptions) chan GetAllRecipesJob {
 				continue
 			}
 
-			out <- GetAllRecipesJob{
+			out <- GetRecipesJob{
 				Err:            nil,
 				Id:             id,
 				RecipeResponse: recipeResp,
