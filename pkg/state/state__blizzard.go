@@ -194,3 +194,20 @@ func (sta BlizzardState) ResolveSkillTiers(
 		SkillTierIdList: idList,
 	})
 }
+
+func (sta BlizzardState) ResolveRecipes(
+	primaryRegion sotah.Region,
+	ids []blizzardv2.RecipeId,
+) chan blizzardv2.GetAllRecipesJob {
+	logging.WithField("recipe-ids", len(ids)).Info("resolving recipe-ids")
+
+	return blizzardv2.GetAllRecipes(blizzardv2.GetAllRecipesOptions{
+		GetRecipeURL: func(id blizzardv2.RecipeId) (string, error) {
+			return sta.BlizzardClient.AppendAccessToken(
+				blizzardv2.DefaultGetRecipeURL(primaryRegion.Hostname, id, primaryRegion.Name),
+			)
+		},
+		RecipeIds: ids,
+		Limit:     250,
+	})
+}
