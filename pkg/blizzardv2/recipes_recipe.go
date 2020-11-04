@@ -1,6 +1,14 @@
 package blizzardv2
 
-import "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/locale"
+import (
+	"encoding/json"
+	"errors"
+	"net/http"
+
+	"github.com/sirupsen/logrus"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/locale"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
+)
 
 type RecipeId int
 
@@ -27,7 +35,7 @@ type RecipeModifiedCraftingSlots struct {
 	DisplayOrder int `json:"display_order"`
 }
 
-type Recipe struct {
+type RecipeResponse struct {
 	LinksBase
 	Id          RecipeId       `json:"id"`
 	Name        locale.Mapping `json:"name"`
@@ -43,4 +51,46 @@ type Recipe struct {
 		Value float32 `json:"value"`
 	} `json:"crafted_quantity"`
 	ModifiedCraftingSlots []RecipeModifiedCraftingSlots `json:"modified_crafting_slots"`
+}
+
+func NewRecipeResponse(body []byte) (RecipeResponse, error) {
+	psTier := &RecipeResponse{}
+	if err := json.Unmarshal(body, psTier); err != nil {
+		return RecipeResponse{}, err
+	}
+
+	return *psTier, nil
+}
+
+func NewRecipeResponseFromHTTP(uri string) (RecipeResponse, ResponseMeta, error) {
+	resp, err := Download(DownloadOptions{Uri: uri})
+	if err != nil {
+		logging.WithFields(logrus.Fields{
+			"error": err.Error(),
+			"uri":   ClearAccessToken(uri),
+		}).Error("failed to download recipe")
+
+		return RecipeResponse{}, resp, err
+	}
+
+	if resp.Status != http.StatusOK {
+		logging.WithFields(logrus.Fields{
+			"status": resp.Status,
+			"uri":    ClearAccessToken(uri),
+		}).Error("resp from recipe was not 200")
+
+		return RecipeResponse{}, resp, errors.New("status was not 200")
+	}
+
+	psTier, err := NewRecipeResponse(resp.Body)
+	if err != nil {
+		logging.WithFields(logrus.Fields{
+			"error": err.Error(),
+			"uri":   ClearAccessToken(uri),
+		}).Error("failed to parse recipe response")
+
+		return RecipeResponse{}, resp, err
+	}
+
+	return psTier, resp, nil
 }
