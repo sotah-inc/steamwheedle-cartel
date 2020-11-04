@@ -9,9 +9,14 @@ import (
 
 type ProfessionMeta struct{}
 
-func NewProfession(data []byte) (Profession, error) {
+func NewProfession(gzipEncoded []byte) (Profession, error) {
+	gzipDecoded, err := util.GzipDecode(gzipEncoded)
+	if err != nil {
+		return Profession{}, err
+	}
+
 	out := Profession{}
-	if err := json.Unmarshal(data, &out); err != nil {
+	if err := json.Unmarshal(gzipDecoded, &out); err != nil {
 		return Profession{}, err
 	}
 
