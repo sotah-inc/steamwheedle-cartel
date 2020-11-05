@@ -9,7 +9,6 @@ type GetAllSkillTiersOptions struct {
 	GetSkillTierURL func(SkillTierId) (string, error)
 
 	SkillTierIdList []SkillTierId
-	Blacklist       []SkillTierId
 }
 
 type GetAllSkillTiersJob struct {
@@ -65,20 +64,10 @@ func GetAllSkillTiers(opts GetAllSkillTiersOptions) chan GetAllSkillTiersJob {
 	}
 	util.Work(4, worker, postWork)
 
-	// converting blacklist to map for filtering
-	blacklistMap := map[SkillTierId]struct{}{}
-	for _, id := range opts.Blacklist {
-		blacklistMap[id] = struct{}{}
-	}
-
 	// queueing it up
 	go func() {
 		total := 0
 		for _, id := range opts.SkillTierIdList {
-			if _, ok := blacklistMap[id]; ok {
-				continue
-			}
-
 			in <- id
 
 			total += 1

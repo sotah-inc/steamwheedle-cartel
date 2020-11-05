@@ -80,9 +80,8 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 		ResolveSkillTiers: func(
 			professionId blizzardv2.ProfessionId,
 			idList []blizzardv2.SkillTierId,
-			blacklist []blizzardv2.SkillTierId,
 		) chan blizzardv2.GetAllSkillTiersJob {
-			return sta.BlizzardState.ResolveSkillTiers(primaryRegion, professionId, idList, blacklist)
+			return sta.BlizzardState.ResolveSkillTiers(primaryRegion, professionId, idList)
 		},
 		ResolveRecipes: func(ids []blizzardv2.RecipeId) chan blizzardv2.GetRecipesJob {
 			return sta.BlizzardState.ResolveRecipes(primaryRegion, ids)

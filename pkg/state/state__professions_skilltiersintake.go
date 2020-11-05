@@ -58,29 +58,35 @@ func (sta ProfessionsState) SkillTiersIntake(professionId blizzardv2.ProfessionI
 		return err
 	}
 
-	skillTierIdsToFetch := make([]blizzardv2.SkillTierId, len(profession.BlizzardMeta.SkillTiers))
-	for i, skillTier := range profession.BlizzardMeta.SkillTiers {
-		skillTierIdsToFetch[i] = skillTier.Id
-	}
+	// gathering profession skill-tier ids
+	professionSkillTierIds := profession.SkillTierIds()
 
-	// resolving skill-tier-ids to not sync
-	skillTierIdsBlacklist, err := sta.ProfessionsDatabase.GetSkillTierIds(professionId)
+	// gathering current skill-tier ids
+	currentSkillTierIds, err := sta.ProfessionsDatabase.GetSkillTierIds(professionId)
 	if err != nil {
-		logging.WithField("error", err.Error()).Error("failed to get skill-tier-ids for blacklist")
+		logging.WithField("error", err.Error()).Error("failed to get current skill-tier-ids")
 
 		return err
 	}
 
-	logging.WithFields(logrus.Fields{
-		"ids-to-fetch":  len(skillTierIdsToFetch),
-		"ids-blacklist": len(skillTierIdsBlacklist),
-	}).Info("collecting skill-tiers sans blacklist")
+	// resolving skill-tier-ids to fetch
+	currentSkillTierIdsMap := map[blizzardv2.SkillTierId]struct{}{}
+	for _, id := range currentSkillTierIds {
+		currentSkillTierIdsMap[id] = struct{}{}
+	}
+	var skillTierIdsToFetch []blizzardv2.SkillTierId
+	for _, id := range professionSkillTierIds {
+		if _, ok := currentSkillTierIdsMap[id]; ok {
+			continue
+		}
+
+		skillTierIdsToFetch = append(skillTierIdsToFetch, id)
+	}
 
 	// starting up an intake queue
 	getEncodedSkillTiersOut := sta.LakeClient.GetEncodedSkillTiers(
 		professionId,
 		skillTierIdsToFetch,
-		skillTierIdsBlacklist,
 	)
 	persistSkillTiersIn := make(chan ProfessionsDatabase.PersistEncodedSkillTiersInJob)
 

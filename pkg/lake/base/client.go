@@ -21,7 +21,6 @@ type Client interface {
 	GetEncodedSkillTiers(
 		professionId blizzardv2.ProfessionId,
 		idList []blizzardv2.SkillTierId,
-		blacklist []blizzardv2.SkillTierId,
 	) chan GetEncodedSkillTierJob
 	GetEncodedRecipes(ids []blizzardv2.RecipeId) chan GetEncodedRecipeJob
 }

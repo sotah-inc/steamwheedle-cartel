@@ -36,3 +36,12 @@ func (profession Profession) EncodeForStorage() ([]byte, error) {
 
 	return util.GzipEncode(jsonEncoded)
 }
+
+func (profession Profession) SkillTierIds() []blizzardv2.SkillTierId {
+	out := make([]blizzardv2.SkillTierId, len(profession.BlizzardMeta.SkillTiers))
+	for i, skillTier := range profession.BlizzardMeta.SkillTiers {
+		out[i] = skillTier.Id
+	}
+
+	return out
+}

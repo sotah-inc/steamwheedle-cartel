@@ -173,13 +173,11 @@ func (sta BlizzardState) ResolveSkillTiers(
 	primaryRegion sotah.Region,
 	professionId blizzardv2.ProfessionId,
 	idList []blizzardv2.SkillTierId,
-	blacklist []blizzardv2.SkillTierId,
 ) chan blizzardv2.GetAllSkillTiersJob {
 	logging.WithFields(logrus.Fields{
-		"profession":    professionId,
-		"provided-ids":  len(idList),
-		"blacklist-ids": len(blacklist),
-	}).Info("resolving skill-tiers with blacklist")
+		"profession":   professionId,
+		"provided-ids": len(idList),
+	}).Info("resolving skill-tiers")
 
 	return blizzardv2.GetAllSkillTiers(blizzardv2.GetAllSkillTiersOptions{
 		GetSkillTierURL: func(id blizzardv2.SkillTierId) (string, error) {
@@ -190,7 +188,6 @@ func (sta BlizzardState) ResolveSkillTiers(
 				primaryRegion.Name,
 			))
 		},
-		Blacklist:       blacklist,
 		SkillTierIdList: idList,
 	})
 }

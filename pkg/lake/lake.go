@@ -17,7 +17,6 @@ type NewClientOptions struct {
 	ResolveSkillTiers  func(
 		professionId blizzardv2.ProfessionId,
 		idList []blizzardv2.SkillTierId,
-		blacklist []blizzardv2.SkillTierId,
 	) chan blizzardv2.GetAllSkillTiersJob
 	ResolveRecipes func(ids []blizzardv2.RecipeId) chan blizzardv2.GetRecipesJob
 }
