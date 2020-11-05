@@ -9,6 +9,20 @@ import (
 
 type RecipeMeta struct{}
 
+func NewRecipe(gzipEncoded []byte) (Recipe, error) {
+	gzipDecoded, err := util.GzipDecode(gzipEncoded)
+	if err != nil {
+		return Recipe{}, err
+	}
+
+	out := Recipe{}
+	if err := json.Unmarshal(gzipDecoded, &out); err != nil {
+		return Recipe{}, err
+	}
+
+	return out, nil
+}
+
 type Recipe struct {
 	BlizzardMeta blizzardv2.RecipeResponse `json:"blizzard_meta"`
 	SotahMeta    RecipeMeta                `json:"sotah_meta"`

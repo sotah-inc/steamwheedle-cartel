@@ -8,23 +8,23 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 )
 
-func (pdBase Database) GetProfession(id blizzardv2.ProfessionId) (sotah.Profession, error) {
-	out := sotah.Profession{}
+func (pdBase Database) GetRecipe(id blizzardv2.RecipeId) (sotah.Recipe, error) {
+	out := sotah.Recipe{}
 
 	// peeking into the professions database
 	err := pdBase.db.View(func(tx *bolt.Tx) error {
-		baseBucket := tx.Bucket(baseBucketName())
-		if baseBucket == nil {
-			return errors.New("professions bucket was blank")
+		recipesBucket := tx.Bucket(recipesBucketName())
+		if recipesBucket == nil {
+			return errors.New("recipes bucket was blank")
 		}
 
-		data := baseBucket.Get(baseKeyName(id))
+		data := recipesBucket.Get(recipeKeyName(id))
 		if data == nil {
-			return errors.New("profession not found")
+			return errors.New("recipe not found")
 		}
 
 		var err error
-		out, err = sotah.NewProfession(data)
+		out, err = sotah.NewRecipe(data)
 		if err != nil {
 			return err
 		}
@@ -32,7 +32,7 @@ func (pdBase Database) GetProfession(id blizzardv2.ProfessionId) (sotah.Professi
 		return nil
 	})
 	if err != nil {
-		return sotah.Profession{}, err
+		return sotah.Recipe{}, err
 	}
 
 	return out, nil
