@@ -36,3 +36,23 @@ func (recipe Recipe) EncodeForStorage() ([]byte, error) {
 
 	return util.GzipEncode(jsonEncoded)
 }
+
+func (recipe Recipe) ItemIds() []blizzardv2.ItemId {
+	var out []blizzardv2.ItemId
+
+	if !recipe.BlizzardMeta.AllianceCraftedItem.IsZero() {
+		out = append(out, recipe.BlizzardMeta.AllianceCraftedItem.Id)
+	}
+	if !recipe.BlizzardMeta.HordeCraftedItem.IsZero() {
+		out = append(out, recipe.BlizzardMeta.AllianceCraftedItem.Id)
+	}
+	for _, reagentItem := range recipe.BlizzardMeta.Reagents {
+		if reagentItem.Reagent.IsZero() {
+			continue
+		}
+
+		out = append(out, reagentItem.Reagent.Id)
+	}
+
+	return out
+}
