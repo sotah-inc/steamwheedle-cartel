@@ -3,6 +3,8 @@ package state
 import (
 	"time"
 
+	ProfessionsDatabase "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database/professions"
+
 	"github.com/nats-io/nats.go"
 	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
@@ -75,9 +77,41 @@ func (sta ProfessionsState) RecipesIntake() error {
 		"recipe-ids-to-fetch":   len(recipeIdsToFetch),
 	}).Info("collecting recipe-ids")
 
+	// starting up an intake queue
+	getEncodedRecipesOut := sta.LakeClient.GetEncodedRecipes(recipeIdsToFetch)
+	persistRecipesIn := make(chan ProfessionsDatabase.PersistEncodedRecipesInJob)
+
+	// queueing it all up
+	go func() {
+		for job := range getEncodedRecipesOut {
+			if job.Err() != nil {
+				logging.WithFields(job.ToLogrusFields()).Error("failed to resolve recipe")
+
+				continue
+			}
+
+			logging.WithField("recipe-id", job.Id()).Info("enqueueing recipe for persistence")
+
+			persistRecipesIn <- ProfessionsDatabase.PersistEncodedRecipesInJob{
+				RecipeId:      job.Id(),
+				EncodedRecipe: job.EncodedRecipe(),
+			}
+		}
+
+		close(persistRecipesIn)
+	}()
+
+	totalPersisted, err := sta.ProfessionsDatabase.PersistEncodedRecipes(persistRecipesIn)
+	if err != nil {
+		logging.WithField("error", err.Error()).Error("failed to persist recipe")
+
+		return err
+	}
+
 	logging.WithFields(logrus.Fields{
+		"total":          totalPersisted,
 		"duration-in-ms": time.Since(startTime).Milliseconds(),
-	}).Info("total persisted in skill-tier-intake")
+	}).Info("total persisted in recipes-intake")
 
 	return nil
 }
