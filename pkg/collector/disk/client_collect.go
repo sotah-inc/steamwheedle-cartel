@@ -3,6 +3,8 @@ package disk
 import (
 	"time"
 
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
+
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 )
 
@@ -23,10 +25,6 @@ func (c Client) Collect() error {
 		return err
 	}
 
-	if err := c.CallItemsIntake(collectAuctionsResults.itemIds); err != nil {
-		return err
-	}
-
 	if err := c.CallPetsIntake(); err != nil {
 		return err
 	}
@@ -39,7 +37,21 @@ func (c Client) Collect() error {
 		return err
 	}
 
-	if err := c.CallRecipesIntake(); err != nil {
+	recipesItemIds, err := c.CallRecipesIntake()
+	if err != nil {
+		return err
+	}
+
+	// resolving next item-ids from auctions and recipes intake
+	nextItemIds := blizzardv2.ItemIdsMap{}
+	for _, id := range collectAuctionsResults.itemIds {
+		nextItemIds[id] = struct{}{}
+	}
+	for _, id := range recipesItemIds {
+		nextItemIds[id] = struct{}{}
+	}
+
+	if err := c.CallItemsIntake(nextItemIds.ToItemIds()); err != nil {
 		return err
 	}
 
