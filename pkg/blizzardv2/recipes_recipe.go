@@ -42,6 +42,24 @@ func (ids RecipeIds) Merge(input RecipeIds) RecipeIds {
 	return NewRecipeIdsFromMap(idMap)
 }
 
+func (ids RecipeIds) Append(input RecipeIds) RecipeIds {
+	out := make(RecipeIds, len(ids)+len(input))
+	i := 0
+	for _, id := range ids {
+		out[i] = id
+
+		i += 1
+	}
+
+	for _, id := range input {
+		out[i] = id
+
+		i += 1
+	}
+
+	return out
+}
+
 func NewRecipeIdMap(ids RecipeIds) RecipeIdMap {
 	out := RecipeIdMap{}
 	for _, id := range ids {
