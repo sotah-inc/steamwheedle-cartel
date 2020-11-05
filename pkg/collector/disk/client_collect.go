@@ -10,26 +10,26 @@ func (c Client) Collect() error {
 	startTime := time.Now()
 	logging.Info("calling DiskCollector.Collect()")
 
-	//collectAuctionsResults, err := c.collectAuctions()
-	//if err != nil {
-	//	return err
-	//}
-	//
-	//if err := c.CallLiveAuctionsIntake(collectAuctionsResults.tuples.RegionConnectedRealmTuples()); err != nil {
-	//	return err
-	//}
-	//
-	//if err := c.CallPricelistHistoryIntake(collectAuctionsResults.tuples); err != nil {
-	//	return err
-	//}
-	//
-	//if err := c.CallItemsIntake(collectAuctionsResults.itemIds); err != nil {
-	//	return err
-	//}
-	//
-	//if err := c.CallPetsIntake(); err != nil {
-	//	return err
-	//}
+	collectAuctionsResults, err := c.collectAuctions()
+	if err != nil {
+		return err
+	}
+
+	if err := c.CallLiveAuctionsIntake(collectAuctionsResults.tuples.RegionConnectedRealmTuples()); err != nil {
+		return err
+	}
+
+	if err := c.CallPricelistHistoryIntake(collectAuctionsResults.tuples); err != nil {
+		return err
+	}
+
+	if err := c.CallItemsIntake(collectAuctionsResults.itemIds); err != nil {
+		return err
+	}
+
+	if err := c.CallPetsIntake(); err != nil {
+		return err
+	}
 
 	if err := c.CallProfessionsIntake(); err != nil {
 		return err
