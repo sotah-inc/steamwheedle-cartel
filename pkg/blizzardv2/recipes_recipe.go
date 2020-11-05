@@ -19,28 +19,7 @@ func DefaultGetRecipeURL(regionHostname string, id RecipeId, regionName RegionNa
 
 type GetRecipeURLFunc func(string, RecipeId, RegionName) string
 
-func NewRecipeIdsFromMap(idMap RecipeIdMap) RecipeIds {
-	out := make(RecipeIds, len(idMap))
-	i := 0
-	for id := range idMap {
-		out[i] = id
-
-		i += 1
-	}
-
-	return out
-}
-
 type RecipeIds []RecipeId
-
-func (ids RecipeIds) Merge(input RecipeIds) RecipeIds {
-	idMap := NewRecipeIdMap(ids)
-	for _, id := range input {
-		idMap[id] = struct{}{}
-	}
-
-	return NewRecipeIdsFromMap(idMap)
-}
 
 func (ids RecipeIds) Append(input RecipeIds) RecipeIds {
 	out := make(RecipeIds, len(ids)+len(input))
@@ -55,31 +34,6 @@ func (ids RecipeIds) Append(input RecipeIds) RecipeIds {
 		out[i] = id
 
 		i += 1
-	}
-
-	return out
-}
-
-func NewRecipeIdMap(ids RecipeIds) RecipeIdMap {
-	out := RecipeIdMap{}
-	for _, id := range ids {
-		out[id] = struct{}{}
-	}
-
-	return out
-}
-
-type RecipeIdMap map[RecipeId]struct{}
-
-func (idMap RecipeIdMap) Exclude(ids RecipeIds) RecipeIdMap {
-	excludedIdMap := NewRecipeIdMap(ids)
-	out := RecipeIdMap{}
-	for id := range idMap {
-		if _, ok := excludedIdMap[id]; ok {
-			continue
-		}
-
-		out[id] = struct{}{}
 	}
 
 	return out

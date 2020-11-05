@@ -3,10 +3,9 @@ package state
 import (
 	"time"
 
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
-
 	"github.com/nats-io/nats.go"
 	"github.com/sirupsen/logrus"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger/codes"
@@ -37,7 +36,7 @@ func (sta ProfessionsState) ListenForRecipesIntake(stop ListenStopChan) error {
 func (sta ProfessionsState) RecipesIntake() error {
 	startTime := time.Now()
 
-	// resolving profession recipe-ids to check
+	// gathering profession recipe-ids
 	professionRecipeIds, err := sta.ProfessionsDatabase.GetProfessionRecipeIds()
 	if err != nil {
 		logging.WithField(
@@ -48,7 +47,7 @@ func (sta ProfessionsState) RecipesIntake() error {
 		return err
 	}
 
-	// resolving current recipe-ids
+	// gathering current recipe-ids
 	currentRecipeIds, err := sta.ProfessionsDatabase.GetRecipeIds()
 	if err != nil {
 		logging.WithField("error", err.Error()).Error("failed to get current recipe-ids")
@@ -57,9 +56,18 @@ func (sta ProfessionsState) RecipesIntake() error {
 	}
 
 	// resolving recipe-ids to fetch
-	recipeIdsToFetch := blizzardv2.NewRecipeIdsFromMap(
-		blizzardv2.NewRecipeIdMap(professionRecipeIds).Exclude(currentRecipeIds),
-	)
+	currentRecipeIdsMap := map[blizzardv2.RecipeId]struct{}{}
+	for _, id := range currentRecipeIds {
+		currentRecipeIdsMap[id] = struct{}{}
+	}
+	var recipeIdsToFetch []blizzardv2.RecipeId
+	for _, id := range professionRecipeIds {
+		if _, ok := currentRecipeIdsMap[id]; ok {
+			continue
+		}
+
+		recipeIdsToFetch = append(recipeIdsToFetch, id)
+	}
 
 	logging.WithFields(logrus.Fields{
 		"profession-recipe-ids": len(professionRecipeIds),
