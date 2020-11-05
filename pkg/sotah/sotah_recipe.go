@@ -36,30 +36,3 @@ func (recipe Recipe) EncodeForStorage() ([]byte, error) {
 
 	return util.GzipEncode(jsonEncoded)
 }
-
-func NewRecipeIntakeRequest(gzipEncoded []byte) (RecipesIntakeRequest, error) {
-	jsonEncoded, err := util.GzipDecode(gzipEncoded)
-	if err != nil {
-		return RecipesIntakeRequest{}, err
-	}
-
-	out := &RecipesIntakeRequest{}
-	if err := json.Unmarshal(jsonEncoded, out); err != nil {
-		return RecipesIntakeRequest{}, err
-	}
-
-	return *out, nil
-}
-
-type RecipesIntakeRequest struct {
-	RecipeIds []blizzardv2.RecipeId `json:"recipe_ids"`
-}
-
-func (req RecipesIntakeRequest) EncodeForDelivery() ([]byte, error) {
-	jsonEncoded, err := json.Marshal(req)
-	if err != nil {
-		return []byte{}, err
-	}
-
-	return util.GzipEncode(jsonEncoded)
-}
