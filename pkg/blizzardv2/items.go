@@ -24,6 +24,7 @@ func (job GetItemsOutJob) ToLogrusFields() logrus.Fields {
 type GetItemsOptions struct {
 	GetItemURL func(id ItemId) (string, error)
 	ItemIds    []ItemId
+	Limit      int
 }
 
 func GetItems(opts GetItemsOptions) chan GetItemsOutJob {
@@ -68,10 +69,14 @@ func GetItems(opts GetItemsOptions) chan GetItemsOutJob {
 
 	// queueing it up
 	go func() {
-		for _, id := range opts.ItemIds {
+		for i, id := range opts.ItemIds {
 			logging.WithField("item-id", id).Info("enqueueing item for downloading")
 
 			in <- id
+
+			if i > opts.Limit {
+				break
+			}
 		}
 
 		close(in)
