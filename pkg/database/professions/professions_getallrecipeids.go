@@ -6,7 +6,7 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 )
 
-func (pdBase Database) GetAllRecipeIds() ([]blizzardv2.RecipeId, error) {
+func (pdBase Database) GetProfessionRecipeIds() (blizzardv2.RecipeIds, error) {
 	out := blizzardv2.RecipeIds{}
 
 	// peeking into the professions database

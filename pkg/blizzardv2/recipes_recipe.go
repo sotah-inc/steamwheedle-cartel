@@ -71,6 +71,20 @@ func NewRecipeIdMap(ids RecipeIds) RecipeIdMap {
 
 type RecipeIdMap map[RecipeId]struct{}
 
+func (idMap RecipeIdMap) Exclude(ids RecipeIds) RecipeIdMap {
+	excludedIdMap := NewRecipeIdMap(ids)
+	out := RecipeIdMap{}
+	for id := range idMap {
+		if _, ok := excludedIdMap[id]; ok {
+			continue
+		}
+
+		out[id] = struct{}{}
+	}
+
+	return out
+}
+
 type RecipeId int
 
 type RecipeItem struct {
