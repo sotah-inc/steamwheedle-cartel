@@ -16,7 +16,7 @@ func (pdBase Database) GetProfessionIds() ([]blizzardv2.ProfessionId, error) {
 		}
 
 		return baseBucket.ForEach(func(k []byte, v []byte) error {
-			id, err := professionIdFromBaseKeyName(k)
+			id, err := professionIdFromKeyName(k)
 			if err != nil {
 				return err
 			}

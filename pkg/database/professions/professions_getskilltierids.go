@@ -16,7 +16,7 @@ func (pdBase Database) GetSkillTierIds(professionId blizzardv2.ProfessionId) ([]
 		}
 
 		return stBucket.ForEach(func(k []byte, v []byte) error {
-			id, err := skillTierIdFromSkillTierKeyName(k)
+			id, err := skillTierIdFromKeyName(k)
 			if err != nil {
 				return err
 			}

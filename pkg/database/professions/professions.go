@@ -25,7 +25,7 @@ func baseKeyName(id blizzardv2.ProfessionId) []byte {
 	return []byte(fmt.Sprintf("profession-%d", id))
 }
 
-func professionIdFromBaseKeyName(key []byte) (blizzardv2.ProfessionId, error) {
+func professionIdFromKeyName(key []byte) (blizzardv2.ProfessionId, error) {
 	unparsedId, err := strconv.Atoi(string(key)[len("profession-"):])
 	if err != nil {
 		return blizzardv2.ProfessionId(0), err
@@ -39,7 +39,7 @@ func skillTiersKeyName(id blizzardv2.SkillTierId) []byte {
 	return []byte(fmt.Sprintf("skill-tier-%d", id))
 }
 
-func skillTierIdFromSkillTierKeyName(key []byte) (blizzardv2.SkillTierId, error) {
+func skillTierIdFromKeyName(key []byte) (blizzardv2.SkillTierId, error) {
 	unparsedId, err := strconv.Atoi(string(key)[len("skill-tier-"):])
 	if err != nil {
 		return blizzardv2.SkillTierId(0), err
@@ -49,8 +49,17 @@ func skillTierIdFromSkillTierKeyName(key []byte) (blizzardv2.SkillTierId, error)
 }
 
 // recipes keying
-func recipesKeyName(id blizzardv2.RecipeId) []byte {
+func recipeKeyName(id blizzardv2.RecipeId) []byte {
 	return []byte(fmt.Sprintf("recipe-%d", id))
+}
+
+func recipeIdFromKeyName(key []byte) (blizzardv2.RecipeId, error) {
+	unparsedId, err := strconv.Atoi(string(key)[len("recipe-"):])
+	if err != nil {
+		return blizzardv2.RecipeId(0), err
+	}
+
+	return blizzardv2.RecipeId(unparsedId), nil
 }
 
 // db
