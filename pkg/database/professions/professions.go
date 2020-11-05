@@ -16,7 +16,11 @@ func skillTiersBucketName(professionId blizzardv2.ProfessionId) []byte {
 	return []byte(fmt.Sprintf("profession-%d-skill-tiers", professionId))
 }
 
-// keying
+func recipesBucketName() []byte {
+	return []byte("recipes")
+}
+
+// base keying
 func baseKeyName(id blizzardv2.ProfessionId) []byte {
 	return []byte(fmt.Sprintf("profession-%d", id))
 }
@@ -30,6 +34,7 @@ func professionIdFromBaseKeyName(key []byte) (blizzardv2.ProfessionId, error) {
 	return blizzardv2.ProfessionId(unparsedId), nil
 }
 
+// skill-tiers keying
 func skillTiersKeyName(id blizzardv2.SkillTierId) []byte {
 	return []byte(fmt.Sprintf("skill-tier-%d", id))
 }
@@ -41,6 +46,11 @@ func skillTierIdFromSkillTierKeyName(key []byte) (blizzardv2.SkillTierId, error)
 	}
 
 	return blizzardv2.SkillTierId(unparsedId), nil
+}
+
+// recipes keying
+func recipesKeyName(id blizzardv2.RecipeId) []byte {
+	return []byte(fmt.Sprintf("recipe-%d", id))
 }
 
 // db
