@@ -32,7 +32,7 @@ func NewProfessionsResponse(base64Encoded string) (ProfessionsResponse, error) {
 }
 
 type ProfessionsResponse struct {
-	Professions []sotah.Profession `json:"professions"`
+	Professions []sotah.ShortProfession `json:"professions"`
 }
 
 func (resp ProfessionsResponse) EncodeForDelivery() (string, error) {
@@ -62,7 +62,7 @@ func (sta ProfessionsState) ListenForProfessions(stop ListenStopChan) error {
 			return
 		}
 
-		resp := ProfessionsResponse{Professions: professions}
+		resp := ProfessionsResponse{Professions: sotah.NewShortProfessions(professions)}
 		data, err := resp.EncodeForDelivery()
 		if err != nil {
 			m.Err = err.Error()

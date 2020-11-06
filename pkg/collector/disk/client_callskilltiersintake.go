@@ -42,7 +42,7 @@ func (c Client) CallSkillTiersIntake() error {
 	}
 
 	for _, profession := range professionsResponse.Professions {
-		req := sotah.SkillTiersIntakeRequest{ProfessionId: profession.BlizzardMeta.Id}
+		req := sotah.SkillTiersIntakeRequest{ProfessionId: profession.Id}
 		encodedReq, err := req.EncodeForDelivery()
 		if err != nil {
 			logging.WithField("error", err.Error()).Error(
