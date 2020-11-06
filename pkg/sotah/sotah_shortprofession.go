@@ -1,11 +1,14 @@
 package sotah
 
-import "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
+import (
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/locale"
+)
 
-func NewShortProfessions(professions []Profession) ShortProfessions {
+func NewShortProfessions(professions []Profession, providedLocale locale.Locale) ShortProfessions {
 	out := make(ShortProfessions, len(professions))
 	for i, profession := range professions {
-		out[i] = NewShortProfession(profession)
+		out[i] = NewShortProfession(profession, providedLocale)
 	}
 
 	return out
@@ -13,12 +16,14 @@ func NewShortProfessions(professions []Profession) ShortProfessions {
 
 type ShortProfessions []ShortProfession
 
-func NewShortProfession(profession Profession) ShortProfession {
+func NewShortProfession(profession Profession, providedLocale locale.Locale) ShortProfession {
 	return ShortProfession{
-		Id: profession.BlizzardMeta.Id,
+		Id:   profession.BlizzardMeta.Id,
+		Name: profession.BlizzardMeta.Name.FindOr(providedLocale, ""),
 	}
 }
 
 type ShortProfession struct {
-	Id blizzardv2.ProfessionId `json:"id"`
+	Id   blizzardv2.ProfessionId `json:"id"`
+	Name string                  `json:"name"`
 }

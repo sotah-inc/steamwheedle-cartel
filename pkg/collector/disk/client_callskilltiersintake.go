@@ -4,6 +4,8 @@ import (
 	"errors"
 	"time"
 
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/locale"
+
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger/codes"
@@ -13,9 +15,15 @@ import (
 )
 
 func (c Client) CallSkillTiersIntake() error {
+	professionsRequest := state.ProfessionsRequest{Locale: locale.EnUS}
+	encodedRequest, err := professionsRequest.EncodeForDelivery()
+	if err != nil {
+		return err
+	}
+
 	professionsMsg, err := c.messengerClient.Request(messenger.RequestOptions{
 		Subject: string(subjects.Professions),
-		Data:    nil,
+		Data:    encodedRequest,
 		Timeout: 10 * time.Minute,
 	})
 	if err != nil {
