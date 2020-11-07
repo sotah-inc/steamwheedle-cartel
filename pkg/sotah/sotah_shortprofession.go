@@ -16,14 +16,41 @@ func NewShortProfessions(professions []Profession, providedLocale locale.Locale)
 
 type ShortProfessions []ShortProfession
 
+type ShortProfessionType struct {
+	Type string `json:"type"`
+	Name string `json:"name"`
+}
+
+type ShortProfessionSkillTier struct {
+	Id   blizzardv2.SkillTierId `json:"id"`
+	Name string                 `json:"name"`
+}
+
 func NewShortProfession(profession Profession, providedLocale locale.Locale) ShortProfession {
+	skillTiers := make([]ShortProfessionSkillTier, len(profession.BlizzardMeta.SkillTiers))
+	for i, skillTier := range profession.BlizzardMeta.SkillTiers {
+		skillTiers[i] = ShortProfessionSkillTier{
+			Id:   skillTier.Id,
+			Name: skillTier.Name.FindOr(providedLocale, ""),
+		}
+	}
+
 	return ShortProfession{
-		Id:   profession.BlizzardMeta.Id,
-		Name: profession.BlizzardMeta.Name.FindOr(providedLocale, ""),
+		Id:          profession.BlizzardMeta.Id,
+		Name:        profession.BlizzardMeta.Name.FindOr(providedLocale, ""),
+		Description: profession.BlizzardMeta.Description.FindOr(providedLocale, ""),
+		Type: ShortProfessionType{
+			Type: profession.BlizzardMeta.Type.Type,
+			Name: profession.BlizzardMeta.Type.Name.FindOr(providedLocale, ""),
+		},
+		SkillTiers: skillTiers,
 	}
 }
 
 type ShortProfession struct {
-	Id   blizzardv2.ProfessionId `json:"id"`
-	Name string                  `json:"name"`
+	Id          blizzardv2.ProfessionId    `json:"id"`
+	Name        string                     `json:"name"`
+	Description string                     `json:"description"`
+	Type        ShortProfessionType        `json:"type"`
+	SkillTiers  []ShortProfessionSkillTier `json:"skilltiers"`
 }
