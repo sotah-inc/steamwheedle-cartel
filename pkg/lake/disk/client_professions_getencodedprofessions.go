@@ -34,11 +34,15 @@ func (client Client) GetEncodedProfessions(
 ) (chan BaseLake.GetEncodedProfessionJob, error) {
 	out := make(chan BaseLake.GetEncodedProfessionJob)
 
-	// starting up workers for resolving items
+	// starting up workers for resolving professions
 	professionsOut, err := client.resolveProfessions(blacklist)
 	if err != nil {
 		return nil, err
 	}
+
+	// starting up workers for resolving profession-medias
+	professionMediasIn := make(chan blizzardv2.GetProfessionMediasInJob)
+	professionMediasOut := client.resolveProfessionMedias(professionMediasIn)
 
 	// queueing it all up
 	go func() {
@@ -49,6 +53,19 @@ func (client Client) GetEncodedProfessions(
 				continue
 			}
 
+			logging.WithField(
+				"profession-id", job.ProfessionResponse.Id,
+			).Info("enqueueing profession for profession-media resolution")
+
+			professionMediasIn <- blizzardv2.GetProfessionMediasInJob{
+				ProfessionResponse: job.ProfessionResponse,
+			}
+		}
+
+		close(professionMediasIn)
+	}()
+	go func() {
+		for job := range professionMediasOut {
 			normalizedName, err := func() (locale.Mapping, error) {
 				foundName, ok := job.ProfessionResponse.Name[locale.EnUS]
 				if !ok {
@@ -71,9 +88,21 @@ func (client Client) GetEncodedProfessions(
 				continue
 			}
 
+			professionIconUrl, err := job.ProfessionMediaResponse.GetIconUrl()
+			if err != nil {
+				logging.WithFields(logrus.Fields{
+					"error":    err.Error(),
+					"response": job.ProfessionMediaResponse,
+				}).Error("profession-media did not have icon")
+
+				continue
+			}
+
 			profession := sotah.Profession{
 				BlizzardMeta: job.ProfessionResponse,
-				SotahMeta:    sotah.ProfessionMeta{},
+				SotahMeta: sotah.ProfessionMeta{
+					IconUrl: professionIconUrl,
+				},
 			}
 
 			encodedProfession, err := profession.EncodeForStorage()

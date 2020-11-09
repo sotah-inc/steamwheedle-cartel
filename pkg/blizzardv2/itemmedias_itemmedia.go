@@ -32,7 +32,7 @@ type ItemMediaResponse struct {
 
 func (res ItemMediaResponse) GetIcon() (string, error) {
 	if len(res.Assets) == 0 {
-		return "", errors.New("could not find ")
+		return "", errors.New("assets was blank")
 	}
 
 	v := res.Assets[0].Value

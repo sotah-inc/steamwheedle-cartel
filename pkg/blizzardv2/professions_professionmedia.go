@@ -21,6 +21,14 @@ type ProfessionMediaResponse struct {
 	Id     ProfessionId                   `json:"id"`
 }
 
+func (res ProfessionMediaResponse) GetIconUrl() (string, error) {
+	if len(res.Assets) == 0 {
+		return "", errors.New("assets was blank")
+	}
+
+	return res.Assets[0].Value, nil
+}
+
 func NewProfessionMediaResponseFromHTTP(uri string) (ProfessionMediaResponse, ResponseMeta, error) {
 	resp, err := Download(DownloadOptions{Uri: uri})
 	if err != nil {
