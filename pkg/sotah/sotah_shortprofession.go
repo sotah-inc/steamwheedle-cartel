@@ -44,6 +44,7 @@ func NewShortProfession(profession Profession, providedLocale locale.Locale) Sho
 			Name: profession.BlizzardMeta.Type.Name.FindOr(providedLocale, ""),
 		},
 		SkillTiers: skillTiers,
+		IconUrl:    profession.SotahMeta.IconUrl,
 	}
 }
 
@@ -53,4 +54,5 @@ type ShortProfession struct {
 	Description string                     `json:"description"`
 	Type        ShortProfessionType        `json:"type"`
 	SkillTiers  []ShortProfessionSkillTier `json:"skilltiers"`
+	IconUrl     string                     `json:"icon_url"`
 }
