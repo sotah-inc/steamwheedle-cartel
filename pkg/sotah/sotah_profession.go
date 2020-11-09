@@ -7,7 +7,9 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 )
 
-type ProfessionMeta struct{}
+type ProfessionMeta struct {
+	IconUrl string `json:"icon_url"`
+}
 
 func NewProfession(gzipEncoded []byte) (Profession, error) {
 	gzipDecoded, err := util.GzipDecode(gzipEncoded)
