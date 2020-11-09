@@ -25,7 +25,7 @@ func (job GetProfessionMediasOutJob) ToLogrusFields() logrus.Fields {
 func GetProfessionsMedias(
 	in chan GetProfessionMediasInJob,
 	getProfessionMediaURL func(string) (string, error),
-) (chan GetProfessionMediasOutJob, error) {
+) chan GetProfessionMediasOutJob {
 	// starting up workers for gathering individual professions
 	out := make(chan GetProfessionMediasOutJob)
 	worker := func() {
@@ -64,5 +64,5 @@ func GetProfessionsMedias(
 	}
 	util.Work(4, worker, postWork)
 
-	return out, nil
+	return out
 }

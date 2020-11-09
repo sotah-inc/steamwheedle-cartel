@@ -8,13 +8,14 @@ import (
 )
 
 type NewClientOptions struct {
-	CacheDir           string
-	RegionNames        []blizzardv2.RegionName
-	ResolveItems       func(ids blizzardv2.ItemIds) chan blizzardv2.GetItemsOutJob
-	ResolveItemMedias  func(in chan blizzardv2.GetItemMediasInJob) chan blizzardv2.GetItemMediasOutJob
-	ResolvePets        func(blacklist []blizzardv2.PetId) (chan blizzardv2.GetAllPetsJob, error)
-	ResolveProfessions func(blacklist []blizzardv2.ProfessionId) (chan blizzardv2.GetAllProfessionsJob, error)
-	ResolveSkillTiers  func(
+	CacheDir                string
+	RegionNames             []blizzardv2.RegionName
+	ResolveItems            func(ids blizzardv2.ItemIds) chan blizzardv2.GetItemsOutJob
+	ResolveItemMedias       func(in chan blizzardv2.GetItemMediasInJob) chan blizzardv2.GetItemMediasOutJob
+	ResolvePets             func(blacklist []blizzardv2.PetId) (chan blizzardv2.GetAllPetsJob, error)
+	ResolveProfessions      func(blacklist []blizzardv2.ProfessionId) (chan blizzardv2.GetAllProfessionsJob, error)
+	ResolveProfessionMedias func(in chan blizzardv2.GetProfessionMediasInJob) chan blizzardv2.GetProfessionMediasOutJob
+	ResolveSkillTiers       func(
 		professionId blizzardv2.ProfessionId,
 		idList []blizzardv2.SkillTierId,
 	) chan blizzardv2.GetAllSkillTiersJob
@@ -33,23 +34,25 @@ func NewClient(opts NewClientOptions) (Client, error) {
 	}
 
 	return Client{
-		cacheDir:           opts.CacheDir,
-		resolveItems:       opts.ResolveItems,
-		resolveItemMedias:  opts.ResolveItemMedias,
-		resolvePets:        opts.ResolvePets,
-		resolveProfessions: opts.ResolveProfessions,
-		resolveSkillTiers:  opts.ResolveSkillTiers,
-		resolveRecipes:     opts.ResolveRecipes,
+		cacheDir:                opts.CacheDir,
+		resolveItems:            opts.ResolveItems,
+		resolveItemMedias:       opts.ResolveItemMedias,
+		resolvePets:             opts.ResolvePets,
+		resolveProfessions:      opts.ResolveProfessions,
+		resolveProfessionMedias: opts.ResolveProfessionMedias,
+		resolveSkillTiers:       opts.ResolveSkillTiers,
+		resolveRecipes:          opts.ResolveRecipes,
 	}, nil
 }
 
 type Client struct {
-	cacheDir           string
-	resolveItems       func(ids blizzardv2.ItemIds) chan blizzardv2.GetItemsOutJob
-	resolveItemMedias  func(in chan blizzardv2.GetItemMediasInJob) chan blizzardv2.GetItemMediasOutJob
-	resolvePets        func(blacklist []blizzardv2.PetId) (chan blizzardv2.GetAllPetsJob, error)
-	resolveProfessions func(blacklist []blizzardv2.ProfessionId) (chan blizzardv2.GetAllProfessionsJob, error)
-	resolveSkillTiers  func(
+	cacheDir                string
+	resolveItems            func(ids blizzardv2.ItemIds) chan blizzardv2.GetItemsOutJob
+	resolveItemMedias       func(in chan blizzardv2.GetItemMediasInJob) chan blizzardv2.GetItemMediasOutJob
+	resolvePets             func(blacklist []blizzardv2.PetId) (chan blizzardv2.GetAllPetsJob, error)
+	resolveProfessions      func(blacklist []blizzardv2.ProfessionId) (chan blizzardv2.GetAllProfessionsJob, error)
+	resolveProfessionMedias func(in chan blizzardv2.GetProfessionMediasInJob) chan blizzardv2.GetProfessionMediasOutJob
+	resolveSkillTiers       func(
 		professionId blizzardv2.ProfessionId,
 		idList []blizzardv2.SkillTierId,
 	) chan blizzardv2.GetAllSkillTiersJob

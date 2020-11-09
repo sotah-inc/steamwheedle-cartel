@@ -77,6 +77,7 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 		ResolveProfessions: func(blacklist []blizzardv2.ProfessionId) (chan blizzardv2.GetAllProfessionsJob, error) {
 			return sta.BlizzardState.ResolveProfessions(primaryRegion, blacklist)
 		},
+		ResolveProfessionMedias: sta.BlizzardState.ResolveProfessionMedias,
 		ResolveSkillTiers: func(
 			professionId blizzardv2.ProfessionId,
 			idList []blizzardv2.SkillTierId,

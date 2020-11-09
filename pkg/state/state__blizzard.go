@@ -170,6 +170,12 @@ func (sta BlizzardState) ResolveProfessions(
 	})
 }
 
+func (sta BlizzardState) ResolveProfessionMedias(
+	in chan blizzardv2.GetProfessionMediasInJob,
+) chan blizzardv2.GetProfessionMediasOutJob {
+	return blizzardv2.GetProfessionsMedias(in, sta.BlizzardClient.AppendAccessToken)
+}
+
 func (sta BlizzardState) ResolveSkillTiers(
 	primaryRegion sotah.Region,
 	professionId blizzardv2.ProfessionId,
