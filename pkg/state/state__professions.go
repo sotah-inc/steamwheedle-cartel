@@ -49,5 +49,6 @@ func (sta ProfessionsState) GetListeners() SubjectListeners {
 		subjects.SkillTiersIntake:  sta.ListenForSkillTiersIntake,
 		subjects.Professions:       sta.ListenForProfessions,
 		subjects.RecipesIntake:     sta.ListenForRecipesIntake,
+		subjects.SkillTier:         sta.ListenForSkillTier,
 	}
 }
