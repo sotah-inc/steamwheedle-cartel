@@ -73,6 +73,7 @@ type RecipeResponse struct {
 		Key HrefReference `json:"key"`
 		Id  RecipeId      `json:"id"`
 	} `json:"media"`
+	CraftedItem         RecipeItem      `json:"crafted_item"`
 	AllianceCraftedItem RecipeItem      `json:"alliance_crafted_item"`
 	HordeCraftedItem    RecipeItem      `json:"horde_crafted_item"`
 	Reagents            []RecipeReagent `json:"reagents"`
