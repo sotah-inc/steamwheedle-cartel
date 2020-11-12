@@ -41,7 +41,7 @@ func NewShortSkillTierCategories(
 }
 
 type ShortSkillTierCategory struct {
-	Name    string                         `json:"locale"`
+	Name    string                         `json:"name"`
 	Recipes []ShortSkillTierCategoryRecipe `json:"recipes"`
 }
 
