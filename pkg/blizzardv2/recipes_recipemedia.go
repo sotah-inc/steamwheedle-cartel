@@ -21,6 +21,14 @@ type RecipeMediaResponse struct {
 	Id     RecipeId                   `json:"id"`
 }
 
+func (res RecipeMediaResponse) GetIconUrl() (string, error) {
+	if len(res.Assets) == 0 {
+		return "", errors.New("assets was blank")
+	}
+
+	return res.Assets[0].Value, nil
+}
+
 func NewRecipeMediaResponse(body []byte) (RecipeMediaResponse, error) {
 	rmResp := &RecipeMediaResponse{}
 	if err := json.Unmarshal(body, rmResp); err != nil {

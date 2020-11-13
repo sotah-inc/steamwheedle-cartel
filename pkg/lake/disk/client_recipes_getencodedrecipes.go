@@ -32,6 +32,10 @@ func (client Client) GetEncodedRecipes(
 	// starting up workers for resolving recipes
 	recipesOut := client.resolveRecipes(ids)
 
+	// starting up workers for resolving recipe-medias
+	recipeMediasIn := make(chan blizzardv2.GetRecipeMediasInJob)
+	recipeMediasOut := client.resolveRecipeMedias(recipeMediasIn)
+
 	// queueing it all up
 	go func() {
 		for job := range recipesOut {
@@ -41,9 +45,40 @@ func (client Client) GetEncodedRecipes(
 				continue
 			}
 
+			logging.WithField(
+				"recipe-id", job.RecipeResponse.Id,
+			).Info("enqueueing profession for recipe-media resolution")
+
+			recipeMediasIn <- blizzardv2.GetRecipeMediasInJob{
+				RecipeResponse: job.RecipeResponse,
+			}
+		}
+
+		close(recipeMediasIn)
+	}()
+	go func() {
+		for job := range recipeMediasOut {
+			if job.Err != nil {
+				logging.WithFields(job.ToLogrusFields()).Error("failed to resolve recipe")
+
+				continue
+			}
+
+			recipeIconUrl, err := job.RecipeMediaResponse.GetIconUrl()
+			if err != nil {
+				logging.WithFields(logrus.Fields{
+					"error":    err.Error(),
+					"response": job.RecipeMediaResponse,
+				}).Error("recipe-media did not have icon")
+
+				continue
+			}
+
 			recipe := sotah.Recipe{
 				BlizzardMeta: job.RecipeResponse,
-				SotahMeta:    sotah.RecipeMeta{},
+				SotahMeta: sotah.RecipeMeta{
+					IconUrl: recipeIconUrl,
+				},
 			}
 
 			encodedRecipe, err := recipe.EncodeForStorage()

@@ -7,7 +7,9 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 )
 
-type RecipeMeta struct{}
+type RecipeMeta struct {
+	IconUrl string `json:"icon_url"`
+}
 
 func NewRecipe(gzipEncoded []byte) (Recipe, error) {
 	gzipDecoded, err := util.GzipDecode(gzipEncoded)
