@@ -21,6 +21,7 @@ const (
 	RecipesIntake     Subject = "recipesIntake"
 	SkillTier         Subject = "skillTier"
 	Recipe            Subject = "recipe"
+	RecipesIcons      Subject = "recipesIcons"
 )
 
 const (

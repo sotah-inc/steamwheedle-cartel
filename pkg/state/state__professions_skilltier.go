@@ -84,6 +84,7 @@ func (sta ProfessionsState) ListenForSkillTier(stop ListenStopChan) error {
 			return
 		}
 
+		// resolving skill-tier
 		skillTier, err := sta.ProfessionsDatabase.GetSkillTier(req.ProfessionId, req.SkillTierId)
 		if err != nil {
 			m.Err = err.Error()
@@ -93,7 +94,19 @@ func (sta ProfessionsState) ListenForSkillTier(stop ListenStopChan) error {
 			return
 		}
 
-		resp := SkillTierResponse{SkillTier: sotah.NewShortSkillTier(skillTier, req.Locale)}
+		recipeIconUrls, err := sta.ProfessionsDatabase.GetRecipesIcons(skillTier.RecipeIds())
+		if err != nil {
+			m.Err = err.Error()
+			m.Code = codes.GenericError
+			sta.Messenger.ReplyTo(natsMsg, m)
+
+			return
+		}
+
+		// dumping out the response
+		resp := SkillTierResponse{
+			SkillTier: sotah.NewShortSkillTier(skillTier, req.Locale, recipeIconUrls),
+		}
 		data, err := resp.EncodeForDelivery()
 		if err != nil {
 			m.Err = err.Error()
