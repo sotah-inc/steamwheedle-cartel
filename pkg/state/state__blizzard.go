@@ -215,3 +215,9 @@ func (sta BlizzardState) ResolveRecipes(
 		Limit:     250,
 	})
 }
+
+func (sta BlizzardState) ResolveRecipeMedias(
+	in chan blizzardv2.GetRecipeMediasInJob,
+) chan blizzardv2.GetRecipeMediasOutJob {
+	return blizzardv2.GetRecipeMedias(in, sta.BlizzardClient.AppendAccessToken)
+}

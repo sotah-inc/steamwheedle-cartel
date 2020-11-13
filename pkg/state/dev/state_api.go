@@ -87,6 +87,7 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 		ResolveRecipes: func(ids []blizzardv2.RecipeId) chan blizzardv2.GetRecipesJob {
 			return sta.BlizzardState.ResolveRecipes(primaryRegion, ids)
 		},
+		ResolveRecipeMedias: sta.BlizzardState.ResolveRecipeMedias,
 	})
 	if err != nil {
 		logging.WithField("error", err.Error()).Error("failed to initialise lake-client")
