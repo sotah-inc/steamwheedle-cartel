@@ -61,5 +61,6 @@ type ShortRecipe struct {
 	AllianceCraftedItem ShortRecipeItem      `json:"alliance_crafted_item"`
 	HordeCraftedItem    ShortRecipeItem      `json:"horde_crafted_item"`
 	Reagents            []ShortRecipeReagent `json:"reagents"`
+	Rank                int                  `json:"rank"`
 	CraftedQuantity     float32              `json:"crafted_quantity"`
 }
