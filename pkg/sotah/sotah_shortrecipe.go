@@ -49,6 +49,7 @@ func NewShortRecipe(recipe Recipe, providedLocale locale.Locale) ShortRecipe {
 		AllianceCraftedItem: NewShortRecipeItem(recipe.BlizzardMeta.AllianceCraftedItem, providedLocale),
 		HordeCraftedItem:    NewShortRecipeItem(recipe.BlizzardMeta.HordeCraftedItem, providedLocale),
 		Reagents:            NewShortRecipeReagents(recipe.BlizzardMeta.Reagents, providedLocale),
+		Rank:                recipe.BlizzardMeta.Rank,
 		CraftedQuantity:     recipe.BlizzardMeta.CraftedQuantity.Value,
 	}
 }

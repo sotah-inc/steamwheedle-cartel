@@ -77,6 +77,7 @@ type RecipeResponse struct {
 	AllianceCraftedItem RecipeItem      `json:"alliance_crafted_item"`
 	HordeCraftedItem    RecipeItem      `json:"horde_crafted_item"`
 	Reagents            []RecipeReagent `json:"reagents"`
+	Rank                int             `json:"rank"`
 	CraftedQuantity     struct {
 		Value float32 `json:"value"`
 	} `json:"crafted_quantity"`
