@@ -94,7 +94,7 @@ func (sta ProfessionsState) ListenForSkillTier(stop ListenStopChan) error {
 			return
 		}
 
-		recipeIconUrls, err := sta.ProfessionsDatabase.GetRecipesIcons(skillTier.RecipeIds())
+		recipes, err := sta.ProfessionsDatabase.GetRecipes(skillTier.RecipeIds())
 		if err != nil {
 			m.Err = err.Error()
 			m.Code = codes.GenericError
@@ -103,9 +103,14 @@ func (sta ProfessionsState) ListenForSkillTier(stop ListenStopChan) error {
 			return
 		}
 
+		recipesMap := map[blizzardv2.RecipeId]sotah.Recipe{}
+		for _, recipe := range recipes {
+			recipesMap[recipe.BlizzardMeta.Id] = recipe
+		}
+
 		// dumping out the response
 		resp := SkillTierResponse{
-			SkillTier: sotah.NewShortSkillTier(skillTier, req.Locale, recipeIconUrls),
+			SkillTier: sotah.NewShortSkillTier(skillTier, req.Locale, recipesMap),
 		}
 		data, err := resp.EncodeForDelivery()
 		if err != nil {

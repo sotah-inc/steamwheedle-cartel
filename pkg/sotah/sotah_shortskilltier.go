@@ -8,23 +8,24 @@ import (
 func NewShortSkillTierCategoryRecipes(
 	recipes []blizzardv2.SkillTierCategoryRecipe,
 	providedLocale locale.Locale,
-	recipeIconUrls map[blizzardv2.RecipeId]string,
+	providedRecipes map[blizzardv2.RecipeId]Recipe,
 ) []ShortSkillTierCategoryRecipe {
 	out := make([]ShortSkillTierCategoryRecipe, len(recipes))
 	for i, recipe := range recipes {
-		iconUrl := func() string {
-			foundIconUrl, ok := recipeIconUrls[recipe.Id]
+		foundRecipe := func() Recipe {
+			foundRecipe, ok := providedRecipes[recipe.Id]
 			if !ok {
-				return ""
+				return Recipe{}
 			}
 
-			return foundIconUrl
+			return foundRecipe
 		}()
 
 		out[i] = ShortSkillTierCategoryRecipe{
 			Id:      recipe.Id,
 			Name:    recipe.Name.FindOr(providedLocale, ""),
-			IconUrl: iconUrl,
+			IconUrl: foundRecipe.SotahMeta.IconUrl,
+			Rank:    foundRecipe.BlizzardMeta.Rank,
 		}
 	}
 
@@ -35,18 +36,19 @@ type ShortSkillTierCategoryRecipe struct {
 	Id      blizzardv2.RecipeId `json:"id"`
 	Name    string              `json:"name"`
 	IconUrl string              `json:"icon_url"`
+	Rank    int                 `json:"rank"`
 }
 
 func NewShortSkillTierCategories(
 	categories []blizzardv2.SkillTierCategory,
 	providedLocale locale.Locale,
-	recipeIconUrls map[blizzardv2.RecipeId]string,
+	providedRecipes map[blizzardv2.RecipeId]Recipe,
 ) []ShortSkillTierCategory {
 	out := make([]ShortSkillTierCategory, len(categories))
 	for i, category := range categories {
 		out[i] = ShortSkillTierCategory{
 			Name:    category.Name.FindOr(providedLocale, ""),
-			Recipes: NewShortSkillTierCategoryRecipes(category.Recipes, providedLocale, recipeIconUrls),
+			Recipes: NewShortSkillTierCategoryRecipes(category.Recipes, providedLocale, providedRecipes),
 		}
 	}
 
@@ -61,7 +63,7 @@ type ShortSkillTierCategory struct {
 func NewShortSkillTier(
 	skillTier SkillTier,
 	providedLocale locale.Locale,
-	recipeIconUrls map[blizzardv2.RecipeId]string,
+	providedRecipes map[blizzardv2.RecipeId]Recipe,
 ) ShortSkillTier {
 	return ShortSkillTier{
 		Id:   skillTier.BlizzardMeta.Id,
@@ -69,7 +71,7 @@ func NewShortSkillTier(
 		Categories: NewShortSkillTierCategories(
 			skillTier.BlizzardMeta.Categories,
 			providedLocale,
-			recipeIconUrls,
+			providedRecipes,
 		),
 	}
 }

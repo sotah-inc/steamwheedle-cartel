@@ -6,8 +6,8 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 )
 
-func (pdBase Database) GetRecipesIcons(idList []blizzardv2.RecipeId) (map[blizzardv2.RecipeId]string, error) {
-	out := map[blizzardv2.RecipeId]string{}
+func (pdBase Database) GetRecipes(idList []blizzardv2.RecipeId) ([]sotah.Recipe, error) {
+	var out []sotah.Recipe
 
 	// peeking into the professions database
 	err := pdBase.db.View(func(tx *bolt.Tx) error {
@@ -27,13 +27,13 @@ func (pdBase Database) GetRecipesIcons(idList []blizzardv2.RecipeId) (map[blizza
 				return err
 			}
 
-			out[recipe.BlizzardMeta.Id] = recipe.SotahMeta.IconUrl
+			out = append(out, recipe)
 		}
 
 		return nil
 	})
 	if err != nil {
-		return map[blizzardv2.RecipeId]string{}, err
+		return []sotah.Recipe{}, err
 	}
 
 	return out, nil
