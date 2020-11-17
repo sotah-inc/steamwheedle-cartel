@@ -22,10 +22,8 @@ func NewShortSkillTierCategoryRecipes(
 		}()
 
 		out[i] = ShortSkillTierCategoryRecipe{
-			Id:      recipe.Id,
-			Name:    recipe.Name.FindOr(providedLocale, ""),
-			IconUrl: foundRecipe.SotahMeta.IconUrl,
-			Rank:    foundRecipe.BlizzardMeta.Rank,
+			Id:     recipe.Id,
+			Recipe: NewShortRecipe(foundRecipe, providedLocale),
 		}
 	}
 
@@ -33,10 +31,8 @@ func NewShortSkillTierCategoryRecipes(
 }
 
 type ShortSkillTierCategoryRecipe struct {
-	Id      blizzardv2.RecipeId `json:"id"`
-	Name    string              `json:"name"`
-	IconUrl string              `json:"icon_url"`
-	Rank    int                 `json:"rank"`
+	Id     blizzardv2.RecipeId `json:"id"`
+	Recipe ShortRecipe         `json:"recipe"`
 }
 
 func NewShortSkillTierCategories(
