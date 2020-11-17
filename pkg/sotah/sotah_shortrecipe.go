@@ -51,6 +51,7 @@ func NewShortRecipe(recipe Recipe, providedLocale locale.Locale) ShortRecipe {
 		Reagents:            NewShortRecipeReagents(recipe.BlizzardMeta.Reagents, providedLocale),
 		Rank:                recipe.BlizzardMeta.Rank,
 		CraftedQuantity:     recipe.BlizzardMeta.CraftedQuantity.Value,
+		IconUrl:             recipe.SotahMeta.IconUrl,
 	}
 }
 
@@ -64,4 +65,5 @@ type ShortRecipe struct {
 	Reagents            []ShortRecipeReagent `json:"reagents"`
 	Rank                int                  `json:"rank"`
 	CraftedQuantity     float32              `json:"crafted_quantity"`
+	IconUrl             string               `json:"icon_url"`
 }
