@@ -21,7 +21,7 @@ type NewClientOptions struct {
 	) chan blizzardv2.GetAllSkillTiersJob
 	ResolveRecipes      func(ids []blizzardv2.RecipeId) chan blizzardv2.GetRecipesJob
 	ResolveRecipeMedias func(in chan blizzardv2.GetRecipeMediasInJob) chan blizzardv2.GetRecipeMediasOutJob
-	PrimarySkillTiers   map[blizzardv2.ProfessionId][]blizzardv2.SkillTierId
+	PrimarySkillTiers   map[string][]blizzardv2.SkillTierId
 }
 
 func NewClient(opts NewClientOptions) (Client, error) {
@@ -62,5 +62,5 @@ type Client struct {
 	) chan blizzardv2.GetAllSkillTiersJob
 	resolveRecipes      func(ids []blizzardv2.RecipeId) chan blizzardv2.GetRecipesJob
 	resolveRecipeMedias func(in chan blizzardv2.GetRecipeMediasInJob) chan blizzardv2.GetRecipeMediasOutJob
-	primarySkillTiers   map[blizzardv2.ProfessionId][]blizzardv2.SkillTierId
+	primarySkillTiers   map[string][]blizzardv2.SkillTierId
 }

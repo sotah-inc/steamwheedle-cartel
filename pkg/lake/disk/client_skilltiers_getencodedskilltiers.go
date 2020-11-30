@@ -1,6 +1,8 @@
 package disk
 
 import (
+	"strconv"
+
 	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	BaseLake "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/lake/base"
@@ -33,6 +35,8 @@ func (client Client) GetEncodedSkillTiers(
 	// starting up workers for resolving skill-tiers
 	skillTiersOut := client.resolveSkillTiers(professionId, idList)
 
+	logging.WithField("primary-skill-tiers", client.primarySkillTiers).Info("checking with skill-tiers")
+
 	// queueing it all up
 	go func() {
 		for job := range skillTiersOut {
@@ -43,7 +47,7 @@ func (client Client) GetEncodedSkillTiers(
 			}
 
 			isPrimary := func() bool {
-				foundSkillTierPrimaries, ok := client.primarySkillTiers[professionId]
+				foundSkillTierPrimaries, ok := client.primarySkillTiers[strconv.FormatInt(int64(professionId), 10)]
 				if !ok {
 					return false
 				}
