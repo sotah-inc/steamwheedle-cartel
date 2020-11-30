@@ -88,6 +88,7 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 			return sta.BlizzardState.ResolveRecipes(primaryRegion, ids)
 		},
 		ResolveRecipeMedias: sta.BlizzardState.ResolveRecipeMedias,
+		PrimaryList:         config.SotahConfig.PrimaryProfessions,
 	})
 	if err != nil {
 		logging.WithField("error", err.Error()).Error("failed to initialise lake-client")

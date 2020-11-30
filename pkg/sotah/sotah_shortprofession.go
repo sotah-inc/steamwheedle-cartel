@@ -45,6 +45,7 @@ func NewShortProfession(profession Profession, providedLocale locale.Locale) Sho
 		},
 		SkillTiers: skillTiers,
 		IconUrl:    profession.SotahMeta.IconUrl,
+		IsPrimary:  profession.SotahMeta.IsPrimary,
 	}
 }
 
@@ -55,4 +56,5 @@ type ShortProfession struct {
 	Type        ShortProfessionType        `json:"type"`
 	SkillTiers  []ShortProfessionSkillTier `json:"skilltiers"`
 	IconUrl     string                     `json:"icon_url"`
+	IsPrimary   bool                       `json:"is_primary"`
 }

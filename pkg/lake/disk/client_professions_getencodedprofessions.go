@@ -98,10 +98,23 @@ func (client Client) GetEncodedProfessions(
 				continue
 			}
 
+			isPrimary := func() bool {
+				for _, id := range client.primaryList {
+					if job.ProfessionMediaResponse.Id != id {
+						continue
+					}
+
+					return true
+				}
+
+				return false
+			}()
+
 			profession := sotah.Profession{
 				BlizzardMeta: job.ProfessionResponse,
 				SotahMeta: sotah.ProfessionMeta{
-					IconUrl: professionIconUrl,
+					IconUrl:   professionIconUrl,
+					IsPrimary: isPrimary,
 				},
 			}
 

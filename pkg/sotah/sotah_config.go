@@ -40,11 +40,12 @@ func (wl RegionRealmSlugWhitelist) Get(name blizzardv2.RegionName) blizzardv2.Re
 }
 
 type Config struct {
-	Regions     RegionList               `json:"regions"`
-	Whitelist   RegionRealmSlugWhitelist `json:"whitelist"`
-	UseGCloud   bool                     `json:"use_gcloud"`
-	Expansions  []Expansion              `json:"expansions"`
-	Professions []ConfigProfession       `json:"professions"`
+	Regions            RegionList                `json:"regions"`
+	Whitelist          RegionRealmSlugWhitelist  `json:"whitelist"`
+	UseGCloud          bool                      `json:"use_gcloud"`
+	Expansions         []Expansion               `json:"expansions"`
+	Professions        []ConfigProfession        `json:"professions"`
+	PrimaryProfessions []blizzardv2.ProfessionId `json:"primary_professions"`
 }
 
 func (c Config) FilterInRegions(regs RegionList) RegionList {

@@ -8,7 +8,8 @@ import (
 )
 
 type ProfessionMeta struct {
-	IconUrl string `json:"icon_url"`
+	IconUrl   string `json:"icon_url"`
+	IsPrimary bool   `json:"is_primary"`
 }
 
 func NewProfession(gzipEncoded []byte) (Profession, error) {
