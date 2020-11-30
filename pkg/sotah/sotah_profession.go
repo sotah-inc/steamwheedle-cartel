@@ -8,7 +8,8 @@ import (
 )
 
 type ProfessionMeta struct {
-	IconUrl string `json:"icon_url"`
+	IconUrl           string                   `json:"icon_url"`
+	PrimarySkillTiers []blizzardv2.SkillTierId `json:"primary_skilltiers"`
 }
 
 func NewProfession(gzipEncoded []byte) (Profession, error) {

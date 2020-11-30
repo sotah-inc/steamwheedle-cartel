@@ -5,7 +5,10 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/locale"
 )
 
-func NewShortProfessions(professions []Profession, providedLocale locale.Locale) ShortProfessions {
+func NewShortProfessions(
+	professions []Profession,
+	providedLocale locale.Locale,
+) ShortProfessions {
 	out := make(ShortProfessions, len(professions))
 	for i, profession := range professions {
 		out[i] = NewShortProfession(profession, providedLocale)
@@ -22,16 +25,31 @@ type ShortProfessionType struct {
 }
 
 type ShortProfessionSkillTier struct {
-	Id   blizzardv2.SkillTierId `json:"id"`
-	Name string                 `json:"name"`
+	Id        blizzardv2.SkillTierId `json:"id"`
+	Name      string                 `json:"name"`
+	IsPrimary bool                   `json:"is_primary"`
 }
 
-func NewShortProfession(profession Profession, providedLocale locale.Locale) ShortProfession {
+func NewShortProfession(
+	profession Profession,
+	providedLocale locale.Locale,
+) ShortProfession {
 	skillTiers := make([]ShortProfessionSkillTier, len(profession.BlizzardMeta.SkillTiers))
 	for i, skillTier := range profession.BlizzardMeta.SkillTiers {
+		isPrimary := func() bool {
+			for _, id := range profession.SotahMeta.PrimarySkillTiers {
+				if id == skillTier.Id {
+					return true
+				}
+			}
+
+			return false
+		}()
+
 		skillTiers[i] = ShortProfessionSkillTier{
-			Id:   skillTier.Id,
-			Name: skillTier.Name.FindOr(providedLocale, ""),
+			Id:        skillTier.Id,
+			Name:      skillTier.Name.FindOr(providedLocale, ""),
+			IsPrimary: isPrimary,
 		}
 	}
 

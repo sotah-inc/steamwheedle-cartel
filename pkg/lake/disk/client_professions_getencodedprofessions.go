@@ -2,6 +2,7 @@ package disk
 
 import (
 	"errors"
+	"strconv"
 
 	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
@@ -98,10 +99,22 @@ func (client Client) GetEncodedProfessions(
 				continue
 			}
 
+			primarySkillTiers := func() []blizzardv2.SkillTierId {
+				foundPrimarySkillTiers, ok := client.primarySkillTiers[strconv.FormatInt(int64(
+					job.ProfessionResponse.Id,
+				), 10)]
+				if !ok {
+					return []blizzardv2.SkillTierId{}
+				}
+
+				return foundPrimarySkillTiers
+			}()
+
 			profession := sotah.Profession{
 				BlizzardMeta: job.ProfessionResponse,
 				SotahMeta: sotah.ProfessionMeta{
-					IconUrl: professionIconUrl,
+					IconUrl:           professionIconUrl,
+					PrimarySkillTiers: primarySkillTiers,
 				},
 			}
 
