@@ -62,13 +62,16 @@ func NewShortSkillTier(
 	providedRecipes map[blizzardv2.RecipeId]Recipe,
 ) ShortSkillTier {
 	return ShortSkillTier{
-		Id:   skillTier.BlizzardMeta.Id,
-		Name: skillTier.BlizzardMeta.Name.FindOr(providedLocale, ""),
+		Id:                skillTier.BlizzardMeta.Id,
+		Name:              skillTier.BlizzardMeta.Name.FindOr(providedLocale, ""),
+		MinimumSkillLevel: skillTier.BlizzardMeta.MinimumSkillLevel,
+		MaximumSkillLevel: skillTier.BlizzardMeta.MaximumSkillLevel,
 		Categories: NewShortSkillTierCategories(
 			skillTier.BlizzardMeta.Categories,
 			providedLocale,
 			providedRecipes,
 		),
+		IsPrimary: skillTier.SotahMeta.IsPrimary,
 	}
 }
 
@@ -78,4 +81,5 @@ type ShortSkillTier struct {
 	MinimumSkillLevel int                      `json:"minimum_skill_level"`
 	MaximumSkillLevel int                      `json:"maximum_skill_level"`
 	Categories        []ShortSkillTierCategory `json:"categories"`
+	IsPrimary         bool                     `json:"is_primary"`
 }

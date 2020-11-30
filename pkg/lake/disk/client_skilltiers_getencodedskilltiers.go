@@ -42,9 +42,26 @@ func (client Client) GetEncodedSkillTiers(
 				continue
 			}
 
+			isPrimary := func() bool {
+				foundSkillTierPrimaries, ok := client.primarySkillTiers[professionId]
+				if !ok {
+					return false
+				}
+
+				for _, id := range foundSkillTierPrimaries {
+					if id == job.Id {
+						return true
+					}
+				}
+
+				return false
+			}()
+
 			skillTier := sotah.SkillTier{
 				BlizzardMeta: job.SkillTierResponse,
-				SotahMeta:    sotah.SkillTierMeta{},
+				SotahMeta: sotah.SkillTierMeta{
+					IsPrimary: isPrimary,
+				},
 			}
 
 			encodedSkillTier, err := skillTier.EncodeForStorage()

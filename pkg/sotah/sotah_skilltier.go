@@ -7,7 +7,9 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 )
 
-type SkillTierMeta struct{}
+type SkillTierMeta struct {
+	IsPrimary bool `json:"is_primary"`
+}
 
 func NewSkillTier(body []byte) (SkillTier, error) {
 	gzipDecoded, err := util.GzipDecode(body)
