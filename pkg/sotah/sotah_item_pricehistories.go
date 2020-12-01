@@ -74,19 +74,20 @@ func (ipHistories ItemPriceHistories) EncodeForPersistence() ([]byte, error) {
 	// spinning up the workers for encoding in parallel
 	worker := func() {
 		for inJob := range in {
-			jsonEncodedPriceHistory, err := json.Marshal(inJob.priceHistory)
+			base64Encoded, err := inJob.priceHistory.EncodeForPersistence()
 			if err != nil {
-				continue
-			}
+				out <- EncodeForPersistenceOutJob{
+					Err:    err,
+					ItemId: inJob.itemId,
+					Data:   "",
+				}
 
-			gzipEncodedPriceHistory, err := util.GzipEncode(jsonEncodedPriceHistory)
-			if err != nil {
 				continue
 			}
 
 			out <- EncodeForPersistenceOutJob{
 				Err:    nil,
-				Data:   base64.StdEncoding.EncodeToString(gzipEncodedPriceHistory),
+				Data:   base64Encoded,
 				ItemId: inJob.itemId,
 			}
 		}

@@ -1,6 +1,7 @@
 package sotah
 
 import (
+	"encoding/base64"
 	"encoding/json"
 
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
@@ -23,18 +24,18 @@ func NewPriceHistoryFromBytes(data []byte) (PriceHistory, error) {
 
 type PriceHistory map[UnixTimestamp]Prices
 
-func (pHistory PriceHistory) EncodeForPersistence() ([]byte, error) {
+func (pHistory PriceHistory) EncodeForPersistence() (string, error) {
 	jsonEncoded, err := json.Marshal(pHistory)
 	if err != nil {
-		return []byte{}, err
+		return "", err
 	}
 
 	gzipEncoded, err := util.GzipEncode(jsonEncoded)
 	if err != nil {
-		return []byte{}, err
+		return "", err
 	}
 
-	return gzipEncoded, nil
+	return base64.StdEncoding.EncodeToString(gzipEncoded), nil
 }
 
 func (pHistory PriceHistory) Merge(in PriceHistory) PriceHistory {
