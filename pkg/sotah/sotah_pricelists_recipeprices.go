@@ -2,7 +2,6 @@ package sotah
 
 import "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 
-// recipe-price-histories
 type RecipeItemPrices struct {
 	Id     blizzardv2.ItemId `json:"id"`
 	Prices Prices            `json:"prices"`
