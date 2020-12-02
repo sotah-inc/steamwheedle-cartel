@@ -3,14 +3,16 @@ package sotah
 import "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 
 // recipe-price-histories
-type RecipeItemPriceHistory struct {
-	Id           blizzardv2.ItemId `json:"id"`
-	PriceHistory PriceHistory      `json:"price_history"`
+type RecipeItemPrices struct {
+	Id     blizzardv2.ItemId `json:"id"`
+	Prices Prices            `json:"prices"`
 }
 
-type RecipePriceHistory struct {
-	CraftedItem  RecipeItemPriceHistory `json:"crafted_item"`
-	AllianceItem RecipeItemPriceHistory `json:"alliance_crafted_item"`
-	HordeItem    RecipeItemPriceHistory `json:"horde_crafted_item"`
-	Reagents     PriceHistory           `json:"reagents"`
+type RecipePrices struct {
+	CraftedItemPrices  RecipeItemPrices `json:"crafted_item_prices"`
+	AllianceItemPrices RecipeItemPrices `json:"alliance_crafted_item_prices"`
+	HordeItemPrices    RecipeItemPrices `json:"horde_crafted_item_prices"`
+	ReagentPrices      Prices           `json:"reagent_prices"`
 }
+
+type RecipePricesMap map[blizzardv2.RecipeId]RecipePrices
