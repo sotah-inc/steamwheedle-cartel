@@ -54,3 +54,9 @@ func (mrMap MiniRecipeMap) EncodeForDelivery() ([]byte, error) {
 
 	return util.GzipEncode(jsonEncoded)
 }
+
+func (mrMap MiniRecipeMap) Append(recipe Recipe) MiniRecipeMap {
+	mrMap[recipe.BlizzardMeta.Id] = NewMiniRecipe(recipe)
+
+	return mrMap
+}
