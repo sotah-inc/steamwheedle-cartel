@@ -1,7 +1,6 @@
 package pricelisthistory
 
 import (
-	"encoding/binary"
 	"fmt"
 
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
@@ -10,15 +9,20 @@ import (
 
 // keying
 func baseKeyName() []byte {
-	key := make([]byte, 8)
-	binary.LittleEndian.PutUint64(key, 1)
+	return []byte("item-prices")
+}
 
-	return key
+func recipeKeyName() []byte {
+	return []byte("recipe-prices")
 }
 
 // bucketing
 func baseBucketName(ID blizzardv2.ItemId) []byte {
 	return []byte(fmt.Sprintf("item-prices/%d", ID))
+}
+
+func recipeBucketName(id blizzardv2.RecipeId) []byte {
+	return []byte(fmt.Sprintf("recipe-prices/%d", id))
 }
 
 // db
