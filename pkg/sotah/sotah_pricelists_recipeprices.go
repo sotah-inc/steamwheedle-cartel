@@ -1,6 +1,11 @@
 package sotah
 
-import "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
+import (
+	"encoding/json"
+
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
+)
 
 func NewRecipeItemPrices(iPrices ItemPrices, id blizzardv2.ItemId) RecipeItemPrices {
 	iPrice, ok := iPrices[id]
@@ -66,7 +71,6 @@ func NewRecipePrices(mRecipe MiniRecipe, iPrices ItemPrices) RecipePrices {
 	}()
 
 	return RecipePrices{
-		Id:                 mRecipe.Id,
 		CraftedItemPrices:  NewRecipeItemPrices(iPrices, mRecipe.CraftedItemId),
 		AllianceItemPrices: NewRecipeItemPrices(iPrices, mRecipe.AllianceCraftedItemId),
 		HordeItemPrices:    NewRecipeItemPrices(iPrices, mRecipe.HordeCraftedItemId),
@@ -74,21 +78,43 @@ func NewRecipePrices(mRecipe MiniRecipe, iPrices ItemPrices) RecipePrices {
 	}
 }
 
+func NewRecipePricesFromGzip(gzipEncoded []byte) (RecipePrices, error) {
+	jsonEncoded, err := util.GzipDecode(gzipEncoded)
+	if err != nil {
+		return RecipePrices{}, err
+	}
+
+	out := RecipePrices{}
+	if err := json.Unmarshal(jsonEncoded, &out); err != nil {
+		return RecipePrices{}, err
+	}
+
+	return out, nil
+}
+
 type RecipePrices struct {
-	Id                 blizzardv2.RecipeId  `json:"id"`
 	CraftedItemPrices  RecipeItemPrices     `json:"crafted_item_prices"`
 	AllianceItemPrices RecipeItemPrices     `json:"alliance_crafted_item_prices"`
 	HordeItemPrices    RecipeItemPrices     `json:"horde_crafted_item_prices"`
 	TotalReagentPrices RecipeItemItemPrices `json:"total_reagent_prices"`
 }
 
-func NewRecipePricesList(mRecipes MiniRecipes, iPrices ItemPrices) RecipePricesList {
-	out := make(RecipePricesList, len(mRecipes))
-	for i, mRecipe := range mRecipes {
-		out[i] = NewRecipePrices(mRecipe, iPrices)
+func (rPrices RecipePrices) EncodeForStorage() ([]byte, error) {
+	jsonEncoded, err := json.Marshal(rPrices)
+	if err != nil {
+		return []byte{}, err
+	}
+
+	return util.GzipEncode(jsonEncoded)
+}
+
+func NewRecipePricesMap(mRecipes MiniRecipes, iPrices ItemPrices) RecipePricesMap {
+	out := RecipePricesMap{}
+	for _, mRecipe := range mRecipes {
+		out[mRecipe.Id] = NewRecipePrices(mRecipe, iPrices)
 	}
 
 	return out
 }
 
-type RecipePricesList []RecipePrices
+type RecipePricesMap map[blizzardv2.RecipeId]RecipePrices
