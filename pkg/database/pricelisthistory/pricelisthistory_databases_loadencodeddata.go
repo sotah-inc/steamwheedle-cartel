@@ -9,18 +9,18 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 )
 
-type LoadEncodedDataInJob struct {
+type LoadEncodedItemPricesInJob struct {
 	Tuple       blizzardv2.LoadConnectedRealmTuple
 	EncodedData map[blizzardv2.ItemId][]byte
 }
 
-type LoadEncodedDataOutJob struct {
+type LoadEncodedItemPricesOutJob struct {
 	Err        error
 	Tuple      blizzardv2.LoadConnectedRealmTuple
 	ReceivedAt time.Time
 }
 
-func (job LoadEncodedDataOutJob) ToLogrusFields() logrus.Fields {
+func (job LoadEncodedItemPricesOutJob) ToLogrusFields() logrus.Fields {
 	return logrus.Fields{
 		"error":           job.Err.Error(),
 		"region":          job.Tuple.RegionName,
@@ -28,11 +28,11 @@ func (job LoadEncodedDataOutJob) ToLogrusFields() logrus.Fields {
 	}
 }
 
-func (phdBases *Databases) LoadEncodedData(
-	in chan LoadEncodedDataInJob,
-) chan LoadEncodedDataOutJob {
+func (phdBases *Databases) LoadEncodedItemPrices(
+	in chan LoadEncodedItemPricesInJob,
+) chan LoadEncodedItemPricesOutJob {
 	// establishing channels
-	out := make(chan LoadEncodedDataOutJob)
+	out := make(chan LoadEncodedItemPricesOutJob)
 
 	// spinning up workers for receiving encoded-data and persisting it
 	worker := func() {
@@ -46,7 +46,7 @@ func (phdBases *Databases) LoadEncodedData(
 					"connected-realm": job.Tuple.ConnectedRealmId,
 				}).Error("failed to find database by tuple")
 
-				out <- LoadEncodedDataOutJob{
+				out <- LoadEncodedItemPricesOutJob{
 					Err:   err,
 					Tuple: job.Tuple,
 				}
@@ -54,14 +54,14 @@ func (phdBases *Databases) LoadEncodedData(
 				continue
 			}
 
-			if err := phdBase.persistEncodedData(job.EncodedData); err != nil {
+			if err := phdBase.persistEncodedItemPrices(job.EncodedData); err != nil {
 				logging.WithFields(logrus.Fields{
 					"error":           err.Error(),
 					"region":          job.Tuple.RegionName,
 					"connected-realm": job.Tuple.ConnectedRealmId,
 				}).Error("failed to persist encoded-data")
 
-				out <- LoadEncodedDataOutJob{
+				out <- LoadEncodedItemPricesOutJob{
 					Err:   err,
 					Tuple: job.Tuple,
 				}
@@ -69,7 +69,7 @@ func (phdBases *Databases) LoadEncodedData(
 				continue
 			}
 
-			out <- LoadEncodedDataOutJob{
+			out <- LoadEncodedItemPricesOutJob{
 				Err:        nil,
 				Tuple:      job.Tuple,
 				ReceivedAt: time.Now(),

@@ -6,7 +6,7 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 )
 
-func (phdBase Database) persistEncodedData(data map[blizzardv2.ItemId][]byte) error {
+func (phdBase Database) persistEncodedItemPrices(data map[blizzardv2.ItemId][]byte) error {
 	logging.WithField("items", len(data)).Info("persisting encoded item-prices")
 
 	err := phdBase.db.Batch(func(tx *bolt.Tx) error {

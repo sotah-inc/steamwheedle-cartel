@@ -51,8 +51,8 @@ func (sta PricelistHistoryState) pricelistHistoryIntake(tuples blizzardv2.LoadCo
 
 	// spinning up workers
 	getPricelistHistoryByTuplesOut := sta.LakeClient.GetEncodedPricelistHistoryByTuples(tuples)
-	loadEncodedDataIn := make(chan PricelistHistoryDatabase.LoadEncodedDataInJob)
-	loadEncodedDataOut := sta.PricelistHistoryDatabases.LoadEncodedData(loadEncodedDataIn)
+	loadEncodedDataIn := make(chan PricelistHistoryDatabase.LoadEncodedItemPricesInJob)
+	loadEncodedDataOut := sta.PricelistHistoryDatabases.LoadEncodedItemPrices(loadEncodedDataIn)
 
 	// loading it in
 	go func() {
@@ -63,7 +63,7 @@ func (sta PricelistHistoryState) pricelistHistoryIntake(tuples blizzardv2.LoadCo
 				continue
 			}
 
-			loadEncodedDataIn <- PricelistHistoryDatabase.LoadEncodedDataInJob{
+			loadEncodedDataIn <- PricelistHistoryDatabase.LoadEncodedItemPricesInJob{
 				Tuple:       job.Tuple(),
 				EncodedData: job.EncodedPricelistHistory(),
 			}
