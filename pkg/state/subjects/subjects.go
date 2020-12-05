@@ -21,7 +21,7 @@ const (
 	RecipesIntake     Subject = "recipesIntake"
 	SkillTier         Subject = "skillTier"
 	Recipe            Subject = "recipe"
-	RecipesIcons      Subject = "recipesIcons"
+	MiniRecipes       Subject = "miniRecipes"
 )
 
 const (
