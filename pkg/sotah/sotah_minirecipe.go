@@ -14,6 +14,7 @@ func NewMiniRecipe(recipe Recipe) MiniRecipe {
 	}
 
 	return MiniRecipe{
+		Id:                    recipe.BlizzardMeta.Id,
 		CraftedItemId:         recipe.BlizzardMeta.CraftedItem.Id,
 		HordeCraftedItemId:    recipe.BlizzardMeta.HordeCraftedItem.Id,
 		AllianceCraftedItemId: recipe.BlizzardMeta.AllianceCraftedItem.Id,
@@ -23,6 +24,7 @@ func NewMiniRecipe(recipe Recipe) MiniRecipe {
 }
 
 type MiniRecipe struct {
+	Id                    blizzardv2.RecipeId       `json:"id"`
 	CraftedItemId         blizzardv2.ItemId         `json:"crafted_item_id"`
 	HordeCraftedItemId    blizzardv2.ItemId         `json:"horde_crafted_item_id"`
 	AllianceCraftedItemId blizzardv2.ItemId         `json:"alliance_crafted_item_id"`
@@ -30,33 +32,27 @@ type MiniRecipe struct {
 	CraftedQuantity       float32                   `json:"crafted_quantity"`
 }
 
-func NewMiniRecipeMap(gzipEncoded []byte) (MiniRecipeMap, error) {
+func NewMiniRecipes(gzipEncoded []byte) (MiniRecipes, error) {
 	jsonEncoded, err := util.GzipDecode(gzipEncoded)
 	if err != nil {
-		return MiniRecipeMap{}, err
+		return MiniRecipes{}, err
 	}
 
-	out := MiniRecipeMap{}
+	out := MiniRecipes{}
 	if err := json.Unmarshal(jsonEncoded, &out); err != nil {
-		return MiniRecipeMap{}, err
+		return MiniRecipes{}, err
 	}
 
 	return out, nil
 }
 
-type MiniRecipeMap map[blizzardv2.RecipeId]MiniRecipe
+type MiniRecipes []MiniRecipe
 
-func (mrMap MiniRecipeMap) EncodeForDelivery() ([]byte, error) {
-	jsonEncoded, err := json.Marshal(mrMap)
+func (mRecipes MiniRecipes) EncodeForDelivery() ([]byte, error) {
+	jsonEncoded, err := json.Marshal(mRecipes)
 	if err != nil {
 		return []byte{}, err
 	}
 
 	return util.GzipEncode(jsonEncoded)
-}
-
-func (mrMap MiniRecipeMap) Append(recipe Recipe) MiniRecipeMap {
-	mrMap[recipe.BlizzardMeta.Id] = NewMiniRecipe(recipe)
-
-	return mrMap
 }
