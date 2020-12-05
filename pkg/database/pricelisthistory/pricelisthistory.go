@@ -7,15 +7,6 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 )
 
-// keying
-func baseKeyName() []byte {
-	return []byte("item-prices")
-}
-
-func recipeKeyName() []byte {
-	return []byte("recipe-prices")
-}
-
 // bucketing
 func baseBucketName(ID blizzardv2.ItemId) []byte {
 	return []byte(fmt.Sprintf("item-prices/%d", ID))
@@ -23,6 +14,15 @@ func baseBucketName(ID blizzardv2.ItemId) []byte {
 
 func recipeBucketName(id blizzardv2.RecipeId) []byte {
 	return []byte(fmt.Sprintf("recipe-prices/%d", id))
+}
+
+// keying
+func baseKeyName() []byte {
+	return []byte("item-prices")
+}
+
+func recipeKeyName() []byte {
+	return []byte("recipe-prices")
 }
 
 // db
