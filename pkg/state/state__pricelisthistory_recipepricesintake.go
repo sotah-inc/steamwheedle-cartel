@@ -7,7 +7,6 @@ import (
 	"github.com/nats-io/nats.go"
 	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
-	BaseDatabase "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database/base"
 	PricelistHistoryDatabase "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database/pricelisthistory"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
@@ -120,15 +119,6 @@ func (sta PricelistHistoryState) recipePricesIntake(tuples blizzardv2.LoadConnec
 	// optionally updating region state
 	if !regionTimestamps.IsZero() {
 		sta.ReceiveRegionTimestamps(regionTimestamps)
-	}
-
-	// pruning databases where applicable
-	if err := sta.PricelistHistoryDatabases.PruneDatabases(
-		sotah.UnixTimestamp(BaseDatabase.RetentionLimit().Unix()),
-	); err != nil {
-		logging.WithField("error", err.Error()).Error("failed to prune pricelist-history databases")
-
-		return err
 	}
 
 	logging.WithFields(logrus.Fields{

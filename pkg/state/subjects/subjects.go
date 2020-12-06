@@ -15,13 +15,14 @@ const (
 )
 
 const (
-	Professions       Subject = "professions"
-	ProfessionsIntake Subject = "professionsIntake"
-	SkillTiersIntake  Subject = "skillTiersIntake"
-	RecipesIntake     Subject = "recipesIntake"
-	SkillTier         Subject = "skillTier"
-	Recipe            Subject = "recipe"
-	MiniRecipes       Subject = "miniRecipes"
+	Professions             Subject = "professions"
+	ProfessionsIntake       Subject = "professionsIntake"
+	SkillTiersIntake        Subject = "skillTiersIntake"
+	RecipesIntake           Subject = "recipesIntake"
+	SkillTier               Subject = "skillTier"
+	Recipe                  Subject = "recipe"
+	MiniRecipes             Subject = "miniRecipes"
+	PrunePricelistHistories Subject = "prunePricelistHistories"
 )
 
 const (
