@@ -59,11 +59,11 @@ func (job getEncodedPricelistHistoryByTuplesJob) ToLogrusFields() logrus.Fields 
 	}
 }
 
-func (client Client) GetEncodedPricelistHistoryByTuples(
+func (client Client) GetEncodedItemPricesByTuples(
 	tuples blizzardv2.LoadConnectedRealmTuples,
-) chan BaseLake.GetEncodedPricelistHistoryByTuplesJob {
+) chan BaseLake.GetEncodedItemPricesByTuplesJob {
 	// establishing channels
-	out := make(chan BaseLake.GetEncodedPricelistHistoryByTuplesJob)
+	out := make(chan BaseLake.GetEncodedItemPricesByTuplesJob)
 	in := make(chan blizzardv2.LoadConnectedRealmTuple)
 
 	// spinning up the workers for fetching auctions

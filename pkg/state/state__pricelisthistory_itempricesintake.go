@@ -50,7 +50,7 @@ func (sta PricelistHistoryState) pricelistHistoryIntake(tuples blizzardv2.LoadCo
 	startTime := time.Now()
 
 	// spinning up workers
-	getPricelistHistoryByTuplesOut := sta.LakeClient.GetEncodedPricelistHistoryByTuples(tuples)
+	getPricelistHistoryByTuplesOut := sta.LakeClient.GetEncodedItemPricesByTuples(tuples)
 	loadEncodedDataIn := make(chan PricelistHistoryDatabase.LoadEncodedItemPricesInJob)
 	loadEncodedDataOut := sta.PricelistHistoryDatabases.LoadEncodedItemPrices(loadEncodedDataIn)
 
