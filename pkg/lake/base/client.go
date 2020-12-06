@@ -10,6 +10,10 @@ type Client interface {
 	GetEncodedItemPricesByTuples(
 		tuples blizzardv2.LoadConnectedRealmTuples,
 	) chan GetEncodedItemPricesByTuplesJob
+	GetEncodedRecipePricesByTuples(
+		mRecipes sotah.MiniRecipes,
+		tuples blizzardv2.LoadConnectedRealmTuples,
+	) chan GetEncodedRecipePricesByTuplesJob
 	WriteAuctionsWithTuples(in chan WriteAuctionsWithTuplesInJob) chan WriteAuctionsWithTuplesOutJob
 	NewWriteAuctionsWithTuplesInJob(
 		tuple blizzardv2.RegionConnectedRealmTuple,
