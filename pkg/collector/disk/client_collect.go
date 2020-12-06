@@ -42,6 +42,10 @@ func (c Client) Collect() error {
 		return err
 	}
 
+	if err := c.CallRecipePricesIntake(collectAuctionsResults.tuples); err != nil {
+		return err
+	}
+
 	// resolving next item-ids from auctions and recipes intake
 	nextItemIds := blizzardv2.ItemIdsMap{}
 	for _, id := range collectAuctionsResults.itemIds {
