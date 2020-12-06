@@ -21,7 +21,7 @@ func (c Client) CallPricelistHistoryIntake(tuples blizzardv2.LoadConnectedRealmT
 	}
 
 	response, err := c.messengerClient.Request(messenger.RequestOptions{
-		Subject: string(subjects.PricelistHistoryIntake),
+		Subject: string(subjects.ItemPricesIntake),
 		Data:    encodedTuples,
 		Timeout: 10 * time.Minute,
 	})

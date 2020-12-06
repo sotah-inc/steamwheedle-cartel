@@ -56,6 +56,6 @@ const (
 )
 
 const (
-	PricelistHistoryIntake Subject = "pricelistHistoryIntake"
-	PriceListHistory       Subject = "priceListHistory"
+	ItemPricesIntake Subject = "itemPricesIntake"
+	PriceListHistory Subject = "priceListHistory"
 )

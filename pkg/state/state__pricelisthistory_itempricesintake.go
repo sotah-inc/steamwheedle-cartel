@@ -15,8 +15,8 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state/subjects"
 )
 
-func (sta PricelistHistoryState) ListenForPricelistHistoryIntake(stop ListenStopChan) error {
-	err := sta.Messenger.Subscribe(string(subjects.PricelistHistoryIntake), stop, func(natsMsg nats.Msg) {
+func (sta PricelistHistoryState) ListenForItemPricesIntake(stop ListenStopChan) error {
+	err := sta.Messenger.Subscribe(string(subjects.ItemPricesIntake), stop, func(natsMsg nats.Msg) {
 		m := messenger.NewMessage()
 
 		tuples, err := blizzardv2.NewLoadConnectedRealmTuples(natsMsg.Data)
