@@ -11,11 +11,11 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state/subjects"
 )
 
-func (c Client) CallPricelistHistoryIntake(tuples blizzardv2.LoadConnectedRealmTuples) error {
-	// forwarding the received tuples to pricelist-history intake
+func (c Client) CallItemPricesIntake(tuples blizzardv2.LoadConnectedRealmTuples) error {
+	// forwarding the received tuples to item-prices intake
 	encodedTuples, err := tuples.EncodeForDelivery()
 	if err != nil {
-		logging.WithField("error", err.Error()).Error("failed to encode load tuples for delivery")
+		logging.WithField("error", err.Error()).Error("failed to encode load tuples for item-prices intake")
 
 		return err
 	}
@@ -27,14 +27,14 @@ func (c Client) CallPricelistHistoryIntake(tuples blizzardv2.LoadConnectedRealmT
 	})
 	if err != nil {
 		logging.WithField("error", err.Error()).Error(
-			"failed to publish message for pricelist-history intake",
+			"failed to publish message for item-prices intake",
 		)
 
 		return err
 	}
 
 	if response.Code != codes.Ok {
-		logging.WithFields(response.ToLogrusFields()).Error("pricelist-history intake request failed")
+		logging.WithFields(response.ToLogrusFields()).Error("item-prices intake request failed")
 
 		return errors.New(response.Err)
 	}

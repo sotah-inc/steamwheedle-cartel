@@ -21,7 +21,7 @@ func (c Client) Collect() error {
 		return err
 	}
 
-	if err := c.CallPricelistHistoryIntake(collectAuctionsResults.tuples); err != nil {
+	if err := c.CallItemPricesIntake(collectAuctionsResults.tuples); err != nil {
 		return err
 	}
 
