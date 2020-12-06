@@ -8,15 +8,17 @@ import (
 )
 
 type ConnectedRealmTimestamps struct {
-	Downloaded               UnixTimestamp `json:"downloaded"`
-	LiveAuctionsReceived     UnixTimestamp `json:"live_auctions_received"`
-	PricelistHistoryReceived UnixTimestamp `json:"pricelist_history_received"`
+	Downloaded           UnixTimestamp `json:"downloaded"`
+	LiveAuctionsReceived UnixTimestamp `json:"live_auctions_received"`
+	ItemPricesReceived   UnixTimestamp `json:"item_prices_received"`
+	RecipePricesReceived UnixTimestamp `json:"recipe_prices_received"`
 }
 
 func (timestamps ConnectedRealmTimestamps) IsZero() bool {
 	return !timestamps.Downloaded.IsZero() &&
 		!timestamps.LiveAuctionsReceived.IsZero() &&
-		!timestamps.PricelistHistoryReceived.IsZero()
+		!timestamps.ItemPricesReceived.IsZero() &&
+		!timestamps.RecipePricesReceived.IsZero()
 }
 
 func (timestamps ConnectedRealmTimestamps) Merge(in ConnectedRealmTimestamps) ConnectedRealmTimestamps {
@@ -28,8 +30,12 @@ func (timestamps ConnectedRealmTimestamps) Merge(in ConnectedRealmTimestamps) Co
 		timestamps.LiveAuctionsReceived = in.LiveAuctionsReceived
 	}
 
-	if !in.PricelistHistoryReceived.IsZero() {
-		timestamps.PricelistHistoryReceived = in.PricelistHistoryReceived
+	if !in.ItemPricesReceived.IsZero() {
+		timestamps.ItemPricesReceived = in.ItemPricesReceived
+	}
+
+	if !in.RecipePricesReceived.IsZero() {
+		timestamps.RecipePricesReceived = in.RecipePricesReceived
 	}
 
 	return timestamps
@@ -114,16 +120,31 @@ func (regionTimestamps RegionTimestamps) SetLiveAuctionsReceived(
 	return out
 }
 
-func (regionTimestamps RegionTimestamps) SetPricelistHistoryReceived(
+func (regionTimestamps RegionTimestamps) SetItemPricesReceived(
 	tuple blizzardv2.RegionConnectedRealmTuple,
-	liveAuctionsReceived time.Time,
+	itemPricesReceived time.Time,
 ) RegionTimestamps {
 	// resolving due to missing members
 	out := regionTimestamps.resolve(tuple)
 
 	// pushing the new time into the found member
 	result := out[tuple.RegionName][tuple.ConnectedRealmId]
-	result.PricelistHistoryReceived = UnixTimestamp(liveAuctionsReceived.Unix())
+	result.ItemPricesReceived = UnixTimestamp(itemPricesReceived.Unix())
+	out[tuple.RegionName][tuple.ConnectedRealmId] = result
+
+	return out
+}
+
+func (regionTimestamps RegionTimestamps) SetRecipePricesReceived(
+	tuple blizzardv2.RegionConnectedRealmTuple,
+	recipePricesReceived time.Time,
+) RegionTimestamps {
+	// resolving due to missing members
+	out := regionTimestamps.resolve(tuple)
+
+	// pushing the new time into the found member
+	result := out[tuple.RegionName][tuple.ConnectedRealmId]
+	result.RecipePricesReceived = UnixTimestamp(recipePricesReceived.Unix())
 	out[tuple.RegionName][tuple.ConnectedRealmId] = result
 
 	return out

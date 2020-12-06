@@ -6,7 +6,6 @@ import (
 	"github.com/nats-io/nats.go"
 	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
-	BaseDatabase "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database/base"
 	PricelistHistoryDatabase "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database/pricelisthistory"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
@@ -29,7 +28,7 @@ func (sta PricelistHistoryState) ListenForItemPricesIntake(stop ListenStopChan) 
 		}
 
 		logging.WithField("tuples", len(tuples)).Info("received")
-		if err := sta.pricelistHistoryIntake(tuples); err != nil {
+		if err := sta.itemPricesIntake(tuples); err != nil {
 			m.Err = err.Error()
 			m.Code = codes.GenericError
 			sta.Messenger.ReplyTo(natsMsg, m)
@@ -46,19 +45,19 @@ func (sta PricelistHistoryState) ListenForItemPricesIntake(stop ListenStopChan) 
 	return nil
 }
 
-func (sta PricelistHistoryState) pricelistHistoryIntake(tuples blizzardv2.LoadConnectedRealmTuples) error {
+func (sta PricelistHistoryState) itemPricesIntake(tuples blizzardv2.LoadConnectedRealmTuples) error {
 	startTime := time.Now()
 
 	// spinning up workers
-	getPricelistHistoryByTuplesOut := sta.LakeClient.GetEncodedItemPricesByTuples(tuples)
+	getEncodedItemPricesOut := sta.LakeClient.GetEncodedItemPricesByTuples(tuples)
 	loadEncodedDataIn := make(chan PricelistHistoryDatabase.LoadEncodedItemPricesInJob)
 	loadEncodedDataOut := sta.PricelistHistoryDatabases.LoadEncodedItemPrices(loadEncodedDataIn)
 
 	// loading it in
 	go func() {
-		for job := range getPricelistHistoryByTuplesOut {
+		for job := range getEncodedItemPricesOut {
 			if job.Err() != nil {
-				logging.WithFields(job.ToLogrusFields()).Error("failed to fetch pricelist-history")
+				logging.WithFields(job.ToLogrusFields()).Error("failed to fetch encoded item-prices")
 
 				continue
 			}
@@ -77,7 +76,7 @@ func (sta PricelistHistoryState) pricelistHistoryIntake(tuples blizzardv2.LoadCo
 	regionTimestamps := sotah.RegionTimestamps{}
 	for job := range loadEncodedDataOut {
 		if job.Err != nil {
-			logging.WithFields(job.ToLogrusFields()).Error("failed to load encoded pricelist-history in")
+			logging.WithFields(job.ToLogrusFields()).Error("failed to load encoded item-prices in")
 
 			return job.Err
 		}
@@ -85,9 +84,9 @@ func (sta PricelistHistoryState) pricelistHistoryIntake(tuples blizzardv2.LoadCo
 		logging.WithFields(logrus.Fields{
 			"region":          job.Tuple.RegionName,
 			"connected-realm": job.Tuple.ConnectedRealmId,
-		}).Info("loaded pricelist-history in")
+		}).Info("loaded encoded item-prices in")
 
-		regionTimestamps = regionTimestamps.SetPricelistHistoryReceived(
+		regionTimestamps = regionTimestamps.SetItemPricesReceived(
 			job.Tuple.RegionConnectedRealmTuple,
 			job.ReceivedAt,
 		)
@@ -100,19 +99,10 @@ func (sta PricelistHistoryState) pricelistHistoryIntake(tuples blizzardv2.LoadCo
 		sta.ReceiveRegionTimestamps(regionTimestamps)
 	}
 
-	// pruning databases where applicable
-	if err := sta.PricelistHistoryDatabases.PruneDatabases(
-		sotah.UnixTimestamp(BaseDatabase.RetentionLimit().Unix()),
-	); err != nil {
-		logging.WithField("error", err.Error()).Error("failed to prune pricelist-history databases")
-
-		return err
-	}
-
 	logging.WithFields(logrus.Fields{
 		"total":          totalLoaded,
 		"duration-in-ms": time.Since(startTime).Milliseconds(),
-	}).Info("total loaded in pricelist-history")
+	}).Info("total loaded in encoded item-prices")
 
 	return nil
 }

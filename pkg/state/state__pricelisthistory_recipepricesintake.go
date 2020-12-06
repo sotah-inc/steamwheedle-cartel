@@ -30,7 +30,7 @@ func (sta PricelistHistoryState) ListenForRecipePricesIntake(stop ListenStopChan
 		}
 
 		logging.WithField("tuples", len(tuples)).Info("received")
-		if err := sta.pricelistHistoryIntake(tuples); err != nil {
+		if err := sta.recipePricesIntake(tuples); err != nil {
 			m.Err = err.Error()
 			m.Code = codes.GenericError
 			sta.Messenger.ReplyTo(natsMsg, m)
@@ -109,7 +109,7 @@ func (sta PricelistHistoryState) recipePricesIntake(tuples blizzardv2.LoadConnec
 			"connected-realm": job.Tuple.ConnectedRealmId,
 		}).Info("loaded encoded recipe-prices in")
 
-		regionTimestamps = regionTimestamps.SetPricelistHistoryReceived(
+		regionTimestamps = regionTimestamps.SetRecipePricesReceived(
 			job.Tuple.RegionConnectedRealmTuple,
 			job.ReceivedAt,
 		)
@@ -134,7 +134,7 @@ func (sta PricelistHistoryState) recipePricesIntake(tuples blizzardv2.LoadConnec
 	logging.WithFields(logrus.Fields{
 		"total":          totalLoaded,
 		"duration-in-ms": time.Since(startTime).Milliseconds(),
-	}).Info("total loaded in pricelist-history")
+	}).Info("total loaded in encoded recipe-prices")
 
 	return nil
 }
