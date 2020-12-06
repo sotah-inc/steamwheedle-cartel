@@ -65,13 +65,13 @@ func (sta PricelistHistoryState) recipePricesIntake(tuples blizzardv2.LoadConnec
 		return errors.New("mini-recipes code was not ok")
 	}
 
-	mRecipes, err := sotah.NewMiniRecipes([]byte(respMsg.Data))
+	mRecipesResponse, err := NewMiniRecipesResponse(respMsg.Data)
 	if err != nil {
 		return err
 	}
 
 	// spinning up workers
-	getEncodedRecipePricesOut := sta.LakeClient.GetEncodedRecipePricesByTuples(mRecipes, tuples)
+	getEncodedRecipePricesOut := sta.LakeClient.GetEncodedRecipePricesByTuples(mRecipesResponse.Recipes, tuples)
 	loadEncodedRecipePricesIn := make(chan PricelistHistoryDatabase.LoadEncodedRecipePricesInJob)
 	loadEncodedRecipePricesOut := sta.PricelistHistoryDatabases.LoadEncodedRecipePrices(loadEncodedRecipePricesIn)
 

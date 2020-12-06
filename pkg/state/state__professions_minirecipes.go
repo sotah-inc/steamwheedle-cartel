@@ -12,6 +12,25 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 )
 
+func NewMiniRecipesResponse(base64Encoded string) (MiniRecipesResponse, error) {
+	base64Decoded, err := base64.StdEncoding.DecodeString(base64Encoded)
+	if err != nil {
+		return MiniRecipesResponse{}, err
+	}
+
+	gzipDecoded, err := util.GzipDecode(base64Decoded)
+	if err != nil {
+		return MiniRecipesResponse{}, err
+	}
+
+	out := MiniRecipesResponse{}
+	if err := json.Unmarshal(gzipDecoded, &out); err != nil {
+		return MiniRecipesResponse{}, err
+	}
+
+	return out, nil
+}
+
 type MiniRecipesResponse struct {
 	Recipes sotah.MiniRecipes `json:"recipes"`
 }
