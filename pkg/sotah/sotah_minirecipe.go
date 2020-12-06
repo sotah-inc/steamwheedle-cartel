@@ -1,7 +1,10 @@
 package sotah
 
 import (
+	"encoding/json"
+
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 )
 
 func NewMiniRecipe(recipe Recipe) MiniRecipe {
@@ -27,6 +30,20 @@ type MiniRecipe struct {
 	AllianceCraftedItemId blizzardv2.ItemId         `json:"alliance_crafted_item_id"`
 	Reagents              map[blizzardv2.ItemId]int `json:"reagents"`
 	CraftedQuantity       float32                   `json:"crafted_quantity"`
+}
+
+func NewMiniRecipes(gzipEncoded []byte) (MiniRecipes, error) {
+	jsonEncoded, err := util.GzipDecode(gzipEncoded)
+	if err != nil {
+		return MiniRecipes{}, err
+	}
+
+	out := MiniRecipes{}
+	if err := json.Unmarshal(jsonEncoded, &out); err != nil {
+		return MiniRecipes{}, err
+	}
+
+	return out, nil
 }
 
 type MiniRecipes []MiniRecipe
