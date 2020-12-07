@@ -33,7 +33,7 @@ func (shards DatabaseShards) GetItemPriceHistories(
 	// spinning up workers for querying price-histories
 	worker := func() {
 		for id := range in {
-			receivedHistory, err := shards.GetPriceHistory(id, lowerBounds, upperBounds)
+			receivedHistory, err := shards.GetItemPricesHistory(id, lowerBounds, upperBounds)
 			if err != nil {
 				out <- GetItemPriceHistoriesJob{
 					Err:          err,

@@ -8,33 +8,33 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 )
 
-type GetPriceHistoryJob struct {
+type GetItemPricesHistoryJob struct {
 	Err          error
 	PriceHistory sotah.PriceHistory
 }
 
-func (job GetPriceHistoryJob) ToLogrusFields(id blizzardv2.ItemId) logrus.Fields {
+func (job GetItemPricesHistoryJob) ToLogrusFields(id blizzardv2.ItemId) logrus.Fields {
 	return logrus.Fields{
 		"error": job.Err.Error(),
 		"item":  id,
 	}
 }
 
-func (shards DatabaseShards) GetPriceHistory(
+func (shards DatabaseShards) GetItemPricesHistory(
 	id blizzardv2.ItemId,
 	lowerBounds sotah.UnixTimestamp,
 	upperBounds sotah.UnixTimestamp,
 ) (sotah.PriceHistory, error) {
 	// establish channels
 	in := make(chan Database)
-	out := make(chan GetPriceHistoryJob)
+	out := make(chan GetItemPricesHistoryJob)
 
 	// spinning up workers for querying price-histories
 	worker := func() {
 		for phdBase := range in {
 			itemPrices, err := phdBase.getItemPrices(id)
 			if err != nil {
-				out <- GetPriceHistoryJob{
+				out <- GetItemPricesHistoryJob{
 					Err:          err,
 					PriceHistory: nil,
 				}
@@ -42,7 +42,7 @@ func (shards DatabaseShards) GetPriceHistory(
 				continue
 			}
 
-			out <- GetPriceHistoryJob{
+			out <- GetItemPricesHistoryJob{
 				Err:          nil,
 				PriceHistory: sotah.PriceHistory{phdBase.targetTimestamp: itemPrices},
 			}
