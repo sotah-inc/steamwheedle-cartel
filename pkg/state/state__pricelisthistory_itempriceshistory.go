@@ -13,28 +13,28 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 )
 
-func NewPricelistHistoryRequest(data []byte) (PricelistHistoryRequest, error) {
-	req := &PricelistHistoryRequest{}
+func NewItemPricesHistoryRequest(data []byte) (ItemPricesHistoryRequest, error) {
+	req := &ItemPricesHistoryRequest{}
 	err := json.Unmarshal(data, &req)
 	if err != nil {
-		return PricelistHistoryRequest{}, err
+		return ItemPricesHistoryRequest{}, err
 	}
 
 	return *req, nil
 }
 
-type PricelistHistoryRequest struct {
+type ItemPricesHistoryRequest struct {
 	Tuple       blizzardv2.RegionConnectedRealmTuple `json:"tuple"`
 	ItemIds     blizzardv2.ItemIds                   `json:"item_ids"`
 	LowerBounds sotah.UnixTimestamp                  `json:"lower_bounds"`
 	UpperBounds sotah.UnixTimestamp                  `json:"upper_bounds"`
 }
 
-type PricelistHistoryResponse struct {
+type ItemPricesHistoryResponse struct {
 	History sotah.ItemPriceHistories `json:"history"`
 }
 
-func (res PricelistHistoryResponse) EncodeForDelivery() (string, error) {
+func (res ItemPricesHistoryResponse) EncodeForDelivery() (string, error) {
 	jsonEncoded, err := json.Marshal(res)
 	if err != nil {
 		return "", err
@@ -48,11 +48,11 @@ func (res PricelistHistoryResponse) EncodeForDelivery() (string, error) {
 	return base64.StdEncoding.EncodeToString(gzipEncoded), nil
 }
 
-func (sta PricelistHistoryState) ListenForPriceListHistory(stop ListenStopChan) error {
-	err := sta.Messenger.Subscribe(string(subjects.PriceListHistory), stop, func(natsMsg nats.Msg) {
+func (sta PricelistHistoryState) ListenForItemPricesHistory(stop ListenStopChan) error {
+	err := sta.Messenger.Subscribe(string(subjects.ItemPricesHistory), stop, func(natsMsg nats.Msg) {
 		m := messenger.NewMessage()
 
-		req, err := NewPricelistHistoryRequest(natsMsg.Data)
+		req, err := NewItemPricesHistoryRequest(natsMsg.Data)
 		if err != nil {
 			m.Err = err.Error()
 			m.Code = codes.MsgJSONParseError
@@ -83,7 +83,7 @@ func (sta PricelistHistoryState) ListenForPriceListHistory(stop ListenStopChan) 
 			return
 		}
 
-		res := PricelistHistoryResponse{History: itemPriceHistories}
+		res := ItemPricesHistoryResponse{History: itemPriceHistories}
 
 		data, err := res.EncodeForDelivery()
 		if err != nil {

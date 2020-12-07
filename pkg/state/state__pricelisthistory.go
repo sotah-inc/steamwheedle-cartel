@@ -45,7 +45,7 @@ type PricelistHistoryState struct {
 func (sta PricelistHistoryState) GetListeners() SubjectListeners {
 	return SubjectListeners{
 		subjects.ItemPricesIntake:        sta.ListenForItemPricesIntake,
-		subjects.PriceListHistory:        sta.ListenForPriceListHistory,
+		subjects.ItemPricesHistory:       sta.ListenForItemPricesHistory,
 		subjects.RecipePricesIntake:      sta.ListenForRecipePricesIntake,
 		subjects.PrunePricelistHistories: sta.ListenForPrunePricelistHistories,
 	}
