@@ -31,7 +31,7 @@ type RecipePricesHistoryRequest struct {
 }
 
 type RecipePricesHistoryResponse struct {
-	History sotah.ItemPriceHistories `json:"history"`
+	History sotah.RecipePriceHistories `json:"history"`
 }
 
 func (res RecipePricesHistoryResponse) EncodeForDelivery() (string, error) {
@@ -70,8 +70,8 @@ func (sta PricelistHistoryState) ListenForRecipePricesHistory(stop ListenStopCha
 			return
 		}
 
-		itemPriceHistories, err := shards.Between(req.LowerBounds, req.UpperBounds).GetItemPriceHistories(
-			req.ItemIds,
+		recipePriceHistories, err := shards.Between(req.LowerBounds, req.UpperBounds).GetRecipePriceHistories(
+			req.RecipeIds,
 			req.LowerBounds,
 			req.UpperBounds,
 		)
@@ -83,7 +83,7 @@ func (sta PricelistHistoryState) ListenForRecipePricesHistory(stop ListenStopCha
 			return
 		}
 
-		res := RecipePricesHistoryResponse{History: itemPriceHistories}
+		res := RecipePricesHistoryResponse{History: recipePriceHistories}
 
 		data, err := res.EncodeForDelivery()
 		if err != nil {
