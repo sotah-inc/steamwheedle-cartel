@@ -74,7 +74,7 @@ func (ladBases Databases) AuctionStatsWithTuples(
 	postWork := func() {
 		close(out)
 	}
-	util.Work(12, worker, postWork)
+	util.Work(8, worker, postWork)
 
 	// queueing it up
 	go func() {
