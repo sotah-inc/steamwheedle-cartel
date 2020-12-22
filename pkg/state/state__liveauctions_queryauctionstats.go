@@ -31,6 +31,8 @@ func (sta LiveAuctionsState) ListenForQueryAuctionStats(stop ListenStopChan) err
 
 		// fetching aggregated stats across all tuples
 		if tuple.RegionName == "" {
+			logging.Info("fetching aggregated stats across all tuples")
+
 			totalStats, err := sta.LiveAuctionsDatabases.AuctionStatsWithTuples(sta.Tuples)
 			if err != nil {
 				logging.WithField("error", err.Error()).Error("failed on LiveAuctionsDatabases.AuctionStatsWithTuples()")
@@ -51,6 +53,7 @@ func (sta LiveAuctionsState) ListenForQueryAuctionStats(stop ListenStopChan) err
 
 		// fetching aggregated status across one region
 		if tuple.ConnectedRealmId == 0 {
+			logging.Info("fetching aggregated status across one region")
 			totalStats, err := sta.LiveAuctionsDatabases.AuctionStatsWithTuples(
 				sta.Tuples.FilterByRegionName(tuple.RegionName),
 			)
@@ -72,6 +75,7 @@ func (sta LiveAuctionsState) ListenForQueryAuctionStats(stop ListenStopChan) err
 		}
 
 		// fetching stats for one tuple
+		logging.Info("fetching stats for one tuple")
 		ladBase, err := sta.LiveAuctionsDatabases.GetDatabase(tuple)
 		if err != nil {
 			logging.WithField("error", err.Error()).Error("failed on LiveAuctionsDatabases.GetDatabase()")
@@ -83,6 +87,7 @@ func (sta LiveAuctionsState) ListenForQueryAuctionStats(stop ListenStopChan) err
 			return
 		}
 
+		logging.Info("ladBase.AuctionStats()")
 		auctionStats, err := ladBase.AuctionStats()
 		if err != nil {
 			logging.WithField("error", err.Error()).Error("failed on ladBase.AuctionStats()")
