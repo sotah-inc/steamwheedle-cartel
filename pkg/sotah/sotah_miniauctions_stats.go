@@ -4,17 +4,11 @@ import (
 	"encoding/json"
 
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 )
 
-func NewMiniAuctionListStats(gzipEncoded []byte) (MiniAuctionListStats, error) {
-	gzipDecoded, err := util.GzipDecode(gzipEncoded)
-	if err != nil {
-		return MiniAuctionListStats{}, err
-	}
-
+func NewMiniAuctionListStats(jsonEncoded []byte) (MiniAuctionListStats, error) {
 	var jsonDecoded MiniAuctionListStats
-	if err := json.Unmarshal(gzipDecoded, &jsonDecoded); err != nil {
+	if err := json.Unmarshal(jsonEncoded, &jsonDecoded); err != nil {
 		return MiniAuctionListStats{}, err
 	}
 
@@ -77,10 +71,5 @@ type MiniAuctionListStats struct {
 }
 
 func (s MiniAuctionListStats) EncodeForStorage() ([]byte, error) {
-	jsonEncoded, err := json.Marshal(s)
-	if err != nil {
-		return []byte{}, err
-	}
-
-	return util.GzipEncode(jsonEncoded)
+	return json.Marshal(s)
 }
