@@ -9,8 +9,12 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 )
 
-func databasePath(dirPath string, tuple blizzardv2.RegionConnectedRealmTuple) string {
-	return fmt.Sprintf("%s/stats/%s/%d.db", dirPath, tuple.RegionName, tuple.ConnectedRealmId)
+func tupleDatabasePath(dirPath string, tuple blizzardv2.RegionConnectedRealmTuple) string {
+	return databasePath(dirPath, fmt.Sprintf("%s/%d", tuple.RegionName, tuple.ConnectedRealmId))
+}
+
+func databasePath(dirPath string, suffix string) string {
+	return fmt.Sprintf("%s/stats/%s.db", dirPath, suffix)
 }
 
 // bucket, key for current live-auctions
