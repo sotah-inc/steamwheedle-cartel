@@ -30,7 +30,7 @@ func (tBases TupleDatabases) PruneStats(
 
 	worker := func() {
 		for tuple := range in {
-			ladBase, err := tBases.GetDatabase(tuple)
+			ladBase, err := tBases.GetTupleDatabase(tuple)
 			if err != nil {
 				out <- PruneStatsJob{err, tuple}
 
@@ -62,7 +62,7 @@ func (tBases TupleDatabases) PruneStats(
 
 	for job := range out {
 		if job.Err != nil {
-			logging.WithFields(job.ToLogrusFields()).Error("failed to prune auction-stats")
+			logging.WithFields(job.ToLogrusFields()).Error("failed to prune stats")
 
 			return job.Err
 		}

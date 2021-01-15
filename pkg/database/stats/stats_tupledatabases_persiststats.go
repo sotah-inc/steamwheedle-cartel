@@ -32,7 +32,7 @@ func (tBases TupleDatabases) PersistStats(in chan PersistRealmStatsInJob) error 
 
 	worker := func() {
 		for job := range in {
-			tBase, err := tBases.GetDatabase(job.Tuple)
+			tBase, err := tBases.GetTupleDatabase(job.Tuple)
 			if err != nil {
 				out <- PersistRealmStatsOutJob{
 					Err:   err,
@@ -65,7 +65,7 @@ func (tBases TupleDatabases) PersistStats(in chan PersistRealmStatsInJob) error 
 
 	for job := range out {
 		if job.Err != nil {
-			logging.WithFields(job.ToLogrusFields()).Error("failed to persist auction-stats")
+			logging.WithFields(job.ToLogrusFields()).Error("failed to persist stats")
 
 			return job.Err
 		}

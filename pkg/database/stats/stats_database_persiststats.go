@@ -19,7 +19,7 @@ func (sBase Database) PersistStats(
 	logging.WithFields(logrus.Fields{
 		"db":           sBase.db.Path(),
 		"encoded-data": len(encodedData),
-	}).Debug("persisting mini-auction-stats via encoded-data")
+	}).Debug("persisting stats with encoded-data")
 
 	err = sBase.db.Update(func(tx *bolt.Tx) error {
 		bkt, err := tx.CreateBucketIfNotExists(baseBucketName())
