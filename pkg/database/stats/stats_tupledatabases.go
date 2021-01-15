@@ -34,20 +34,33 @@ func NewTupleDatabases(
 	return tBases, nil
 }
 
-type TupleDatabases map[blizzardv2.RegionName]map[blizzardv2.ConnectedRealmId]TupleDatabase
+type TupleDatabaseShards map[blizzardv2.ConnectedRealmId]TupleDatabase
 
-func (tBases TupleDatabases) GetDatabase(
+type TupleDatabases map[blizzardv2.RegionName]TupleDatabaseShards
+
+func (tBases TupleDatabases) GetTupleDatabase(
 	tuple blizzardv2.RegionConnectedRealmTuple,
 ) (TupleDatabase, error) {
-	shards, ok := tBases[tuple.RegionName]
-	if !ok {
-		return TupleDatabase{}, fmt.Errorf("shard not found for region %s", tuple.RegionName)
+	shard, err := tBases.GetRegionShard(tuple.RegionName)
+	if err != nil {
+		return TupleDatabase{}, err
 	}
 
-	db, ok := shards[tuple.ConnectedRealmId]
+	db, ok := shard[tuple.ConnectedRealmId]
 	if !ok {
 		return TupleDatabase{}, fmt.Errorf("db not found for connected-realm %d", tuple.ConnectedRealmId)
 	}
 
 	return db, nil
+}
+
+func (tBases TupleDatabases) GetRegionShard(
+	regionName blizzardv2.RegionName,
+) (TupleDatabaseShards, error) {
+	shards, ok := tBases[regionName]
+	if !ok {
+		return TupleDatabaseShards{}, fmt.Errorf("shard not found for region %s", regionName)
+	}
+
+	return shards, nil
 }
