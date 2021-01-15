@@ -9,20 +9,12 @@ func (tBases TupleDatabases) TotalStats(regionNames []blizzardv2.RegionName) (so
 	out := sotah.AuctionStats{}
 
 	for _, regionName := range regionNames {
-		shard, err := tBases.GetRegionShard(regionName)
+		auctionStats, err := tBases.RegionStats(regionName)
 		if err != nil {
 			return sotah.AuctionStats{}, err
 		}
 
-		for _, db := range shard {
-			auctionStats, err := db.Stats()
-			if err != nil {
-				return sotah.AuctionStats{}, err
-			}
-
-			out = out.Append(auctionStats)
-
-		}
+		out = out.Append(auctionStats)
 	}
 
 	return out, nil
