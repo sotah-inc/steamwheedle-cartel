@@ -11,7 +11,7 @@ import (
 type PersistRealmStatsInJob struct {
 	Tuple            blizzardv2.RegionConnectedRealmTuple
 	CurrentTimestamp sotah.UnixTimestamp
-	Stats            sotah.MiniAuctionListStats
+	EncodedStats     []byte
 }
 
 type PersistRealmStatsOutJob struct {
@@ -27,7 +27,7 @@ func (job PersistRealmStatsOutJob) ToLogrusFields() logrus.Fields {
 	}
 }
 
-func (tBases TupleDatabases) PersistStats(in chan PersistRealmStatsInJob) error {
+func (tBases TupleDatabases) PersistEncodedStats(in chan PersistRealmStatsInJob) error {
 	out := make(chan PersistRealmStatsOutJob)
 
 	worker := func() {
@@ -42,7 +42,7 @@ func (tBases TupleDatabases) PersistStats(in chan PersistRealmStatsInJob) error 
 				continue
 			}
 
-			err = tBase.Database.PersistStats(job.CurrentTimestamp, job.Stats)
+			err = tBase.Database.PersistEncodedStats(job.CurrentTimestamp, job.EncodedStats)
 			if err != nil {
 				out <- PersistRealmStatsOutJob{
 					Err:   err,

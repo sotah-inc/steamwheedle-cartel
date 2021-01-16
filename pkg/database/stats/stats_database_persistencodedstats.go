@@ -7,21 +7,16 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 )
 
-func (sBase Database) PersistStats(
+func (sBase Database) PersistEncodedStats(
 	currentTimestamp sotah.UnixTimestamp,
-	stats sotah.MiniAuctionListStats,
+	encodedData []byte,
 ) error {
-	encodedData, err := stats.EncodeForStorage()
-	if err != nil {
-		return err
-	}
-
 	logging.WithFields(logrus.Fields{
 		"db":           sBase.db.Path(),
 		"encoded-data": len(encodedData),
 	}).Debug("persisting stats with encoded-data")
 
-	err = sBase.db.Update(func(tx *bolt.Tx) error {
+	err := sBase.db.Update(func(tx *bolt.Tx) error {
 		bkt, err := tx.CreateBucketIfNotExists(baseBucketName())
 		if err != nil {
 			return err
