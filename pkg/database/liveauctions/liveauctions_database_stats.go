@@ -7,32 +7,13 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 )
 
-func (ladBase Database) Stats() (sotah.MiniAuctionListStats, error) {
-	maList, err := ladBase.GetMiniAuctionList()
-	if err != nil {
-		return sotah.MiniAuctionListStats{}, err
-	}
-
-	out := sotah.MiniAuctionListStats{
-		MiniAuctionListGeneralStats: sotah.MiniAuctionListGeneralStats{
-			TotalAuctions: maList.TotalAuctions(),
-			TotalQuantity: maList.TotalQuantity(),
-			TotalBuyout:   int(maList.TotalBuyout()),
-		},
-		ItemIds:    maList.ItemIds(),
-		AuctionIds: maList.AuctionIds(),
-	}
-
-	return out, nil
-}
-
 func (ladBase Database) persistStats(currentTimestamp sotah.UnixTimestamp) error {
-	stats, err := ladBase.Stats()
+	maList, err := ladBase.GetMiniAuctionList()
 	if err != nil {
 		return err
 	}
 
-	encodedData, err := stats.EncodeForStorage()
+	encodedData, err := sotah.NewMiniAuctionListStatsFromMiniAuctionList(maList).EncodeForStorage()
 	if err != nil {
 		return err
 	}

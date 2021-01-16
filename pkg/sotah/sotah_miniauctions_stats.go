@@ -15,6 +15,18 @@ func NewMiniAuctionListStats(jsonEncoded []byte) (MiniAuctionListStats, error) {
 	return jsonDecoded, nil
 }
 
+func NewMiniAuctionListStatsFromMiniAuctionList(maList MiniAuctionList) MiniAuctionListStats {
+	return MiniAuctionListStats{
+		MiniAuctionListGeneralStats: MiniAuctionListGeneralStats{
+			TotalAuctions: maList.TotalAuctions(),
+			TotalQuantity: maList.TotalQuantity(),
+			TotalBuyout:   int(maList.TotalBuyout()),
+		},
+		ItemIds:    maList.ItemIds(),
+		AuctionIds: maList.AuctionIds(),
+	}
+}
+
 type AuctionStats map[UnixTimestamp]MiniAuctionListGeneralStats
 
 func (s AuctionStats) EncodeForDelivery() ([]byte, error) {
