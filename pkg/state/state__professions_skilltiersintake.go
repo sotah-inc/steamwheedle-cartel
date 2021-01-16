@@ -74,7 +74,7 @@ func (sta ProfessionsState) SkillTiersIntake(professionId blizzardv2.ProfessionI
 	for _, id := range currentSkillTierIds {
 		currentSkillTierIdsMap[id] = struct{}{}
 	}
-	var skillTierIdsToFetch []blizzardv2.SkillTierId
+	var skillTierIdsToFetch []blizzardv2.SkillTierId // nolint:prealloc
 	for _, id := range professionSkillTierIds {
 		if _, ok := currentSkillTierIdsMap[id]; ok {
 			continue

@@ -113,7 +113,7 @@ func (sta ProfessionsState) RecipesIntake() (RecipesIntakeResponse, error) {
 	for _, id := range currentRecipeIds {
 		currentRecipeIdsMap[id] = struct{}{}
 	}
-	var recipeIdsToFetch []blizzardv2.RecipeId
+	var recipeIdsToFetch []blizzardv2.RecipeId // nolint:prealloc
 	for _, id := range professionRecipeIds {
 		if _, ok := currentRecipeIdsMap[id]; ok {
 			continue
