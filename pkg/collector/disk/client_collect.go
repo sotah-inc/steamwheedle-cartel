@@ -46,6 +46,10 @@ func (c Client) Collect() error {
 		return err
 	}
 
+	if err := c.CallStatsIntake(collectAuctionsResults.tuples); err != nil {
+		return err
+	}
+
 	if err := c.CallPrunePricelistHistories(); err != nil {
 		return err
 	}
