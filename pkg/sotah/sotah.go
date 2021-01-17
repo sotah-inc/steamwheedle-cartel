@@ -36,6 +36,16 @@ func (timestamps UnixTimestamps) Before(limit UnixTimestamp) UnixTimestamps {
 	return out
 }
 
+func (timestamps UnixTimestamps) IsZero() bool {
+	for _, timestamp := range timestamps {
+		if timestamp.IsZero() {
+			return false
+		}
+	}
+
+	return true
+}
+
 type UnixTimestamp int64
 
 func (timestamp UnixTimestamp) IsZero() bool {

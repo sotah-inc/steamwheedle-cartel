@@ -12,13 +12,21 @@ type ConnectedRealmTimestamps struct {
 	LiveAuctionsReceived UnixTimestamp `json:"live_auctions_received"`
 	ItemPricesReceived   UnixTimestamp `json:"item_prices_received"`
 	RecipePricesReceived UnixTimestamp `json:"recipe_prices_received"`
+	StatsReceived        UnixTimestamp `json:"stats_received"`
+}
+
+func (timestamps ConnectedRealmTimestamps) ToList() UnixTimestamps {
+	return UnixTimestamps{
+		timestamps.Downloaded,
+		timestamps.LiveAuctionsReceived,
+		timestamps.ItemPricesReceived,
+		timestamps.RecipePricesReceived,
+		timestamps.StatsReceived,
+	}
 }
 
 func (timestamps ConnectedRealmTimestamps) IsZero() bool {
-	return !timestamps.Downloaded.IsZero() &&
-		!timestamps.LiveAuctionsReceived.IsZero() &&
-		!timestamps.ItemPricesReceived.IsZero() &&
-		!timestamps.RecipePricesReceived.IsZero()
+	return timestamps.ToList().IsZero()
 }
 
 func (timestamps ConnectedRealmTimestamps) Merge(in ConnectedRealmTimestamps) ConnectedRealmTimestamps {
@@ -36,6 +44,10 @@ func (timestamps ConnectedRealmTimestamps) Merge(in ConnectedRealmTimestamps) Co
 
 	if !in.RecipePricesReceived.IsZero() {
 		timestamps.RecipePricesReceived = in.RecipePricesReceived
+	}
+
+	if !in.StatsReceived.IsZero() {
+		timestamps.StatsReceived = in.StatsReceived
 	}
 
 	return timestamps
@@ -145,6 +157,21 @@ func (regionTimestamps RegionTimestamps) SetRecipePricesReceived(
 	// pushing the new time into the found member
 	result := out[tuple.RegionName][tuple.ConnectedRealmId]
 	result.RecipePricesReceived = UnixTimestamp(recipePricesReceived.Unix())
+	out[tuple.RegionName][tuple.ConnectedRealmId] = result
+
+	return out
+}
+
+func (regionTimestamps RegionTimestamps) SetStatsReceived(
+	tuple blizzardv2.RegionConnectedRealmTuple,
+	statsReceived time.Time,
+) RegionTimestamps {
+	// resolving due to missing members
+	out := regionTimestamps.resolve(tuple)
+
+	// pushing the new time into the found member
+	result := out[tuple.RegionName][tuple.ConnectedRealmId]
+	result.RecipePricesReceived = UnixTimestamp(statsReceived.Unix())
 	out[tuple.RegionName][tuple.ConnectedRealmId] = result
 
 	return out

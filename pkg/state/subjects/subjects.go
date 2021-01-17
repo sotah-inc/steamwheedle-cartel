@@ -57,6 +57,10 @@ const (
 )
 
 const (
+	StatsIntake Subject = "statsIntake"
+)
+
+const (
 	ItemPricesIntake    Subject = "itemPricesIntake"
 	RecipePricesIntake  Subject = "recipePricesIntake"
 	ItemPricesHistory   Subject = "itemPricesHistory"

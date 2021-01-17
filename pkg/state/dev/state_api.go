@@ -20,6 +20,7 @@ type ApiStateDatabaseConfig struct {
 	AreaMapsDir         string
 	LiveAuctionsDir     string
 	PricelistHistoryDir string
+	StatsDir            string
 }
 
 type ApiStateConfig struct {
@@ -217,6 +218,20 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 		return ApiState{}, err
 	}
 
+	// resolving stats state
+	sta.StatsState, err = state.NewStatsState(state.NewStatsStateOptions{
+		Messenger:               mess,
+		LakeClient:              lakeClient,
+		StatsDatabasesDir:       config.DatabaseConfig.StatsDir,
+		Tuples:                  sta.RegionState.RegionComposites.ToTuples(),
+		ReceiveRegionTimestamps: sta.RegionState.ReceiveTimestamps,
+	})
+	if err != nil {
+		logging.WithField("error", err.Error()).Error("failed to initialise stats state")
+
+		return ApiState{}, err
+	}
+
 	// establishing listeners
 	sta.Listeners = state.NewListeners(state.NewSubjectListeners([]state.SubjectListeners{
 		sta.ItemsState.GetListeners(),
@@ -228,6 +243,7 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 		sta.BootState.GetListeners(),
 		sta.LiveAuctionsState.GetListeners(),
 		sta.PricelistHistoryState.GetListeners(),
+		sta.StatsState.GetListeners(),
 	}))
 
 	return sta, nil
@@ -248,4 +264,5 @@ type ApiState struct {
 
 	LiveAuctionsState     state.LiveAuctionsState
 	PricelistHistoryState state.PricelistHistoryState
+	StatsState            state.StatsState
 }

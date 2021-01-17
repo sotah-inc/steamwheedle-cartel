@@ -7,6 +7,7 @@ import (
 
 type Client interface {
 	GetEncodedAuctionsByTuples(tuples blizzardv2.RegionConnectedRealmTuples) chan GetEncodedAuctionsByTuplesJob
+	GetEncodedStatsByTuples(tuples blizzardv2.LoadConnectedRealmTuples) chan GetEncodedStatsByTuplesJob
 	GetEncodedItemPricesByTuples(
 		tuples blizzardv2.LoadConnectedRealmTuples,
 	) chan GetEncodedItemPricesByTuplesJob

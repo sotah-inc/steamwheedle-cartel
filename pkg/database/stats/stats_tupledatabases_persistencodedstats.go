@@ -3,20 +3,18 @@ package stats
 import (
 	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 )
 
 type PersistRealmStatsInJob struct {
-	Tuple            blizzardv2.RegionConnectedRealmTuple
-	CurrentTimestamp sotah.UnixTimestamp
-	EncodedStats     []byte
+	Tuple        blizzardv2.LoadConnectedRealmTuple
+	EncodedStats []byte
 }
 
 type PersistRealmStatsOutJob struct {
 	Err   error
-	Tuple blizzardv2.RegionConnectedRealmTuple
+	Tuple blizzardv2.LoadConnectedRealmTuple
 }
 
 func (job PersistRealmStatsOutJob) ToLogrusFields() logrus.Fields {
@@ -27,12 +25,12 @@ func (job PersistRealmStatsOutJob) ToLogrusFields() logrus.Fields {
 	}
 }
 
-func (tBases TupleDatabases) PersistEncodedStats(in chan PersistRealmStatsInJob) error {
+func (tBases TupleDatabases) PersistEncodedStats(in chan PersistRealmStatsInJob) chan PersistRealmStatsOutJob {
 	out := make(chan PersistRealmStatsOutJob)
 
 	worker := func() {
 		for job := range in {
-			tBase, err := tBases.GetTupleDatabase(job.Tuple)
+			tBase, err := tBases.GetTupleDatabase(job.Tuple.RegionConnectedRealmTuple)
 			if err != nil {
 				out <- PersistRealmStatsOutJob{
 					Err:   err,
@@ -42,7 +40,10 @@ func (tBases TupleDatabases) PersistEncodedStats(in chan PersistRealmStatsInJob)
 				continue
 			}
 
-			err = tBase.Database.PersistEncodedStats(job.CurrentTimestamp, job.EncodedStats)
+			err = tBase.Database.PersistEncodedStats(
+				sotah.UnixTimestamp(job.Tuple.LastModified.Unix()),
+				job.EncodedStats,
+			)
 			if err != nil {
 				out <- PersistRealmStatsOutJob{
 					Err:   err,
@@ -63,13 +64,5 @@ func (tBases TupleDatabases) PersistEncodedStats(in chan PersistRealmStatsInJob)
 	}
 	util.Work(4, worker, postWork)
 
-	for job := range out {
-		if job.Err != nil {
-			logging.WithFields(job.ToLogrusFields()).Error("failed to persist stats")
-
-			return job.Err
-		}
-	}
-
-	return nil
+	return out
 }
