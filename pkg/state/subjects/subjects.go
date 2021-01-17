@@ -52,12 +52,12 @@ const (
 const (
 	LiveAuctionsIntake Subject = "liveAuctionsIntake"
 	Auctions           Subject = "auctions"
-	QueryAuctionStats  Subject = "queryAuctionStats"
 	PriceList          Subject = "priceList"
 )
 
 const (
-	StatsIntake Subject = "statsIntake"
+	StatsIntake       Subject = "statsIntake"
+	QueryAuctionStats Subject = "queryAuctionStats"
 )
 
 const (
