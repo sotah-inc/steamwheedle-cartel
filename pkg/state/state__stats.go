@@ -66,6 +66,7 @@ type StatsState struct {
 
 func (sta StatsState) GetListeners() SubjectListeners {
 	return SubjectListeners{
-		subjects.StatsIntake: sta.ListenForStatsIntake,
+		subjects.StatsIntake:       sta.ListenForStatsIntake,
+		subjects.QueryAuctionStats: sta.ListenForQueryAuctionStats,
 	}
 }

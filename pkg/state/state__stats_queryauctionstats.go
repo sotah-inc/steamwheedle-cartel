@@ -12,7 +12,7 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state/subjects"
 )
 
-func (sta LiveAuctionsState) ListenForQueryAuctionStats(stop ListenStopChan) error {
+func (sta StatsState) ListenForQueryAuctionStats(stop ListenStopChan) error {
 	err := sta.Messenger.Subscribe(string(subjects.QueryAuctionStats), stop, func(natsMsg nats.Msg) {
 		m := messenger.NewMessage()
 
@@ -27,9 +27,12 @@ func (sta LiveAuctionsState) ListenForQueryAuctionStats(stop ListenStopChan) err
 
 		// fetching aggregated stats across all tuples
 		if tuple.RegionName == "" {
-			totalStats, err := sta.LiveAuctionsDatabases.AuctionStatsWithTuples(sta.Tuples)
+			totalStats, err := sta.StatsTupleDatabases.TotalStats(sta.Tuples.RegionNames())
 			if err != nil {
-				logging.WithField("error", err.Error()).Error("failed on LiveAuctionsDatabases.AuctionStatsWithTuples()")
+				logging.WithField(
+					"error",
+					err.Error(),
+				).Error("failed on StatsTupleDatabases.TotalStats()")
 
 				m.Err = err.Error()
 				m.Code = mCodes.GenericError
@@ -45,9 +48,7 @@ func (sta LiveAuctionsState) ListenForQueryAuctionStats(stop ListenStopChan) err
 
 		// fetching aggregated status across one region
 		if tuple.ConnectedRealmId == 0 {
-			totalStats, err := sta.LiveAuctionsDatabases.AuctionStatsWithTuples(
-				sta.Tuples.FilterByRegionName(tuple.RegionName),
-			)
+			totalStats, err := sta.StatsTupleDatabases.RegionStats(tuple.RegionName)
 			if err != nil {
 				m.Err = err.Error()
 				m.Code = mCodes.GenericError
@@ -62,9 +63,9 @@ func (sta LiveAuctionsState) ListenForQueryAuctionStats(stop ListenStopChan) err
 		}
 
 		// fetching stats for one tuple
-		ladBase, err := sta.LiveAuctionsDatabases.GetDatabase(tuple)
+		tBase, err := sta.StatsTupleDatabases.GetTupleDatabase(tuple)
 		if err != nil {
-			logging.WithField("error", err.Error()).Error("failed on LiveAuctionsDatabases.GetDatabase()")
+			logging.WithField("error", err.Error()).Error("failed on StatsTupleDatabases.GetDatabase()")
 
 			m.Err = err.Error()
 			m.Code = mCodes.GenericError
@@ -73,9 +74,9 @@ func (sta LiveAuctionsState) ListenForQueryAuctionStats(stop ListenStopChan) err
 			return
 		}
 
-		auctionStats, err := ladBase.AuctionStats()
+		auctionStats, err := tBase.Stats()
 		if err != nil {
-			logging.WithField("error", err.Error()).Error("failed on ladBase.AuctionStats()")
+			logging.WithField("error", err.Error()).Error("failed on tBase.Stats()")
 
 			m.Err = err.Error()
 			m.Code = mCodes.GenericError
@@ -93,7 +94,7 @@ func (sta LiveAuctionsState) ListenForQueryAuctionStats(stop ListenStopChan) err
 	return nil
 }
 
-func (sta LiveAuctionsState) sendQueryAuctionStatsResponse(
+func (sta StatsState) sendQueryAuctionStatsResponse(
 	natsMsg nats.Msg,
 	m messenger.Message,
 	auctionStats sotah.AuctionStats,

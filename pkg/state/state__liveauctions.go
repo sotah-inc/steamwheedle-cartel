@@ -68,7 +68,6 @@ func (sta LiveAuctionsState) GetListeners() SubjectListeners {
 	return SubjectListeners{
 		subjects.LiveAuctionsIntake: sta.ListenForLiveAuctionsIntake,
 		subjects.Auctions:           sta.ListenForAuctions,
-		subjects.QueryAuctionStats:  sta.ListenForQueryAuctionStats,
 		subjects.PriceList:          sta.ListenForPriceList,
 	}
 }

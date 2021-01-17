@@ -58,6 +58,22 @@ func (tuples RegionConnectedRealmTuples) EncodeForDelivery() ([]byte, error) {
 	return json.Marshal(tuples)
 }
 
+func (tuples RegionConnectedRealmTuples) RegionNames() []RegionName {
+	outMap := map[RegionName]struct{}{}
+	for _, tuple := range tuples {
+		outMap[tuple.RegionName] = struct{}{}
+	}
+
+	out := make([]RegionName, len(outMap))
+	i := 0
+	for regionName := range outMap {
+		out[i] = regionName
+		i += 1
+	}
+
+	return out
+}
+
 func NewRegionConnectedRealmTuple(data []byte) (RegionConnectedRealmTuple, error) {
 	out := RegionConnectedRealmTuple{}
 	if err := json.Unmarshal(data, &out); err != nil {

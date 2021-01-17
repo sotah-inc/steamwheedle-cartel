@@ -8,7 +8,6 @@ import (
 	"github.com/nats-io/nats.go"
 	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
-	BaseDatabase "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database/base"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger/codes"
@@ -95,23 +94,6 @@ func (sta LiveAuctionsState) LiveAuctionsIntake(tuples blizzardv2.LoadConnectedR
 	// optionally updating region state
 	if !regionTimestamps.IsZero() {
 		sta.ReceiveRegionTimestamps(regionTimestamps)
-	}
-
-	// persisting related stats
-	if err := sta.LiveAuctionsDatabases.PersistStats(tuples.RegionConnectedRealmTuples()); err != nil {
-		logging.WithField("error", err.Error()).Error("failed to persist live-auctions stats")
-
-		return err
-	}
-
-	// pruning stats
-	if err := sta.LiveAuctionsDatabases.PruneStats(
-		tuples.RegionConnectedRealmTuples(),
-		sotah.UnixTimestamp(BaseDatabase.RetentionLimit().Unix()),
-	); err != nil {
-		logging.WithField("error", err.Error()).Error("failed to prune live-auctions stats")
-
-		return err
 	}
 
 	logging.WithFields(logrus.Fields{

@@ -37,7 +37,7 @@ func (ladBases Databases) LoadEncodedData(
 	// spinning up workers for receiving encoded-data and persisting it
 	worker := func() {
 		for job := range in {
-			// resolving the live-auctions database and gathering current Stats
+			// resolving the live-auctions database
 			ladBase, err := ladBases.GetDatabase(job.Tuple)
 			if err != nil {
 				logging.WithFields(logrus.Fields{
