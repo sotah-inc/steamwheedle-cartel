@@ -42,39 +42,6 @@ func (tHistory TokenHistory) EncodeForDelivery() ([]byte, error) {
 	return jsonEncoded, nil
 }
 
-// gathering token history
-func (tBase Database) GetHistory(regionName blizzardv2.RegionName) (TokenHistory, error) {
-	out := TokenHistory{}
-
-	err := tBase.db.View(func(tx *bolt.Tx) error {
-		bkt := tx.Bucket(baseBucketName(regionName))
-		if bkt == nil {
-			return nil
-		}
-
-		err := bkt.ForEach(func(k, v []byte) error {
-			lastUpdated, err := lastUpdatedFromBaseKeyName(k)
-			if err != nil {
-				return err
-			}
-
-			out[lastUpdated] = priceFromTokenValue(v)
-
-			return nil
-		})
-		if err != nil {
-			return err
-		}
-
-		return nil
-	})
-	if err != nil {
-		return TokenHistory{}, err
-	}
-
-	return out, nil
-}
-
 // persisting
 func (tBase Database) PersistHistory(rtHistory RegionTokenHistory) error {
 	logging.WithField("region-token-history", rtHistory).Debug("persisting region token-history")

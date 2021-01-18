@@ -56,5 +56,6 @@ func (sta TokensState) GetListeners() SubjectListeners {
 	return SubjectListeners{
 		subjects.RegionTokenHistory: sta.ListenForRegionTokenHistory,
 		subjects.TokenHistoryIntake: sta.ListenForTokenHistoryIntake,
+		subjects.TokenHistory:       sta.ListenForTokenHistory,
 	}
 }

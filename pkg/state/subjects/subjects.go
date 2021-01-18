@@ -48,6 +48,7 @@ const (
 const (
 	TokenHistoryIntake Subject = "tokenHistoryIntake"
 	RegionTokenHistory Subject = "regionTokenHistory"
+	TokenHistory       Subject = "tokenHistory"
 )
 
 const (
