@@ -46,7 +46,8 @@ const (
 )
 
 const (
-	TokenHistory Subject = "tokenHistory"
+	TokenHistoryIntake Subject = "tokenHistoryIntake"
+	RegionTokenHistory Subject = "regionTokenHistory"
 )
 
 const (

@@ -165,6 +165,7 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 		BlizzardState:     sta.BlizzardState,
 		Messenger:         mess,
 		TokensDatabaseDir: config.DatabaseConfig.TokensDir,
+		Regions:           regions,
 	})
 	if err != nil {
 		logging.WithField("error", err.Error()).Error("failed to initialise tokens state")

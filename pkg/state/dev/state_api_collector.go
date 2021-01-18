@@ -18,12 +18,6 @@ func (sta ApiState) Collect() error {
 		return err
 	}
 
-	if err := sta.TokensState.CollectRegionTokens(sta.RegionState.RegionComposites.ToList()); err != nil {
-		logging.WithField("error", err.Error()).Error("failed to collect region-tokens")
-
-		return err
-	}
-
 	logging.WithField(
 		"duration-in-ms",
 		time.Since(startTime).Milliseconds(),
