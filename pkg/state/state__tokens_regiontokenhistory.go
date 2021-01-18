@@ -38,7 +38,7 @@ func (sta TokensState) ListenForRegionTokenHistory(stop ListenStopChan) error {
 		}
 
 		// fetching token-history with request data
-		tHistory, err := sta.TokensDatabase.GetHistory(blizzardv2.RegionName(request.RegionName))
+		tHistory, err := sta.TokensDatabase.GetRegionHistory(blizzardv2.RegionName(request.RegionName))
 		if err != nil {
 			m.Err = err.Error()
 			m.Code = mCodes.MsgJSONParseError

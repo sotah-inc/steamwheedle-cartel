@@ -5,7 +5,7 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 )
 
-func (tBase Database) GetHistory(regionName blizzardv2.RegionName) (TokenHistory, error) {
+func (tBase Database) GetRegionHistory(regionName blizzardv2.RegionName) (TokenHistory, error) {
 	out := TokenHistory{}
 
 	err := tBase.db.View(func(tx *bolt.Tx) error {
