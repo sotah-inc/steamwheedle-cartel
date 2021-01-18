@@ -58,7 +58,7 @@ func (timestamp UnixTimestamp) Time() time.Time {
 
 type WorkerStopChan chan struct{}
 
-func NormalizeTargetDate(targetDate time.Time) time.Time {
+func NormalizeToWeek(targetDate time.Time) time.Time {
 	nearestWeekStartOffset := targetDate.Second() + targetDate.Minute()*60 + targetDate.Hour()*60*60
 	return time.Unix(targetDate.Unix()-int64(nearestWeekStartOffset), 0)
 }

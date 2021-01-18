@@ -111,7 +111,7 @@ func (phdBases *Databases) GetDatabase(
 func (phdBases *Databases) resolveDatabase(
 	tuple blizzardv2.LoadConnectedRealmTuple,
 ) (Database, error) {
-	normalizedTargetDate := sotah.NormalizeTargetDate(tuple.LastModified)
+	normalizedTargetDate := sotah.NormalizeToWeek(tuple.LastModified)
 	normalizedTargetTimestamp := sotah.UnixTimestamp(normalizedTargetDate.Unix())
 
 	phdBase, ok := phdBases.Databases[tuple.RegionName][tuple.ConnectedRealmId][normalizedTargetTimestamp]

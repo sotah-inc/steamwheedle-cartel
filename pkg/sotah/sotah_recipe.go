@@ -40,7 +40,7 @@ func (recipe Recipe) EncodeForStorage() ([]byte, error) {
 }
 
 func (recipe Recipe) ItemIds() []blizzardv2.ItemId {
-	var out []blizzardv2.ItemId
+	var out []blizzardv2.ItemId // nolint:prealloc
 
 	if !recipe.BlizzardMeta.AllianceCraftedItem.IsZero() {
 		out = append(out, recipe.BlizzardMeta.AllianceCraftedItem.Id)
