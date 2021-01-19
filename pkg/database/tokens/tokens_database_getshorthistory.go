@@ -9,6 +9,13 @@ import (
 type ShortTokenHistoryBatch map[blizzardv2.RegionName]TokenHistory
 
 func NewShortTokenHistory(batch ShortTokenHistoryBatch) ShortTokenHistory {
+	// resolving batched batches
+	for regionName, tHistory := range batch {
+		batch[regionName] = NewTokenHistoryFromBatch(
+			NewTokenHistoryBatch(tHistory, sotah.NormalizeToDay),
+		)
+	}
+
 	// gathering region-names
 	regionNames := make([]blizzardv2.RegionName, len(batch))
 	i := 0
@@ -18,32 +25,56 @@ func NewShortTokenHistory(batch ShortTokenHistoryBatch) ShortTokenHistory {
 		i += 1
 	}
 
-	// gathering a blank short-token-history
+	// gathering timestamps
+	timestamps := func() sotah.UnixTimestamps {
+		foundTimestampsMap := map[sotah.UnixTimestamp]struct{}{}
+		for _, tHistory := range batch {
+			for timestamp := range tHistory {
+				foundTimestampsMap[timestamp] = struct{}{}
+			}
+		}
+
+		foundTimestamps := make(sotah.UnixTimestamps, len(foundTimestampsMap))
+		i := 0
+		for timestamp := range foundTimestampsMap {
+			foundTimestamps[i] = timestamp
+
+			i += 1
+		}
+
+		return foundTimestamps
+	}()
+
+	// merging results together
 	out := ShortTokenHistory{}
-	for _, tokenHistory := range batch {
-		for unixTimestamp := range tokenHistory {
-			normalizedTimestamp := sotah.NormalizeToDay(unixTimestamp)
-			if _, ok := out[normalizedTimestamp]; ok {
-				continue
+	for _, timestamp := range timestamps {
+		out[timestamp] = func() ShortTokenHistoryItem {
+			item := ShortTokenHistoryItem{}
+			for _, regionName := range regionNames {
+				item[regionName] = func() int64 {
+					foundRegionBatch, ok := batch[regionName]
+					if !ok {
+						return 0
+					}
+
+					foundPrice, ok := foundRegionBatch[timestamp]
+					if !ok {
+						return 0
+					}
+
+					return foundPrice
+				}()
 			}
 
-			out[normalizedTimestamp] = NewShortTokenHistoryItem(regionNames)
-		}
+			return item
+		}()
+
 	}
 
 	return out
 }
 
 type ShortTokenHistory map[sotah.UnixTimestamp]ShortTokenHistoryItem
-
-func NewShortTokenHistoryItem(regionNames []blizzardv2.RegionName) ShortTokenHistoryItem {
-	out := ShortTokenHistoryItem{}
-	for _, regionName := range regionNames {
-		out[regionName] = 0
-	}
-
-	return out
-}
 
 type ShortTokenHistoryItem map[blizzardv2.RegionName]int64
 
