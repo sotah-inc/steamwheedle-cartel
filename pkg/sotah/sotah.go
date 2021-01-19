@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"regexp"
 	"strings"
-	"time"
 )
 
 type ConfigProfession struct {
@@ -22,12 +21,6 @@ type Expansion struct {
 }
 
 type WorkerStopChan chan struct{}
-
-func NormalizeToDay(targetTimestamp UnixTimestamp) UnixTimestamp {
-	targetDate := time.Unix(int64(targetTimestamp), 0)
-	nearestDayStartOffset := targetDate.Second() + targetDate.Minute()*60 + targetDate.Hour()*60*60
-	return UnixTimestamp(targetDate.Unix() - int64(nearestDayStartOffset))
-}
 
 func NewBlizzardCredentials(data []byte) (BlizzardCredentials, error) {
 	var out BlizzardCredentials
