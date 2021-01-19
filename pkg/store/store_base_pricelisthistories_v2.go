@@ -75,7 +75,7 @@ func (b PricelistHistoriesBaseV2) Handle(
 	tuple blizzardv2.RegionConnectedRealmTuple,
 	bkt *storage.BucketHandle,
 ) (sotah.UnixTimestamp, error) {
-	normalizedTargetDate := sotah.NormalizeToDay(time.Unix(int64(targetTimestamp), 0))
+	normalizedTargetDate := time.Unix(int64(sotah.NormalizeToDay(targetTimestamp)), 0)
 
 	entry := logging.WithFields(logrus.Fields{
 		"target-timestamp":       targetTimestamp,
