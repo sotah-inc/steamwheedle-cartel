@@ -3,6 +3,8 @@ package state
 import (
 	"time"
 
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
+
 	"github.com/nats-io/nats.go"
 	"github.com/sirupsen/logrus"
 	TokensDatabase "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database/tokens"
@@ -49,7 +51,9 @@ func (sta TokensState) tokenHistoryIntake() error {
 	// formatting appropriately
 	regionTokenHistory := TokensDatabase.RegionTokenHistory{}
 	for regionName, token := range tokens {
-		regionTokenHistory[regionName] = TokensDatabase.TokenHistory{token.LastUpdatedTimestamp: token.Price}
+		regionTokenHistory[regionName] = TokensDatabase.TokenHistory{
+			sotah.UnixTimestamp(token.LastUpdatedTimestamp): token.Price,
+		}
 	}
 
 	if err := sta.TokensDatabase.PersistHistory(regionTokenHistory); err != nil {

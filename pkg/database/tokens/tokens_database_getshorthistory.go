@@ -1,8 +1,6 @@
 package tokens
 
 import (
-	"time"
-
 	"github.com/boltdb/bolt"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
@@ -24,9 +22,7 @@ func NewShortTokenHistory(batch ShortTokenHistoryBatch) ShortTokenHistory {
 	out := ShortTokenHistory{}
 	for _, tokenHistory := range batch {
 		for unixTimestamp := range tokenHistory {
-			normalizedTimestamp := sotah.UnixTimestamp(
-				sotah.NormalizeToDay(time.Unix(int64(unixTimestamp), 0)).Unix(),
-			)
+			normalizedTimestamp := sotah.NormalizeToDay(unixTimestamp)
 			if _, ok := out[normalizedTimestamp]; ok {
 				continue
 			}

@@ -44,6 +44,8 @@ func NewTokenHistoryFromBatch(batch TokenHistoryBatch) TokenHistory {
 
 			return total / int64(len(prices))
 		}()
+
+		out[timestamp] = priceAverage
 	}
 
 	return out
