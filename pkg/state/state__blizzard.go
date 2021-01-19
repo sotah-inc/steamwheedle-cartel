@@ -47,7 +47,9 @@ func (sta BlizzardState) ResolveRegionConnectedRealms(
 	return out, nil
 }
 
-func (sta BlizzardState) resolveConnectedRealms(region sotah.Region) ([]blizzardv2.ConnectedRealmResponse, error) {
+func (sta BlizzardState) resolveConnectedRealms(
+	region sotah.Region,
+) ([]blizzardv2.ConnectedRealmResponse, error) {
 	return blizzardv2.GetAllConnectedRealms(blizzardv2.GetAllConnectedRealmsOptions{
 		GetConnectedRealmIndexURL: func() (string, error) {
 			return sta.BlizzardClient.AppendAccessToken(
@@ -58,7 +60,9 @@ func (sta BlizzardState) resolveConnectedRealms(region sotah.Region) ([]blizzard
 	})
 }
 
-func (sta BlizzardState) ResolveItemClasses(regions sotah.RegionList) ([]blizzardv2.ItemClassResponse, error) {
+func (sta BlizzardState) ResolveItemClasses(
+	regions sotah.RegionList,
+) ([]blizzardv2.ItemClassResponse, error) {
 	primaryRegion, err := regions.GetPrimaryRegion()
 	if err != nil {
 		return []blizzardv2.ItemClassResponse{}, err
@@ -131,7 +135,9 @@ func (sta BlizzardState) ResolveItems(
 	})
 }
 
-func (sta BlizzardState) ResolveItemMedias(in chan blizzardv2.GetItemMediasInJob) chan blizzardv2.GetItemMediasOutJob {
+func (sta BlizzardState) ResolveItemMedias(
+	in chan blizzardv2.GetItemMediasInJob,
+) chan blizzardv2.GetItemMediasOutJob {
 	return blizzardv2.GetItemMedias(in, sta.BlizzardClient.AppendAccessToken)
 }
 

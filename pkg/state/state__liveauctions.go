@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
-	LiveAuctionsDatabase "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database/liveauctions"
+	LiveAuctionsDatabase "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database/liveauctions" // nolint:lll
 	BaseLake "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/lake/base"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
@@ -36,7 +36,10 @@ func NewLiveAuctionsState(opts NewLiveAuctionsStateOptions) (LiveAuctionsState, 
 
 	// ensuring related dirs exist
 	if err := util.EnsureDirsExist(dirList); err != nil {
-		logging.WithField("error", err.Error()).Error("failed to ensure live-auctions database dirs exists")
+		logging.WithField(
+			"error",
+			err.Error(),
+		).Error("failed to ensure live-auctions database dirs exists")
 
 		return LiveAuctionsState{}, err
 	}

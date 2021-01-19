@@ -70,7 +70,10 @@ func (sta PricelistHistoryState) ListenForRecipePricesHistory(stop ListenStopCha
 			return
 		}
 
-		recipePriceHistories, err := shards.Between(req.LowerBounds, req.UpperBounds).GetRecipePriceHistories(
+		recipePriceHistories, err := shards.Between(
+			req.LowerBounds,
+			req.UpperBounds,
+		).GetRecipePriceHistories(
 			req.RecipeIds,
 			req.LowerBounds,
 			req.UpperBounds,

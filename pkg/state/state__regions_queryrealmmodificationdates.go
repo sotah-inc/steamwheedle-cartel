@@ -24,49 +24,53 @@ func (r QueryRealmModificationDatesResponse) EncodeForDelivery() ([]byte, error)
 }
 
 func (sta RegionsState) ListenForQueryRealmModificationDates(stop ListenStopChan) error {
-	err := sta.Messenger.Subscribe(string(subjects.QueryRealmModificationDates), stop, func(natsMsg nats.Msg) {
-		m := messenger.NewMessage()
+	err := sta.Messenger.Subscribe(
+		string(subjects.QueryRealmModificationDates),
+		stop,
+		func(natsMsg nats.Msg) {
+			m := messenger.NewMessage()
 
-		req, err := blizzardv2.NewRegionConnectedRealmTuple(natsMsg.Data)
-		if err != nil {
-			m.Err = err.Error()
-			m.Code = mCodes.GenericError
+			req, err := blizzardv2.NewRegionConnectedRealmTuple(natsMsg.Data)
+			if err != nil {
+				m.Err = err.Error()
+				m.Code = mCodes.GenericError
+				sta.Messenger.ReplyTo(natsMsg, m)
+
+				return
+			}
+
+			connectedRealmTimestamps, err := sta.RegionComposites.FindConnectedRealmTimestamps(
+				req.RegionName,
+				req.ConnectedRealmId,
+			)
+			if err != nil {
+				logging.WithFields(logrus.Fields{
+					"region":          req.RegionName,
+					"connected-realm": req.ConnectedRealmId,
+				}).Error("failed to resolve connected-realm timestamps")
+
+				m.Err = err.Error()
+				m.Code = mCodes.NotFound
+				sta.Messenger.ReplyTo(natsMsg, m)
+
+				return
+			}
+
+			res := QueryRealmModificationDatesResponse{connectedRealmTimestamps}
+
+			encodedData, err := res.EncodeForDelivery()
+			if err != nil {
+				m.Err = err.Error()
+				m.Code = mCodes.GenericError
+				sta.Messenger.ReplyTo(natsMsg, m)
+
+				return
+			}
+
+			m.Data = string(encodedData)
 			sta.Messenger.ReplyTo(natsMsg, m)
-
-			return
-		}
-
-		connectedRealmTimestamps, err := sta.RegionComposites.FindConnectedRealmTimestamps(
-			req.RegionName,
-			req.ConnectedRealmId,
-		)
-		if err != nil {
-			logging.WithFields(logrus.Fields{
-				"region":          req.RegionName,
-				"connected-realm": req.ConnectedRealmId,
-			}).Error("failed to resolve connected-realm timestamps")
-
-			m.Err = err.Error()
-			m.Code = mCodes.NotFound
-			sta.Messenger.ReplyTo(natsMsg, m)
-
-			return
-		}
-
-		res := QueryRealmModificationDatesResponse{connectedRealmTimestamps}
-
-		encodedData, err := res.EncodeForDelivery()
-		if err != nil {
-			m.Err = err.Error()
-			m.Code = mCodes.GenericError
-			sta.Messenger.ReplyTo(natsMsg, m)
-
-			return
-		}
-
-		m.Data = string(encodedData)
-		sta.Messenger.ReplyTo(natsMsg, m)
-	})
+		},
+	)
 	if err != nil {
 		return err
 	}

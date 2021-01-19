@@ -3,11 +3,10 @@ package state
 import (
 	"time"
 
-	LiveAuctionsDatabase "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database/liveauctions"
-
 	"github.com/nats-io/nats.go"
 	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
+	LiveAuctionsDatabase "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database/liveauctions" // nolint:lll
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger/codes"
@@ -50,7 +49,9 @@ func (sta LiveAuctionsState) LiveAuctionsIntake(tuples blizzardv2.LoadConnectedR
 	startTime := time.Now()
 
 	// spinning up workers
-	getAuctionsByTuplesOut := sta.LakeClient.GetEncodedAuctionsByTuples(tuples.RegionConnectedRealmTuples())
+	getAuctionsByTuplesOut := sta.LakeClient.GetEncodedAuctionsByTuples(
+		tuples.RegionConnectedRealmTuples(),
+	)
 	loadEncodedDataIn := make(chan LiveAuctionsDatabase.LoadEncodedDataInJob)
 	loadEncodedDataOut := sta.LiveAuctionsDatabases.LoadEncodedData(loadEncodedDataIn)
 

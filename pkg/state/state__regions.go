@@ -29,7 +29,10 @@ func NewRegionState(opts NewRegionStateOptions) (*RegionsState, error) {
 
 		var realmComposites []sotah.RealmComposite
 		for _, response := range connectedRealms {
-			realmComposite := sotah.NewRealmComposite(opts.RegionRealmSlugWhitelist.Get(region.Name), response)
+			realmComposite := sotah.NewRealmComposite(
+				opts.RegionRealmSlugWhitelist.Get(region.Name),
+				response,
+			)
 			if realmComposite.IsZero() {
 				continue
 			}

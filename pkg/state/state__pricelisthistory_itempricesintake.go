@@ -45,7 +45,9 @@ func (sta PricelistHistoryState) ListenForItemPricesIntake(stop ListenStopChan) 
 	return nil
 }
 
-func (sta PricelistHistoryState) itemPricesIntake(tuples blizzardv2.LoadConnectedRealmTuples) error {
+func (sta PricelistHistoryState) itemPricesIntake(
+	tuples blizzardv2.LoadConnectedRealmTuples,
+) error {
 	startTime := time.Now()
 
 	// spinning up workers

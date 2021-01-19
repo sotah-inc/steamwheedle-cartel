@@ -19,7 +19,10 @@ type NewPricelistHistoryStateOptions struct {
 }
 
 func NewPricelistHistoryState(opts NewPricelistHistoryStateOptions) (PricelistHistoryState, error) {
-	phdBases, err := PricelistHistoryDatabase.NewDatabases(opts.PricelistHistoryDatabasesDir, opts.Tuples)
+	phdBases, err := PricelistHistoryDatabase.NewDatabases(
+		opts.PricelistHistoryDatabasesDir,
+		opts.Tuples,
+	)
 	if err != nil {
 		return PricelistHistoryState{}, err
 	}

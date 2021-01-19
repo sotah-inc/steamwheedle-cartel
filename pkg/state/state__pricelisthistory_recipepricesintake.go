@@ -46,7 +46,9 @@ func (sta PricelistHistoryState) ListenForRecipePricesIntake(stop ListenStopChan
 	return nil
 }
 
-func (sta PricelistHistoryState) recipePricesIntake(tuples blizzardv2.LoadConnectedRealmTuples) error {
+func (sta PricelistHistoryState) recipePricesIntake(
+	tuples blizzardv2.LoadConnectedRealmTuples,
+) error {
 	startTime := time.Now()
 
 	respMsg, err := sta.Messenger.Request(messenger.RequestOptions{
@@ -71,9 +73,14 @@ func (sta PricelistHistoryState) recipePricesIntake(tuples blizzardv2.LoadConnec
 	}
 
 	// spinning up workers
-	getEncodedRecipePricesOut := sta.LakeClient.GetEncodedRecipePricesByTuples(mRecipesResponse.Recipes, tuples)
+	getEncodedRecipePricesOut := sta.LakeClient.GetEncodedRecipePricesByTuples(
+		mRecipesResponse.Recipes,
+		tuples,
+	)
 	loadEncodedRecipePricesIn := make(chan PricelistHistoryDatabase.LoadEncodedRecipePricesInJob)
-	loadEncodedRecipePricesOut := sta.PricelistHistoryDatabases.LoadEncodedRecipePrices(loadEncodedRecipePricesIn)
+	loadEncodedRecipePricesOut := sta.PricelistHistoryDatabases.LoadEncodedRecipePrices(
+		loadEncodedRecipePricesIn,
+	)
 
 	// loading it in
 	go func() {

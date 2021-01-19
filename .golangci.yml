@@ -2,7 +2,7 @@ run:
   concurrency: 8
 linters-settings:
   lll:
-    line-length: 120
+    line-length: 100
   gocognit:
     min-complexity: 50
   unconvert:

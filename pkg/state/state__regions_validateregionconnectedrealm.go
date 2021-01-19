@@ -24,33 +24,37 @@ func (res ValidateRegionConnectedRealmResponse) EncodeForDelivery() (string, err
 }
 
 func (sta RegionsState) ListenForValidateRegionConnectedRealm(stop ListenStopChan) error {
-	err := sta.Messenger.Subscribe(string(subjects.ValidateRegionConnectedRealm), stop, func(natsMsg nats.Msg) {
-		m := messenger.NewMessage()
+	err := sta.Messenger.Subscribe(
+		string(subjects.ValidateRegionConnectedRealm),
+		stop,
+		func(natsMsg nats.Msg) {
+			m := messenger.NewMessage()
 
-		req, err := blizzardv2.NewRegionConnectedRealmTuple(natsMsg.Data)
-		if err != nil {
-			m.Err = err.Error()
-			m.Code = codes.MsgJSONParseError
+			req, err := blizzardv2.NewRegionConnectedRealmTuple(natsMsg.Data)
+			if err != nil {
+				m.Err = err.Error()
+				m.Code = codes.MsgJSONParseError
+				sta.Messenger.ReplyTo(natsMsg, m)
+
+				return
+			}
+
+			res := ValidateRegionConnectedRealmResponse{
+				IsValid: sta.RegionComposites.RegionConnectedRealmExists(req.RegionName, req.ConnectedRealmId),
+			}
+			encoded, err := res.EncodeForDelivery()
+			if err != nil {
+				m.Err = err.Error()
+				m.Code = codes.GenericError
+				sta.Messenger.ReplyTo(natsMsg, m)
+
+				return
+			}
+
+			m.Data = encoded
 			sta.Messenger.ReplyTo(natsMsg, m)
-
-			return
-		}
-
-		res := ValidateRegionConnectedRealmResponse{
-			IsValid: sta.RegionComposites.RegionConnectedRealmExists(req.RegionName, req.ConnectedRealmId),
-		}
-		encoded, err := res.EncodeForDelivery()
-		if err != nil {
-			m.Err = err.Error()
-			m.Code = codes.GenericError
-			sta.Messenger.ReplyTo(natsMsg, m)
-
-			return
-		}
-
-		m.Data = encoded
-		sta.Messenger.ReplyTo(natsMsg, m)
-	})
+		},
+	)
 	if err != nil {
 		return err
 	}

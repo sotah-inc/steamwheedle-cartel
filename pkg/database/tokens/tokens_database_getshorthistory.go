@@ -78,11 +78,9 @@ type ShortTokenHistory map[sotah.UnixTimestamp]ShortTokenHistoryItem
 
 type ShortTokenHistoryItem map[blizzardv2.RegionName]int64
 
-type ShortTokenHistoryResponse struct {
-	History map[sotah.UnixTimestamp]ShortTokenHistoryItem `json:"history"`
-}
-
-func (tBase Database) GetShortTokenHistory(regionNames []blizzardv2.RegionName) (ShortTokenHistoryResponse, error) {
+func (tBase Database) GetShortTokenHistory(
+	regionNames []blizzardv2.RegionName,
+) (ShortTokenHistory, error) {
 	batch := ShortTokenHistoryBatch{}
 	err := tBase.db.View(func(tx *bolt.Tx) error {
 		for _, regionName := range regionNames {
@@ -111,12 +109,8 @@ func (tBase Database) GetShortTokenHistory(regionNames []blizzardv2.RegionName) 
 		return nil
 	})
 	if err != nil {
-		return ShortTokenHistoryResponse{}, err
+		return ShortTokenHistory{}, err
 	}
 
-	out := ShortTokenHistoryResponse{
-		History: NewShortTokenHistory(batch),
-	}
-
-	return out, nil
+	return NewShortTokenHistory(batch), nil
 }

@@ -5,7 +5,7 @@ import (
 
 	"github.com/nats-io/nats.go"
 	"github.com/sirupsen/logrus"
-	BaseDatabase "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database/base"
+	BaseDatabase "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database/base" // nolint:lll
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger/codes"
@@ -14,19 +14,23 @@ import (
 )
 
 func (sta PricelistHistoryState) ListenForPrunePricelistHistories(stop ListenStopChan) error {
-	err := sta.Messenger.Subscribe(string(subjects.PrunePricelistHistories), stop, func(natsMsg nats.Msg) {
-		m := messenger.NewMessage()
+	err := sta.Messenger.Subscribe(
+		string(subjects.PrunePricelistHistories),
+		stop,
+		func(natsMsg nats.Msg) {
+			m := messenger.NewMessage()
 
-		if err := sta.prunePricelistHistories(); err != nil {
-			m.Err = err.Error()
-			m.Code = codes.GenericError
+			if err := sta.prunePricelistHistories(); err != nil {
+				m.Err = err.Error()
+				m.Code = codes.GenericError
+				sta.Messenger.ReplyTo(natsMsg, m)
+
+				return
+			}
+
 			sta.Messenger.ReplyTo(natsMsg, m)
-
-			return
-		}
-
-		sta.Messenger.ReplyTo(natsMsg, m)
-	})
+		},
+	)
 	if err != nil {
 		return err
 	}

@@ -5,7 +5,7 @@ import (
 
 	"github.com/nats-io/nats.go"
 	"github.com/sirupsen/logrus"
-	ProfessionsDatabase "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database/professions"
+	ProfessionsDatabase "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database/professions" // nolint:lll
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger/codes"
@@ -44,7 +44,10 @@ func (sta ProfessionsState) ProfessionsIntake() error {
 		return err
 	}
 
-	logging.WithField("professions-blacklist", len(professionIds)).Info("collecting professions sans blacklist")
+	logging.WithField(
+		"professions-blacklist",
+		len(professionIds),
+	).Info("collecting professions sans blacklist")
 
 	// starting up an intake queue
 	getEncodedProfessionsOut, err := sta.LakeClient.GetEncodedProfessions(professionIds)

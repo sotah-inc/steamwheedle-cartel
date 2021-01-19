@@ -26,42 +26,46 @@ func (res ResolveConnectedRealmResponse) EncodeForDelivery() (string, error) {
 }
 
 func (sta RegionsState) ListenForResolveConnectedRealm(stop ListenStopChan) error {
-	err := sta.Messenger.Subscribe(string(subjects.ResolveConnectedRealm), stop, func(natsMsg nats.Msg) {
-		m := messenger.NewMessage()
+	err := sta.Messenger.Subscribe(
+		string(subjects.ResolveConnectedRealm),
+		stop,
+		func(natsMsg nats.Msg) {
+			m := messenger.NewMessage()
 
-		req, err := blizzardv2.NewRegionRealmTuple(natsMsg.Data)
-		if err != nil {
-			m.Err = err.Error()
-			m.Code = codes.MsgJSONParseError
+			req, err := blizzardv2.NewRegionRealmTuple(natsMsg.Data)
+			if err != nil {
+				m.Err = err.Error()
+				m.Code = codes.MsgJSONParseError
+				sta.Messenger.ReplyTo(natsMsg, m)
+
+				return
+			}
+
+			connectedRealm, err := sta.RegionComposites.FindConnectedRealm(req)
+			if err != nil {
+				m.Err = err.Error()
+				m.Code = codes.NotFound
+				sta.Messenger.ReplyTo(natsMsg, m)
+
+				return
+			}
+
+			res := ResolveConnectedRealmResponse{
+				ConnectedRealm: connectedRealm,
+			}
+			encoded, err := res.EncodeForDelivery()
+			if err != nil {
+				m.Err = err.Error()
+				m.Code = codes.GenericError
+				sta.Messenger.ReplyTo(natsMsg, m)
+
+				return
+			}
+
+			m.Data = encoded
 			sta.Messenger.ReplyTo(natsMsg, m)
-
-			return
-		}
-
-		connectedRealm, err := sta.RegionComposites.FindConnectedRealm(req)
-		if err != nil {
-			m.Err = err.Error()
-			m.Code = codes.NotFound
-			sta.Messenger.ReplyTo(natsMsg, m)
-
-			return
-		}
-
-		res := ResolveConnectedRealmResponse{
-			ConnectedRealm: connectedRealm,
-		}
-		encoded, err := res.EncodeForDelivery()
-		if err != nil {
-			m.Err = err.Error()
-			m.Code = codes.GenericError
-			sta.Messenger.ReplyTo(natsMsg, m)
-
-			return
-		}
-
-		m.Data = encoded
-		sta.Messenger.ReplyTo(natsMsg, m)
-	})
+		},
+	)
 	if err != nil {
 		return err
 	}
