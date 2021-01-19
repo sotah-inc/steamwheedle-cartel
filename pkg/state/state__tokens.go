@@ -1,14 +1,13 @@
 package state
 
 import (
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
-
-	TokensDatabase "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database/tokens"
+	TokensDatabase "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database/tokens" // nolint:lll
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/metric"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state/subjects"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 )
 
 type NewTokensStateOptions struct {
