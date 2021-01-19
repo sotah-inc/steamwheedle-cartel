@@ -1,6 +1,8 @@
 package tokens
 
 import (
+	"time"
+
 	"github.com/boltdb/bolt"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
@@ -9,10 +11,43 @@ import (
 type ShortTokenHistoryBatch map[blizzardv2.RegionName]TokenHistory
 
 func NewShortTokenHistory(batch ShortTokenHistoryBatch) ShortTokenHistory {
-	return ShortTokenHistory{}
+	// gathering region-names
+	regionNames := make([]blizzardv2.RegionName, len(batch))
+	i := 0
+	for regionName := range batch {
+		regionNames[i] = regionName
+
+		i += 1
+	}
+
+	// gathering a blank short-token-history
+	out := ShortTokenHistory{}
+	for _, tokenHistory := range batch {
+		for unixTimestamp := range tokenHistory {
+			normalizedTimestamp := sotah.UnixTimestamp(
+				sotah.NormalizeToDay(time.Unix(int64(unixTimestamp), 0)).Unix(),
+			)
+			if _, ok := out[normalizedTimestamp]; ok {
+				continue
+			}
+
+			out[normalizedTimestamp] = NewShortTokenHistoryItem(regionNames)
+		}
+	}
+
+	return out
 }
 
 type ShortTokenHistory map[sotah.UnixTimestamp]ShortTokenHistoryItem
+
+func NewShortTokenHistoryItem(regionNames []blizzardv2.RegionName) ShortTokenHistoryItem {
+	out := ShortTokenHistoryItem{}
+	for _, regionName := range regionNames {
+		out[regionName] = 0
+	}
+
+	return out
+}
 
 type ShortTokenHistoryItem map[blizzardv2.RegionName]int64
 

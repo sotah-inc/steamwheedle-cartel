@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"strconv"
 
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
+
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 )
 
@@ -18,13 +20,13 @@ func baseKeyName(lastUpdated int64) []byte {
 	return []byte(fmt.Sprintf("last-updated-%d", lastUpdated))
 }
 
-func lastUpdatedFromBaseKeyName(key []byte) (int64, error) {
+func lastUpdatedFromBaseKeyName(key []byte) (sotah.UnixTimestamp, error) {
 	decodedLastUpdated, err := strconv.Atoi(string(key)[len("last-updated-"):])
 	if err != nil {
-		return int64(0), err
+		return sotah.UnixTimestamp(0), err
 	}
 
-	return int64(decodedLastUpdated), nil
+	return sotah.UnixTimestamp(decodedLastUpdated), nil
 }
 
 func priceToTokenValue(v int64) []byte {

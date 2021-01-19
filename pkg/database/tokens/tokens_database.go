@@ -3,6 +3,8 @@ package tokens
 import (
 	"encoding/json"
 
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
+
 	"github.com/boltdb/bolt"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	BaseDatabase "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database/base"
@@ -31,7 +33,23 @@ type Database struct {
 
 type RegionTokenHistory map[blizzardv2.RegionName]TokenHistory
 
-type TokenHistory map[int64]int64
+func NewTokenHistoryFromBatch(batch TokenHistoryBatch) TokenHistory {
+	out := TokenHistory{}
+	for timestamp, prices := range batch {
+		priceAverage := func() int64 {
+			total := int64(0)
+			for _, price := range prices {
+				total += price
+			}
+
+			return total / int64(len(prices))
+		}()
+	}
+
+	return out
+}
+
+type TokenHistory map[sotah.UnixTimestamp]int64
 
 func (tHistory TokenHistory) EncodeForDelivery() ([]byte, error) {
 	jsonEncoded, err := json.Marshal(tHistory)
@@ -41,6 +59,31 @@ func (tHistory TokenHistory) EncodeForDelivery() ([]byte, error) {
 
 	return jsonEncoded, nil
 }
+
+func NewTokenHistoryBatch(
+	tHistory TokenHistory,
+	normalizeFunc func(sotah.UnixTimestamp) sotah.UnixTimestamp,
+) TokenHistoryBatch {
+	out := TokenHistoryBatch{}
+	for timestamp, price := range tHistory {
+		normalizedTimestamp := normalizeFunc(timestamp)
+		batch := func() []int64 {
+			foundBatch, ok := out[normalizedTimestamp]
+			if !ok {
+				return []int64{}
+			}
+
+			return foundBatch
+		}()
+
+		batch = append(batch, price)
+		out[normalizedTimestamp] = batch
+	}
+
+	return out
+}
+
+type TokenHistoryBatch map[sotah.UnixTimestamp][]int64
 
 // persisting
 func (tBase Database) PersistHistory(rtHistory RegionTokenHistory) error {
@@ -54,7 +97,7 @@ func (tBase Database) PersistHistory(rtHistory RegionTokenHistory) error {
 			}
 
 			for lastUpdated, price := range tHistory {
-				if err := bkt.Put(baseKeyName(lastUpdated), priceToTokenValue(price)); err != nil {
+				if err := bkt.Put(baseKeyName(int64(lastUpdated)), priceToTokenValue(price)); err != nil {
 					return err
 				}
 			}
@@ -71,7 +114,7 @@ func (tBase Database) PersistHistory(rtHistory RegionTokenHistory) error {
 
 // pruning
 func (tBase Database) Prune(regionNames []blizzardv2.RegionName) error {
-	earliestUnixTimestamp := BaseDatabase.RetentionLimit().Unix()
+	earliestUnixTimestamp := sotah.UnixTimestamp(BaseDatabase.RetentionLimit().Unix())
 
 	err := tBase.db.Update(func(tx *bolt.Tx) error {
 		for _, regionName := range regionNames {
