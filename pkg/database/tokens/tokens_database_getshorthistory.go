@@ -12,7 +12,12 @@ func NewShortTokenHistory(batch ShortTokenHistoryBatch) ShortTokenHistory {
 	// resolving batched batches
 	for regionName, tHistory := range batch {
 		batch[regionName] = NewTokenHistoryFromBatch(
-			NewTokenHistoryBatch(tHistory, sotah.NormalizeToDay),
+			NewTokenHistoryBatch(
+				tHistory,
+				func(targetTimestamp sotah.UnixTimestamp) sotah.UnixTimestamp {
+					return sotah.NormalizeToDay(targetTimestamp/1000) * 1000
+				},
+			),
 		)
 	}
 
