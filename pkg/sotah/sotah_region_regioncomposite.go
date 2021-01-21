@@ -25,7 +25,10 @@ func (comps RealmComposites) EncodeForDelivery() (string, error) {
 	return base64.StdEncoding.EncodeToString(gzipEncoded), nil
 }
 
-func NewRealmComposite(realmWhitelist blizzardv2.RealmSlugs, res blizzardv2.ConnectedRealmResponse) RealmComposite {
+func NewRealmComposite(
+	realmWhitelist blizzardv2.RealmSlugs,
+	res blizzardv2.ConnectedRealmResponse,
+) RealmComposite {
 	if len(realmWhitelist) > 0 {
 		res.Realms = res.Realms.FilterIn(realmWhitelist)
 	}
@@ -107,7 +110,9 @@ func (regions RegionComposites) FindByRegionName(
 	return RegionComposite{}, errors.New("failed to resolve connected-realms")
 }
 
-func (regions RegionComposites) FindConnectedRealm(tuple blizzardv2.RegionRealmTuple) (RealmComposite, error) {
+func (regions RegionComposites) FindConnectedRealm(
+	tuple blizzardv2.RegionRealmTuple,
+) (RealmComposite, error) {
 	for _, region := range regions {
 		if region.ConfigRegion.Name != tuple.RegionName {
 			continue
@@ -235,7 +240,7 @@ func (regions RegionComposites) Receive(timestamps RegionTimestamps) RegionCompo
 				continue
 			}
 
-			regions[i].ConnectedRealmComposites[j].ModificationDates = connectedRealm.ModificationDates.Merge(
+			regions[i].ConnectedRealmComposites[j].ModificationDates = connectedRealm.ModificationDates.Merge( // nolint:lll
 				timestamps[regionName][connectedRealmId],
 			)
 		}

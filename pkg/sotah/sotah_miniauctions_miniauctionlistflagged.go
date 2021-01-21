@@ -36,7 +36,9 @@ func (mafList MiniAuctionFlaggedList) ToMiniAuctionList() MiniAuctionList {
 	return out
 }
 
-func (mafList MiniAuctionFlaggedList) Flag(criteria MiniAuctionListFilterCriteria) MiniAuctionFlaggedList {
+func (mafList MiniAuctionFlaggedList) Flag(
+	criteria MiniAuctionListFilterCriteria,
+) MiniAuctionFlaggedList {
 	petIdsMap := criteria.PetIds.ToUniqueMap()
 	itemIdsMap := criteria.ItemIds.ToUniqueMap()
 

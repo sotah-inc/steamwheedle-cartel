@@ -13,16 +13,20 @@ type miniAuctionSortFn func(MiniAuctionList)
 
 func newMiniAuctionSorter() miniAuctionSorter {
 	return miniAuctionSorter{
-		"item":         func(mAuctionList MiniAuctionList) { sort.Sort(byItem(mAuctionList)) },
-		"item-r":       func(mAuctionList MiniAuctionList) { sort.Sort(byItemReversed(mAuctionList)) },
-		"quantity":     func(mAuctionList MiniAuctionList) { sort.Sort(byQuantity(mAuctionList)) },
-		"quantity-r":   func(mAuctionList MiniAuctionList) { sort.Sort(byQuantityReversed(mAuctionList)) },
-		"buyout":       func(mAuctionList MiniAuctionList) { sort.Sort(byBuyout(mAuctionList)) },
-		"buyout-r":     func(mAuctionList MiniAuctionList) { sort.Sort(byBuyoutReversed(mAuctionList)) },
-		"buyout_per":   func(mAuctionList MiniAuctionList) { sort.Sort(byBuyoutPer(mAuctionList)) },
-		"buyout_per-r": func(mAuctionList MiniAuctionList) { sort.Sort(byBuyoutPerReversed(mAuctionList)) },
-		"auctions":     func(mAuctionList MiniAuctionList) { sort.Sort(byAuctions(mAuctionList)) },
-		"auctions-r":   func(mAuctionList MiniAuctionList) { sort.Sort(byAuctionsReversed(mAuctionList)) },
+		"item":       func(mAuctionList MiniAuctionList) { sort.Sort(byItem(mAuctionList)) },
+		"item-r":     func(mAuctionList MiniAuctionList) { sort.Sort(byItemReversed(mAuctionList)) },
+		"quantity":   func(mAuctionList MiniAuctionList) { sort.Sort(byQuantity(mAuctionList)) },
+		"quantity-r": func(mAuctionList MiniAuctionList) { sort.Sort(byQuantityReversed(mAuctionList)) },
+		"buyout":     func(mAuctionList MiniAuctionList) { sort.Sort(byBuyout(mAuctionList)) },
+		"buyout-r":   func(mAuctionList MiniAuctionList) { sort.Sort(byBuyoutReversed(mAuctionList)) },
+		"buyout_per": func(mAuctionList MiniAuctionList) { sort.Sort(byBuyoutPer(mAuctionList)) },
+		"buyout_per-r": func(mAuctionList MiniAuctionList) {
+			sort.Sort(byBuyoutPerReversed(mAuctionList))
+		},
+		"auctions": func(mAuctionList MiniAuctionList) { sort.Sort(byAuctions(mAuctionList)) },
+		"auctions-r": func(mAuctionList MiniAuctionList) {
+			sort.Sort(byAuctionsReversed(mAuctionList))
+		},
 	}
 }
 

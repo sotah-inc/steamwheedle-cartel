@@ -68,7 +68,9 @@ type MiniAuctionListGeneralStats struct {
 	TotalBuyout   int `json:"total_buyout"`
 }
 
-func (s MiniAuctionListGeneralStats) Add(v MiniAuctionListGeneralStats) MiniAuctionListGeneralStats {
+func (s MiniAuctionListGeneralStats) Add(
+	v MiniAuctionListGeneralStats,
+) MiniAuctionListGeneralStats {
 	s.TotalQuantity += v.TotalQuantity
 	s.TotalBuyout += v.TotalBuyout
 	s.TotalAuctions += v.TotalAuctions

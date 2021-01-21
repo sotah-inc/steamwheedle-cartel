@@ -29,7 +29,9 @@ func (timestamps ConnectedRealmTimestamps) IsZero() bool {
 	return timestamps.ToList().IsZero()
 }
 
-func (timestamps ConnectedRealmTimestamps) Merge(in ConnectedRealmTimestamps) ConnectedRealmTimestamps {
+func (timestamps ConnectedRealmTimestamps) Merge(
+	in ConnectedRealmTimestamps,
+) ConnectedRealmTimestamps {
 	if !in.Downloaded.IsZero() {
 		timestamps.Downloaded = in.Downloaded
 	}
@@ -53,7 +55,7 @@ func (timestamps ConnectedRealmTimestamps) Merge(in ConnectedRealmTimestamps) Co
 	return timestamps
 }
 
-type RegionTimestamps map[blizzardv2.RegionName]map[blizzardv2.ConnectedRealmId]ConnectedRealmTimestamps
+type RegionTimestamps map[blizzardv2.RegionName]map[blizzardv2.ConnectedRealmId]ConnectedRealmTimestamps // nolint:lll
 
 func (regionTimestamps RegionTimestamps) FindByRegionName(
 	name blizzardv2.RegionName,

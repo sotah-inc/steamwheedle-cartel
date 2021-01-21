@@ -30,7 +30,10 @@ type ShortItemSocket struct {
 type ShortItemList []ShortItem
 
 func NewShortItem(item Item, providedLocale locale.Locale) ShortItem {
-	foundReagentsDisplayString := item.BlizzardMeta.PreviewItem.Recipe.ReagentsDisplayString.FindOr(providedLocale, "")
+	foundReagentsDisplayString := item.BlizzardMeta.PreviewItem.Recipe.ReagentsDisplayString.FindOr(
+		providedLocale,
+		"",
+	)
 	foundLevel := item.BlizzardMeta.PreviewItem.Recipe.Item.Level.Value
 	if foundLevel == 0 {
 		foundLevel = item.BlizzardMeta.Level
@@ -75,7 +78,10 @@ func NewShortItemFromPreviewItem(params ShortItemParams) ShortItemBase {
 	foundHeader := params.previewItem.SellPrice.DisplayStrings.Header.FindOr(params.locale, "")
 	foundContainerSlots := params.previewItem.ContainerSlots.DisplayString.FindOr(params.locale, "")
 	foundDescription := params.previewItem.Description.FindOr(params.locale, "")
-	foundLevelRequirement := params.previewItem.Requirements.Level.DisplayString.FindOr(params.locale, "")
+	foundLevelRequirement := params.previewItem.Requirements.Level.DisplayString.FindOr(
+		params.locale,
+		"",
+	)
 	foundInventoryType := params.previewItem.InventoryType.Name.FindOr(params.locale, "")
 	foundItemSubclass := params.previewItem.ItemSubClass.Name.FindOr(params.locale, "")
 	foundDurability := params.previewItem.Durability.DisplayString.FindOr(params.locale, "")
@@ -94,7 +100,10 @@ func NewShortItemFromPreviewItem(params ShortItemParams) ShortItemBase {
 	for i, spell := range params.previewItem.Spells {
 		foundSpells[i] = spell.Description.FindOr(params.locale, "")
 	}
-	foundSkillRequirement := params.previewItem.Requirements.Skill.DisplayString.FindOr(params.locale, "")
+	foundSkillRequirement := params.previewItem.Requirements.Skill.DisplayString.FindOr(
+		params.locale,
+		"",
+	)
 	foundCraftingReagent := params.previewItem.CraftingReagent.FindOr(params.locale, "")
 	foundDamage := params.previewItem.Weapon.Damage.DisplayString.FindOr(params.locale, "")
 	foundAttackSpeed := params.previewItem.Weapon.AttackSpeed.DisplayString.FindOr(params.locale, "")
@@ -109,12 +118,24 @@ func NewShortItemFromPreviewItem(params ShortItemParams) ShortItemBase {
 	foundSocketBonus := params.previewItem.SocketBonus.FindOr(params.locale, "")
 	foundUniqueEquipped := params.previewItem.UniqueEquipped.FindOr(params.locale, "")
 	foundGemEffect := params.previewItem.GemProperties.Effect.FindOr(params.locale, "")
-	foundGemMinItemLevel := params.previewItem.GemProperties.MinItemLevel.DisplayString.FindOr(params.locale, "")
-	foundAbilityRequirement := params.previewItem.Requirements.Ability.DisplayString.FindOr(params.locale, "")
+	foundGemMinItemLevel := params.previewItem.GemProperties.MinItemLevel.DisplayString.FindOr(
+		params.locale,
+		"",
+	)
+	foundAbilityRequirement := params.previewItem.Requirements.Ability.DisplayString.FindOr(
+		params.locale,
+		"",
+	)
 	foundLimitCategory := params.previewItem.LimitCategory.FindOr(params.locale, "")
 	foundNameDescription := params.previewItem.NameDescription.DisplayString.FindOr(params.locale, "")
-	foundReputationRequirement := params.previewItem.Requirements.Reputation.DisplayString.FindOr(params.locale, "")
-	foundPlayableClasses := make([]ShortItemPlayableClass, len(params.previewItem.Requirements.PlayableClasses.Links))
+	foundReputationRequirement := params.previewItem.Requirements.Reputation.DisplayString.FindOr(
+		params.locale,
+		"",
+	)
+	foundPlayableClasses := make(
+		[]ShortItemPlayableClass,
+		len(params.previewItem.Requirements.PlayableClasses.Links),
+	)
 	for i, link := range params.previewItem.Requirements.PlayableClasses.Links {
 		foundPlayableClasses[i] = ShortItemPlayableClass{
 			Name: link.Name.FindOr(params.locale, ""),
