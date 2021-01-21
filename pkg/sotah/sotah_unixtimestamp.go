@@ -35,6 +35,12 @@ func NormalizeToDay(targetTimestamp UnixTimestamp) UnixTimestamp {
 	return UnixTimestamp(targetDate.Unix() - int64(nearestDayStartOffset))
 }
 
+func NormalizeToHour(targetTimestamp UnixTimestamp) UnixTimestamp {
+	targetDate := time.Unix(int64(targetTimestamp), 0)
+	nearestHourStartOffset := targetDate.Second() + targetDate.Minute()*60
+	return UnixTimestamp(targetDate.Unix() - int64(nearestHourStartOffset))
+}
+
 type UnixTimestamp int64
 
 func (timestamp UnixTimestamp) IsZero() bool {

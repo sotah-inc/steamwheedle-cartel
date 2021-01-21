@@ -15,7 +15,7 @@ func NewShortTokenHistory(batch ShortTokenHistoryBatch) ShortTokenHistory {
 			NewTokenHistoryBatch(
 				tHistory,
 				func(targetTimestamp sotah.UnixTimestamp) sotah.UnixTimestamp {
-					return sotah.NormalizeToDay(targetTimestamp/1000) * 1000
+					return sotah.NormalizeToHour(targetTimestamp/1000) * 1000
 				},
 			),
 		)
