@@ -78,6 +78,10 @@ func (s MiniAuctionListGeneralStats) Add(
 	return s
 }
 
+func (s MiniAuctionListGeneralStats) EncodeForStorage() ([]byte, error) {
+	return json.Marshal(s)
+}
+
 type MiniAuctionListStats struct {
 	MiniAuctionListGeneralStats
 	ItemIds    []blizzardv2.ItemId
