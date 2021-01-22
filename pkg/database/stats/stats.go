@@ -13,6 +13,10 @@ func tupleDatabasePath(dirPath string, tuple blizzardv2.RegionConnectedRealmTupl
 	return databasePath(dirPath, fmt.Sprintf("%s/%d", tuple.RegionName, tuple.ConnectedRealmId))
 }
 
+func regionDatabasePath(dirPath string, name blizzardv2.RegionName) string {
+	return databasePath(dirPath, string(name))
+}
+
 func databasePath(dirPath string, suffix string) string {
 	return fmt.Sprintf("%s/stats/%s.db", dirPath, suffix)
 }
@@ -30,7 +34,9 @@ func normalizeLastUpdated(lastUpdatedTimestamp sotah.UnixTimestamp) sotah.UnixTi
 	lastUpdated := time.Unix(int64(lastUpdatedTimestamp), 0)
 	nearestHourOffset := lastUpdated.Second() + lastUpdated.Minute()*60
 
-	return sotah.UnixTimestamp(time.Unix(int64(lastUpdatedTimestamp)-int64(nearestHourOffset), 0).Unix())
+	return sotah.UnixTimestamp(
+		time.Unix(int64(lastUpdatedTimestamp)-int64(nearestHourOffset), 0).Unix(),
+	)
 }
 
 func unixTimestampFromBaseKeyName(key []byte) (sotah.UnixTimestamp, error) {

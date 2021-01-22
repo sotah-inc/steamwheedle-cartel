@@ -5,7 +5,9 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 )
 
-func (tBases TupleDatabases) TotalStats(regionNames []blizzardv2.RegionName) (sotah.AuctionStats, error) {
+func (tBases TupleDatabases) TotalStats(
+	regionNames []blizzardv2.RegionName,
+) (sotah.AuctionStats, error) {
 	out := sotah.AuctionStats{}
 
 	for _, regionName := range regionNames {

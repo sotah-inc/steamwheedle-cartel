@@ -22,7 +22,9 @@ func (job RegionStatsOutJob) ToLogrusFields() logrus.Fields {
 	}
 }
 
-func (tBases TupleDatabases) RegionStats(regionName blizzardv2.RegionName) (sotah.AuctionStats, error) {
+func (tBases TupleDatabases) RegionStats(
+	regionName blizzardv2.RegionName,
+) (sotah.AuctionStats, error) {
 	// resolving shard
 	shard, err := tBases.GetRegionShard(regionName)
 	if err != nil {

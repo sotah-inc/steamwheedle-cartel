@@ -25,7 +25,9 @@ func (job PersistRealmStatsOutJob) ToLogrusFields() logrus.Fields {
 	}
 }
 
-func (tBases TupleDatabases) PersistEncodedStats(in chan PersistRealmStatsInJob) chan PersistRealmStatsOutJob {
+func (tBases TupleDatabases) PersistEncodedStats(
+	in chan PersistRealmStatsInJob,
+) chan PersistRealmStatsOutJob {
 	out := make(chan PersistRealmStatsOutJob)
 
 	worker := func() {
