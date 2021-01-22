@@ -29,7 +29,10 @@ func (client Client) GetEncodedRecipePricesByTuple(
 	}
 
 	out := map[blizzardv2.RecipeId][]byte{}
-	for id, prices := range sotah.NewRecipePricesMap(mRecipes, sotah.NewItemPricesFromMiniAuctionList(maList)) {
+	for id, prices := range sotah.NewRecipePricesMap(
+		mRecipes,
+		sotah.NewItemPricesFromMiniAuctionList(maList),
+	) {
 		out[id], err = prices.EncodeForStorage()
 		if err != nil {
 			return nil, err
@@ -71,7 +74,10 @@ func (client Client) GetEncodedRecipePricesByTuples(
 	// spinning up the workers for fetching auctions
 	worker := func() {
 		for tuple := range in {
-			gzipEncoded, err := client.GetEncodedRecipePricesByTuple(mRecipes, tuple.RegionConnectedRealmTuple)
+			gzipEncoded, err := client.GetEncodedRecipePricesByTuple(
+				mRecipes,
+				tuple.RegionConnectedRealmTuple,
+			)
 			if err != nil {
 				out <- getEncodedRecipePricesByTuplesJob{
 					err:                 err,

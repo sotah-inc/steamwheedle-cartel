@@ -41,8 +41,10 @@ type WriteAuctionsWithTuplesInJob struct {
 	auctions sotah.MiniAuctionList
 }
 
-func (w WriteAuctionsWithTuplesInJob) Tuple() blizzardv2.RegionConnectedRealmTuple { return w.tuple }
-func (w WriteAuctionsWithTuplesInJob) Auctions() sotah.MiniAuctionList             { return w.auctions }
+func (w WriteAuctionsWithTuplesInJob) Tuple() blizzardv2.RegionConnectedRealmTuple {
+	return w.tuple
+}
+func (w WriteAuctionsWithTuplesInJob) Auctions() sotah.MiniAuctionList { return w.auctions }
 
 type WriteAuctionsWithTuplesOutJob struct {
 	err   error

@@ -8,20 +8,26 @@ import (
 )
 
 type NewClientOptions struct {
-	CacheDir                string
-	RegionNames             []blizzardv2.RegionName
-	ResolveItems            func(ids blizzardv2.ItemIds) chan blizzardv2.GetItemsOutJob
-	ResolveItemMedias       func(in chan blizzardv2.GetItemMediasInJob) chan blizzardv2.GetItemMediasOutJob
-	ResolvePets             func(blacklist []blizzardv2.PetId) (chan blizzardv2.GetAllPetsJob, error)
-	ResolveProfessions      func(blacklist []blizzardv2.ProfessionId) (chan blizzardv2.GetAllProfessionsJob, error)
-	ResolveProfessionMedias func(in chan blizzardv2.GetProfessionMediasInJob) chan blizzardv2.GetProfessionMediasOutJob
-	ResolveSkillTiers       func(
+	CacheDir           string
+	RegionNames        []blizzardv2.RegionName
+	ResolveItems       func(ids blizzardv2.ItemIds) chan blizzardv2.GetItemsOutJob
+	ResolveItemMedias  func(in chan blizzardv2.GetItemMediasInJob) chan blizzardv2.GetItemMediasOutJob
+	ResolvePets        func(blacklist []blizzardv2.PetId) (chan blizzardv2.GetAllPetsJob, error)
+	ResolveProfessions func(
+		blacklist []blizzardv2.ProfessionId,
+	) (chan blizzardv2.GetAllProfessionsJob, error)
+	ResolveProfessionMedias func(
+		in chan blizzardv2.GetProfessionMediasInJob,
+	) chan blizzardv2.GetProfessionMediasOutJob
+	ResolveSkillTiers func(
 		professionId blizzardv2.ProfessionId,
 		idList []blizzardv2.SkillTierId,
 	) chan blizzardv2.GetAllSkillTiersJob
 	ResolveRecipes      func(ids []blizzardv2.RecipeId) chan blizzardv2.GetRecipesJob
-	ResolveRecipeMedias func(in chan blizzardv2.GetRecipeMediasInJob) chan blizzardv2.GetRecipeMediasOutJob
-	PrimarySkillTiers   map[string][]blizzardv2.SkillTierId
+	ResolveRecipeMedias func(
+		in chan blizzardv2.GetRecipeMediasInJob,
+	) chan blizzardv2.GetRecipeMediasOutJob
+	PrimarySkillTiers map[string][]blizzardv2.SkillTierId
 }
 
 func NewClient(opts NewClientOptions) (Client, error) {
@@ -50,17 +56,23 @@ func NewClient(opts NewClientOptions) (Client, error) {
 }
 
 type Client struct {
-	cacheDir                string
-	resolveItems            func(ids blizzardv2.ItemIds) chan blizzardv2.GetItemsOutJob
-	resolveItemMedias       func(in chan blizzardv2.GetItemMediasInJob) chan blizzardv2.GetItemMediasOutJob
-	resolvePets             func(blacklist []blizzardv2.PetId) (chan blizzardv2.GetAllPetsJob, error)
-	resolveProfessions      func(blacklist []blizzardv2.ProfessionId) (chan blizzardv2.GetAllProfessionsJob, error)
-	resolveProfessionMedias func(in chan blizzardv2.GetProfessionMediasInJob) chan blizzardv2.GetProfessionMediasOutJob
-	resolveSkillTiers       func(
+	cacheDir           string
+	resolveItems       func(ids blizzardv2.ItemIds) chan blizzardv2.GetItemsOutJob
+	resolveItemMedias  func(in chan blizzardv2.GetItemMediasInJob) chan blizzardv2.GetItemMediasOutJob
+	resolvePets        func(blacklist []blizzardv2.PetId) (chan blizzardv2.GetAllPetsJob, error)
+	resolveProfessions func(
+		blacklist []blizzardv2.ProfessionId,
+	) (chan blizzardv2.GetAllProfessionsJob, error)
+	resolveProfessionMedias func(
+		in chan blizzardv2.GetProfessionMediasInJob,
+	) chan blizzardv2.GetProfessionMediasOutJob
+	resolveSkillTiers func(
 		professionId blizzardv2.ProfessionId,
 		idList []blizzardv2.SkillTierId,
 	) chan blizzardv2.GetAllSkillTiersJob
 	resolveRecipes      func(ids []blizzardv2.RecipeId) chan blizzardv2.GetRecipesJob
-	resolveRecipeMedias func(in chan blizzardv2.GetRecipeMediasInJob) chan blizzardv2.GetRecipeMediasOutJob
-	primarySkillTiers   map[string][]blizzardv2.SkillTierId
+	resolveRecipeMedias func(
+		in chan blizzardv2.GetRecipeMediasInJob,
+	) chan blizzardv2.GetRecipeMediasOutJob
+	primarySkillTiers map[string][]blizzardv2.SkillTierId
 }

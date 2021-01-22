@@ -29,7 +29,9 @@ func (g getEncodedPetJob) ToLogrusFields() logrus.Fields {
 	}
 }
 
-func (client Client) GetEncodedPets(blacklist []blizzardv2.PetId) (chan BaseLake.GetEncodedPetJob, error) {
+func (client Client) GetEncodedPets(
+	blacklist []blizzardv2.PetId,
+) (chan BaseLake.GetEncodedPetJob, error) {
 	out := make(chan BaseLake.GetEncodedPetJob)
 
 	// starting up workers for resolving items

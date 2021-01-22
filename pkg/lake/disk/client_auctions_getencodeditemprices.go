@@ -47,7 +47,9 @@ type getEncodedPricelistHistoryByTuplesJob struct {
 func (job getEncodedPricelistHistoryByTuplesJob) Tuple() blizzardv2.LoadConnectedRealmTuple {
 	return job.tuple
 }
-func (job getEncodedPricelistHistoryByTuplesJob) EncodedPricelistHistory() map[blizzardv2.ItemId][]byte {
+func (
+	job getEncodedPricelistHistoryByTuplesJob,
+) EncodedPricelistHistory() map[blizzardv2.ItemId][]byte {
 	return job.encodedPricelistHistory
 }
 func (job getEncodedPricelistHistoryByTuplesJob) Err() error { return job.err }

@@ -35,7 +35,10 @@ func (client Client) GetEncodedSkillTiers(
 	// starting up workers for resolving skill-tiers
 	skillTiersOut := client.resolveSkillTiers(professionId, idList)
 
-	logging.WithField("primary-skill-tiers", client.primarySkillTiers).Info("checking with skill-tiers")
+	logging.WithField(
+		"primary-skill-tiers",
+		client.primarySkillTiers,
+	).Info("checking with skill-tiers")
 
 	// queueing it all up
 	go func() {
@@ -47,7 +50,10 @@ func (client Client) GetEncodedSkillTiers(
 			}
 
 			isPrimary := func() bool {
-				foundSkillTierPrimaries, ok := client.primarySkillTiers[strconv.FormatInt(int64(professionId), 10)]
+				foundSkillTierPrimaries, ok := client.primarySkillTiers[strconv.FormatInt(
+					int64(professionId),
+					10,
+				)]
 				if !ok {
 					return false
 				}
