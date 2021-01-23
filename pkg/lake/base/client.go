@@ -6,7 +6,9 @@ import (
 )
 
 type Client interface {
-	GetEncodedAuctionsByTuples(tuples blizzardv2.RegionConnectedRealmTuples) chan GetEncodedAuctionsByTuplesJob
+	GetEncodedAuctionsByTuples(
+		tuples blizzardv2.RegionConnectedRealmTuples,
+	) chan GetEncodedAuctionsByTuplesJob
 	GetEncodedStatsByTuples(tuples blizzardv2.LoadConnectedRealmTuples) chan GetEncodedStatsByTuplesJob
 	GetEncodedItemPricesByTuples(
 		tuples blizzardv2.LoadConnectedRealmTuples,
@@ -28,4 +30,8 @@ type Client interface {
 		idList []blizzardv2.SkillTierId,
 	) chan GetEncodedSkillTierJob
 	GetEncodedRecipes(ids []blizzardv2.RecipeId) chan GetEncodedRecipeJob
+	GetEncodedRegionStats(
+		name blizzardv2.RegionName,
+		ids []blizzardv2.ConnectedRealmId,
+	) ([]byte, error)
 }
