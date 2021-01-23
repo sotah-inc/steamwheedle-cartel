@@ -29,14 +29,14 @@ func (client Client) getTupleStats(
 	return sotah.NewMiniAuctionListStatsFromMiniAuctionList(maList).MiniAuctionListGeneralStats, nil
 }
 
-type getEncodedRegionRealmsStatsJob struct {
+type getEncodedRegionStatsJob struct {
 	err              error
 	name             blizzardv2.RegionName
 	connectedRealmId blizzardv2.ConnectedRealmId
 	stats            sotah.MiniAuctionListGeneralStats
 }
 
-func (job getEncodedRegionRealmsStatsJob) ToLogrusFields() logrus.Fields {
+func (job getEncodedRegionStatsJob) ToLogrusFields() logrus.Fields {
 	return logrus.Fields{
 		"error":           job.err.Error(),
 		"region":          job.name,
@@ -44,12 +44,12 @@ func (job getEncodedRegionRealmsStatsJob) ToLogrusFields() logrus.Fields {
 	}
 }
 
-func (client Client) getEncodedRegionRealmsStats(
+func (client Client) GetEncodedRegionStats(
 	name blizzardv2.RegionName,
 	ids []blizzardv2.ConnectedRealmId,
 ) ([]byte, error) {
 	in := make(chan blizzardv2.ConnectedRealmId)
-	out := make(chan getEncodedRegionRealmsStatsJob)
+	out := make(chan getEncodedRegionStatsJob)
 
 	// spinning up the workers for fetching auctions
 	worker := func() {
@@ -59,7 +59,7 @@ func (client Client) getEncodedRegionRealmsStats(
 				ConnectedRealmId: id,
 			})
 			if err != nil {
-				out <- getEncodedRegionRealmsStatsJob{
+				out <- getEncodedRegionStatsJob{
 					err:              err,
 					name:             name,
 					connectedRealmId: id,
@@ -69,7 +69,7 @@ func (client Client) getEncodedRegionRealmsStats(
 				continue
 			}
 
-			out <- getEncodedRegionRealmsStatsJob{
+			out <- getEncodedRegionStatsJob{
 				err:              nil,
 				name:             name,
 				connectedRealmId: id,
