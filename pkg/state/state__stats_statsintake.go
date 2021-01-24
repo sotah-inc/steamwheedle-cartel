@@ -63,6 +63,7 @@ func (sta StatsState) RegionRealmsIntake(
 ) error {
 	startTime := time.Now()
 	currentTimestamp := sotah.UnixTimestamp(time.Now().Unix())
+	retentionLimit := sotah.UnixTimestamp(BaseDatabase.RetentionLimit().Unix())
 
 	for name, ids := range regionRealmMap {
 		encodedStats, err := sta.LakeClient.GetEncodedRegionStats(name, ids)
@@ -83,6 +84,14 @@ func (sta StatsState) RegionRealmsIntake(
 		}).Info("persisting stats")
 
 		if err := rBase.PersistEncodedStats(currentTimestamp, encodedStats); err != nil {
+			return err
+		}
+
+		logging.WithFields(logrus.Fields{
+			"region":          name,
+			"retention-limit": retentionLimit,
+		}).Info("pruning stats")
+		if err := rBase.PruneStats(retentionLimit); err != nil {
 			return err
 		}
 	}
