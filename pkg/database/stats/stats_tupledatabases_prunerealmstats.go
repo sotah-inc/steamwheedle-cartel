@@ -8,12 +8,12 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 )
 
-type PruneStatsJob struct {
+type PruneRealmStatsJob struct {
 	Err   error
 	Tuple blizzardv2.RegionConnectedRealmTuple
 }
 
-func (job PruneStatsJob) ToLogrusFields() logrus.Fields {
+func (job PruneRealmStatsJob) ToLogrusFields() logrus.Fields {
 	return logrus.Fields{
 		"error":           job.Err.Error(),
 		"region":          job.Tuple.RegionName,
@@ -21,30 +21,30 @@ func (job PruneStatsJob) ToLogrusFields() logrus.Fields {
 	}
 }
 
-func (tBases TupleDatabases) PruneStats(
+func (tBases TupleDatabases) PruneRealmStats(
 	tuples blizzardv2.RegionConnectedRealmTuples,
 	retentionLimit sotah.UnixTimestamp,
 ) error {
 	in := make(chan blizzardv2.RegionConnectedRealmTuple)
-	out := make(chan PruneStatsJob)
+	out := make(chan PruneRealmStatsJob)
 
 	worker := func() {
 		for tuple := range in {
 			ladBase, err := tBases.GetTupleDatabase(tuple)
 			if err != nil {
-				out <- PruneStatsJob{err, tuple}
+				out <- PruneRealmStatsJob{err, tuple}
 
 				continue
 			}
 
 			err = ladBase.pruneStats(retentionLimit)
 			if err != nil {
-				out <- PruneStatsJob{err, tuple}
+				out <- PruneRealmStatsJob{err, tuple}
 
 				continue
 			}
 
-			out <- PruneStatsJob{nil, tuple}
+			out <- PruneRealmStatsJob{nil, tuple}
 		}
 	}
 	postWork := func() {
