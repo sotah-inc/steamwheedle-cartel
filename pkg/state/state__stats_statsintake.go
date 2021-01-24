@@ -47,6 +47,42 @@ func (sta StatsState) ListenForStatsIntake(stop ListenStopChan) error {
 }
 
 func (sta StatsState) StatsIntake(tuples blizzardv2.LoadConnectedRealmTuples) error {
+	if err := sta.TuplesIntake(tuples); err != nil {
+		return err
+	}
+
+	if err := sta.RegionRealmsIntake(tuples.ToMap()); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (sta StatsState) RegionRealmsIntake(
+	regionRealmMap map[blizzardv2.RegionName][]blizzardv2.ConnectedRealmId,
+) error {
+	currentTimestamp := sotah.UnixTimestamp(time.Now().Unix())
+
+	for name, ids := range regionRealmMap {
+		encodedStats, err := sta.LakeClient.GetEncodedRegionStats(name, ids)
+		if err != nil {
+			return err
+		}
+
+		rBase, err := sta.StatsRegionDatabases.GetRegionDatabase(name)
+		if err != nil {
+			return err
+		}
+
+		if err := rBase.PersistEncodedStats(currentTimestamp, encodedStats); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (sta StatsState) TuplesIntake(tuples blizzardv2.LoadConnectedRealmTuples) error {
 	startTime := time.Now()
 
 	// spinning up workers
@@ -112,7 +148,7 @@ func (sta StatsState) StatsIntake(tuples blizzardv2.LoadConnectedRealmTuples) er
 	logging.WithFields(logrus.Fields{
 		"total":          totalLoaded,
 		"duration-in-ms": time.Since(startTime).Milliseconds(),
-	}).Info("total loaded in stats")
+	}).Info("total loaded in tuples-stats")
 
 	return nil
 }

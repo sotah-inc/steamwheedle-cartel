@@ -46,8 +46,14 @@ func NewStatsState(opts NewStatsStateOptions) (StatsState, error) {
 		return StatsState{}, err
 	}
 
+	rBases, err := StatsDatabase.NewRegionDatabases(opts.StatsDatabasesDir, opts.Tuples.RegionNames())
+	if err != nil {
+		return StatsState{}, err
+	}
+
 	return StatsState{
 		StatsTupleDatabases:     tBases,
+		StatsRegionDatabases:    rBases,
 		Messenger:               opts.Messenger,
 		LakeClient:              opts.LakeClient,
 		Tuples:                  opts.Tuples,
@@ -56,7 +62,8 @@ func NewStatsState(opts NewStatsStateOptions) (StatsState, error) {
 }
 
 type StatsState struct {
-	StatsTupleDatabases StatsDatabase.TupleDatabases
+	StatsTupleDatabases  StatsDatabase.TupleDatabases
+	StatsRegionDatabases StatsDatabase.RegionDatabases
 
 	Messenger               messenger.Messenger
 	LakeClient              BaseLake.Client
