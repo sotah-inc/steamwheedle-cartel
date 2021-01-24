@@ -47,9 +47,9 @@ func (sta StatsState) ListenForStatsIntake(stop ListenStopChan) error {
 }
 
 func (sta StatsState) StatsIntake(tuples blizzardv2.LoadConnectedRealmTuples) error {
-	if err := sta.TuplesIntake(tuples); err != nil {
-		return err
-	}
+	//if err := sta.TuplesIntake(tuples); err != nil {
+	//	return err
+	//}
 
 	if err := sta.RegionRealmsIntake(sta.Tuples.ToMap()); err != nil {
 		return err
@@ -65,15 +65,33 @@ func (sta StatsState) RegionRealmsIntake(
 	currentTimestamp := sotah.UnixTimestamp(time.Now().Unix())
 
 	for name, ids := range regionRealmMap {
+		logging.WithFields(logrus.Fields{
+			"region":           name,
+			"connected-realms": ids,
+		}).Info("gathering stats for region")
+
 		encodedStats, err := sta.LakeClient.GetEncodedRegionStats(name, ids)
 		if err != nil {
 			return err
 		}
 
+		logging.WithFields(logrus.Fields{
+			"region":           name,
+			"connected-realms": ids,
+			"stats":            len(encodedStats),
+		}).Info("found stats for region")
+
 		rBase, err := sta.StatsRegionDatabases.GetRegionDatabase(name)
 		if err != nil {
 			return err
 		}
+
+		logging.WithFields(logrus.Fields{
+			"region":           name,
+			"connected-realms": ids,
+			"stats":            len(encodedStats),
+			"timestamp":        currentTimestamp,
+		}).Info("persisting stats")
 
 		if err := rBase.PersistEncodedStats(currentTimestamp, encodedStats); err != nil {
 			return err
