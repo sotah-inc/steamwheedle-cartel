@@ -7,7 +7,7 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 )
 
-func (sBase Database) pruneStats(retentionLimit sotah.UnixTimestamp) error {
+func (sBase Database) PruneStats(retentionLimit sotah.UnixTimestamp) error {
 	timestamps, err := sBase.getStatsTimestamps()
 	if err != nil {
 		return err

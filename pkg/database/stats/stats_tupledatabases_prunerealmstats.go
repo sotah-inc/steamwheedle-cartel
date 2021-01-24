@@ -37,7 +37,7 @@ func (tBases TupleDatabases) PruneRealmStats(
 				continue
 			}
 
-			err = ladBase.pruneStats(retentionLimit)
+			err = ladBase.PruneStats(retentionLimit)
 			if err != nil {
 				out <- PruneRealmStatsJob{err, tuple}
 
