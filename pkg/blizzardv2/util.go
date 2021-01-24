@@ -131,6 +131,39 @@ func (tuples LoadConnectedRealmTuples) EncodeForDelivery() ([]byte, error) {
 	return json.Marshal(tuples)
 }
 
+func (tuples LoadConnectedRealmTuples) ToMap() map[RegionName][]ConnectedRealmId {
+	out := map[RegionName][]ConnectedRealmId{}
+	for _, name := range tuples.RegionNames() {
+		out[name] = []ConnectedRealmId{}
+	}
+
+	for _, tuple := range tuples {
+		ids := out[tuple.RegionName]
+		ids = append(ids, tuple.ConnectedRealmId)
+
+		out[tuple.RegionName] = ids
+	}
+
+	return out
+}
+
+func (tuples LoadConnectedRealmTuples) RegionNames() []RegionName {
+	outMap := map[RegionName]struct{}{}
+	for _, tuple := range tuples {
+		outMap[tuple.RegionName] = struct{}{}
+	}
+
+	out := make([]RegionName, len(outMap))
+	i := 0
+	for name := range outMap {
+		out[i] = name
+
+		i += 1
+	}
+
+	return out
+}
+
 type LoadConnectedRealmTuple struct {
 	RegionConnectedRealmTuple
 	LastModified time.Time
