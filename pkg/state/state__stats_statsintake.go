@@ -61,6 +61,7 @@ func (sta StatsState) StatsIntake(tuples blizzardv2.LoadConnectedRealmTuples) er
 func (sta StatsState) RegionRealmsIntake(
 	regionRealmMap map[blizzardv2.RegionName][]blizzardv2.ConnectedRealmId,
 ) error {
+	startTime := time.Now()
 	currentTimestamp := sotah.UnixTimestamp(time.Now().Unix())
 
 	for name, ids := range regionRealmMap {
@@ -78,6 +79,11 @@ func (sta StatsState) RegionRealmsIntake(
 			return err
 		}
 	}
+
+	logging.WithFields(logrus.Fields{
+		"total":          len(regionRealmMap),
+		"duration-in-ms": time.Since(startTime).Milliseconds(),
+	}).Info("total loaded in region-stats")
 
 	return nil
 }
