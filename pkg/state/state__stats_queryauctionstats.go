@@ -27,12 +27,12 @@ func (sta StatsState) ListenForQueryAuctionStats(stop ListenStopChan) error {
 
 		// fetching aggregated stats across all tuples
 		if tuple.RegionName == "" {
-			totalStats, err := sta.StatsTupleDatabases.TotalStats(sta.Tuples.RegionNames())
+			totalStats, err := sta.StatsRegionDatabases.TotalStats(sta.Tuples.RegionNames())
 			if err != nil {
 				logging.WithField(
 					"error",
 					err.Error(),
-				).Error("failed on StatsTupleDatabases.TotalStats()")
+				).Error("failed on StatsRegionDatabases.TotalStats()")
 
 				m.Err = err.Error()
 				m.Code = mCodes.GenericError
