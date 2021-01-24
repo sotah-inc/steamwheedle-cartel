@@ -48,7 +48,7 @@ func (sta StatsState) ListenForQueryAuctionStats(stop ListenStopChan) error {
 
 		// fetching aggregated status across one region
 		if tuple.ConnectedRealmId == 0 {
-			totalStats, err := sta.StatsTupleDatabases.RegionStats(tuple.RegionName)
+			rBase, err := sta.StatsRegionDatabases.GetRegionDatabase(tuple.RegionName)
 			if err != nil {
 				m.Err = err.Error()
 				m.Code = mCodes.GenericError
@@ -57,7 +57,16 @@ func (sta StatsState) ListenForQueryAuctionStats(stop ListenStopChan) error {
 				return
 			}
 
-			sta.sendQueryAuctionStatsResponse(natsMsg, m, totalStats)
+			regionStats, err := rBase.Stats()
+			if err != nil {
+				m.Err = err.Error()
+				m.Code = mCodes.GenericError
+				sta.Messenger.ReplyTo(natsMsg, m)
+
+				return
+			}
+
+			sta.sendQueryAuctionStatsResponse(natsMsg, m, regionStats)
 
 			return
 		}
