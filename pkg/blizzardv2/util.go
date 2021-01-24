@@ -74,6 +74,22 @@ func (tuples RegionConnectedRealmTuples) RegionNames() []RegionName {
 	return out
 }
 
+func (tuples RegionConnectedRealmTuples) ToMap() map[RegionName][]ConnectedRealmId {
+	out := map[RegionName][]ConnectedRealmId{}
+	for _, name := range tuples.RegionNames() {
+		out[name] = []ConnectedRealmId{}
+	}
+
+	for _, tuple := range tuples {
+		ids := out[tuple.RegionName]
+		ids = append(ids, tuple.ConnectedRealmId)
+
+		out[tuple.RegionName] = ids
+	}
+
+	return out
+}
+
 func NewRegionConnectedRealmTuple(data []byte) (RegionConnectedRealmTuple, error) {
 	out := RegionConnectedRealmTuple{}
 	if err := json.Unmarshal(data, &out); err != nil {
@@ -129,22 +145,6 @@ func (tuples LoadConnectedRealmTuples) RegionConnectedRealmTuples() RegionConnec
 
 func (tuples LoadConnectedRealmTuples) EncodeForDelivery() ([]byte, error) {
 	return json.Marshal(tuples)
-}
-
-func (tuples LoadConnectedRealmTuples) ToMap() map[RegionName][]ConnectedRealmId {
-	out := map[RegionName][]ConnectedRealmId{}
-	for _, name := range tuples.RegionNames() {
-		out[name] = []ConnectedRealmId{}
-	}
-
-	for _, tuple := range tuples {
-		ids := out[tuple.RegionName]
-		ids = append(ids, tuple.ConnectedRealmId)
-
-		out[tuple.RegionName] = ids
-	}
-
-	return out
 }
 
 func (tuples LoadConnectedRealmTuples) RegionNames() []RegionName {

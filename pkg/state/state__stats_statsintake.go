@@ -51,7 +51,7 @@ func (sta StatsState) StatsIntake(tuples blizzardv2.LoadConnectedRealmTuples) er
 		return err
 	}
 
-	if err := sta.RegionRealmsIntake(tuples.ToMap()); err != nil {
+	if err := sta.RegionRealmsIntake(sta.Tuples.ToMap()); err != nil {
 		return err
 	}
 
