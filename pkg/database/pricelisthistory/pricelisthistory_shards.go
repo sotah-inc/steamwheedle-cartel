@@ -1,10 +1,27 @@
 package pricelisthistory
 
 import (
+	"errors"
+
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 )
 
 type DatabaseShards map[sotah.UnixTimestamp]Database
+
+func (shards DatabaseShards) Latest() (Database, error) {
+	lastTimestamp := sotah.UnixTimestamp(0)
+	for timestamp := range shards {
+		if lastTimestamp == 0 || timestamp > lastTimestamp {
+			lastTimestamp = timestamp
+		}
+	}
+
+	if lastTimestamp == 0 {
+		return Database{}, errors.New("failed to resolve latest database")
+	}
+
+	return shards[lastTimestamp], nil
+}
 
 func (shards DatabaseShards) Before(
 	limit sotah.UnixTimestamp,
