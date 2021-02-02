@@ -3,6 +3,8 @@ package blizzardv2
 import (
 	"math"
 	"sort"
+
+	"gonum.org/v1/gonum/stat"
 )
 
 type ItemBuyoutPerList []float64
@@ -27,4 +29,8 @@ func (perList ItemBuyoutPerList) Median() float64 {
 	}
 
 	return buyoutsSlice[(len(buyoutsSlice)-1)/2]
+}
+
+func (perList ItemBuyoutPerList) StdDev() float64 {
+	return stat.StdDev(perList, nil)
 }

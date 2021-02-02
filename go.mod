@@ -12,6 +12,11 @@ require (
 	github.com/sirupsen/logrus v1.4.2
 	github.com/stretchr/testify v1.4.0
 	github.com/twinj/uuid v1.0.0
+	golang.org/x/exp v0.0.0-20210201131500-d352d2db2ceb // indirect
+	golang.org/x/net v0.0.0-20201021035429-f5854403a974 // indirect
+	golang.org/x/sync v0.0.0-20201020160332-67f06af15bc9 // indirect
+	golang.org/x/sys v0.0.0-20210119212857-b64e53b001e4 // indirect
+	gonum.org/v1/gonum v0.8.2
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
 	gopkg.in/stretchr/testify.v1 v1.2.2 // indirect
 )
