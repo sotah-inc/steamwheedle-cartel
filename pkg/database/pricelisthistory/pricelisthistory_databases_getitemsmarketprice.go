@@ -19,7 +19,7 @@ func (job getItemsMarketPricesJob) ToLogrusFields() logrus.Fields {
 	}
 }
 
-func (phdBases *Databases) GetItemsMarketPrices(
+func (phdBases *Databases) GetItemsMarketPrice(
 	tuple blizzardv2.RegionConnectedRealmTuple,
 	ids blizzardv2.ItemIds,
 ) (map[blizzardv2.ItemId]float64, error) {
