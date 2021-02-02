@@ -13,12 +13,14 @@ type ItemBuyoutPerSummaryMap map[ItemId]ItemBuyoutPerSummary
 
 func NewItemBuyoutPerSummary(perList ItemBuyoutPerList) ItemBuyoutPerSummary {
 	return ItemBuyoutPerSummary{
-		Average: perList.Average(),
-		Median:  perList.Median(),
+		Average:     perList.Average(),
+		Median:      perList.Median(),
+		MarketPrice: perList.MarketPrice(),
 	}
 }
 
 type ItemBuyoutPerSummary struct {
-	Average float64
-	Median  float64
+	Average     float64
+	Median      float64
+	MarketPrice float64
 }

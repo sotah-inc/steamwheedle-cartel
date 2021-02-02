@@ -22,11 +22,12 @@ func NewPricesFromEncoded(gzipEncoded []byte) (Prices, error) {
 }
 
 type Prices struct {
-	MinBuyoutPer     float64 `json:"min_buyout_per"`
-	MaxBuyoutPer     float64 `json:"max_buyout_per"`
-	AverageBuyoutPer float64 `json:"average_buyout_per"`
-	MedianBuyoutPer  float64 `json:"median_buyout_per"`
-	Volume           int64   `json:"volume"`
+	MinBuyoutPer         float64 `json:"min_buyout_per"`
+	MaxBuyoutPer         float64 `json:"max_buyout_per"`
+	AverageBuyoutPer     float64 `json:"average_buyout_per"`
+	MedianBuyoutPer      float64 `json:"median_buyout_per"`
+	MarketPriceBuyoutPer float64 `json:"market_price_buyout_per"`
+	Volume               int64   `json:"volume"`
 }
 
 func (p Prices) EncodeForStorage() ([]byte, error) {
@@ -61,6 +62,7 @@ func (p Prices) ReceiveMiniAuction(mAuction miniAuction) Prices {
 func (p Prices) ReceiveBuyoutPerSummary(buyoutPerSummary blizzardv2.ItemBuyoutPerSummary) Prices {
 	p.AverageBuyoutPer = buyoutPerSummary.Average
 	p.MedianBuyoutPer = buyoutPerSummary.Median
+	p.MarketPriceBuyoutPer = buyoutPerSummary.MarketPrice
 
 	return p
 }
