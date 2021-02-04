@@ -67,4 +67,5 @@ const (
 	RecipePricesIntake  Subject = "recipePricesIntake"
 	ItemPricesHistory   Subject = "itemPricesHistory"
 	RecipePricesHistory Subject = "recipePricesHistory"
+	ItemsMarketPrice    Subject = "itemsMarketPrice"
 )

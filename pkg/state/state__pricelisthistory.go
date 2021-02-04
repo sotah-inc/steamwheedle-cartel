@@ -52,5 +52,6 @@ func (sta PricelistHistoryState) GetListeners() SubjectListeners {
 		subjects.RecipePricesIntake:      sta.ListenForRecipePricesIntake,
 		subjects.RecipePricesHistory:     sta.ListenForRecipePricesHistory,
 		subjects.PrunePricelistHistories: sta.ListenForPrunePricelistHistories,
+		subjects.ItemsMarketPrice:        sta.ListenForItemsMarketPrice,
 	}
 }
