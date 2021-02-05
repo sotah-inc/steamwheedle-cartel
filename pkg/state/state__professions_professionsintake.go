@@ -80,6 +80,10 @@ func (sta ProfessionsState) ProfessionsIntake() error {
 				continue
 			}
 
+			if job.Id() > 0 {
+				continue
+			}
+
 			logging.WithField("profession-id", job.Id()).Info("enqueueing profession for persistence")
 
 			persistProfessionsIn <- ProfessionsDatabase.PersistEncodedProfessionsInJob{
