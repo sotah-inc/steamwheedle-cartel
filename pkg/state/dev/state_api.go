@@ -3,8 +3,8 @@ package dev
 import (
 	"github.com/twinj/uuid"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
-	BaseCollector "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/collector/base"
-	DiskCollector "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/collector/disk"
+	BaseCollector "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/collector/base" // nolint:lll
+	DiskCollector "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/collector/disk" // nolint:lll
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/lake"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
@@ -75,7 +75,9 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 		ResolvePets: func(blacklist []blizzardv2.PetId) (chan blizzardv2.GetAllPetsJob, error) {
 			return sta.BlizzardState.ResolvePets(primaryRegion, blacklist)
 		},
-		ResolveProfessions: func(blacklist []blizzardv2.ProfessionId) (chan blizzardv2.GetAllProfessionsJob, error) {
+		ResolveProfessions: func(
+			blacklist []blizzardv2.ProfessionId,
+		) (chan blizzardv2.GetAllProfessionsJob, error) {
 			return sta.BlizzardState.ResolveProfessions(primaryRegion, blacklist)
 		},
 		ResolveProfessionMedias: sta.BlizzardState.ResolveProfessionMedias,
@@ -206,13 +208,15 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 	}
 
 	// resolving pricelist-history state
-	sta.PricelistHistoryState, err = state.NewPricelistHistoryState(state.NewPricelistHistoryStateOptions{
-		Messenger:                    mess,
-		LakeClient:                   lakeClient,
-		PricelistHistoryDatabasesDir: config.DatabaseConfig.PricelistHistoryDir,
-		Tuples:                       sta.RegionState.RegionComposites.ToTuples(),
-		ReceiveRegionTimestamps:      sta.RegionState.ReceiveTimestamps,
-	})
+	sta.PricelistHistoryState, err = state.NewPricelistHistoryState(
+		state.NewPricelistHistoryStateOptions{
+			Messenger:                    mess,
+			LakeClient:                   lakeClient,
+			PricelistHistoryDatabasesDir: config.DatabaseConfig.PricelistHistoryDir,
+			Tuples:                       sta.RegionState.RegionComposites.ToTuples(),
+			ReceiveRegionTimestamps:      sta.RegionState.ReceiveTimestamps,
+		},
+	)
 	if err != nil {
 		logging.WithField("error", err.Error()).Error("failed to initialise pricelist-history state")
 

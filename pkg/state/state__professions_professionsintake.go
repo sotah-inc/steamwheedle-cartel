@@ -3,6 +3,8 @@ package state
 import (
 	"time"
 
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
+
 	"github.com/nats-io/nats.go"
 	"github.com/sirupsen/logrus"
 	ProfessionsDatabase "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database/professions" // nolint:lll
@@ -37,20 +39,31 @@ func (sta ProfessionsState) ProfessionsIntake() error {
 	startTime := time.Now()
 
 	// resolving profession-ids to not sync
-	professionIds, err := sta.ProfessionsDatabase.GetProfessionIds()
+	currentProfessionIds, err := sta.ProfessionsDatabase.GetProfessionIds()
 	if err != nil {
 		logging.WithField("error", err.Error()).Error("failed to get profession-ids for blacklist")
 
 		return err
 	}
+	blacklistedProfessionIds := make(
+		[]blizzardv2.ProfessionId,
+		len(currentProfessionIds)+len(sta.ProfessionsBlacklist),
+	)
+	// nolint:gosimple
+	for i, id := range currentProfessionIds {
+		blacklistedProfessionIds[i] = id
+	}
+	for i, id := range sta.ProfessionsBlacklist {
+		blacklistedProfessionIds[i+len(currentProfessionIds)] = id
+	}
 
 	logging.WithField(
 		"professions-blacklist",
-		len(professionIds),
+		len(blacklistedProfessionIds),
 	).Info("collecting professions sans blacklist")
 
 	// starting up an intake queue
-	getEncodedProfessionsOut, err := sta.LakeClient.GetEncodedProfessions(professionIds)
+	getEncodedProfessionsOut, err := sta.LakeClient.GetEncodedProfessions(blacklistedProfessionIds)
 	if err != nil {
 		logging.WithField("error", err.Error()).Error("failed to initiate encoded-professions fetching")
 

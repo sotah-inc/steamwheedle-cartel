@@ -40,7 +40,9 @@ func (sta ApiState) StartCollector(stopChan sotah.WorkerStopChan) sotah.WorkerSt
 		for {
 			select {
 			case <-ticker.C:
-				if err := sta.BlizzardState.BlizzardClient.RefreshFromHTTP(blizzardv2.OAuthTokenEndpoint); err != nil {
+				if err := sta.BlizzardState.BlizzardClient.RefreshFromHTTP(
+					blizzardv2.OAuthTokenEndpoint,
+				); err != nil {
 					logging.WithField("error", err.Error()).Error("failed to refresh blizzard http-client")
 
 					continue

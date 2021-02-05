@@ -15,7 +15,7 @@ type NewProfessionsStateOptions struct {
 	Messenger  messenger.Messenger
 
 	ProfessionsDatabaseDir string
-	PrimarySkillTiers      map[string][]blizzardv2.SkillTierId
+	ProfessionsBlacklist   []blizzardv2.ProfessionId
 }
 
 func NewProfessionsState(opts NewProfessionsStateOptions) (ProfessionsState, error) {
@@ -33,18 +33,18 @@ func NewProfessionsState(opts NewProfessionsStateOptions) (ProfessionsState, err
 	}
 
 	return ProfessionsState{
-		LakeClient:          opts.LakeClient,
-		Messenger:           opts.Messenger,
-		ProfessionsDatabase: professionsDatabase,
-		PrimarySkillTiers:   opts.PrimarySkillTiers,
+		LakeClient:           opts.LakeClient,
+		Messenger:            opts.Messenger,
+		ProfessionsDatabase:  professionsDatabase,
+		ProfessionsBlacklist: opts.ProfessionsBlacklist,
 	}, nil
 }
 
 type ProfessionsState struct {
-	LakeClient          BaseLake.Client
-	Messenger           messenger.Messenger
-	ProfessionsDatabase ProfessionsDatabase.Database
-	PrimarySkillTiers   map[string][]blizzardv2.SkillTierId
+	LakeClient           BaseLake.Client
+	Messenger            messenger.Messenger
+	ProfessionsDatabase  ProfessionsDatabase.Database
+	ProfessionsBlacklist []blizzardv2.ProfessionId
 }
 
 func (sta ProfessionsState) GetListeners() SubjectListeners {
