@@ -35,10 +35,7 @@ func (client Client) GetEncodedProfessions(
 ) (chan BaseLake.GetEncodedProfessionJob, error) {
 	out := make(chan BaseLake.GetEncodedProfessionJob)
 
-	logging.WithField("professions-blacklist", blacklist).Info("using blacklist")
-	if len(blacklist) > 0 {
-		return nil, errors.New("yes")
-	}
+	logging.WithField("blacklist", blacklist).Info("DiskClient.GetEncodedProfessions()")
 
 	// starting up workers for resolving professions
 	professionsOut, err := client.resolveProfessions(blacklist)

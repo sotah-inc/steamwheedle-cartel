@@ -163,7 +163,7 @@ func (sta BlizzardState) ResolveProfessions(
 	primaryRegion sotah.Region,
 	blacklist []blizzardv2.ProfessionId,
 ) (chan blizzardv2.GetAllProfessionsJob, error) {
-	logging.WithField("profession-ids", len(blacklist)).Info("resolving professions with blacklist")
+	logging.WithField("profession-ids", blacklist).Info("resolving professions with blacklist")
 
 	return blizzardv2.GetAllProfessions(blizzardv2.GetAllProfessionsOptions{
 		GetProfessionIndexURL: func() (string, error) {

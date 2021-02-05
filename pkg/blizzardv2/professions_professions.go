@@ -33,6 +33,8 @@ func GetAllProfessions(opts GetAllProfessionsOptions) (chan GetAllProfessionsJob
 		return nil, err
 	}
 
+	logging.WithField("opts.Blacklist", opts.Blacklist).Info("GetAllProfessions()")
+
 	pIndex, _, err := NewProfessionsIndexResponseFromHTTP(uri)
 	if err != nil {
 		logging.WithField("error", err.Error()).Error("failed to get profession-index")
