@@ -15,7 +15,10 @@ func (c Client) CallItemPricesIntake(tuples blizzardv2.LoadConnectedRealmTuples)
 	// forwarding the received tuples to item-prices intake
 	encodedTuples, err := tuples.EncodeForDelivery()
 	if err != nil {
-		logging.WithField("error", err.Error()).Error("failed to encode load tuples for item-prices intake")
+		logging.WithField(
+			"error",
+			err.Error(),
+		).Error("failed to encode load tuples for item-prices intake")
 
 		return err
 	}

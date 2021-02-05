@@ -90,8 +90,12 @@ func GetAllProfessions(opts GetAllProfessionsOptions) (chan GetAllProfessionsJob
 		total := 0
 		for _, profession := range pIndex.Professions {
 			if _, ok := blacklistMap[profession.Id]; ok {
+				logging.WithField("profession", profession.Id).Info("skipping profession fetching")
+
 				continue
 			}
+
+			logging.WithField("profession", profession.Id).Info("fetching profession")
 
 			in <- profession.Key
 

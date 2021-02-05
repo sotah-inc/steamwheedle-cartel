@@ -15,7 +15,10 @@ func (c Client) CallRecipePricesIntake(tuples blizzardv2.LoadConnectedRealmTuple
 	// forwarding the received tuples to recipe-prices intake
 	encodedTuples, err := tuples.EncodeForDelivery()
 	if err != nil {
-		logging.WithField("error", err.Error()).Error("failed to encode load tuples for recipe-prices intake")
+		logging.WithField(
+			"error",
+			err.Error(),
+		).Error("failed to encode load tuples for recipe-prices intake")
 
 		return err
 	}

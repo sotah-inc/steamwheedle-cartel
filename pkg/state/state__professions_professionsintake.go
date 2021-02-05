@@ -59,7 +59,7 @@ func (sta ProfessionsState) ProfessionsIntake() error {
 
 	logging.WithField(
 		"professions-blacklist",
-		len(blacklistedProfessionIds),
+		blacklistedProfessionIds,
 	).Info("collecting professions sans blacklist")
 
 	// starting up an intake queue
