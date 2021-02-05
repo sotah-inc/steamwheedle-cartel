@@ -48,6 +48,7 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 	}
 
 	// connecting to the messenger host
+	logging.Info("producing new messenger")
 	mess, err := messenger.NewMessenger(config.MessengerConfig)
 	if err != nil {
 		logging.WithField("error", err.Error()).Error("failed to connect to messenger")
@@ -56,6 +57,7 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 	}
 
 	// connecting a new blizzard client
+	logging.Info("producing new blizzard-state")
 	sta.BlizzardState, err = state.NewBlizzardState(config.BlizzardConfig)
 	if err != nil {
 		logging.WithField("error", err.Error()).Error("failed to initialise blizzard-client")
@@ -64,6 +66,7 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 	}
 
 	// deriving lake-client
+	logging.Info("producing new lake-client")
 	lakeClient, err := lake.NewClient(lake.NewClientOptions{
 		UseGCloud:   config.UseGCloud,
 		CacheDir:    config.DiskStoreCacheDir,
@@ -100,6 +103,7 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 	}
 
 	// gathering region state
+	logging.Info("producing new region-state")
 	sta.RegionState, err = state.NewRegionState(state.NewRegionStateOptions{
 		BlizzardState:            sta.BlizzardState,
 		Regions:                  regions,
