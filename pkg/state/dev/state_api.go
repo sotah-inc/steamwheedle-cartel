@@ -1,6 +1,8 @@
 package dev
 
 import (
+	"errors"
+
 	"github.com/twinj/uuid"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	BaseCollector "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/collector/base" // nolint:lll
@@ -35,6 +37,15 @@ type ApiStateConfig struct {
 func NewAPIState(config ApiStateConfig) (ApiState, error) {
 	// establishing an initial state
 	sta := ApiState{State: state.State{RunID: uuid.NewV4(), Listeners: nil, BusListeners: nil}}
+
+	logging.WithField(
+		"profession-blacklist",
+		config.SotahConfig.ProfessionsBlacklist,
+	).Info("received profession-blacklist")
+
+	if len(config.SotahConfig.ProfessionsBlacklist) > 0 {
+		return ApiState{}, errors.New("yes")
+	}
 
 	// narrowing regions list
 	regions := config.SotahConfig.FilterInRegions(config.SotahConfig.Regions)
@@ -155,6 +166,7 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 		LakeClient:             lakeClient,
 		Messenger:              mess,
 		ProfessionsDatabaseDir: config.DatabaseConfig.ProfessionsDir,
+		ProfessionsBlacklist:   config.SotahConfig.ProfessionsBlacklist,
 	})
 	if err != nil {
 		logging.WithField("error", err.Error()).Error("failed to initialise professions state")
