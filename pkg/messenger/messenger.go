@@ -77,6 +77,8 @@ func NewMessenger(config Config) (Messenger, error) {
 		return Messenger{}, err
 	}
 
+	logging.WithField("uri", natsURI).Info("connected to nats")
+
 	mess := Messenger{conn: conn, Config: config}
 
 	return mess, nil
