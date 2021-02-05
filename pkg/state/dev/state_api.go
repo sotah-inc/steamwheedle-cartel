@@ -117,6 +117,7 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 	}
 
 	// gathering boot state
+	logging.Info("producing new boot-state")
 	sta.BootState, err = state.NewBootState(state.NewBootStateOptions{
 		BlizzardState: sta.BlizzardState,
 		Messenger:     mess,
@@ -131,6 +132,7 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 	}
 
 	// resolving items state
+	logging.Info("producing new items-state")
 	sta.ItemsState, err = state.NewItemsState(state.NewItemsStateOptions{
 		LakeClient:       lakeClient,
 		Messenger:        mess,
@@ -143,6 +145,7 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 	}
 
 	// resolving pets state
+	logging.Info("producing new pets-state")
 	sta.PetsState, err = state.NewPetsState(state.NewPetsStateOptions{
 		LakeClient:      lakeClient,
 		Messenger:       mess,
@@ -155,6 +158,7 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 	}
 
 	// resolving professions state
+	logging.Info("producing new professions-state")
 	sta.ProfessionsState, err = state.NewProfessionsState(state.NewProfessionsStateOptions{
 		LakeClient:             lakeClient,
 		Messenger:              mess,
@@ -168,6 +172,7 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 	}
 
 	// loading the tokens state
+	logging.Info("producing new tokens-state")
 	sta.TokensState, err = state.NewTokensState(state.NewTokensStateOptions{
 		BlizzardState:     sta.BlizzardState,
 		Messenger:         mess,
@@ -181,6 +186,7 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 	}
 
 	// loading the area-maps state
+	logging.Info("producing new area-maps state")
 	sta.AreaMapsState, err = state.NewAreaMapsState(mess, config.DatabaseConfig.AreaMapsDir)
 	if err != nil {
 		logging.WithField("error", err.Error()).Error("failed to initialise area-maps state")
@@ -189,6 +195,7 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 	}
 
 	// resolving disk-collector-auctions state
+	logging.Info("producing new disk-collector client")
 	sta.Collector = DiskCollector.NewClient(DiskCollector.ClientOptions{
 		ResolveAuctions: func() chan blizzardv2.GetAuctionsJob {
 			return sta.BlizzardState.ResolveAuctions(sta.RegionState.RegionComposites.ToDownloadTuples())
@@ -199,6 +206,7 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 	})
 
 	// resolving live-auctions state
+	logging.Info("producing new live-auctions state")
 	sta.LiveAuctionsState, err = state.NewLiveAuctionsState(state.NewLiveAuctionsStateOptions{
 		Messenger:                mess,
 		LakeClient:               lakeClient,
@@ -213,6 +221,7 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 	}
 
 	// resolving pricelist-history state
+	logging.Info("producing new pricelist-history state")
 	sta.PricelistHistoryState, err = state.NewPricelistHistoryState(
 		state.NewPricelistHistoryStateOptions{
 			Messenger:                    mess,
@@ -229,6 +238,7 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 	}
 
 	// resolving stats state
+	logging.Info("producing new stats state")
 	sta.StatsState, err = state.NewStatsState(state.NewStatsStateOptions{
 		Messenger:               mess,
 		LakeClient:              lakeClient,
@@ -243,6 +253,7 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 	}
 
 	// establishing listeners
+	logging.Info("establishing listeners")
 	sta.Listeners = state.NewListeners(state.NewSubjectListeners([]state.SubjectListeners{
 		sta.ItemsState.GetListeners(),
 		sta.PetsState.GetListeners(),
