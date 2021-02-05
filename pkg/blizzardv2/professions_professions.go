@@ -33,8 +33,6 @@ func GetAllProfessions(opts GetAllProfessionsOptions) (chan GetAllProfessionsJob
 		return nil, err
 	}
 
-	logging.WithField("opts.Blacklist", opts.Blacklist).Info("GetAllProfessions()")
-
 	pIndex, _, err := NewProfessionsIndexResponseFromHTTP(uri)
 	if err != nil {
 		logging.WithField("error", err.Error()).Error("failed to get profession-index")
@@ -92,8 +90,6 @@ func GetAllProfessions(opts GetAllProfessionsOptions) (chan GetAllProfessionsJob
 		total := 0
 		for _, profession := range pIndex.Professions {
 			if _, ok := blacklistMap[profession.Id]; ok {
-				logging.WithField("profession", profession.Id).Info("skipping profession fetching")
-
 				continue
 			}
 

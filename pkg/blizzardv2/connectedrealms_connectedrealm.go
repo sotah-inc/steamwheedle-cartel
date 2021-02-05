@@ -8,14 +8,18 @@ import (
 
 	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/locale"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/realmpopulation"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/realmpopulation" // nolint:lll
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/realmstatus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 )
 
 const connectedRealmURLFormat = "https://%s/data/wow/connected-realm/%d?namespace=dynamic-%s"
 
-func DefaultConnectedRealmURL(regionHostname string, regionName RegionName, id ConnectedRealmId) string {
+func DefaultConnectedRealmURL(
+	regionHostname string,
+	regionName RegionName,
+	id ConnectedRealmId,
+) string {
 	return fmt.Sprintf(connectedRealmURLFormat, regionHostname, id, regionName)
 }
 

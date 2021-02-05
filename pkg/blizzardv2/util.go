@@ -41,7 +41,9 @@ func NewRegionConnectedRealmTuples(data []byte) (RegionConnectedRealmTuples, err
 
 type RegionConnectedRealmTuples []RegionConnectedRealmTuple
 
-func (tuples RegionConnectedRealmTuples) FilterByRegionName(name RegionName) RegionConnectedRealmTuples {
+func (tuples RegionConnectedRealmTuples) FilterByRegionName(
+	name RegionName,
+) RegionConnectedRealmTuples {
 	out := RegionConnectedRealmTuples{}
 	for _, tuple := range tuples {
 		if tuple.RegionName != name {

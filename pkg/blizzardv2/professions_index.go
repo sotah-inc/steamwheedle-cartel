@@ -31,7 +31,9 @@ type ProfessionsIndexResponse struct {
 	Professions []ProfessionsIndexProfession `json:"professions"`
 }
 
-func NewProfessionsIndexResponseFromHTTP(uri string) (ProfessionsIndexResponse, ResponseMeta, error) {
+func NewProfessionsIndexResponseFromHTTP(
+	uri string,
+) (ProfessionsIndexResponse, ResponseMeta, error) {
 	resp, err := Download(DownloadOptions{Uri: uri})
 	if err != nil {
 		logging.WithFields(logrus.Fields{

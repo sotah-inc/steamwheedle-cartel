@@ -10,6 +10,7 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 )
 
+// nolint:lll
 const connectedRealmIndexURLFormat = "https://%s/data/wow/connected-realm/index?namespace=dynamic-%s"
 
 func DefaultConnectedRealmIndexURL(regionHostname string, regionName RegionName) string {

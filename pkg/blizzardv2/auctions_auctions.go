@@ -15,7 +15,12 @@ import (
 const auctionsURLFormat = "https://%s/data/wow/connected-realm/%d/auctions?namespace=dynamic-%s"
 
 func DefaultGetAuctionsURL(tuple DownloadConnectedRealmTuple) string {
-	return fmt.Sprintf(auctionsURLFormat, tuple.RegionHostname, tuple.ConnectedRealmId, tuple.RegionName)
+	return fmt.Sprintf(
+		auctionsURLFormat,
+		tuple.RegionHostname,
+		tuple.ConnectedRealmId,
+		tuple.RegionName,
+	)
 }
 
 type GetAuctionsURLFunc func(string, RegionName, ConnectedRealmId) string
@@ -82,7 +87,10 @@ type AuctionsResponse struct {
 	Auctions       Auctions      `json:"auctions"`
 }
 
-func NewAuctionsFromHTTP(uri string, ifModifiedSince time.Time) (AuctionsResponse, ResponseMeta, error) {
+func NewAuctionsFromHTTP(
+	uri string,
+	ifModifiedSince time.Time,
+) (AuctionsResponse, ResponseMeta, error) {
 	resp, err := Download(DownloadOptions{Uri: uri, IfModifiedSince: ifModifiedSince})
 	if err != nil {
 		logging.WithFields(logrus.Fields{
