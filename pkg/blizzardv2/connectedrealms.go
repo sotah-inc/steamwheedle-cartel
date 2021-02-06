@@ -80,6 +80,8 @@ func GetAllConnectedRealms(opts GetAllConnectedRealmsOptions) ([]ConnectedRealmR
 	// queueing it up
 	go func() {
 		for _, hrefRef := range crIndex.ConnectedRealms {
+			logging.WithField("href", hrefRef).Info("fetching connected-realm")
+
 			in <- hrefRef
 		}
 
@@ -93,6 +95,8 @@ func GetAllConnectedRealms(opts GetAllConnectedRealmsOptions) ([]ConnectedRealmR
 		if outJob.Err != nil {
 			return []ConnectedRealmResponse{}, outJob.Err
 		}
+
+		logging.WithField("href", outJob.HrefReference).Info("received realm")
 
 		result[i] = outJob.ConnectedRealmResponse
 		i += 1
