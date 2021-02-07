@@ -89,15 +89,6 @@ func (region RegionComposite) EncodeForDelivery() (string, error) {
 
 type RegionComposites []RegionComposite
 
-func (regions RegionComposites) EncodeForDelivery() ([]byte, error) {
-	jsonEncoded, err := json.Marshal(regions)
-	if err != nil {
-		return []byte{}, err
-	}
-
-	return util.GzipEncode(jsonEncoded)
-}
-
 func (regions RegionComposites) FindByRegionName(
 	name blizzardv2.RegionName,
 ) (RegionComposite, error) {
