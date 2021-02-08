@@ -100,10 +100,6 @@ type RegionsState struct {
 	RegionsDatabase RegionsDatabase.Database
 }
 
-func (sta RegionsState) ReceiveTimestamps(timestamps sotah.RegionTimestamps) {
-	logging.WithField("timestamps", timestamps).Info("received timestamps")
-}
-
 func (sta RegionsState) GetListeners() SubjectListeners {
 	return SubjectListeners{
 		subjects.Status:                          sta.ListenForStatus,
