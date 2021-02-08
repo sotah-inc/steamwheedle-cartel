@@ -142,7 +142,11 @@ func GetAllConnectedRealms(
 				continue
 			}
 
-			logging.WithField("href", hrefRef).Info("fetching connected-realm")
+			logging.WithFields(logrus.Fields{
+				"href":          hrefRef,
+				"parsed-id":     parsedId,
+				"blacklist-map": blacklistMap,
+			}).Info("fetching connected-realm")
 
 			in <- hrefRef
 		}
