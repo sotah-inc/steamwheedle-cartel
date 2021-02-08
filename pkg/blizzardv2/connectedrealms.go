@@ -99,7 +99,7 @@ func GetAllConnectedRealms(
 	postWork := func() {
 		close(out)
 	}
-	util.Work(4, worker, postWork)
+	util.Work(8, worker, postWork)
 
 	// producing a regex for parsing connected-realm href
 	re, err := regexp.Compile(`^.+/([0-9]+)\?.+$`)
@@ -142,11 +142,7 @@ func GetAllConnectedRealms(
 				continue
 			}
 
-			logging.WithFields(logrus.Fields{
-				"href":          hrefRef,
-				"parsed-id":     parsedId,
-				"blacklist-map": blacklistMap,
-			}).Info("fetching connected-realm")
+			logging.WithField("href", hrefRef).Info("fetching connected-realm")
 
 			in <- hrefRef
 		}
