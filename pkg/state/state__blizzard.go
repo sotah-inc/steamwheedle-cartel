@@ -35,6 +35,7 @@ type BlizzardState struct {
 func (sta BlizzardState) ResolveConnectedRealms(
 	region sotah.Region,
 	blacklist []blizzardv2.ConnectedRealmId,
+	whitelist blizzardv2.RealmSlugs,
 ) (chan blizzardv2.GetAllConnectedRealmsJob, error) {
 	return blizzardv2.GetAllConnectedRealms(blizzardv2.GetAllConnectedRealmsOptions{
 		GetConnectedRealmIndexURL: func() (string, error) {
@@ -44,6 +45,7 @@ func (sta BlizzardState) ResolveConnectedRealms(
 		},
 		GetConnectedRealmURL: sta.BlizzardClient.AppendAccessToken,
 		Blacklist:            blacklist,
+		RealmWhitelist:       whitelist,
 	})
 }
 

@@ -42,7 +42,11 @@ func NewRegionState(opts NewRegionStateOptions) (RegionsState, error) {
 			return RegionsState{}, err
 		}
 
-		connectedRealmsOut, err := opts.BlizzardState.ResolveConnectedRealms(region, connectedRealmIds)
+		connectedRealmsOut, err := opts.BlizzardState.ResolveConnectedRealms(
+			region,
+			connectedRealmIds,
+			opts.RegionRealmSlugWhitelist.Get(region.Name),
+		)
 		if err != nil {
 			return RegionsState{}, err
 		}

@@ -13,6 +13,7 @@ type GetAllConnectedRealmsOptions struct {
 	GetConnectedRealmIndexURL func() (string, error)
 	GetConnectedRealmURL      func(string) (string, error)
 	Blacklist                 []ConnectedRealmId
+	RealmWhitelist            RealmSlugs
 }
 
 type GetAllConnectedRealmsJob struct {
@@ -44,6 +45,12 @@ func GetAllConnectedRealms(
 		return nil, err
 	}
 
+	// producing realm slug whitelist
+	realmSlugWhitelist := map[RealmSlug]struct{}{}
+	for _, slug := range opts.RealmWhitelist {
+		realmSlugWhitelist[slug] = struct{}{}
+	}
+
 	// starting up workers for gathering individual connected-realms
 	in := make(chan HrefReference)
 	out := make(chan GetAllConnectedRealmsJob)
@@ -70,6 +77,19 @@ func GetAllConnectedRealms(
 
 				continue
 			}
+
+			cRealm.Realms = func() RealmResponses {
+				foundRealms := RealmResponses{}
+				for _, realm := range cRealm.Realms {
+					if _, ok := realmSlugWhitelist[realm.Slug]; !ok {
+						continue
+					}
+
+					foundRealms = append(foundRealms, realm)
+				}
+
+				return foundRealms
+			}()
 
 			out <- GetAllConnectedRealmsJob{
 				Err:                    nil,
