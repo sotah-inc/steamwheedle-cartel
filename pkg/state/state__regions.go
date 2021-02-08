@@ -75,7 +75,16 @@ func NewRegionState(opts NewRegionStateOptions) (RegionsState, error) {
 					Data: data,
 				}
 			}
+
+			close(persistConnectedRealmsIn)
 		}()
+
+		if err := regionsDatabase.PersistConnectedRealms(
+			region.Name,
+			persistConnectedRealmsIn,
+		); err != nil {
+			return RegionsState{}, err
+		}
 	}
 
 	return RegionsState{
