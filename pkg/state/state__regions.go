@@ -37,6 +37,11 @@ func NewRegionState(opts NewRegionStateOptions) (RegionsState, error) {
 	}
 
 	for _, region := range opts.Regions {
+		resolvedWhitelist := opts.RegionRealmSlugWhitelist.Get(region.Name)
+		if len(resolvedWhitelist) == 0 {
+			continue
+		}
+
 		connectedRealmIds, err := regionsDatabase.GetConnectedRealmIds(region.Name)
 		if err != nil {
 			return RegionsState{}, err
@@ -45,7 +50,7 @@ func NewRegionState(opts NewRegionStateOptions) (RegionsState, error) {
 		connectedRealmsOut, err := opts.BlizzardState.ResolveConnectedRealms(
 			region,
 			connectedRealmIds,
-			opts.RegionRealmSlugWhitelist.Get(region.Name),
+			resolvedWhitelist,
 		)
 		if err != nil {
 			return RegionsState{}, err

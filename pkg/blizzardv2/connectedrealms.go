@@ -45,12 +45,6 @@ func GetAllConnectedRealms(
 		return nil, err
 	}
 
-	// producing realm slug whitelist
-	realmSlugWhitelist := map[RealmSlug]struct{}{}
-	for _, slug := range opts.RealmWhitelist {
-		realmSlugWhitelist[slug] = struct{}{}
-	}
-
 	// starting up workers for gathering individual connected-realms
 	in := make(chan HrefReference)
 	out := make(chan GetAllConnectedRealmsJob)
@@ -81,7 +75,7 @@ func GetAllConnectedRealms(
 			cRealm.Realms = func() RealmResponses {
 				foundRealms := RealmResponses{}
 				for _, realm := range cRealm.Realms {
-					if _, ok := realmSlugWhitelist[realm.Slug]; !ok {
+					if !opts.RealmWhitelist.Has(realm.Slug) {
 						continue
 					}
 
