@@ -164,7 +164,7 @@ func (regionTimestamps RegionTimestamps) SetStatsReceived(
 
 	// pushing the new time into the found member
 	result := out[tuple.RegionName][tuple.ConnectedRealmId]
-	result.RecipePricesReceived = UnixTimestamp(statsReceived.Unix())
+	result.StatsReceived = UnixTimestamp(statsReceived.Unix())
 	out[tuple.RegionName][tuple.ConnectedRealmId] = result
 
 	return out
