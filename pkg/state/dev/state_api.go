@@ -21,6 +21,7 @@ type ApiStateDatabaseConfig struct {
 	LiveAuctionsDir     string
 	PricelistHistoryDir string
 	StatsDir            string
+	RegionsDir          string
 }
 
 type ApiStateConfig struct {
@@ -109,6 +110,7 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 		Regions:                  regions,
 		Messenger:                mess,
 		RegionRealmSlugWhitelist: config.SotahConfig.Whitelist,
+		RegionsDatabaseDir:       config.DatabaseConfig.RegionsDir,
 	})
 	if err != nil {
 		logging.WithField("error", err.Error()).Error("failed to establish region state")
