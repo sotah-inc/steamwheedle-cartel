@@ -55,7 +55,9 @@ func (timestamps ConnectedRealmTimestamps) Merge(
 	return timestamps
 }
 
-type RegionTimestamps map[blizzardv2.RegionName]map[blizzardv2.ConnectedRealmId]ConnectedRealmTimestamps // nolint:lll
+type RealmTimestamps map[blizzardv2.ConnectedRealmId]ConnectedRealmTimestamps
+
+type RegionTimestamps map[blizzardv2.RegionName]RealmTimestamps
 
 func (regionTimestamps RegionTimestamps) FindByRegionName(
 	name blizzardv2.RegionName,

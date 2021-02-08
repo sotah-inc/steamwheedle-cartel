@@ -11,7 +11,7 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state/subjects"
 )
 
-type ConnectedRealmModificationDatesResponse map[blizzardv2.ConnectedRealmId]sotah.ConnectedRealmTimestamps // nolint:lll
+type ConnectedRealmModificationDatesResponse sotah.RealmTimestamps
 
 func (r ConnectedRealmModificationDatesResponse) EncodeForDelivery() ([]byte, error) {
 	return json.Marshal(r)
@@ -33,7 +33,7 @@ func (sta RegionsState) ListenForConnectedRealmModificationDates(stop ListenStop
 				return
 			}
 
-			foundTimestamps, err := sta.RegionTimestamps().FindByRegionName(req.RegionName)
+			foundTimestamps, err := sta.RegionsDatabase.GetRealmTimestamps(req.RegionName)
 			if err != nil {
 				m.Err = err.Error()
 				m.Code = mCodes.UserError

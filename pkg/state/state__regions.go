@@ -95,10 +95,6 @@ func (sta RegionsState) ReceiveTimestamps(timestamps sotah.RegionTimestamps) {
 	logging.WithField("timestamps", timestamps).Info("received timestamps")
 }
 
-func (sta RegionsState) RegionTimestamps() sotah.RegionTimestamps {
-	return sotah.RegionTimestamps{}
-}
-
 func (sta RegionsState) GetListeners() SubjectListeners {
 	return SubjectListeners{
 		subjects.Status:                          sta.ListenForStatus,
