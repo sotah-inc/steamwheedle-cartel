@@ -85,6 +85,10 @@ func GetAllConnectedRealms(
 				return foundRealms
 			}()
 
+			if len(cRealm.Realms) == 0 {
+				continue
+			}
+
 			out <- GetAllConnectedRealmsJob{
 				Err:                    nil,
 				HrefReference:          hrefRef,
