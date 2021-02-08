@@ -26,7 +26,15 @@ func (c Client) collectAuctions() (collectAuctionsResults, error) {
 	logging.Info("calling DiskCollector.collectAuctions()")
 
 	// spinning up workers
-	aucsOutJobs := c.resolveAuctions()
+	aucsOutJobs, err := c.resolveAuctions()
+	if err != nil {
+		logging.WithField(
+			"error",
+			err.Error(),
+		).Error("failed to produce chan for resolving auctions")
+
+		return collectAuctionsResults{}, err
+	}
 	storeAucsInJobs := make(chan BaseLake.WriteAuctionsWithTuplesInJob)
 	storeAucsOutJobs := c.lakeClient.WriteAuctionsWithTuples(storeAucsInJobs)
 	resultsInJob := make(chan collectAuctionsResult)
@@ -106,7 +114,11 @@ func (c Client) collectAuctions() (collectAuctionsResults, error) {
 
 	// optionally updating region state
 	if !results.regionTimestamps.IsZero() {
-		c.receiveRegionTimestamps(results.regionTimestamps)
+		if err := c.receiveRegionTimestamps(results.regionTimestamps); err != nil {
+			logging.WithField("error", err.Error()).Error("failed to receive timestamps")
+
+			return collectAuctionsResults{}, err
+		}
 	}
 
 	logging.WithFields(logrus.Fields{

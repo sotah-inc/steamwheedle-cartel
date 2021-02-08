@@ -197,13 +197,26 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 	// resolving disk-collector-auctions state
 	logging.Info("producing new disk-collector client")
 	sta.Collector = DiskCollector.NewClient(DiskCollector.ClientOptions{
-		ResolveAuctions: func() chan blizzardv2.GetAuctionsJob {
-			return sta.BlizzardState.ResolveAuctions(sta.RegionState.RegionComposites.ToDownloadTuples())
+		ResolveAuctions: func() (chan blizzardv2.GetAuctionsJob, error) {
+			downloadTuples, err := sta.RegionState.ResolveDownloadTuples()
+			if err != nil {
+				return nil, err
+			}
+
+			return sta.BlizzardState.ResolveAuctions(downloadTuples), nil
 		},
 		ReceiveRegionTimestamps: sta.RegionState.ReceiveTimestamps,
 		LakeClient:              lakeClient,
 		MessengerClient:         mess,
 	})
+
+	// resolving all tuples
+	tuples, err := sta.RegionState.ResolveTuples()
+	if err != nil {
+		logging.WithField("error", err.Error()).Error("failed to resolve all tuples")
+
+		return ApiState{}, err
+	}
 
 	// resolving live-auctions state
 	logging.Info("producing new live-auctions state")
@@ -211,7 +224,7 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 		Messenger:                mess,
 		LakeClient:               lakeClient,
 		LiveAuctionsDatabasesDir: config.DatabaseConfig.LiveAuctionsDir,
-		Tuples:                   sta.RegionState.RegionComposites.ToTuples(),
+		Tuples:                   tuples,
 		ReceiveRegionTimestamps:  sta.RegionState.ReceiveTimestamps,
 	})
 	if err != nil {
@@ -227,7 +240,7 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 			Messenger:                    mess,
 			LakeClient:                   lakeClient,
 			PricelistHistoryDatabasesDir: config.DatabaseConfig.PricelistHistoryDir,
-			Tuples:                       sta.RegionState.RegionComposites.ToTuples(),
+			Tuples:                       tuples,
 			ReceiveRegionTimestamps:      sta.RegionState.ReceiveTimestamps,
 		},
 	)
@@ -243,7 +256,7 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 		Messenger:               mess,
 		LakeClient:              lakeClient,
 		StatsDatabasesDir:       config.DatabaseConfig.StatsDir,
-		Tuples:                  sta.RegionState.RegionComposites.ToTuples(),
+		Tuples:                  tuples,
 		ReceiveRegionTimestamps: sta.RegionState.ReceiveTimestamps,
 	})
 	if err != nil {

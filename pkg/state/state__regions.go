@@ -2,6 +2,7 @@ package state
 
 import (
 	"github.com/sirupsen/logrus"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	RegionsDatabase "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database/regions" // nolint:lll
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
@@ -102,6 +103,14 @@ type RegionsState struct {
 
 func (sta RegionsState) ReceiveTimestamps(regionTimestamps sotah.RegionTimestamps) error {
 	return sta.RegionsDatabase.ReceiveRegionTimestamps(regionTimestamps)
+}
+
+func (sta RegionsState) ResolveDownloadTuples() ([]blizzardv2.DownloadConnectedRealmTuple, error) {
+	return sta.RegionsDatabase.GetDownloadTuples()
+}
+
+func (sta RegionsState) ResolveTuples() (blizzardv2.RegionConnectedRealmTuples, error) {
+	return sta.RegionsDatabase.GetTuples()
 }
 
 func (sta RegionsState) GetListeners() SubjectListeners {
