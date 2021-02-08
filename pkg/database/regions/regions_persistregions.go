@@ -7,7 +7,7 @@ import (
 
 func (rBase Database) PersistRegions(regions sotah.RegionList) error {
 	return rBase.db.Update(func(tx *bolt.Tx) error {
-		baseBucket, err := tx.CreateBucketIfNotExists(baseBucketName())
+		bkt, err := tx.CreateBucketIfNotExists(baseBucketName())
 		if err != nil {
 			return err
 		}
@@ -18,7 +18,7 @@ func (rBase Database) PersistRegions(regions sotah.RegionList) error {
 				return err
 			}
 
-			if err := baseBucket.Put(baseKeyName(region.Name), encodedRegion); err != nil {
+			if err := bkt.Put(baseKeyName(region.Name), encodedRegion); err != nil {
 				return err
 			}
 		}

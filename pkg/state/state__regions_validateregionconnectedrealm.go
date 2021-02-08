@@ -39,9 +39,16 @@ func (sta RegionsState) ListenForValidateRegionConnectedRealm(stop ListenStopCha
 				return
 			}
 
-			res := ValidateRegionConnectedRealmResponse{
-				IsValid: sta.RegionComposites.RegionConnectedRealmExists(req.RegionName, req.ConnectedRealmId),
+			exists, err := sta.RegionsDatabase.ConnectedRealmExists(req.RegionName, req.ConnectedRealmId)
+			if err != nil {
+				m.Err = err.Error()
+				m.Code = codes.GenericError
+				sta.Messenger.ReplyTo(natsMsg, m)
+
+				return
 			}
+
+			res := ValidateRegionConnectedRealmResponse{IsValid: exists}
 			encoded, err := res.EncodeForDelivery()
 			if err != nil {
 				m.Err = err.Error()

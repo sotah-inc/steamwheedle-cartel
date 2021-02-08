@@ -39,6 +39,17 @@ func NewRealmComposite(
 	}
 }
 
+func NewRealmCompositeFromStorage(
+	data []byte,
+) (RealmComposite, error) {
+	out := RealmComposite{}
+	if err := json.Unmarshal(data, &out); err != nil {
+		return RealmComposite{}, err
+	}
+
+	return out, nil
+}
+
 type RealmComposite struct {
 	ConnectedRealmResponse blizzardv2.ConnectedRealmResponse `json:"connected_realm"`
 	ModificationDates      ConnectedRealmTimestamps          `json:"modification_dates"`

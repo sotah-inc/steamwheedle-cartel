@@ -42,6 +42,10 @@ func NewRegionState(opts NewRegionStateOptions) (RegionsState, error) {
 		}
 
 		connectedRealmsOut, err := opts.BlizzardState.ResolveConnectedRealms(region, connectedRealmIds)
+		if err != nil {
+			return RegionsState{}, err
+		}
+
 		persistConnectedRealmsIn := make(chan RegionsDatabase.PersistConnectedRealmsInJob)
 		go func() {
 			for connectedRealmsOutJob := range connectedRealmsOut {

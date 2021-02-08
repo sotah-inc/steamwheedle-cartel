@@ -25,11 +25,16 @@ func (sta RegionsState) ListenForValidateRegionRealm(stop ListenStopChan) error 
 			return
 		}
 
-		res := ValidateRegionRealmResponse{
-			ValidateRegionConnectedRealmResponse{
-				IsValid: sta.RegionComposites.RegionRealmExists(req.RegionName, req.RealmSlug),
-			},
+		exists, err := sta.RegionsDatabase.RealmExists(req.RegionName, req.RealmSlug)
+		if err != nil {
+			m.Err = err.Error()
+			m.Code = codes.GenericError
+			sta.Messenger.ReplyTo(natsMsg, m)
+
+			return
 		}
+
+		res := ValidateRegionRealmResponse{ValidateRegionConnectedRealmResponse{IsValid: exists}}
 		encoded, err := res.EncodeForDelivery()
 		if err != nil {
 			m.Err = err.Error()

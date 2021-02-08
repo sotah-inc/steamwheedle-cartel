@@ -3,6 +3,8 @@ package state
 import (
 	"fmt"
 
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
+
 	nats "github.com/nats-io/nats.go"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
@@ -23,7 +25,7 @@ func (sta RegionsState) ListenForStatus(stop ListenStopChan) error {
 			return
 		}
 
-		region, err := sta.RegionComposites.FindByRegionName(sRequest.RegionName)
+		region, err := sta.RegionsDatabase.GetRegion(sRequest.RegionName)
 		if err != nil {
 			m.Err = fmt.Sprintf("invalid region name: %s", sRequest.RegionName)
 			m.Code = codes.UserError
@@ -32,7 +34,21 @@ func (sta RegionsState) ListenForStatus(stop ListenStopChan) error {
 			return
 		}
 
-		encodedStatus, err := region.EncodeForDelivery()
+		realmComposites, err := sta.RegionsDatabase.GetConnectedRealms(sRequest.RegionName)
+		if err != nil {
+			m.Err = err.Error()
+			m.Code = codes.GenericError
+			sta.Messenger.ReplyTo(natsMsg, m)
+
+			return
+		}
+
+		regionComposite := sotah.RegionComposite{
+			ConfigRegion:             region,
+			ConnectedRealmComposites: realmComposites,
+		}
+
+		encodedStatus, err := regionComposite.EncodeForDelivery()
 		if err != nil {
 			m.Err = err.Error()
 			m.Code = codes.GenericError

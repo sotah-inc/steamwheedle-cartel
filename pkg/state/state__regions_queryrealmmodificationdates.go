@@ -39,7 +39,7 @@ func (sta RegionsState) ListenForQueryRealmModificationDates(stop ListenStopChan
 				return
 			}
 
-			connectedRealmTimestamps, err := sta.RegionComposites.FindConnectedRealmTimestamps(
+			connectedRealmTimestamps, err := sta.RegionsDatabase.GetConnectedRealmsTimestamps(
 				req.RegionName,
 				req.ConnectedRealmId,
 			)

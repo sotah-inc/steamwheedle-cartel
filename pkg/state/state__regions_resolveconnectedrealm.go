@@ -41,7 +41,10 @@ func (sta RegionsState) ListenForResolveConnectedRealm(stop ListenStopChan) erro
 				return
 			}
 
-			connectedRealm, err := sta.RegionComposites.FindConnectedRealm(req)
+			connectedRealm, err := sta.RegionsDatabase.GetConnectedRealmByRealmSlug(
+				req.RegionName,
+				req.RealmSlug,
+			)
 			if err != nil {
 				m.Err = err.Error()
 				m.Code = codes.NotFound

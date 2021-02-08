@@ -12,12 +12,12 @@ func (rBase Database) GetRegion(name blizzardv2.RegionName) (sotah.Region, error
 	out := sotah.Region{}
 
 	err := rBase.db.View(func(tx *bolt.Tx) error {
-		baseBucket := tx.Bucket(baseBucketName())
-		if baseBucket == nil {
+		bkt := tx.Bucket(baseBucketName())
+		if bkt == nil {
 			return errors.New("base-bucket does not exist in regions database")
 		}
 
-		v := baseBucket.Get(baseKeyName(name))
+		v := bkt.Get(baseKeyName(name))
 		if v == nil {
 			return errors.New("region not found")
 		}

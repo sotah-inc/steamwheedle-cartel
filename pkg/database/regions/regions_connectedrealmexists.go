@@ -7,16 +7,19 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 )
 
-func (rBase Database) RegionExists(name blizzardv2.RegionName) (bool, error) {
+func (rBase Database) ConnectedRealmExists(
+	name blizzardv2.RegionName,
+	id blizzardv2.ConnectedRealmId,
+) (bool, error) {
 	out := false
 
 	err := rBase.db.View(func(tx *bolt.Tx) error {
-		bkt := tx.Bucket(baseBucketName())
+		bkt := tx.Bucket(connectedRealmsBucketName(name))
 		if bkt == nil {
-			return errors.New("base-bucket does not exist in regions database")
+			return errors.New("connected-realms-bucket does not exist in regions database")
 		}
 
-		v := bkt.Get(baseKeyName(name))
+		v := bkt.Get(connectedRealmsKeyName(id))
 		if v == nil {
 			return nil
 		}
