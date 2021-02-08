@@ -32,24 +32,10 @@ type BlizzardState struct {
 	BlizzardClient *blizzardv2.Client
 }
 
-func (sta BlizzardState) ResolveRegionConnectedRealms(
-	regions sotah.RegionList,
-) (map[blizzardv2.RegionName][]blizzardv2.ConnectedRealmResponse, error) {
-	out := map[blizzardv2.RegionName][]blizzardv2.ConnectedRealmResponse{}
-	for _, region := range regions {
-		var err error
-		out[region.Name], err = sta.resolveConnectedRealms(region)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	return out, nil
-}
-
-func (sta BlizzardState) resolveConnectedRealms(
+func (sta BlizzardState) ResolveConnectedRealms(
 	region sotah.Region,
-) ([]blizzardv2.ConnectedRealmResponse, error) {
+	blacklist []blizzardv2.ConnectedRealmId,
+) (chan blizzardv2.GetAllConnectedRealmsJob, error) {
 	return blizzardv2.GetAllConnectedRealms(blizzardv2.GetAllConnectedRealmsOptions{
 		GetConnectedRealmIndexURL: func() (string, error) {
 			return sta.BlizzardClient.AppendAccessToken(
@@ -57,6 +43,7 @@ func (sta BlizzardState) resolveConnectedRealms(
 			)
 		},
 		GetConnectedRealmURL: sta.BlizzardClient.AppendAccessToken,
+		Blacklist:            blacklist,
 	})
 }
 

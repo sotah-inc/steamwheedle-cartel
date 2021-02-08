@@ -48,6 +48,10 @@ func (composite RealmComposite) IsZero() bool {
 	return len(composite.ConnectedRealmResponse.Realms) == 0
 }
 
+func (composite RealmComposite) EncodeForStorage() ([]byte, error) {
+	return json.Marshal(composite)
+}
+
 type RegionComposite struct {
 	ConfigRegion             Region          `json:"config_region"`
 	ConnectedRealmComposites RealmComposites `json:"connected_realms"`
