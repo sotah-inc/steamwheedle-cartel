@@ -3,10 +3,9 @@ package regions
 import (
 	"errors"
 
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
-
 	"github.com/boltdb/bolt"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 )
 
 func (rBase Database) RealmExists(

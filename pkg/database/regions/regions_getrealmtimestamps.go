@@ -8,7 +8,9 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 )
 
-func (rBase Database) GetRealmTimestamps(name blizzardv2.RegionName) (sotah.RealmTimestamps, error) {
+func (rBase Database) GetRealmTimestamps(
+	name blizzardv2.RegionName,
+) (sotah.RealmTimestamps, error) {
 	var out sotah.RealmTimestamps
 
 	err := rBase.db.View(func(tx *bolt.Tx) error {
