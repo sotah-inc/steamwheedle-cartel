@@ -38,6 +38,7 @@ const (
 	ValidateRegionRealm             Subject = "validateRegionRealm"
 	QueryRealmModificationDates     Subject = "queryRealmModificationDates"
 	ConnectedRealmModificationDates Subject = "connectedRealmModificationDates"
+	ReceiveRegionTimestamps         Subject = "receiveRegionTimestamps"
 )
 
 const (

@@ -113,5 +113,6 @@ func (sta RegionsState) GetListeners() SubjectListeners {
 		subjects.ValidateRegionRealm:             sta.ListenForValidateRegionRealm,
 		subjects.QueryRealmModificationDates:     sta.ListenForQueryRealmModificationDates,
 		subjects.ConnectedRealmModificationDates: sta.ListenForConnectedRealmModificationDates,
+		subjects.ReceiveRegionTimestamps:         sta.ListenForReceiveRegionTimestamps,
 	}
 }

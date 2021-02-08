@@ -1,15 +1,52 @@
 package sotah
 
 import (
+	"encoding/base64"
+	"encoding/json"
 	"errors"
 	"time"
+
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 )
 
-type RealmTimestamps map[blizzardv2.ConnectedRealmId]ConnectedRealmTimestamps
+func NewRegionTimestamps(base64Encoded string) (RegionTimestamps, error) {
+	gzipEncoded, err := base64.StdEncoding.DecodeString(base64Encoded)
+	if err != nil {
+		return RegionTimestamps{}, err
+	}
+
+	jsonEncoded, err := util.GzipDecode(gzipEncoded)
+	if err != nil {
+		return RegionTimestamps{}, err
+	}
+
+	out := RegionTimestamps{}
+	if err := json.Unmarshal(jsonEncoded, &out); err != nil {
+		return RegionTimestamps{}, err
+	}
+
+	return out, nil
+}
 
 type RegionTimestamps map[blizzardv2.RegionName]RealmTimestamps
+
+func (regionTimestamps RegionTimestamps) EncodeForDelivery() (string, error) {
+	jsonEncoded, err := json.Marshal(regionTimestamps)
+	if err != nil {
+		return "", err
+	}
+
+	gzipEncoded, err := util.GzipEncode(jsonEncoded)
+	if err != nil {
+		return "", err
+	}
+
+	base64Encoded := base64.StdEncoding.EncodeToString(gzipEncoded)
+
+	return base64Encoded, nil
+}
 
 func (regionTimestamps RegionTimestamps) FindByRegionName(
 	name blizzardv2.RegionName,
@@ -132,3 +169,5 @@ func (regionTimestamps RegionTimestamps) SetStatsReceived(
 
 	return out
 }
+
+type RealmTimestamps map[blizzardv2.ConnectedRealmId]ConnectedRealmTimestamps
