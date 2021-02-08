@@ -19,7 +19,7 @@ type NewLiveAuctionsStateOptions struct {
 
 	LiveAuctionsDatabasesDir string
 	Tuples                   blizzardv2.RegionConnectedRealmTuples
-	ReceiveRegionTimestamps  func(timestamps sotah.RegionTimestamps)
+	ReceiveRegionTimestamps  func(timestamps sotah.RegionTimestamps) error
 }
 
 func NewLiveAuctionsState(opts NewLiveAuctionsStateOptions) (LiveAuctionsState, error) {
@@ -64,7 +64,7 @@ type LiveAuctionsState struct {
 	Messenger               messenger.Messenger
 	LakeClient              BaseLake.Client
 	Tuples                  blizzardv2.RegionConnectedRealmTuples
-	ReceiveRegionTimestamps func(timestamps sotah.RegionTimestamps)
+	ReceiveRegionTimestamps func(timestamps sotah.RegionTimestamps) error
 }
 
 func (sta LiveAuctionsState) GetListeners() SubjectListeners {

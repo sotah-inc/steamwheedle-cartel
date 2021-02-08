@@ -100,6 +100,10 @@ type RegionsState struct {
 	RegionsDatabase RegionsDatabase.Database
 }
 
+func (sta RegionsState) ReceiveTimestamps(regionTimestamps sotah.RegionTimestamps) error {
+	return sta.RegionsDatabase.ReceiveRegionTimestamps(regionTimestamps)
+}
+
 func (sta RegionsState) GetListeners() SubjectListeners {
 	return SubjectListeners{
 		subjects.Status:                          sta.ListenForStatus,

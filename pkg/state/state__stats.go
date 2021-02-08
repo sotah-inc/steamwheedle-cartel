@@ -19,7 +19,7 @@ type NewStatsStateOptions struct {
 
 	StatsDatabasesDir       string
 	Tuples                  blizzardv2.RegionConnectedRealmTuples
-	ReceiveRegionTimestamps func(timestamps sotah.RegionTimestamps)
+	ReceiveRegionTimestamps func(timestamps sotah.RegionTimestamps) error
 }
 
 func NewStatsState(opts NewStatsStateOptions) (StatsState, error) {
@@ -68,7 +68,7 @@ type StatsState struct {
 	Messenger               messenger.Messenger
 	LakeClient              BaseLake.Client
 	Tuples                  blizzardv2.RegionConnectedRealmTuples
-	ReceiveRegionTimestamps func(timestamps sotah.RegionTimestamps)
+	ReceiveRegionTimestamps func(timestamps sotah.RegionTimestamps) error
 }
 
 func (sta StatsState) GetListeners() SubjectListeners {

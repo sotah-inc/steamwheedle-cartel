@@ -279,7 +279,7 @@ type ApiState struct {
 	ProfessionsState state.ProfessionsState
 	AreaMapsState    state.AreaMapsState
 	TokensState      state.TokensState
-	RegionState      *state.RegionsState
+	RegionState      state.RegionsState
 	Collector        BaseCollector.Client
 	BootState        state.BootState
 

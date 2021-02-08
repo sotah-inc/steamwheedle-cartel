@@ -154,7 +154,11 @@ func (sta StatsState) TuplesIntake(tuples blizzardv2.LoadConnectedRealmTuples) e
 
 	// optionally updating region state
 	if !regionTimestamps.IsZero() {
-		sta.ReceiveRegionTimestamps(regionTimestamps)
+		if err := sta.ReceiveRegionTimestamps(regionTimestamps); err != nil {
+			logging.WithField("error", err.Error()).Error("failed to receive region-timestamps")
+
+			return err
+		}
 	}
 
 	// pruning stats

@@ -15,7 +15,7 @@ type NewPricelistHistoryStateOptions struct {
 
 	PricelistHistoryDatabasesDir string
 	Tuples                       blizzardv2.RegionConnectedRealmTuples
-	ReceiveRegionTimestamps      func(timestamps sotah.RegionTimestamps)
+	ReceiveRegionTimestamps      func(timestamps sotah.RegionTimestamps) error
 }
 
 func NewPricelistHistoryState(opts NewPricelistHistoryStateOptions) (PricelistHistoryState, error) {
@@ -42,7 +42,7 @@ type PricelistHistoryState struct {
 	Messenger               messenger.Messenger
 	LakeClient              BaseLake.Client
 	Tuples                  blizzardv2.RegionConnectedRealmTuples
-	ReceiveRegionTimestamps func(timestamps sotah.RegionTimestamps)
+	ReceiveRegionTimestamps func(timestamps sotah.RegionTimestamps) error
 }
 
 func (sta PricelistHistoryState) GetListeners() SubjectListeners {

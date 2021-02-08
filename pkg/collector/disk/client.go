@@ -12,7 +12,7 @@ type ClientOptions struct {
 	MessengerClient messenger.Messenger
 
 	ResolveAuctions         func() chan blizzardv2.GetAuctionsJob
-	ReceiveRegionTimestamps func(timestamps sotah.RegionTimestamps)
+	ReceiveRegionTimestamps func(timestamps sotah.RegionTimestamps) error
 }
 
 func NewClient(opts ClientOptions) Client {
@@ -29,5 +29,5 @@ type Client struct {
 	messengerClient messenger.Messenger
 
 	resolveAuctions         func() chan blizzardv2.GetAuctionsJob
-	receiveRegionTimestamps func(timestamps sotah.RegionTimestamps)
+	receiveRegionTimestamps func(timestamps sotah.RegionTimestamps) error
 }
