@@ -48,7 +48,15 @@ func (p SyncPayload) EncodeForDelivery() (string, error) {
 	return base64.StdEncoding.EncodeToString(gzipEncoded), nil
 }
 
-func (idBase Database) FilterInItemsToSync(ids []blizzardv2.ItemId) (SyncPayload, error) {
+func (idBase Database) FilterInItemsToSync(providedIds blizzardv2.ItemIds) (SyncPayload, error) {
+	// gathering blacklisted ids
+	blacklistedIds, err := idBase.GetBlacklistedIds()
+	if err != nil {
+		return SyncPayload{}, err
+	}
+
+	ids := providedIds.Sub(blacklistedIds)
+
 	// producing a blank whitelist
 	syncWhitelist := sotah.NewItemSyncWhitelist(ids)
 
@@ -56,7 +64,7 @@ func (idBase Database) FilterInItemsToSync(ids []blizzardv2.ItemId) (SyncPayload
 	iconsToSync := sotah.IconIdsMap{}
 
 	// peeking into the items database
-	err := idBase.db.View(func(tx *bolt.Tx) error {
+	err = idBase.db.View(func(tx *bolt.Tx) error {
 		itemsBucket := tx.Bucket(baseBucketName())
 		if itemsBucket == nil {
 			return nil

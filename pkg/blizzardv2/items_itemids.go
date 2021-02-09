@@ -35,6 +35,20 @@ func (ids ItemIds) Merge(providedIds ItemIds) ItemIds {
 	return results.ToItemIds()
 }
 
+func (ids ItemIds) Sub(providedIds ItemIds) ItemIds {
+	providedIdsMap := providedIds.ToUniqueMap()
+	out := ItemIds{}
+	for _, id := range ids {
+		if _, ok := providedIdsMap[id]; ok {
+			continue
+		}
+
+		out = append(out, id)
+	}
+
+	return out
+}
+
 type ItemIdsMap map[ItemId]struct{}
 
 func (idsMap ItemIdsMap) ToItemIds() ItemIds {
