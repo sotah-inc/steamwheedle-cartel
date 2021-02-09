@@ -87,7 +87,11 @@ func (idBase Database) FilterInItemsToSync(ids []blizzardv2.ItemId) (SyncPayload
 				}
 
 				correctIconObjectName := sotah.NewItemObjectName(item.SotahMeta.ItemIconMeta.Icon)
-				//correctIconURL := fmt.Sprintf(store.ItemIconURLFormat, "sotah-item-icons", correctIconObjectName)
+				//correctIconURL := fmt.Sprintf(
+				//	store.ItemIconURLFormat,
+				//	"sotah-item-icons",
+				//	correctIconObjectName,
+				//)
 				correctIconURL := blizzardv2.DefaultGetItemIconURL(correctIconObjectName)
 
 				return item.SotahMeta.ItemIconMeta.ObjectName != correctIconObjectName ||
