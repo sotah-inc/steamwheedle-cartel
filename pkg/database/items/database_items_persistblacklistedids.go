@@ -18,7 +18,7 @@ func (idBase Database) PersistBlacklistedIds(
 		}
 
 		for _, id := range ids {
-			if err := bkt.Put(blacklistKeyName(id), []byte{}); err != nil {
+			if err := bkt.Put(blacklistKeyName(id), blacklistKeyName(id)); err != nil {
 				return err
 			}
 		}
