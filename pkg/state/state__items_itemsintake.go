@@ -58,7 +58,7 @@ func (sta ItemsState) itemsIntake(ids blizzardv2.ItemIds) error {
 	logging.WithField("items", len(itemsSyncPayload.Ids)).Info("collecting items")
 
 	// starting up an intake queue
-	getEncodedItemsOut := sta.LakeClient.GetEncodedItems(itemsSyncPayload.Ids)
+	getEncodedItemsOut, erroneousItemIdsOut := sta.LakeClient.GetEncodedItems(itemsSyncPayload.Ids)
 	persistItemsIn := make(chan ItemsDatabase.PersistEncodedItemsInJob)
 
 	// queueing it all up
@@ -85,6 +85,13 @@ func (sta ItemsState) itemsIntake(ids blizzardv2.ItemIds) error {
 	totalPersisted, err := sta.ItemsDatabase.PersistEncodedItems(persistItemsIn)
 	if err != nil {
 		logging.WithField("error", err.Error()).Error("failed to persist items")
+
+		return err
+	}
+
+	erroneousItemIds := <-erroneousItemIdsOut
+	if err := sta.ItemsDatabase.PersistBlacklistedIds(erroneousItemIds); err != nil {
+		logging.WithField("error", err.Error()).Error("failed to persist blacklisted item-ids")
 
 		return err
 	}

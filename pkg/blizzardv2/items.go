@@ -10,14 +10,16 @@ type ItemResponses []ItemResponse
 
 type GetItemsOutJob struct {
 	Err          error
+	Status       int
 	Id           ItemId
 	ItemResponse ItemResponse
 }
 
 func (job GetItemsOutJob) ToLogrusFields() logrus.Fields {
 	return logrus.Fields{
-		"error": job.Err.Error(),
-		"id":    job.Id,
+		"error":  job.Err.Error(),
+		"status": job.Status,
+		"id":     job.Id,
 	}
 }
 
@@ -37,6 +39,7 @@ func GetItems(opts GetItemsOptions) chan GetItemsOutJob {
 			if err != nil {
 				out <- GetItemsOutJob{
 					Err:          err,
+					Status:       0,
 					Id:           id,
 					ItemResponse: ItemResponse{},
 				}
@@ -44,10 +47,11 @@ func GetItems(opts GetItemsOptions) chan GetItemsOutJob {
 				continue
 			}
 
-			itemResponse, _, err := NewItemFromHTTP(getItemUri)
+			itemResponse, resp, err := NewItemFromHTTP(getItemUri)
 			if err != nil {
 				out <- GetItemsOutJob{
 					Err:          err,
+					Status:       resp.Status,
 					Id:           id,
 					ItemResponse: ItemResponse{},
 				}
@@ -57,6 +61,7 @@ func GetItems(opts GetItemsOptions) chan GetItemsOutJob {
 
 			out <- GetItemsOutJob{
 				Err:          nil,
+				Status:       resp.Status,
 				Id:           id,
 				ItemResponse: itemResponse,
 			}
@@ -65,7 +70,7 @@ func GetItems(opts GetItemsOptions) chan GetItemsOutJob {
 	postWork := func() {
 		close(out)
 	}
-	util.Work(2, worker, postWork)
+	util.Work(4, worker, postWork)
 
 	// queueing it up
 	go func() {

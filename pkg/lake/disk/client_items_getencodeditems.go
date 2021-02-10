@@ -2,6 +2,7 @@ package disk
 
 import (
 	"errors"
+	"net/http"
 	"time"
 
 	"github.com/sirupsen/logrus"
@@ -30,7 +31,14 @@ func (g getEncodedItemJob) ToLogrusFields() logrus.Fields {
 	}
 }
 
-func (client Client) GetEncodedItems(ids blizzardv2.ItemIds) chan BaseLake.GetEncodedItemJob {
+type erroneousItemJob struct {
+	statusCode int
+	id         blizzardv2.ItemId
+}
+
+func (client Client) GetEncodedItems(
+	ids blizzardv2.ItemIds,
+) (chan BaseLake.GetEncodedItemJob, chan []blizzardv2.ItemId) {
 	out := make(chan BaseLake.GetEncodedItemJob)
 
 	// starting up workers for resolving items
@@ -40,11 +48,32 @@ func (client Client) GetEncodedItems(ids blizzardv2.ItemIds) chan BaseLake.GetEn
 	itemMediasIn := make(chan blizzardv2.GetItemMediasInJob)
 	itemMediasOut := client.resolveItemMedias(itemMediasIn)
 
+	// starting up a worker for gathering erroneous status codes
+	erroneousItemsIn := make(chan erroneousItemJob)
+	erroneousItemIdsOut := make(chan []blizzardv2.ItemId)
+	go func() {
+		var erroneousItemIds []blizzardv2.ItemId
+		for job := range erroneousItemsIn {
+			if job.statusCode != http.StatusNotFound {
+				continue
+			}
+
+			erroneousItemIds = append(erroneousItemIds, job.id)
+		}
+
+		erroneousItemIdsOut <- erroneousItemIds
+		close(erroneousItemIdsOut)
+	}()
+
 	// queueing it all up
 	go func() {
 		for job := range itemsOut {
 			if job.Err != nil {
 				logging.WithFields(job.ToLogrusFields()).Error("failed to resolve item")
+				erroneousItemsIn <- erroneousItemJob{
+					statusCode: job.Status,
+					id:         job.Id,
+				}
 
 				continue
 			}
@@ -55,6 +84,7 @@ func (client Client) GetEncodedItems(ids blizzardv2.ItemIds) chan BaseLake.GetEn
 		}
 
 		close(itemMediasIn)
+		close(erroneousItemsIn)
 	}()
 	go func() {
 		for job := range itemMediasOut {
@@ -139,5 +169,5 @@ func (client Client) GetEncodedItems(ids blizzardv2.ItemIds) chan BaseLake.GetEn
 		close(out)
 	}()
 
-	return out
+	return out, erroneousItemIdsOut
 }

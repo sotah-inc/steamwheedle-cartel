@@ -22,7 +22,7 @@ type Client interface {
 		tuple blizzardv2.RegionConnectedRealmTuple,
 		auctions sotah.MiniAuctionList,
 	) WriteAuctionsWithTuplesInJob
-	GetEncodedItems(ids blizzardv2.ItemIds) chan GetEncodedItemJob
+	GetEncodedItems(ids blizzardv2.ItemIds) (chan GetEncodedItemJob, chan []blizzardv2.ItemId)
 	GetEncodedPets(blacklist []blizzardv2.PetId) (chan GetEncodedPetJob, error)
 	GetEncodedProfessions(blacklist []blizzardv2.ProfessionId) (chan GetEncodedProfessionJob, error)
 	GetEncodedSkillTiers(
