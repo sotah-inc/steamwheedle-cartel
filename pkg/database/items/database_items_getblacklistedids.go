@@ -3,6 +3,7 @@ package items
 import (
 	"github.com/boltdb/bolt"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 )
 
 func (idBase Database) GetBlacklistedIds() (blizzardv2.ItemIds, error) {
@@ -28,6 +29,8 @@ func (idBase Database) GetBlacklistedIds() (blizzardv2.ItemIds, error) {
 	if err == nil {
 		return blizzardv2.ItemIds{}, err
 	}
+
+	logging.WithField("blacklisted-ids", out).Info("found blacklisted-ids")
 
 	return out, nil
 }

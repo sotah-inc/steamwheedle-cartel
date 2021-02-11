@@ -2,6 +2,7 @@ package items
 
 import (
 	"github.com/boltdb/bolt"
+	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 )
@@ -18,6 +19,11 @@ func (idBase Database) PersistBlacklistedIds(
 		}
 
 		for _, id := range ids {
+			logging.WithFields(logrus.Fields{
+				"id":  id,
+				"key": blacklistKeyName(id),
+			}).Info("persisting blacklisted item-id")
+
 			if err := bkt.Put(blacklistKeyName(id), blacklistKeyName(id)); err != nil {
 				return err
 			}
