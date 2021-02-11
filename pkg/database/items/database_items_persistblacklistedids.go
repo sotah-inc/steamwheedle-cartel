@@ -20,8 +20,7 @@ func (idBase Database) PersistBlacklistedIds(
 
 		for _, id := range ids {
 			logging.WithFields(logrus.Fields{
-				"id":  id,
-				"key": blacklistKeyName(id),
+				"id": id,
 			}).Info("persisting blacklisted item-id")
 
 			if err := bkt.Put(blacklistKeyName(id), blacklistKeyName(id)); err != nil {
