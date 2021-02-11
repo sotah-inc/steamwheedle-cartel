@@ -7,6 +7,8 @@ import (
 )
 
 func (idBase Database) GetBlacklistedIds() (blizzardv2.ItemIds, error) {
+	logging.Info("Database.GetBlacklistedIds()")
+
 	var out blizzardv2.ItemIds
 
 	err := idBase.db.View(func(tx *bolt.Tx) error {
