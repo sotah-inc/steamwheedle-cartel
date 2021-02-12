@@ -47,6 +47,15 @@ func NewRegionState(opts NewRegionStateOptions) (RegionsState, error) {
 			return RegionsState{}, err
 		}
 
+		if len(connectedRealmIds) > 0 {
+			logging.WithField(
+				"connected-realms",
+				len(connectedRealmIds),
+			).Info("connected-realms already present for region, skipping")
+
+			continue
+		}
+
 		connectedRealmsOut, err := opts.BlizzardState.ResolveConnectedRealms(
 			region,
 			connectedRealmIds,
