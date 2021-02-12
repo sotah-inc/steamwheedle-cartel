@@ -28,7 +28,7 @@ func (idBase Database) GetBlacklistedIds() (blizzardv2.ItemIds, error) {
 			return nil
 		})
 	})
-	if err == nil {
+	if err != nil {
 		return blizzardv2.ItemIds{}, err
 	}
 
