@@ -1,7 +1,6 @@
 package state
 
 import (
-	"errors"
 	"time"
 
 	"github.com/nats-io/nats.go"
@@ -54,10 +53,6 @@ func (sta ItemsState) itemsIntake(ids blizzardv2.ItemIds) error {
 		logging.WithField("error", err.Error()).Error("failed to filter in items to sync")
 
 		return err
-	}
-
-	if len(itemsSyncPayload.Ids) > 0 {
-		return errors.New("test")
 	}
 
 	logging.WithField("items", len(itemsSyncPayload.Ids)).Info("collecting items")

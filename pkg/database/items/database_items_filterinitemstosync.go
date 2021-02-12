@@ -4,8 +4,6 @@ import (
 	"encoding/base64"
 	"encoding/json"
 
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
-
 	"github.com/boltdb/bolt"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
@@ -51,8 +49,6 @@ func (p SyncPayload) EncodeForDelivery() (string, error) {
 }
 
 func (idBase Database) FilterInItemsToSync(providedIds blizzardv2.ItemIds) (SyncPayload, error) {
-	logging.Info("Database.FilterInItemsToSync()")
-
 	// gathering blacklisted ids
 	blacklistedIds, err := idBase.GetBlacklistedIds()
 	if err != nil {
