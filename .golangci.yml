@@ -7,3 +7,9 @@ linters-settings:
     min-complexity: 50
   unconvert:
   prealloc:
+linters:
+  enable:
+    - lll
+    - gocognit
+    - unconvert
+    - prealloc
