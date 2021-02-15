@@ -13,3 +13,7 @@ linters:
     - gocognit
     - unconvert
     - prealloc
+  disable:
+    - typecheck
+output:
+  sort-results: true
