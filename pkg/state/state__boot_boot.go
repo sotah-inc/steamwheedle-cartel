@@ -15,7 +15,6 @@ type BootResponse struct {
 	Regions     sotah.RegionList               `json:"regions"`
 	ItemClasses []blizzardv2.ItemClassResponse `json:"item_classes"`
 	Expansions  []sotah.Expansion              `json:"expansions"`
-	Professions []sotah.ConfigProfession       `json:"professions"`
 }
 
 func (res BootResponse) EncodeForDelivery() ([]byte, error) {
@@ -30,7 +29,6 @@ func (sta BootState) ListenForBoot(stop ListenStopChan) error {
 			Regions:     sta.Regions,
 			ItemClasses: sta.ItemClasses,
 			Expansions:  sta.Expansions,
-			Professions: sta.Professions,
 		}
 
 		encodedResponse, err := res.EncodeForDelivery()

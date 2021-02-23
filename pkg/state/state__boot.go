@@ -12,9 +12,8 @@ type NewBootStateOptions struct {
 	BlizzardState BlizzardState
 	Messenger     messenger.Messenger
 
-	Regions     sotah.RegionList
-	Expansions  []sotah.Expansion
-	Professions []sotah.ConfigProfession
+	Regions    sotah.RegionList
+	Expansions []sotah.Expansion
 }
 
 func NewBootState(opts NewBootStateOptions) (BootState, error) {
@@ -29,15 +28,6 @@ func NewBootState(opts NewBootStateOptions) (BootState, error) {
 		SessionSecret: uuid.NewV4(),
 		ItemClasses:   itemClasses,
 		Expansions:    opts.Expansions,
-		Professions: func() []sotah.ConfigProfession {
-			out := make([]sotah.ConfigProfession, len(opts.Professions))
-			for i, prof := range opts.Professions {
-				prof.IconURL = blizzardv2.DefaultGetItemIconURL(opts.Professions[i].Icon)
-				out[i] = prof
-			}
-
-			return out
-		}(),
 	}, nil
 }
 
@@ -49,9 +39,8 @@ type BootState struct {
 	ItemClasses   []blizzardv2.ItemClassResponse
 
 	// receiving from config file
-	Regions     sotah.RegionList
-	Expansions  []sotah.Expansion
-	Professions []sotah.ConfigProfession
+	Regions    sotah.RegionList
+	Expansions []sotah.Expansion
 }
 
 func (sta BootState) GetListeners() SubjectListeners {

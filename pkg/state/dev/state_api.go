@@ -125,7 +125,6 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 		Messenger:     mess,
 		Regions:       regions,
 		Expansions:    config.SotahConfig.Expansions,
-		Professions:   config.SotahConfig.Professions,
 	})
 	if err != nil {
 		logging.WithField("error", err.Error()).Error("failed to establish boot state")

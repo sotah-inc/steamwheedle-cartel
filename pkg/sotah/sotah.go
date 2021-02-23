@@ -6,13 +6,6 @@ import (
 	"strings"
 )
 
-type ConfigProfession struct {
-	Name    string `json:"name"`
-	Label   string `json:"label"`
-	Icon    string `json:"icon"`
-	IconURL string `json:"icon_url"`
-}
-
 type Expansion struct {
 	Name       string `json:"name"`
 	Label      string `json:"label"`
