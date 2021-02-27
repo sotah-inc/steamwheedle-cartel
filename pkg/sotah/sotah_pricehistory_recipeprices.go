@@ -17,6 +17,7 @@ func NewRecipeItemPrices(iPrices ItemPrices, id blizzardv2.ItemId) RecipeItemPri
 				MaxBuyoutPer:     0,
 				AverageBuyoutPer: 0,
 				MedianBuyoutPer:  0,
+				MarketBuyoutPer:  0,
 			},
 		}
 	}
@@ -28,6 +29,7 @@ func NewRecipeItemPrices(iPrices ItemPrices, id blizzardv2.ItemId) RecipeItemPri
 			MaxBuyoutPer:     iPrice.MaxBuyoutPer,
 			AverageBuyoutPer: iPrice.AverageBuyoutPer,
 			MedianBuyoutPer:  iPrice.MedianBuyoutPer,
+			MarketBuyoutPer:  iPrice.MarketPriceBuyoutPer,
 		},
 	}
 }
@@ -42,6 +44,7 @@ type RecipeItemItemPrices struct {
 	MaxBuyoutPer     float64 `json:"max_buyout_per"`
 	AverageBuyoutPer float64 `json:"average_buyout_per"`
 	MedianBuyoutPer  float64 `json:"median_buyout_per"`
+	MarketBuyoutPer  float64 `json:"market_buyout_per"`
 }
 
 func NewRecipePrices(mRecipe MiniRecipe, iPrices ItemPrices) RecipePrices {
@@ -49,21 +52,26 @@ func NewRecipePrices(mRecipe MiniRecipe, iPrices ItemPrices) RecipePrices {
 		out := RecipeItemItemPrices{}
 		for itemId, quantity := range mRecipe.Reagents {
 			reagentPrices := NewRecipeItemPrices(iPrices, itemId).Prices
+			fQuantity := float64(quantity)
 
 			if reagentPrices.MinBuyoutPer > 0 {
-				out.MinBuyoutPer += reagentPrices.MinBuyoutPer * float64(quantity)
+				out.MinBuyoutPer += reagentPrices.MinBuyoutPer * fQuantity
 			}
 
 			if reagentPrices.MaxBuyoutPer > 0 {
-				out.MaxBuyoutPer += reagentPrices.MaxBuyoutPer * float64(quantity)
+				out.MaxBuyoutPer += reagentPrices.MaxBuyoutPer * fQuantity
 			}
 
 			if reagentPrices.MedianBuyoutPer > 0 {
-				out.MedianBuyoutPer += reagentPrices.MedianBuyoutPer * float64(quantity)
+				out.MedianBuyoutPer += reagentPrices.MedianBuyoutPer * fQuantity
 			}
 
 			if reagentPrices.AverageBuyoutPer > 0 {
-				out.AverageBuyoutPer += reagentPrices.AverageBuyoutPer * float64(quantity)
+				out.AverageBuyoutPer += reagentPrices.AverageBuyoutPer * fQuantity
+			}
+
+			if reagentPrices.MarketBuyoutPer > 0 {
+				out.MarketBuyoutPer += reagentPrices.MarketBuyoutPer * fQuantity
 			}
 		}
 
