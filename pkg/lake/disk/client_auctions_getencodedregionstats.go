@@ -1,6 +1,8 @@
 package disk
 
 import (
+	"os"
+
 	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
@@ -13,6 +15,14 @@ func (client Client) getTupleStats(
 ) (sotah.MiniAuctionListGeneralStats, error) {
 	cachedAuctionsFilepath, err := client.resolveAuctionsFilepath(tuple)
 	if err != nil {
+		return sotah.MiniAuctionListGeneralStats{}, err
+	}
+
+	if _, err := os.Stat(cachedAuctionsFilepath); err != nil {
+		if os.IsNotExist(err) {
+			return sotah.MiniAuctionListGeneralStats{}, nil
+		}
+
 		return sotah.MiniAuctionListGeneralStats{}, err
 	}
 
@@ -65,6 +75,15 @@ func (client Client) GetEncodedRegionStats(
 					connectedRealmId: id,
 					stats:            sotah.MiniAuctionListGeneralStats{},
 				}
+
+				continue
+			}
+
+			if stats.TotalAuctions == 0 {
+				logging.WithFields(logrus.Fields{
+					"region":          name,
+					"connected-realm": id,
+				}).Info("no stats were found for region/connected-realm")
 
 				continue
 			}
