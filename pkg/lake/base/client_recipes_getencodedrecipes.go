@@ -9,5 +9,6 @@ type GetEncodedRecipeJob interface {
 	Err() error
 	Id() blizzardv2.RecipeId
 	EncodedRecipe() []byte
+	EncodedNormalizedName() []byte
 	ToLogrusFields() logrus.Fields
 }

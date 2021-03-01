@@ -20,6 +20,10 @@ func recipesBucketName() []byte {
 	return []byte("recipes")
 }
 
+func recipeNamesBucketName() []byte {
+	return []byte("recipe-names")
+}
+
 // base keying
 func baseKeyName(id blizzardv2.ProfessionId) []byte {
 	return []byte(fmt.Sprintf("profession-%d", id))
@@ -60,6 +64,10 @@ func recipeIdFromKeyName(key []byte) (blizzardv2.RecipeId, error) {
 	}
 
 	return blizzardv2.RecipeId(unparsedId), nil
+}
+
+func recipeNameKeyName(id blizzardv2.RecipeId) []byte {
+	return []byte(fmt.Sprintf("recipe-name-%d", id))
 }
 
 // db

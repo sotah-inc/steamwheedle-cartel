@@ -1,22 +1,27 @@
 package disk
 
 import (
+	"errors"
+
 	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/locale"
 	BaseLake "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/lake/base"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 )
 
 type getEncodedRecipeJob struct {
-	err           error
-	id            blizzardv2.RecipeId
-	encodedRecipe []byte
+	err                   error
+	id                    blizzardv2.RecipeId
+	encodedRecipe         []byte
+	encodedNormalizedName []byte
 }
 
-func (g getEncodedRecipeJob) Err() error              { return g.err }
-func (g getEncodedRecipeJob) Id() blizzardv2.RecipeId { return g.id }
-func (g getEncodedRecipeJob) EncodedRecipe() []byte   { return g.encodedRecipe }
+func (g getEncodedRecipeJob) Err() error                    { return g.err }
+func (g getEncodedRecipeJob) Id() blizzardv2.RecipeId       { return g.id }
+func (g getEncodedRecipeJob) EncodedRecipe() []byte         { return g.encodedRecipe }
+func (g getEncodedRecipeJob) EncodedNormalizedName() []byte { return g.encodedNormalizedName }
 func (g getEncodedRecipeJob) ToLogrusFields() logrus.Fields {
 	return logrus.Fields{
 		"error": g.err.Error(),
@@ -91,10 +96,43 @@ func (client Client) GetEncodedRecipes(
 				continue
 			}
 
+			normalizedName, err := func() (locale.Mapping, error) {
+				foundName, ok := job.RecipeResponse.Name[locale.EnUS]
+				if !ok {
+					return locale.Mapping{}, errors.New("failed to resolve enUS name")
+				}
+
+				normalizedName, err := sotah.NormalizeString(foundName)
+				if err != nil {
+					return locale.Mapping{}, err
+				}
+
+				return locale.Mapping{locale.EnUS: normalizedName}, nil
+			}()
+			if err != nil {
+				logging.WithFields(logrus.Fields{
+					"error":  err.Error(),
+					"recipe": recipe.BlizzardMeta.Id,
+				}).Error("failed to normalize name")
+
+				continue
+			}
+
+			encodedNormalizedName, err := normalizedName.EncodeForStorage()
+			if err != nil {
+				logging.WithFields(logrus.Fields{
+					"error":  err.Error(),
+					"recipe": recipe.BlizzardMeta.Id,
+				}).Error("failed to encode normalized-name for storage")
+
+				continue
+			}
+
 			out <- getEncodedRecipeJob{
-				err:           nil,
-				id:            job.RecipeResponse.Id,
-				encodedRecipe: encodedRecipe,
+				err:                   nil,
+				id:                    job.RecipeResponse.Id,
+				encodedRecipe:         encodedRecipe,
+				encodedNormalizedName: encodedNormalizedName,
 			}
 		}
 

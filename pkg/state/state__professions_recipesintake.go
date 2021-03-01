@@ -144,8 +144,9 @@ func (sta ProfessionsState) RecipesIntake() (RecipesIntakeResponse, error) {
 			logging.WithField("recipe-id", job.Id()).Info("enqueueing recipe for persistence")
 
 			persistRecipesIn <- ProfessionsDatabase.PersistEncodedRecipesInJob{
-				RecipeId:      job.Id(),
-				EncodedRecipe: job.EncodedRecipe(),
+				RecipeId:              job.Id(),
+				EncodedRecipe:         job.EncodedRecipe(),
+				EncodedNormalizedName: job.EncodedNormalizedName(),
 			}
 		}
 
