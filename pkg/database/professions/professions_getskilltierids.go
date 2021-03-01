@@ -5,7 +5,9 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 )
 
-func (pdBase Database) GetSkillTierIds(professionId blizzardv2.ProfessionId) ([]blizzardv2.SkillTierId, error) {
+func (pdBase Database) GetSkillTierIds(
+	professionId blizzardv2.ProfessionId,
+) ([]blizzardv2.SkillTierId, error) {
 	var out []blizzardv2.SkillTierId
 
 	// peeking into the items database
