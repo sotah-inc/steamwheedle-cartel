@@ -34,7 +34,7 @@ type QueryItem struct {
 	Rank     int                 `json:"rank"`
 }
 
-func NewQueryRecipes(
+func NewQueryItemList(
 	idNormalizedNameMap sotah.RecipeIdNameMap,
 	providedLocale locale.Locale,
 ) (QueryItemList, error) {
@@ -106,14 +106,14 @@ func (r QueryResponse) EncodeForDelivery() ([]byte, error) {
 }
 
 func (pdBase Database) QueryRecipes(req QueryRequest) (QueryResponse, codes.Code, error) {
-	// gathering items
+	// gathering id/normalized-name map
 	idNormalizedNameMap, err := pdBase.GetIdNormalizedNameMap()
 	if err != nil {
 		return QueryResponse{}, codes.GenericError, err
 	}
 
-	// reformatting into query-items-items
-	queryItems, err := NewQueryRecipes(idNormalizedNameMap, req.Locale)
+	// reformatting into query-item list
+	queryItems, err := NewQueryItemList(idNormalizedNameMap, req.Locale)
 	if err != nil {
 		return QueryResponse{}, codes.UserError, err
 	}
