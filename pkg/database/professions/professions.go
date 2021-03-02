@@ -70,6 +70,15 @@ func recipeNameKeyName(id blizzardv2.RecipeId) []byte {
 	return []byte(fmt.Sprintf("recipe-name-%d", id))
 }
 
+func recipeIdFromNameKeyName(key []byte) (blizzardv2.RecipeId, error) {
+	unparsedId, err := strconv.Atoi(string(key)[len("recipe-name-"):])
+	if err != nil {
+		return blizzardv2.RecipeId(0), err
+	}
+
+	return blizzardv2.RecipeId(unparsedId), nil
+}
+
 // db
 func DatabasePath(dbDir string) (string, error) {
 	return fmt.Sprintf("%s/professions.db", dbDir), nil
