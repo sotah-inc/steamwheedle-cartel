@@ -56,5 +56,6 @@ func (sta ProfessionsState) GetListeners() SubjectListeners {
 		subjects.SkillTier:         sta.ListenForSkillTier,
 		subjects.Recipe:            sta.ListenForRecipe,
 		subjects.MiniRecipes:       sta.ListenForMiniRecipes,
+		subjects.RecipesQuery:      sta.ListenForRecipesQuery,
 	}
 }
