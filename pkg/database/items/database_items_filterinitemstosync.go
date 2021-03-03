@@ -83,37 +83,37 @@ func (idBase Database) FilterInItemsToSync(providedIds blizzardv2.ItemIds) (Sync
 				continue
 			}
 
-			item, err := sotah.NewItemFromGzipped(value)
-			if err != nil {
-				return err
-			}
-
-			hasBlankIconMeta := item.SotahMeta.ItemIconMeta.IsZero()
-			hasIncorrectIconMeta := func() bool {
-				if hasBlankIconMeta {
-					return false
-				}
-
-				correctIconObjectName := sotah.NewItemObjectName(item.SotahMeta.ItemIconMeta.Icon)
-				//correctIconURL := fmt.Sprintf(
-				//	store.ItemIconURLFormat,
-				//	"sotah-item-icons",
-				//	correctIconObjectName,
-				//)
-				correctIconURL := blizzardv2.DefaultGetItemIconURL(correctIconObjectName)
-
-				return item.SotahMeta.ItemIconMeta.ObjectName != correctIconObjectName ||
-					item.SotahMeta.ItemIconMeta.URL != correctIconURL
-			}()
-			if hasBlankIconMeta || hasIncorrectIconMeta {
-				iconsToSync = iconsToSync.Append(item.SotahMeta.ItemIconMeta.Icon, item.BlizzardMeta.Id)
-			}
-
-			isMissingNames := item.SotahMeta.NormalizedName.IsZero()
-			isMissingNormalizedName := itemNamesBucket.Get(nameKeyName(id)) == nil
-			if isMissingNames || isMissingNormalizedName {
-				syncWhitelist[id] = true
-			}
+			//item, err := sotah.NewItemFromGzipped(value)
+			//if err != nil {
+			//	return err
+			//}
+			//
+			//hasBlankIconMeta := item.SotahMeta.ItemIconMeta.IsZero()
+			//hasIncorrectIconMeta := func() bool {
+			//	if hasBlankIconMeta {
+			//		return false
+			//	}
+			//
+			//	correctIconObjectName := sotah.NewItemObjectName(item.SotahMeta.ItemIconMeta.Icon)
+			//	//correctIconURL := fmt.Sprintf(
+			//	//	store.ItemIconURLFormat,
+			//	//	"sotah-item-icons",
+			//	//	correctIconObjectName,
+			//	//)
+			//	correctIconURL := blizzardv2.DefaultGetItemIconURL(correctIconObjectName)
+			//
+			//	return item.SotahMeta.ItemIconMeta.ObjectName != correctIconObjectName ||
+			//		item.SotahMeta.ItemIconMeta.URL != correctIconURL
+			//}()
+			//if hasBlankIconMeta || hasIncorrectIconMeta {
+			//	iconsToSync = iconsToSync.Append(item.SotahMeta.ItemIconMeta.Icon, item.BlizzardMeta.Id)
+			//}
+			//
+			//isMissingNames := item.SotahMeta.NormalizedName.IsZero()
+			//isMissingNormalizedName := itemNamesBucket.Get(nameKeyName(id)) == nil
+			//if isMissingNames || isMissingNormalizedName {
+			//	syncWhitelist[id] = true
+			//}
 		}
 
 		return nil
