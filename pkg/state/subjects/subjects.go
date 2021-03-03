@@ -21,6 +21,7 @@ const (
 	RecipesIntake           Subject = "recipesIntake"
 	SkillTier               Subject = "skillTier"
 	Recipe                  Subject = "recipe"
+	Recipes                 Subject = "recipes"
 	RecipesQuery            Subject = "recipesQuery"
 	MiniRecipes             Subject = "miniRecipes"
 	PrunePricelistHistories Subject = "prunePricelistHistories"
