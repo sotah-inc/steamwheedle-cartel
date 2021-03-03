@@ -52,7 +52,7 @@ func NewRecipesResponse(base64Encoded string) (RecipesResponse, error) {
 }
 
 type RecipesResponse struct {
-	Recipes []sotah.ShortRecipe `json:"recipe"`
+	Recipes []sotah.ShortRecipe `json:"recipes"`
 }
 
 func (resp RecipesResponse) EncodeForDelivery() (string, error) {
