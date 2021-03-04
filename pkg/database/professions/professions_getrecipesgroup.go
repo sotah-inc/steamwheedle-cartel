@@ -6,8 +6,8 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 )
 
-func (pdBase Database) GetProfessionRecipeIds() (blizzardv2.RecipeIds, error) {
-	out := blizzardv2.RecipeIds{}
+func (pdBase Database) GetRecipesGroup() (blizzardv2.RecipesGroup, error) {
+	out := blizzardv2.RecipesGroup{}
 
 	// peeking into the professions database
 	err := pdBase.db.View(func(tx *bolt.Tx) error {
@@ -22,6 +22,8 @@ func (pdBase Database) GetProfessionRecipeIds() (blizzardv2.RecipeIds, error) {
 				return err
 			}
 
+			out[professionId] = map[blizzardv2.SkillTierId]blizzardv2.RecipeIds{}
+
 			skillTiersBucket := tx.Bucket(skillTiersBucketName(professionId))
 			if skillTiersBucket == nil {
 				return nil
@@ -33,14 +35,14 @@ func (pdBase Database) GetProfessionRecipeIds() (blizzardv2.RecipeIds, error) {
 					return err
 				}
 
-				out = out.Append(skillTier.RecipeIds())
+				out[professionId][skillTier.BlizzardMeta.Id] = skillTier.RecipeIds()
 
 				return nil
 			})
 		})
 	})
 	if err != nil {
-		return []blizzardv2.RecipeId{}, err
+		return blizzardv2.RecipesGroup{}, err
 	}
 
 	return out, nil

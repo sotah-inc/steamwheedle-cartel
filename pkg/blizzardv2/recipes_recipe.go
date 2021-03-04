@@ -39,6 +39,28 @@ func (ids RecipeIds) Append(input RecipeIds) RecipeIds {
 	return out
 }
 
+func (ids RecipeIds) IsZero() bool {
+	return len(ids) == 0
+}
+
+func (ids RecipeIds) Subtract(input RecipeIds) RecipeIds {
+	inputMap := map[RecipeId]struct{}{}
+	for _, id := range input {
+		inputMap[id] = struct{}{}
+	}
+
+	out := RecipeIds{}
+	for _, id := range ids {
+		if _, ok := inputMap[id]; ok {
+			continue
+		}
+
+		out = append(out, id)
+	}
+
+	return out
+}
+
 type RecipeId int
 
 type RecipeItem struct {
