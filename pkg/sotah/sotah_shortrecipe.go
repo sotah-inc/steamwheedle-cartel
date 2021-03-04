@@ -43,6 +43,8 @@ type ShortRecipeItem struct {
 func NewShortRecipe(recipe Recipe, providedLocale locale.Locale) ShortRecipe {
 	return ShortRecipe{
 		Id:                  recipe.BlizzardMeta.Id,
+		ProfessionId:        recipe.SotahMeta.ProfessionId,
+		SkillTierId:         recipe.SotahMeta.SkillTierId,
 		Name:                recipe.BlizzardMeta.Name.FindOr(providedLocale, ""),
 		Description:         recipe.BlizzardMeta.Description.FindOr(providedLocale, ""),
 		CraftedItem:         NewShortRecipeItem(recipe.BlizzardMeta.CraftedItem, providedLocale),
@@ -56,14 +58,16 @@ func NewShortRecipe(recipe Recipe, providedLocale locale.Locale) ShortRecipe {
 }
 
 type ShortRecipe struct {
-	Id                  blizzardv2.RecipeId  `json:"id"`
-	Name                string               `json:"name"`
-	Description         string               `json:"description"`
-	CraftedItem         ShortRecipeItem      `json:"crafted_item"`
-	AllianceCraftedItem ShortRecipeItem      `json:"alliance_crafted_item"`
-	HordeCraftedItem    ShortRecipeItem      `json:"horde_crafted_item"`
-	Reagents            []ShortRecipeReagent `json:"reagents"`
-	Rank                int                  `json:"rank"`
-	CraftedQuantity     float32              `json:"crafted_quantity"`
-	IconUrl             string               `json:"icon_url"`
+	Id                  blizzardv2.RecipeId     `json:"id"`
+	ProfessionId        blizzardv2.ProfessionId `json:"profession_id"`
+	SkillTierId         blizzardv2.SkillTierId  `json:"skilltier_id"`
+	Name                string                  `json:"name"`
+	Description         string                  `json:"description"`
+	CraftedItem         ShortRecipeItem         `json:"crafted_item"`
+	AllianceCraftedItem ShortRecipeItem         `json:"alliance_crafted_item"`
+	HordeCraftedItem    ShortRecipeItem         `json:"horde_crafted_item"`
+	Reagents            []ShortRecipeReagent    `json:"reagents"`
+	Rank                int                     `json:"rank"`
+	CraftedQuantity     float32                 `json:"crafted_quantity"`
+	IconUrl             string                  `json:"icon_url"`
 }
