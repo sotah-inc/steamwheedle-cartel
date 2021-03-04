@@ -16,8 +16,10 @@ const (
 
 const (
 	Professions             Subject = "professions"
+	ProfessionsFromIds      Subject = "professionsFromIds"
 	ProfessionsIntake       Subject = "professionsIntake"
 	SkillTiersIntake        Subject = "skillTiersIntake"
+	SkillTiers              Subject = "skillTiers"
 	RecipesIntake           Subject = "recipesIntake"
 	SkillTier               Subject = "skillTier"
 	Recipe                  Subject = "recipe"
