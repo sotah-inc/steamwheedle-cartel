@@ -29,7 +29,7 @@ type Client interface {
 		professionId blizzardv2.ProfessionId,
 		idList []blizzardv2.SkillTierId,
 	) chan GetEncodedSkillTierJob
-	GetEncodedRecipes(ids []blizzardv2.RecipeId) chan GetEncodedRecipeJob
+	GetEncodedRecipes(group blizzardv2.RecipesGroup) chan GetEncodedRecipeJob
 	GetEncodedRegionStats(
 		name blizzardv2.RegionName,
 		ids []blizzardv2.ConnectedRealmId,

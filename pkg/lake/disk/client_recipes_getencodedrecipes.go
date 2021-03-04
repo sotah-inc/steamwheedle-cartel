@@ -30,12 +30,12 @@ func (g getEncodedRecipeJob) ToLogrusFields() logrus.Fields {
 }
 
 func (client Client) GetEncodedRecipes(
-	ids []blizzardv2.RecipeId,
+	recipesGroup blizzardv2.RecipesGroup,
 ) chan BaseLake.GetEncodedRecipeJob {
 	out := make(chan BaseLake.GetEncodedRecipeJob)
 
 	// starting up workers for resolving recipes
-	recipesOut := client.resolveRecipes(ids)
+	recipesOut := client.resolveRecipes(recipesGroup)
 
 	// starting up workers for resolving recipe-medias
 	recipeMediasIn := make(chan blizzardv2.GetRecipeMediasInJob)
@@ -52,10 +52,12 @@ func (client Client) GetEncodedRecipes(
 
 			logging.WithField(
 				"recipe-id", job.RecipeResponse.Id,
-			).Info("enqueueing profession for recipe-media resolution")
+			).Info("enqueueing recipe for recipe-media resolution")
 
 			recipeMediasIn <- blizzardv2.GetRecipeMediasInJob{
 				RecipeResponse: job.RecipeResponse,
+				ProfessionId:   job.ProfessionId,
+				SkillTierId:    job.SkillTierId,
 			}
 		}
 
@@ -82,7 +84,9 @@ func (client Client) GetEncodedRecipes(
 			recipe := sotah.Recipe{
 				BlizzardMeta: job.RecipeResponse,
 				SotahMeta: sotah.RecipeMeta{
-					IconUrl: recipeIconUrl,
+					ProfessionId: job.ProfessionId,
+					SkillTierId:  job.SkillTierId,
+					IconUrl:      recipeIconUrl,
 				},
 			}
 

@@ -196,9 +196,9 @@ func (sta BlizzardState) ResolveSkillTiers(
 
 func (sta BlizzardState) ResolveRecipes(
 	primaryRegion sotah.Region,
-	ids []blizzardv2.RecipeId,
-) chan blizzardv2.GetRecipesJob {
-	logging.WithField("recipe-ids", len(ids)).Info("resolving recipe-ids")
+	recipesGroup blizzardv2.RecipesGroup,
+) chan blizzardv2.GetRecipesOutJob {
+	logging.WithField("recipe-ids", recipesGroup.TotalRecipes()).Info("resolving recipe-ids")
 
 	return blizzardv2.GetRecipes(blizzardv2.GetRecipesOptions{
 		GetRecipeURL: func(id blizzardv2.RecipeId) (string, error) {
@@ -206,8 +206,8 @@ func (sta BlizzardState) ResolveRecipes(
 				blizzardv2.DefaultGetRecipeURL(primaryRegion.Hostname, id, primaryRegion.Name),
 			)
 		},
-		RecipeIds: ids,
-		Limit:     250,
+		RecipesGroup: recipesGroup,
+		Limit:        250,
 	})
 }
 

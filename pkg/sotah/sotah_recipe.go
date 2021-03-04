@@ -8,7 +8,9 @@ import (
 )
 
 type RecipeMeta struct {
-	IconUrl string `json:"icon_url"`
+	ProfessionId blizzardv2.ProfessionId `json:"profession_id"`
+	SkillTierId  blizzardv2.SkillTierId  `json:"skilltier_id"`
+	IconUrl      string                  `json:"icon_url"`
 }
 
 func NewRecipe(gzipEncoded []byte) (Recipe, error) {

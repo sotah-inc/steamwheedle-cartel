@@ -23,7 +23,7 @@ type NewClientOptions struct {
 		professionId blizzardv2.ProfessionId,
 		idList []blizzardv2.SkillTierId,
 	) chan blizzardv2.GetAllSkillTiersJob
-	ResolveRecipes      func(ids []blizzardv2.RecipeId) chan blizzardv2.GetRecipesJob
+	ResolveRecipes      func(group blizzardv2.RecipesGroup) chan blizzardv2.GetRecipesOutJob
 	ResolveRecipeMedias func(
 		in chan blizzardv2.GetRecipeMediasInJob,
 	) chan blizzardv2.GetRecipeMediasOutJob

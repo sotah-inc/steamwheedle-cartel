@@ -26,6 +26,17 @@ func (group RecipesGroup) IsZero() bool {
 	return true
 }
 
+func (group RecipesGroup) TotalRecipes() int {
+	out := 0
+	for _, skillTierGroup := range group {
+		for _, recipeIds := range skillTierGroup {
+			out += len(recipeIds)
+		}
+	}
+
+	return out
+}
+
 type SkillTiersGroup map[SkillTierId]RecipeIds
 
 func (group SkillTiersGroup) IsZero() bool {

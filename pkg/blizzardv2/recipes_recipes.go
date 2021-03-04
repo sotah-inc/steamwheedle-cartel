@@ -8,34 +8,44 @@ import (
 type GetRecipesOptions struct {
 	GetRecipeURL func(RecipeId) (string, error)
 
-	RecipeIds []RecipeId
-	Limit     int
+	RecipesGroup RecipesGroup
+	Limit        int
 }
 
-type GetRecipesJob struct {
+type GetRecipesOutJob struct {
 	Err            error
+	ProfessionId   ProfessionId
+	SkillTierId    SkillTierId
 	Id             RecipeId
 	RecipeResponse RecipeResponse
 }
 
-func (job GetRecipesJob) ToLogrusFields() logrus.Fields {
+type GetRecipesInJob struct {
+	ProfessionId ProfessionId
+	SkillTierId  SkillTierId
+	Id           RecipeId
+}
+
+func (job GetRecipesOutJob) ToLogrusFields() logrus.Fields {
 	return logrus.Fields{
 		"error": job.Err.Error(),
 		"id":    job.Id,
 	}
 }
 
-func GetRecipes(opts GetRecipesOptions) chan GetRecipesJob {
+func GetRecipes(opts GetRecipesOptions) chan GetRecipesOutJob {
 	// starting up workers for gathering individual recipes
-	in := make(chan RecipeId)
-	out := make(chan GetRecipesJob)
+	in := make(chan GetRecipesInJob)
+	out := make(chan GetRecipesOutJob)
 	worker := func() {
-		for id := range in {
-			getRecipeUri, err := opts.GetRecipeURL(id)
+		for inJob := range in {
+			getRecipeUri, err := opts.GetRecipeURL(inJob.Id)
 			if err != nil {
-				out <- GetRecipesJob{
+				out <- GetRecipesOutJob{
 					Err:            err,
-					Id:             id,
+					ProfessionId:   inJob.ProfessionId,
+					SkillTierId:    inJob.SkillTierId,
+					Id:             inJob.Id,
 					RecipeResponse: RecipeResponse{},
 				}
 
@@ -44,18 +54,22 @@ func GetRecipes(opts GetRecipesOptions) chan GetRecipesJob {
 
 			recipeResp, _, err := NewRecipeResponseFromHTTP(getRecipeUri)
 			if err != nil {
-				out <- GetRecipesJob{
+				out <- GetRecipesOutJob{
 					Err:            err,
-					Id:             id,
+					ProfessionId:   inJob.ProfessionId,
+					SkillTierId:    inJob.SkillTierId,
+					Id:             inJob.Id,
 					RecipeResponse: RecipeResponse{},
 				}
 
 				continue
 			}
 
-			out <- GetRecipesJob{
+			out <- GetRecipesOutJob{
 				Err:            nil,
-				Id:             id,
+				ProfessionId:   inJob.ProfessionId,
+				SkillTierId:    inJob.SkillTierId,
+				Id:             inJob.Id,
 				RecipeResponse: recipeResp,
 			}
 		}
@@ -68,13 +82,23 @@ func GetRecipes(opts GetRecipesOptions) chan GetRecipesJob {
 	// queueing it up
 	go func() {
 		total := 0
-		for _, id := range opts.RecipeIds {
-			in <- id
+		for professionId, skillTiersGroup := range opts.RecipesGroup {
+			for skillTierId, recipeIds := range skillTiersGroup {
+				for _, id := range recipeIds {
+					in <- GetRecipesInJob{
+						ProfessionId: professionId,
+						SkillTierId:  skillTierId,
+						Id:           id,
+					}
 
-			total += 1
+					total += 1
 
-			if total > opts.Limit {
-				break
+					if total > opts.Limit {
+						close(in)
+
+						return
+					}
+				}
 			}
 		}
 

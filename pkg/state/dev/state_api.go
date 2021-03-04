@@ -91,8 +91,8 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 		) chan blizzardv2.GetAllSkillTiersJob {
 			return sta.BlizzardState.ResolveSkillTiers(primaryRegion, professionId, idList)
 		},
-		ResolveRecipes: func(ids []blizzardv2.RecipeId) chan blizzardv2.GetRecipesJob {
-			return sta.BlizzardState.ResolveRecipes(primaryRegion, ids)
+		ResolveRecipes: func(group blizzardv2.RecipesGroup) chan blizzardv2.GetRecipesOutJob {
+			return sta.BlizzardState.ResolveRecipes(primaryRegion, group)
 		},
 		ResolveRecipeMedias: sta.BlizzardState.ResolveRecipeMedias,
 		PrimarySkillTiers:   config.SotahConfig.PrimarySkillTiers,

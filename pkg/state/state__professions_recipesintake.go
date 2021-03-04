@@ -89,13 +89,13 @@ func (resp RecipesIntakeResponse) EncodeForDelivery() (string, error) {
 func (sta ProfessionsState) RecipesIntake() (RecipesIntakeResponse, error) {
 	startTime := time.Now()
 
-	// gathering profession recipe-ids
-	professionRecipeIds, err := sta.ProfessionsDatabase.GetProfessionRecipeIds()
+	// gathering profession recipes-group
+	recipesGroup, err := sta.ProfessionsDatabase.GetRecipesGroup()
 	if err != nil {
 		logging.WithField(
 			"error",
 			err.Error(),
-		).Error("failed to get profession recipe-ids")
+		).Error("failed to get profession recipes-group")
 
 		return RecipesIntakeResponse{}, err
 	}
@@ -109,27 +109,20 @@ func (sta ProfessionsState) RecipesIntake() (RecipesIntakeResponse, error) {
 	}
 
 	// resolving recipe-ids to fetch
-	currentRecipeIdsMap := map[blizzardv2.RecipeId]struct{}{}
-	for _, id := range currentRecipeIds {
-		currentRecipeIdsMap[id] = struct{}{}
-	}
-	var recipeIdsToFetch []blizzardv2.RecipeId // nolint:prealloc
-	for _, id := range professionRecipeIds {
-		if _, ok := currentRecipeIdsMap[id]; ok {
-			continue
-		}
-
-		recipeIdsToFetch = append(recipeIdsToFetch, id)
+	recipesGroupToFetch := recipesGroup.FilterOut(currentRecipeIds)
+	totalRecipesToFetch := recipesGroupToFetch.TotalRecipes()
+	if totalRecipesToFetch == 0 {
+		return RecipesIntakeResponse{RecipeItemIds: []blizzardv2.ItemId{}}, nil
 	}
 
 	logging.WithFields(logrus.Fields{
-		"profession-recipe-ids": len(professionRecipeIds),
+		"profession-recipe-ids": recipesGroup.TotalRecipes(),
 		"current-recipe-ids":    len(currentRecipeIds),
-		"recipe-ids-to-fetch":   len(recipeIdsToFetch),
+		"recipe-ids-to-fetch":   totalRecipesToFetch,
 	}).Info("collecting recipe-ids")
 
 	// starting up an intake queue
-	getEncodedRecipesOut := sta.LakeClient.GetEncodedRecipes(recipeIdsToFetch)
+	getEncodedRecipesOut := sta.LakeClient.GetEncodedRecipes(recipesGroupToFetch)
 	persistRecipesIn := make(chan ProfessionsDatabase.PersistEncodedRecipesInJob)
 
 	// queueing it all up

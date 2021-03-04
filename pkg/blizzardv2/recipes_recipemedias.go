@@ -7,12 +7,16 @@ import (
 
 type GetRecipeMediasInJob struct {
 	RecipeResponse RecipeResponse
+	ProfessionId   ProfessionId
+	SkillTierId    SkillTierId
 }
 
 type GetRecipeMediasOutJob struct {
 	Err                 error
 	RecipeResponse      RecipeResponse
 	RecipeMediaResponse RecipeMediaResponse
+	ProfessionId        ProfessionId
+	SkillTierId         SkillTierId
 }
 
 func (job GetRecipeMediasOutJob) ToLogrusFields() logrus.Fields {
@@ -36,6 +40,8 @@ func GetRecipeMedias(
 					Err:                 err,
 					RecipeResponse:      job.RecipeResponse,
 					RecipeMediaResponse: RecipeMediaResponse{},
+					ProfessionId:        job.ProfessionId,
+					SkillTierId:         job.SkillTierId,
 				}
 
 				continue
@@ -47,6 +53,8 @@ func GetRecipeMedias(
 					Err:                 err,
 					RecipeResponse:      job.RecipeResponse,
 					RecipeMediaResponse: RecipeMediaResponse{},
+					ProfessionId:        job.ProfessionId,
+					SkillTierId:         job.SkillTierId,
 				}
 
 				continue
@@ -56,6 +64,8 @@ func GetRecipeMedias(
 				Err:                 nil,
 				RecipeResponse:      job.RecipeResponse,
 				RecipeMediaResponse: recipeMediaResponse,
+				ProfessionId:        job.ProfessionId,
+				SkillTierId:         job.SkillTierId,
 			}
 		}
 	}
