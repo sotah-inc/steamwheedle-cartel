@@ -24,9 +24,8 @@ func NewSkillTiersRequest(body []byte) (SkillTiersRequest, error) {
 }
 
 type SkillTiersRequest struct {
-	ProfessionId blizzardv2.ProfessionId  `json:"profession_id"`
-	SkillTierIds []blizzardv2.SkillTierId `json:"skilltier_ids"`
-	Locale       locale.Locale            `json:"locale"`
+	Tuples []blizzardv2.ProfessionSkillTierTuple `json:"tuples"`
+	Locale locale.Locale                         `json:"locale"`
 }
 
 func (req SkillTiersRequest) EncodeForDelivery() ([]byte, error) {
@@ -84,7 +83,7 @@ func (sta ProfessionsState) ListenForSkillTiers(stop ListenStopChan) error {
 			return
 		}
 
-		skillTiers, err := sta.ProfessionsDatabase.GetSkillTiers(req.ProfessionId, req.SkillTierIds)
+		skillTiers, err := sta.ProfessionsDatabase.GetSkillTiers(req.Tuples)
 		if err != nil {
 			m.Err = err.Error()
 			m.Code = codes.GenericError

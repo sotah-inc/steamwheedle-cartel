@@ -9,20 +9,19 @@ import (
 )
 
 func (pdBase Database) GetSkillTiers(
-	professionId blizzardv2.ProfessionId,
-	ids []blizzardv2.SkillTierId,
+	tuples []blizzardv2.ProfessionSkillTierTuple,
 ) ([]sotah.SkillTier, error) {
 	var out []sotah.SkillTier
 
 	// peeking into the professions database
 	err := pdBase.db.View(func(tx *bolt.Tx) error {
-		skillTiersBucket := tx.Bucket(skillTiersBucketName(professionId))
-		if skillTiersBucket == nil {
-			return errors.New("skill-tiers bucket was blank")
-		}
+		for _, tuple := range tuples {
+			skillTiersBucket := tx.Bucket(skillTiersBucketName(tuple.ProfessionId))
+			if skillTiersBucket == nil {
+				return errors.New("skill-tiers bucket was blank")
+			}
 
-		for _, id := range ids {
-			value := skillTiersBucket.Get(skillTiersKeyName(id))
+			value := skillTiersBucket.Get(skillTiersKeyName(tuple.SkillTierId))
 			if value == nil {
 				continue
 			}
