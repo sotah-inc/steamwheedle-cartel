@@ -8,6 +8,7 @@ import (
 type GetEncodedRecipeJob interface {
 	Err() error
 	Id() blizzardv2.RecipeId
+	CraftedItemIds() []blizzardv2.ItemId
 	EncodedRecipe() []byte
 	EncodedNormalizedName() []byte
 	ToLogrusFields() logrus.Fields

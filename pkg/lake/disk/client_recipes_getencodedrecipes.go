@@ -14,14 +14,16 @@ import (
 type getEncodedRecipeJob struct {
 	err                   error
 	id                    blizzardv2.RecipeId
+	craftedItemIds        []blizzardv2.ItemId
 	encodedRecipe         []byte
 	encodedNormalizedName []byte
 }
 
-func (g getEncodedRecipeJob) Err() error                    { return g.err }
-func (g getEncodedRecipeJob) Id() blizzardv2.RecipeId       { return g.id }
-func (g getEncodedRecipeJob) EncodedRecipe() []byte         { return g.encodedRecipe }
-func (g getEncodedRecipeJob) EncodedNormalizedName() []byte { return g.encodedNormalizedName }
+func (g getEncodedRecipeJob) Err() error                          { return g.err }
+func (g getEncodedRecipeJob) Id() blizzardv2.RecipeId             { return g.id }
+func (g getEncodedRecipeJob) CraftedItemIds() []blizzardv2.ItemId { return g.craftedItemIds }
+func (g getEncodedRecipeJob) EncodedRecipe() []byte               { return g.encodedRecipe }
+func (g getEncodedRecipeJob) EncodedNormalizedName() []byte       { return g.encodedNormalizedName }
 func (g getEncodedRecipeJob) ToLogrusFields() logrus.Fields {
 	return logrus.Fields{
 		"error": g.err.Error(),
@@ -132,9 +134,16 @@ func (client Client) GetEncodedRecipes(
 				continue
 			}
 
+			craftedItemIds := blizzardv2.ItemIds{
+				job.RecipeResponse.CraftedItem.Id,
+				job.RecipeResponse.HordeCraftedItem.Id,
+				job.RecipeResponse.AllianceCraftedItem.Id,
+			}
+
 			out <- getEncodedRecipeJob{
 				err:                   nil,
 				id:                    job.RecipeResponse.Id,
+				craftedItemIds:        craftedItemIds.NonZero(),
 				encodedRecipe:         encodedRecipe,
 				encodedNormalizedName: encodedNormalizedName,
 			}

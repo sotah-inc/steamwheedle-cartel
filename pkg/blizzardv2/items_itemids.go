@@ -49,6 +49,19 @@ func (ids ItemIds) Sub(providedIds ItemIds) ItemIds {
 	return out
 }
 
+func (ids ItemIds) NonZero() ItemIds {
+	out := ItemIds{}
+	for _, id := range ids {
+		if id == 0 {
+			continue
+		}
+
+		out = append(out, id)
+	}
+
+	return out
+}
+
 type ItemIdsMap map[ItemId]struct{}
 
 func (idsMap ItemIdsMap) ToItemIds() ItemIds {
