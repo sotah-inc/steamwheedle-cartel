@@ -127,6 +127,7 @@ func (sta ProfessionsState) RecipesIntake() (RecipesIntakeResponse, error) {
 
 	// queueing it all up
 	go func() {
+		itemsCraftedByMap := map[blizzardv2.ItemId][]blizzardv2.RecipeId{}
 		for job := range getEncodedRecipesOut {
 			if job.Err() != nil {
 				logging.WithFields(job.ToLogrusFields()).Error("failed to resolve recipe")
@@ -140,6 +141,20 @@ func (sta ProfessionsState) RecipesIntake() (RecipesIntakeResponse, error) {
 				RecipeId:              job.Id(),
 				EncodedRecipe:         job.EncodedRecipe(),
 				EncodedNormalizedName: job.EncodedNormalizedName(),
+			}
+			for _, itemId := range job.CraftedItemIds() {
+				foundRecipeIds := func() []blizzardv2.RecipeId {
+					found, ok := itemsCraftedByMap[itemId]
+					if !ok {
+						return []blizzardv2.RecipeId{}
+					}
+
+					return found
+				}()
+
+				foundRecipeIds = append(foundRecipeIds, job.Id())
+
+				itemsCraftedByMap[itemId] = foundRecipeIds
 			}
 		}
 
