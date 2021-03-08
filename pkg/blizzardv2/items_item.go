@@ -23,6 +23,8 @@ type GetItemURLFunc func(string, ItemId, RegionName) string
 
 type ItemId int
 
+type ItemRecipesMap map[ItemId][]RecipeId
+
 type ItemQuality struct {
 	Type itemquality.ItemQuality `json:"type"`
 	Name locale.Mapping          `json:"name"`

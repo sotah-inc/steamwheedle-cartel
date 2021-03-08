@@ -124,10 +124,11 @@ func (sta ProfessionsState) RecipesIntake() (RecipesIntakeResponse, error) {
 	// starting up an intake queue
 	getEncodedRecipesOut := sta.LakeClient.GetEncodedRecipes(recipesGroupToFetch)
 	persistRecipesIn := make(chan ProfessionsDatabase.PersistEncodedRecipesInJob)
+	itemRecipesOut := make(chan blizzardv2.ItemRecipesMap)
 
 	// queueing it all up
 	go func() {
-		itemsCraftedByMap := map[blizzardv2.ItemId][]blizzardv2.RecipeId{}
+		itemsCraftedByMap := blizzardv2.ItemRecipesMap{}
 		for job := range getEncodedRecipesOut {
 			if job.Err() != nil {
 				logging.WithFields(job.ToLogrusFields()).Error("failed to resolve recipe")
@@ -159,6 +160,9 @@ func (sta ProfessionsState) RecipesIntake() (RecipesIntakeResponse, error) {
 		}
 
 		close(persistRecipesIn)
+
+		itemRecipesOut <- itemsCraftedByMap
+		close(itemRecipesOut)
 	}()
 
 	totalPersisted, err := sta.ProfessionsDatabase.PersistEncodedRecipes(persistRecipesIn)
