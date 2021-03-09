@@ -23,7 +23,37 @@ type GetItemURLFunc func(string, ItemId, RegionName) string
 
 type ItemId int
 
-type ItemRecipesMap map[ItemId][]RecipeId
+type ItemRecipesMap map[ItemId]RecipeIds
+
+func (irMap ItemRecipesMap) ItemIds() []ItemId {
+	out := make([]ItemId, len(irMap))
+	i := 0
+	for id := range irMap {
+		out[i] = id
+
+		i += 1
+	}
+
+	return out
+}
+
+func (irMap ItemRecipesMap) Find(id ItemId) RecipeIds {
+	found, ok := irMap[id]
+	if !ok {
+		return RecipeIds{}
+	}
+
+	return found
+}
+
+func (irMap ItemRecipesMap) Merge(input ItemRecipesMap) ItemRecipesMap {
+	out := ItemRecipesMap{}
+	for id, recipeIds := range irMap {
+		out[id] = recipeIds.Merge(input.Find(id))
+	}
+
+	return out
+}
 
 type ItemQuality struct {
 	Type itemquality.ItemQuality `json:"type"`

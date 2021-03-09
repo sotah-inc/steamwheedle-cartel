@@ -19,6 +19,39 @@ func DefaultGetRecipeURL(regionHostname string, id RecipeId, regionName RegionNa
 
 type GetRecipeURLFunc func(string, RecipeId, RegionName) string
 
+type RecipeIdsMap map[RecipeId]struct{}
+
+func NewRecipeIdsMap(input RecipeIds) RecipeIdsMap {
+	inputMap := map[RecipeId]struct{}{}
+	for _, id := range input {
+		inputMap[id] = struct{}{}
+	}
+
+	return inputMap
+}
+
+func (idsMap RecipeIdsMap) ToIds() RecipeIds {
+	out := make([]RecipeId, len(idsMap))
+	i := 0
+	for id := range idsMap {
+		out[i] = id
+
+		i += 1
+	}
+
+	return out
+}
+
+func NewRecipeIdsFromJson(jsonEncoded []byte) (RecipeIds, error) {
+	out := RecipeIds{}
+
+	if err := json.Unmarshal(jsonEncoded, &out); err != nil {
+		return RecipeIds{}, err
+	}
+
+	return out, nil
+}
+
 type RecipeIds []RecipeId
 
 func (ids RecipeIds) Append(input RecipeIds) RecipeIds {
@@ -44,10 +77,7 @@ func (ids RecipeIds) IsZero() bool {
 }
 
 func (ids RecipeIds) Subtract(input RecipeIds) RecipeIds {
-	inputMap := map[RecipeId]struct{}{}
-	for _, id := range input {
-		inputMap[id] = struct{}{}
-	}
+	inputMap := NewRecipeIdsMap(input)
 
 	out := RecipeIds{}
 	for _, id := range ids {
@@ -59,6 +89,19 @@ func (ids RecipeIds) Subtract(input RecipeIds) RecipeIds {
 	}
 
 	return out
+}
+
+func (ids RecipeIds) Merge(input RecipeIds) RecipeIds {
+	inputMap := NewRecipeIdsMap(input)
+	for _, id := range input {
+		inputMap[id] = struct{}{}
+	}
+
+	return inputMap.ToIds()
+}
+
+func (ids RecipeIds) EncodeForStorage() ([]byte, error) {
+	return json.Marshal(ids)
 }
 
 type RecipeId int

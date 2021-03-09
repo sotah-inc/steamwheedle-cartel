@@ -165,9 +165,18 @@ func (sta ProfessionsState) RecipesIntake() (RecipesIntakeResponse, error) {
 		close(itemRecipesOut)
 	}()
 
+	// waiting for persist-recipes to finish out
 	totalPersisted, err := sta.ProfessionsDatabase.PersistEncodedRecipes(persistRecipesIn)
 	if err != nil {
 		logging.WithField("error", err.Error()).Error("failed to persist recipe")
+
+		return RecipesIntakeResponse{}, err
+	}
+
+	// persisting item-recipe-ids
+	itemRecipes := <-itemRecipesOut
+	if err := sta.ProfessionsDatabase.PersistItemRecipes(itemRecipes); err != nil {
+		logging.WithField("error", err.Error()).Error("failed to persist item-recipes")
 
 		return RecipesIntakeResponse{}, err
 	}
