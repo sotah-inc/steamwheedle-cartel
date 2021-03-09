@@ -49,7 +49,11 @@ func (irMap ItemRecipesMap) Find(id ItemId) RecipeIds {
 func (irMap ItemRecipesMap) Merge(input ItemRecipesMap) ItemRecipesMap {
 	out := ItemRecipesMap{}
 	for id, recipeIds := range irMap {
-		out[id] = recipeIds.Merge(input.Find(id))
+		out[id] = recipeIds
+	}
+	for id, providedRecipeIds := range input {
+		foundRecipeIds := irMap.Find(id)
+		out[id] = foundRecipeIds.Merge(providedRecipeIds)
 	}
 
 	return out
