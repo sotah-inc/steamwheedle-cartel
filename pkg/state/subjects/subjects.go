@@ -15,18 +15,17 @@ const (
 )
 
 const (
-	Professions             Subject = "professions"
-	ProfessionsFromIds      Subject = "professionsFromIds"
-	ProfessionsIntake       Subject = "professionsIntake"
-	SkillTiersIntake        Subject = "skillTiersIntake"
-	SkillTiers              Subject = "skillTiers"
-	RecipesIntake           Subject = "recipesIntake"
-	SkillTier               Subject = "skillTier"
-	Recipe                  Subject = "recipe"
-	Recipes                 Subject = "recipes"
-	RecipesQuery            Subject = "recipesQuery"
-	MiniRecipes             Subject = "miniRecipes"
-	PrunePricelistHistories Subject = "prunePricelistHistories"
+	Professions        Subject = "professions"
+	ProfessionsFromIds Subject = "professionsFromIds"
+	ProfessionsIntake  Subject = "professionsIntake"
+	SkillTiersIntake   Subject = "skillTiersIntake"
+	SkillTiers         Subject = "skillTiers"
+	RecipesIntake      Subject = "recipesIntake"
+	SkillTier          Subject = "skillTier"
+	Recipe             Subject = "recipe"
+	Recipes            Subject = "recipes"
+	RecipesQuery       Subject = "recipesQuery"
+	MiniRecipes        Subject = "miniRecipes"
 )
 
 const (
@@ -68,9 +67,10 @@ const (
 )
 
 const (
-	ItemPricesIntake    Subject = "itemPricesIntake"
-	RecipePricesIntake  Subject = "recipePricesIntake"
-	ItemPricesHistory   Subject = "itemPricesHistory"
-	RecipePricesHistory Subject = "recipePricesHistory"
-	ItemsMarketPrice    Subject = "itemsMarketPrice"
+	ItemPricesIntake        Subject = "itemPricesIntake"
+	RecipePricesIntake      Subject = "recipePricesIntake"
+	ItemPricesHistory       Subject = "itemPricesHistory"
+	RecipePricesHistory     Subject = "recipePricesHistory"
+	ItemsMarketPrice        Subject = "itemsMarketPrice"
+	PrunePricelistHistories Subject = "prunePricelistHistories"
 )
