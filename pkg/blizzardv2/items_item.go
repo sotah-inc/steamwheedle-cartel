@@ -59,6 +59,10 @@ func (irMap ItemRecipesMap) Merge(input ItemRecipesMap) ItemRecipesMap {
 	return out
 }
 
+func (irMap ItemRecipesMap) EncodeForDelivery() ([]byte, error) {
+	return json.Marshal(irMap)
+}
+
 type ItemQuality struct {
 	Type itemquality.ItemQuality `json:"type"`
 	Name locale.Mapping          `json:"name"`

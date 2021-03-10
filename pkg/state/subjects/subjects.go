@@ -26,6 +26,7 @@ const (
 	Recipes            Subject = "recipes"
 	RecipesQuery       Subject = "recipesQuery"
 	MiniRecipes        Subject = "miniRecipes"
+	ItemsRecipes       Subject = "itemsRecipes"
 )
 
 const (
