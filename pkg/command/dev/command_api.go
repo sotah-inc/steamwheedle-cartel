@@ -20,6 +20,13 @@ func Api(config devState.ApiStateConfig) error {
 		return err
 	}
 
+	// pruning item-blacklist
+	if err := apiState.ItemsState.ItemsDatabase.PruneItemBlacklist(); err != nil {
+		logging.WithField("error", err.Error()).Error("failed to prune items-database on start-up")
+
+		return err
+	}
+
 	// opening all listeners
 	if err := apiState.Listeners.Listen(); err != nil {
 		return err
