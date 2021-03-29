@@ -23,12 +23,7 @@ func NewMapping(data []byte) (Mapping, error) {
 type Mapping map[Locale]string
 
 func (m Mapping) ResolveDefaultName() string {
-	found, ok := m[EnUS]
-	if !ok {
-		return ""
-	}
-
-	return found
+	return m.FindOr(EnUS, "")
 }
 
 func (m Mapping) IsZero() bool {

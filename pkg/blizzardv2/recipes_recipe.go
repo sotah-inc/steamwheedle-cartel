@@ -19,7 +19,20 @@ func DefaultGetRecipeURL(regionHostname string, id RecipeId, regionName RegionNa
 
 type GetRecipeURLFunc func(string, RecipeId, RegionName) string
 
-type RecipeIdsMap map[RecipeId]struct{}
+type RecipeIdNameMap map[RecipeId]string
+
+func (inMap RecipeIdNameMap) FilterBlank() RecipeIdNameMap {
+	out := RecipeIdNameMap{}
+	for id, name := range inMap {
+		if name == "" {
+			continue
+		}
+
+		out[id] = name
+	}
+
+	return out
+}
 
 func NewRecipeIdsMap(input RecipeIds) RecipeIdsMap {
 	inputMap := map[RecipeId]struct{}{}
@@ -29,6 +42,8 @@ func NewRecipeIdsMap(input RecipeIds) RecipeIdsMap {
 
 	return inputMap
 }
+
+type RecipeIdsMap map[RecipeId]struct{}
 
 func (idsMap RecipeIdsMap) ToIds() RecipeIds {
 	out := make([]RecipeId, len(idsMap))

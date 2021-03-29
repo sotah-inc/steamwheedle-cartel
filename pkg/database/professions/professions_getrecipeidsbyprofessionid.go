@@ -32,7 +32,6 @@ func (pdBase Database) GetRecipeIdsByProfessionId(
 
 			return nil
 		})
-
 	})
 	if err != nil {
 		return []blizzardv2.RecipeId{}, err
