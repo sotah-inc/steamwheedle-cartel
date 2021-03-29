@@ -29,7 +29,12 @@ func (pdBase Database) GetRecipeName(
 				return err
 			}
 
-			out[id] = mapping.ResolveDefaultName()
+			defaultName := mapping.ResolveDefaultName()
+			if defaultName == "" {
+				return nil
+			}
+
+			out[id] = defaultName
 		}
 
 		return nil

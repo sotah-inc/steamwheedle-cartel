@@ -21,19 +21,6 @@ type GetRecipeURLFunc func(string, RecipeId, RegionName) string
 
 type RecipeIdNameMap map[RecipeId]string
 
-func (inMap RecipeIdNameMap) FilterBlank() RecipeIdNameMap {
-	out := RecipeIdNameMap{}
-	for id, name := range inMap {
-		if name == "" {
-			continue
-		}
-
-		out[id] = name
-	}
-
-	return out
-}
-
 func NewRecipeIdsMap(input RecipeIds) RecipeIdsMap {
 	inputMap := map[RecipeId]struct{}{}
 	for _, id := range input {
