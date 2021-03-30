@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"net/http"
 
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
+
 	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/locale"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
@@ -19,7 +21,30 @@ func DefaultGetRecipeURL(regionHostname string, id RecipeId, regionName RegionNa
 
 type GetRecipeURLFunc func(string, RecipeId, RegionName) string
 
+func NewRecipeIdNameMap(gzipEncoded []byte) (RecipeIdNameMap, error) {
+	gzipDecoded, err := util.GzipDecode(gzipEncoded)
+	if err != nil {
+		return RecipeIdNameMap{}, err
+	}
+
+	out := RecipeIdNameMap{}
+	if err := json.Unmarshal(gzipDecoded, &out); err != nil {
+		return RecipeIdNameMap{}, err
+	}
+
+	return out, nil
+}
+
 type RecipeIdNameMap map[RecipeId]string
+
+func (inMap RecipeIdNameMap) EncodeForDelivery() ([]byte, error) {
+	jsonEncoded, err := json.Marshal(inMap)
+	if err != nil {
+		return []byte{}, err
+	}
+
+	return util.GzipEncode(jsonEncoded)
+}
 
 func NewRecipeIdsMap(input RecipeIds) RecipeIdsMap {
 	inputMap := map[RecipeId]struct{}{}
