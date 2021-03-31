@@ -6,7 +6,7 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/locale"
 )
 
-func (pdBase Database) GetRecipeName(
+func (pdBase Database) GetRecipeNames(
 	idList []blizzardv2.RecipeId,
 ) (blizzardv2.RecipeIdNameMap, error) {
 	out := blizzardv2.RecipeIdNameMap{}
