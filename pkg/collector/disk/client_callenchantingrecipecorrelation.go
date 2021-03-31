@@ -15,7 +15,7 @@ import (
 func (c Client) CallEnchantingRecipeCorrelation() error {
 	response, err := c.messengerClient.Request(messenger.RequestOptions{
 		Subject: string(subjects.ProfessionRecipeNames),
-		Data:    []byte(strconv.Itoa(int(blizzardv2.ProfessionId(202)))),
+		Data:    []byte(strconv.Itoa(int(blizzardv2.ProfessionId(333)))),
 		Timeout: 10 * time.Minute,
 	})
 	if err != nil {
