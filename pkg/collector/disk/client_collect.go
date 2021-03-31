@@ -72,6 +72,10 @@ func (c Client) Collect() error {
 		return err
 	}
 
+	if err := c.CallEnchantingRecipeCorrelation(); err != nil {
+		return err
+	}
+
 	logging.WithField(
 		"duration-in-ms",
 		time.Since(startTime).Milliseconds(),

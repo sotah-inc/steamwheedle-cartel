@@ -1,6 +1,7 @@
 package blizzardv2
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -21,7 +22,12 @@ func DefaultGetRecipeURL(regionHostname string, id RecipeId, regionName RegionNa
 
 type GetRecipeURLFunc func(string, RecipeId, RegionName) string
 
-func NewRecipeIdNameMap(gzipEncoded []byte) (RecipeIdNameMap, error) {
+func NewRecipeIdNameMap(base64Encoded string) (RecipeIdNameMap, error) {
+	gzipEncoded, err := base64.StdEncoding.DecodeString(base64Encoded)
+	if err != nil {
+		return RecipeIdNameMap{}, err
+	}
+
 	gzipDecoded, err := util.GzipDecode(gzipEncoded)
 	if err != nil {
 		return RecipeIdNameMap{}, err
@@ -37,13 +43,18 @@ func NewRecipeIdNameMap(gzipEncoded []byte) (RecipeIdNameMap, error) {
 
 type RecipeIdNameMap map[RecipeId]string
 
-func (inMap RecipeIdNameMap) EncodeForDelivery() ([]byte, error) {
+func (inMap RecipeIdNameMap) EncodeForDelivery() (string, error) {
 	jsonEncoded, err := json.Marshal(inMap)
 	if err != nil {
-		return []byte{}, err
+		return "", err
 	}
 
-	return util.GzipEncode(jsonEncoded)
+	gzipEncoded, err := util.GzipEncode(jsonEncoded)
+	if err != nil {
+		return "", err
+	}
+
+	return base64.StdEncoding.EncodeToString(gzipEncoded), nil
 }
 
 func NewRecipeIdsMap(input RecipeIds) RecipeIdsMap {
