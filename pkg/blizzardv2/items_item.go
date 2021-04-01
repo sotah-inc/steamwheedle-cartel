@@ -23,6 +23,15 @@ type GetItemURLFunc func(string, ItemId, RegionName) string
 
 type ItemId int
 
+func NewItemRecipesMap(data []byte) (ItemRecipesMap, error) {
+	out := ItemRecipesMap{}
+	if err := json.Unmarshal(data, &out); err != nil {
+		return ItemRecipesMap{}, err
+	}
+
+	return out, nil
+}
+
 type ItemRecipesMap map[ItemId]RecipeIds
 
 func (irMap ItemRecipesMap) ItemIds() []ItemId {
