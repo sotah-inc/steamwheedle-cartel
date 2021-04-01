@@ -13,7 +13,7 @@ import (
 )
 
 func (c Client) CallEnchantingRecipeCorrelation() error {
-	response, err := c.messengerClient.Request(messenger.RequestOptions{
+	recipeNamesMessage, err := c.messengerClient.Request(messenger.RequestOptions{
 		Subject: string(subjects.ProfessionRecipeNames),
 		Data:    []byte(strconv.Itoa(int(blizzardv2.ProfessionId(333)))),
 		Timeout: 10 * time.Minute,
@@ -26,13 +26,15 @@ func (c Client) CallEnchantingRecipeCorrelation() error {
 		return err
 	}
 
-	if response.Code != codes.Ok {
-		logging.WithFields(response.ToLogrusFields()).Error("profession-recipe-names request failed")
+	if recipeNamesMessage.Code != codes.Ok {
+		logging.WithFields(
+			recipeNamesMessage.ToLogrusFields(),
+		).Error("profession-recipe-names request failed")
 
-		return errors.New(response.Err)
+		return errors.New(recipeNamesMessage.Err)
 	}
 
-	recipeNameMap, err := blizzardv2.NewRecipeIdNameMap(response.Data)
+	recipeNameMap, err := blizzardv2.NewRecipeIdNameMap(recipeNamesMessage.Data)
 	if err != nil {
 		logging.WithField("error", err.Error()).Error("failed to decode response data")
 
