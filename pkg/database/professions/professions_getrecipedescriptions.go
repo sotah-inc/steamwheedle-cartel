@@ -3,7 +3,7 @@ package professions
 import (
 	"github.com/boltdb/bolt"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/locale"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 )
 
 func (pdBase Database) GetRecipeDescriptions(
@@ -13,28 +13,28 @@ func (pdBase Database) GetRecipeDescriptions(
 
 	// peeking into the professions database
 	err := pdBase.db.View(func(tx *bolt.Tx) error {
-		bkt := tx.Bucket(recipeNamesBucketName())
+		bkt := tx.Bucket(recipesBucketName())
 		if bkt == nil {
 			return nil
 		}
 
 		for _, id := range idList {
-			v := bkt.Get(recipeNameKeyName(id))
+			v := bkt.Get(recipeKeyName(id))
 			if v == nil {
 				continue
 			}
 
-			mapping, err := locale.NewMapping(v)
+			recipe, err := sotah.NewRecipe(v)
 			if err != nil {
 				return err
 			}
 
-			defaultName := mapping.ResolveDefaultName()
-			if defaultName == "" {
+			defaultDescription := recipe.BlizzardMeta.Description.ResolveDefaultName()
+			if defaultDescription == "" {
 				return nil
 			}
 
-			out[id] = defaultName
+			out[id] = defaultDescription
 		}
 
 		return nil
