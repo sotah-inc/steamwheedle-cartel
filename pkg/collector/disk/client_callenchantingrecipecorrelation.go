@@ -48,10 +48,20 @@ func (c Client) CallEnchantingRecipeCorrelation() error {
 
 	logging.WithField("recipe-descriptions", rdMap).Info("found recipe-descriptions")
 
+	encodedRdMap, err := rdMap.EncodeForDelivery()
+	if err != nil {
+		logging.WithField(
+			"error",
+			err.Error(),
+		).Error("failed to encode recipe-name map")
+
+		return err
+	}
+
 	// resolving matching items
 	matchingItemsMessage, err := c.messengerClient.Request(messenger.RequestOptions{
 		Subject: string(subjects.ItemsFindMatchingRecipes),
-		Data:    []byte(recipeDescriptionMessage.Data),
+		Data:    []byte(encodedRdMap),
 		Timeout: 10 * time.Minute,
 	})
 	if err != nil {
