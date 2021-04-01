@@ -22,29 +22,29 @@ func DefaultGetRecipeURL(regionHostname string, id RecipeId, regionName RegionNa
 
 type GetRecipeURLFunc func(string, RecipeId, RegionName) string
 
-func NewRecipeIdNameMap(base64Encoded string) (RecipeIdNameMap, error) {
+func NewRecipeIdDescriptionMap(base64Encoded string) (RecipeIdDescriptionMap, error) {
 	gzipEncoded, err := base64.StdEncoding.DecodeString(base64Encoded)
 	if err != nil {
-		return RecipeIdNameMap{}, err
+		return RecipeIdDescriptionMap{}, err
 	}
 
 	gzipDecoded, err := util.GzipDecode(gzipEncoded)
 	if err != nil {
-		return RecipeIdNameMap{}, err
+		return RecipeIdDescriptionMap{}, err
 	}
 
-	out := RecipeIdNameMap{}
+	out := RecipeIdDescriptionMap{}
 	if err := json.Unmarshal(gzipDecoded, &out); err != nil {
-		return RecipeIdNameMap{}, err
+		return RecipeIdDescriptionMap{}, err
 	}
 
 	return out, nil
 }
 
-type RecipeIdNameMap map[RecipeId]string
+type RecipeIdDescriptionMap map[RecipeId]string
 
-func (inMap RecipeIdNameMap) EncodeForDelivery() (string, error) {
-	jsonEncoded, err := json.Marshal(inMap)
+func (rdMap RecipeIdDescriptionMap) EncodeForDelivery() (string, error) {
+	jsonEncoded, err := json.Marshal(rdMap)
 	if err != nil {
 		return "", err
 	}

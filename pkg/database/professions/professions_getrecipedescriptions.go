@@ -6,10 +6,10 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/locale"
 )
 
-func (pdBase Database) GetRecipeNames(
+func (pdBase Database) GetRecipeDescriptions(
 	idList []blizzardv2.RecipeId,
-) (blizzardv2.RecipeIdNameMap, error) {
-	out := blizzardv2.RecipeIdNameMap{}
+) (blizzardv2.RecipeIdDescriptionMap, error) {
+	out := blizzardv2.RecipeIdDescriptionMap{}
 
 	// peeking into the professions database
 	err := pdBase.db.View(func(tx *bolt.Tx) error {
@@ -40,7 +40,7 @@ func (pdBase Database) GetRecipeNames(
 		return nil
 	})
 	if err != nil {
-		return blizzardv2.RecipeIdNameMap{}, err
+		return blizzardv2.RecipeIdDescriptionMap{}, err
 	}
 
 	return out, nil

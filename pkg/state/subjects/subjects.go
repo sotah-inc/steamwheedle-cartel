@@ -16,19 +16,19 @@ const (
 )
 
 const (
-	Professions           Subject = "professions"
-	ProfessionsFromIds    Subject = "professionsFromIds"
-	ProfessionsIntake     Subject = "professionsIntake"
-	SkillTiersIntake      Subject = "skillTiersIntake"
-	SkillTiers            Subject = "skillTiers"
-	RecipesIntake         Subject = "recipesIntake"
-	SkillTier             Subject = "skillTier"
-	Recipe                Subject = "recipe"
-	Recipes               Subject = "recipes"
-	RecipesQuery          Subject = "recipesQuery"
-	MiniRecipes           Subject = "miniRecipes"
-	ItemsRecipes          Subject = "itemsRecipes"
-	ProfessionRecipeNames Subject = "professionRecipeNames"
+	Professions                  Subject = "professions"
+	ProfessionsFromIds           Subject = "professionsFromIds"
+	ProfessionsIntake            Subject = "professionsIntake"
+	SkillTiersIntake             Subject = "skillTiersIntake"
+	SkillTiers                   Subject = "skillTiers"
+	RecipesIntake                Subject = "recipesIntake"
+	SkillTier                    Subject = "skillTier"
+	Recipe                       Subject = "recipe"
+	Recipes                      Subject = "recipes"
+	RecipesQuery                 Subject = "recipesQuery"
+	MiniRecipes                  Subject = "miniRecipes"
+	ItemsRecipes                 Subject = "itemsRecipes"
+	ProfessionRecipeDescriptions Subject = "professionRecipeNames"
 )
 
 const (

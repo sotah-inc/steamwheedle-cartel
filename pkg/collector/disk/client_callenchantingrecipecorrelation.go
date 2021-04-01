@@ -16,7 +16,7 @@ import (
 func (c Client) CallEnchantingRecipeCorrelation() error {
 	// resolving recipe-names
 	recipeNamesMessage, err := c.messengerClient.Request(messenger.RequestOptions{
-		Subject: string(subjects.ProfessionRecipeNames),
+		Subject: string(subjects.ProfessionRecipeDescriptions),
 		Data:    []byte(strconv.Itoa(int(blizzardv2.ProfessionId(333)))),
 		Timeout: 10 * time.Minute,
 	})
@@ -36,7 +36,7 @@ func (c Client) CallEnchantingRecipeCorrelation() error {
 		return errors.New(recipeNamesMessage.Err)
 	}
 
-	recipeNameMap, err := blizzardv2.NewRecipeIdNameMap(recipeNamesMessage.Data)
+	rdMap, err := blizzardv2.NewRecipeIdDescriptionMap(recipeNamesMessage.Data)
 	if err != nil {
 		logging.WithField(
 			"error",
@@ -79,7 +79,7 @@ func (c Client) CallEnchantingRecipeCorrelation() error {
 	}
 
 	logging.WithFields(logrus.Fields{
-		"recipe-names":   recipeNameMap,
+		"recipe-names":   rdMap,
 		"matching-items": matchingItems,
 	}).Info("found matches")
 
