@@ -42,10 +42,6 @@ func (c Client) CallEnchantingRecipeCorrelation() error {
 		"recipeDescriptionMessage.Data-length",
 		len(data),
 	).Info("received recipe-description response")
-	logging.WithField(
-		"recipeDescriptionMessage.Data-length",
-		len(data),
-	).Info("received recipe-description response")
 
 	// resolving matching items
 	matchingItemsMessage, err := c.messengerClient.Request(messenger.RequestOptions{

@@ -21,10 +21,6 @@ func (sta ItemsState) ListenForItemsFindMatchingRecipes(stop ListenStopChan) err
 				"natsMsg.Data-length",
 				len(natsMsg.Data),
 			).Info("received message for ItemsFindMatchingRecipes")
-			logging.WithField(
-				"natsMsg.Data-length",
-				len(natsMsg.Data),
-			).Info("received message for ItemsFindMatchingRecipes")
 
 			rdMap, err := blizzardv2.NewRecipeIdDescriptionMap(string(natsMsg.Data))
 			if err != nil {
@@ -34,6 +30,8 @@ func (sta ItemsState) ListenForItemsFindMatchingRecipes(stop ListenStopChan) err
 
 				return
 			}
+
+			logging.WithField("rd-map", len(rdMap)).Info("received recipe-description map")
 
 			irMap, err := sta.ItemsDatabase.FindMatchingFromRecipe(rdMap)
 			if err != nil {
