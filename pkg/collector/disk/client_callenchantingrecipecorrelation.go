@@ -5,6 +5,8 @@ import (
 	"strconv"
 	"time"
 
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
+
 	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
@@ -65,7 +67,17 @@ func (c Client) CallEnchantingRecipeCorrelation() error {
 		return errors.New(matchingItemsMessage.Err)
 	}
 
-	matchingItems, err := blizzardv2.NewItemRecipesMap([]byte(matchingItemsMessage.Data))
+	gzipDecoded, err := util.GzipDecode([]byte(matchingItemsMessage.Data))
+	if err != nil {
+		logging.WithField(
+			"error",
+			err.Error(),
+		).Error("failed to gzip-decode matching-items message")
+
+		return err
+	}
+
+	matchingItems, err := blizzardv2.NewItemRecipesMap(gzipDecoded)
 	if err != nil {
 		logging.WithField(
 			"error",
