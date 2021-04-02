@@ -23,30 +23,15 @@ func DefaultGetRecipeURL(regionHostname string, id RecipeId, regionName RegionNa
 type GetRecipeURLFunc func(string, RecipeId, RegionName) string
 
 func NewRecipeIdDescriptionMap(base64Encoded string) (RecipeIdDescriptionMap, error) {
-	logging.WithField(
-		"base64Encoded-length",
-		len(base64Encoded),
-	).Info("NewRecipeIdDescriptionMap()")
-
 	gzipEncoded, err := base64.StdEncoding.DecodeString(base64Encoded)
 	if err != nil {
 		return RecipeIdDescriptionMap{}, err
 	}
 
-	logging.WithField(
-		"gzipEncoded-length",
-		len(gzipEncoded),
-	).Info("NewRecipeIdDescriptionMap()")
-
 	jsonEncoded, err := util.GzipDecode(gzipEncoded)
 	if err != nil {
 		return RecipeIdDescriptionMap{}, err
 	}
-
-	logging.WithField(
-		"jsonEncoded-length",
-		len(jsonEncoded),
-	).Info("NewRecipeIdDescriptionMap()")
 
 	out := RecipeIdDescriptionMap{}
 	if err := json.Unmarshal(jsonEncoded, &out); err != nil {
@@ -64,27 +49,12 @@ func (rdMap RecipeIdDescriptionMap) EncodeForDelivery() (string, error) {
 		return "", err
 	}
 
-	logging.WithField(
-		"jsonEncoded-length",
-		len(jsonEncoded),
-	).Info("RecipeIdDescriptionMap.EncodeForDelivery()")
-
 	gzipEncoded, err := util.GzipEncode(jsonEncoded)
 	if err != nil {
 		return "", err
 	}
 
-	logging.WithField(
-		"gzipEncoded-length",
-		len(gzipEncoded),
-	).Info("RecipeIdDescriptionMap.EncodeForDelivery()")
-
 	base64Encoded := base64.StdEncoding.EncodeToString(gzipEncoded)
-
-	logging.WithField(
-		"base64Encoded-length",
-		len(base64Encoded),
-	).Info("RecipeIdDescriptionMap.EncodeForDelivery()")
 
 	return base64Encoded, nil
 }

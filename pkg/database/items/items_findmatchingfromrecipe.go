@@ -18,7 +18,7 @@ func (idBase Database) FindMatchingFromRecipe(
 	out := blizzardv2.ItemRecipesMap{}
 
 	err := idBase.db.View(func(tx *bolt.Tx) error {
-		bkt := tx.Bucket(namesBucketName())
+		bkt := tx.Bucket(baseBucketName())
 		if bkt == nil {
 			return nil
 		}
