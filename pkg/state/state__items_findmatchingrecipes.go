@@ -39,9 +39,11 @@ func (sta ItemsState) ListenForItemsFindMatchingRecipes(stop ListenStopChan) err
 				return
 			}
 
-			logging.WithField("ir-map", len(rdMap)).Info("found matches")
+			nonBlankIrMap := irMap.FilterBlank()
 
-			jsonEncoded, err := irMap.EncodeForDelivery()
+			logging.WithField("ir-map", len(nonBlankIrMap)).Info("found matches")
+
+			jsonEncoded, err := nonBlankIrMap.EncodeForDelivery()
 			if err != nil {
 				m.Err = err.Error()
 				m.Code = mCodes.GenericError

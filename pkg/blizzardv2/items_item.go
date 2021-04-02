@@ -72,6 +72,19 @@ func (irMap ItemRecipesMap) EncodeForDelivery() ([]byte, error) {
 	return json.Marshal(irMap)
 }
 
+func (irMap ItemRecipesMap) FilterBlank() ItemRecipesMap {
+	out := ItemRecipesMap{}
+	for itemId, recipeIds := range irMap {
+		if len(recipeIds) == 0 {
+			continue
+		}
+
+		out[itemId] = recipeIds
+	}
+
+	return out
+}
+
 type ItemQuality struct {
 	Type itemquality.ItemQuality `json:"type"`
 	Name locale.Mapping          `json:"name"`
