@@ -3,13 +3,9 @@ package items
 import (
 	"strings"
 
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
-
-	"github.com/sirupsen/logrus"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
-
 	"github.com/boltdb/bolt"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 )
 
 func (idBase Database) FindMatchingFromRecipe(
@@ -45,13 +41,6 @@ func (idBase Database) FindMatchingFromRecipe(
 				if !strings.Contains(foundDescription, recipeDescription) {
 					continue
 				}
-
-				logging.WithFields(logrus.Fields{
-					"recipe-id":          recipeId,
-					"recipe-description": recipeDescription,
-					"item-id":            item.BlizzardMeta.Id,
-					"item-description":   foundDescription,
-				}).Info("matched recipe with item")
 
 				out[item.BlizzardMeta.Id] = append(out[item.BlizzardMeta.Id], recipeId)
 			}
