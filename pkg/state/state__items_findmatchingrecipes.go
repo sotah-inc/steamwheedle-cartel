@@ -18,11 +18,15 @@ func (sta ItemsState) ListenForItemsFindMatchingRecipes(stop ListenStopChan) err
 			m := messenger.NewMessage()
 
 			logging.WithField(
-				"m.Data-length",
-				len(m.Data),
+				"natsMsg.Data-length",
+				len(natsMsg.Data),
+			).Info("received message for ItemsFindMatchingRecipes")
+			logging.WithField(
+				"natsMsg.Data-length",
+				len(natsMsg.Data),
 			).Info("received message for ItemsFindMatchingRecipes")
 
-			rdMap, err := blizzardv2.NewRecipeIdDescriptionMap(m.Data)
+			rdMap, err := blizzardv2.NewRecipeIdDescriptionMap(string(natsMsg.Data))
 			if err != nil {
 				m.Err = err.Error()
 				m.Code = mCodes.GenericError
