@@ -1,6 +1,7 @@
 package disk
 
 import (
+	"encoding/base64"
 	"errors"
 	"strconv"
 	"time"
@@ -67,7 +68,17 @@ func (c Client) CallEnchantingRecipeCorrelation() error {
 		return errors.New(matchingItemsMessage.Err)
 	}
 
-	gzipDecoded, err := util.GzipDecode([]byte(matchingItemsMessage.Data))
+	gzipEncoded, err := base64.StdEncoding.DecodeString(matchingItemsMessage.Data)
+	if err != nil {
+		logging.WithField(
+			"error",
+			err.Error(),
+		).Error("failed to base64-decode matching-items message")
+
+		return err
+	}
+
+	jsonEncoded, err := util.GzipDecode(gzipEncoded)
 	if err != nil {
 		logging.WithField(
 			"error",
@@ -77,7 +88,7 @@ func (c Client) CallEnchantingRecipeCorrelation() error {
 		return err
 	}
 
-	matchingItems, err := blizzardv2.NewItemRecipesMap(gzipDecoded)
+	matchingItems, err := blizzardv2.NewItemRecipesMap(jsonEncoded)
 	if err != nil {
 		logging.WithField(
 			"error",

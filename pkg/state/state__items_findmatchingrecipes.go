@@ -1,6 +1,8 @@
 package state
 
 import (
+	"encoding/base64"
+
 	nats "github.com/nats-io/nats.go"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
@@ -58,7 +60,7 @@ func (sta ItemsState) ListenForItemsFindMatchingRecipes(stop ListenStopChan) err
 			}
 
 			// dumping it out
-			m.Data = string(gzipEncoded)
+			m.Data = base64.StdEncoding.EncodeToString(gzipEncoded)
 			sta.Messenger.ReplyTo(natsMsg, m)
 		},
 	)
