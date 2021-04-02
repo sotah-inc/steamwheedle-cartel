@@ -3,6 +3,7 @@ package state
 import (
 	nats "github.com/nats-io/nats.go"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
 	mCodes "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger/codes"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state/subjects"
@@ -16,7 +17,13 @@ func (sta ItemsState) ListenForItemsFindMatchingRecipes(stop ListenStopChan) err
 		func(natsMsg nats.Msg) {
 			m := messenger.NewMessage()
 
-			rdMap, err := blizzardv2.NewRecipeIdDescriptionMap(string(natsMsg.Data))
+			rawPayload := string(natsMsg.Data)
+			logging.WithField(
+				"payload-length",
+				len(rawPayload),
+			).Info("ListenForItemsFindMatchingRecipes() payload")
+
+			rdMap, err := blizzardv2.NewRecipeIdDescriptionMap(rawPayload)
 			if err != nil {
 				m.Err = err.Error()
 				m.Code = mCodes.GenericError
