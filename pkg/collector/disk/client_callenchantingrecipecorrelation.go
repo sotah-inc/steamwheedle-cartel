@@ -36,32 +36,10 @@ func (c Client) CallEnchantingRecipeCorrelation() error {
 		return errors.New(recipeDescriptionMessage.Err)
 	}
 
-	rdMap, err := blizzardv2.NewRecipeIdDescriptionMap(recipeDescriptionMessage.Data)
-	if err != nil {
-		logging.WithField(
-			"error",
-			err.Error(),
-		).Error("failed to decode response data for recipe-name map")
-
-		return err
-	}
-
-	logging.WithField("recipe-descriptions", rdMap).Info("found recipe-descriptions")
-
-	encodedRdMap, err := rdMap.EncodeForDelivery()
-	if err != nil {
-		logging.WithField(
-			"error",
-			err.Error(),
-		).Error("failed to encode recipe-name map")
-
-		return err
-	}
-
 	// resolving matching items
 	matchingItemsMessage, err := c.messengerClient.Request(messenger.RequestOptions{
 		Subject: string(subjects.ItemsFindMatchingRecipes),
-		Data:    []byte(encodedRdMap),
+		Data:    []byte(recipeDescriptionMessage.Data),
 		Timeout: 10 * time.Minute,
 	})
 	if err != nil {
@@ -91,7 +69,6 @@ func (c Client) CallEnchantingRecipeCorrelation() error {
 	}
 
 	logging.WithFields(logrus.Fields{
-		"recipe-names":   rdMap,
 		"matching-items": matchingItems,
 	}).Info("found matches")
 
