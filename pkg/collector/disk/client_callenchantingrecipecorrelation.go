@@ -36,6 +36,11 @@ func (c Client) CallEnchantingRecipeCorrelation() error {
 		return errors.New(recipeDescriptionMessage.Err)
 	}
 
+	logging.WithField(
+		"recipeDescriptionMessage.Data-length",
+		len(recipeDescriptionMessage.Data),
+	).Info("received recipe-description response")
+
 	// resolving matching items
 	matchingItemsMessage, err := c.messengerClient.Request(messenger.RequestOptions{
 		Subject: string(subjects.ItemsFindMatchingRecipes),
