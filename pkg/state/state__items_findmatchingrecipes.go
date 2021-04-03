@@ -27,7 +27,7 @@ func (sta ItemsState) ListenForItemsFindMatchingRecipes(stop ListenStopChan) err
 				return
 			}
 
-			irMap, err := sta.ItemsDatabase.FindMatchingFromRecipe(rdMap)
+			irMap, err := sta.ItemsDatabase.FindMatchingFromRecipes(rdMap)
 			if err != nil {
 				m.Err = err.Error()
 				m.Code = mCodes.GenericError

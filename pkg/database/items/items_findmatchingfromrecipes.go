@@ -8,7 +8,7 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 )
 
-func (idBase Database) FindMatchingFromRecipe(
+func (idBase Database) FindMatchingFromRecipes(
 	recipeDescriptions blizzardv2.RecipeIdDescriptionMap,
 ) (blizzardv2.ItemRecipesMap, error) {
 	out := blizzardv2.ItemRecipesMap{}
