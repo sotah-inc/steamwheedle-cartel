@@ -5,7 +5,6 @@ import (
 
 	nats "github.com/nats-io/nats.go"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
 	mCodes "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger/codes"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state/subjects"
@@ -28,8 +27,6 @@ func (sta ItemsState) ListenForItemsFindMatchingRecipes(stop ListenStopChan) err
 				return
 			}
 
-			logging.WithField("rd-map", len(rdMap)).Info("received recipe-description map")
-
 			irMap, err := sta.ItemsDatabase.FindMatchingFromRecipe(rdMap)
 			if err != nil {
 				m.Err = err.Error()
@@ -39,11 +36,7 @@ func (sta ItemsState) ListenForItemsFindMatchingRecipes(stop ListenStopChan) err
 				return
 			}
 
-			nonBlankIrMap := irMap.FilterBlank()
-
-			logging.WithField("ir-map", len(nonBlankIrMap)).Info("found matches")
-
-			jsonEncoded, err := nonBlankIrMap.EncodeForDelivery()
+			jsonEncoded, err := irMap.FilterBlank().EncodeForDelivery()
 			if err != nil {
 				m.Err = err.Error()
 				m.Code = mCodes.GenericError
