@@ -33,6 +33,15 @@ func blacklistKeyName(id blizzardv2.ItemId) []byte {
 	return []byte(fmt.Sprintf("item-blacklist-%d", id))
 }
 
+func itemIdFromKeyName(key []byte) (blizzardv2.ItemId, error) {
+	unparsedItemId, err := strconv.Atoi(string(key)[len("item-"):])
+	if err != nil {
+		return blizzardv2.ItemId(0), err
+	}
+
+	return blizzardv2.ItemId(unparsedItemId), nil
+}
+
 func itemIdFromNameKeyName(key []byte) (blizzardv2.ItemId, error) {
 	unparsedItemId, err := strconv.Atoi(string(key)[len("item-name-"):])
 	if err != nil {

@@ -1,8 +1,6 @@
 package items
 
 import (
-	"strconv"
-
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/locale"
 
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
@@ -33,6 +31,38 @@ type Database struct {
 }
 
 // gathering items
+func (idBase Database) GetItemIds() (blizzardv2.ItemIds, error) {
+	out := blizzardv2.ItemIds{}
+
+	err := idBase.db.View(func(tx *bolt.Tx) error {
+		bkt := tx.Bucket(baseBucketName())
+		if bkt == nil {
+			return nil
+		}
+
+		err := bkt.ForEach(func(k, v []byte) error {
+			id, err := itemIdFromKeyName(k)
+			if err != nil {
+				return err
+			}
+
+			out = append(out, id)
+
+			return nil
+		})
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
+	if err != nil {
+		return blizzardv2.ItemIds{}, err
+	}
+
+	return out, nil
+}
+
 func (idBase Database) GetItems() (sotah.ItemsMap, error) {
 	out := sotah.ItemsMap{}
 
@@ -43,13 +73,12 @@ func (idBase Database) GetItems() (sotah.ItemsMap, error) {
 		}
 
 		err := bkt.ForEach(func(k, v []byte) error {
-			parsedId, err := strconv.Atoi(string(k)[len("item-"):])
+			id, err := itemIdFromKeyName(k)
 			if err != nil {
 				return err
 			}
-			itemId := blizzardv2.ItemId(parsedId)
 
-			out[itemId], err = sotah.NewItemFromGzipped(v)
+			out[id], err = sotah.NewItemFromGzipped(v)
 			if err != nil {
 				return err
 			}

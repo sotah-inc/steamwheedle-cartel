@@ -1,61 +1,75 @@
 package items
 
 import (
-	"strings"
-
-	"github.com/boltdb/bolt"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 )
+
+type FindMatchingItemsFromRecipesJob struct {
+	Err       error
+	Id        blizzardv2.ItemId
+	RecipeIds []blizzardv2.RecipeId
+}
 
 func (idBase Database) FindMatchingItemsFromRecipes(
 	recipeDescriptions blizzardv2.RecipeIdDescriptionMap,
 ) (blizzardv2.ItemRecipesMap, error) {
-	out := blizzardv2.ItemRecipesMap{}
-
-	err := idBase.db.View(func(tx *bolt.Tx) error {
-		bkt := tx.Bucket(baseBucketName())
-		if bkt == nil {
-			return nil
-		}
-
-		err := bkt.ForEach(func(k, v []byte) error {
-			item, err := sotah.NewItemFromGzipped(v)
-			if err != nil {
-				return err
-			}
-
-			foundDescription := func() string {
-				if len(item.BlizzardMeta.PreviewItem.Spells) == 0 {
-					return ""
-				}
-
-				return item.BlizzardMeta.PreviewItem.Spells[0].Description.ResolveDefaultName()
-			}()
-			if foundDescription == "" {
-				return nil
-			}
-
-			out[item.BlizzardMeta.Id] = blizzardv2.RecipeIds{}
-			for recipeId, recipeDescription := range recipeDescriptions {
-				if !strings.Contains(foundDescription, recipeDescription) {
-					continue
-				}
-
-				out[item.BlizzardMeta.Id] = append(out[item.BlizzardMeta.Id], recipeId)
-			}
-
-			return nil
-		})
-		if err != nil {
-			return err
-		}
-
-		return nil
-	})
+	// resolving all item-ids
+	ids, err := idBase.GetItemIds()
 	if err != nil {
 		return blizzardv2.ItemRecipesMap{}, err
 	}
 
-	return out, nil
+	// establish channels
+	in := make(chan blizzardv2.ItemId)
+	out := make(chan FindMatchingItemsFromRecipesJob)
+
+	// spinning up workers
+	worker := func() {
+		for id := range in {
+			recipeIds, err := idBase.FindMatchingItemFromRecipes(id, recipeDescriptions)
+			if err != nil {
+				out <- FindMatchingItemsFromRecipesJob{
+					Err:       err,
+					Id:        id,
+					RecipeIds: []blizzardv2.RecipeId{},
+				}
+
+				continue
+			}
+
+			out <- FindMatchingItemsFromRecipesJob{
+				Err:       err,
+				Id:        id,
+				RecipeIds: recipeIds,
+			}
+		}
+	}
+	postWork := func() {
+		close(out)
+	}
+	util.Work(4, worker, postWork)
+
+	go func() {
+		for _, id := range ids {
+			in <- id
+		}
+
+		close(in)
+	}()
+
+	results := blizzardv2.ItemRecipesMap{}
+	for job := range out {
+		if job.Err != nil {
+			return blizzardv2.ItemRecipesMap{}, job.Err
+		}
+
+		if len(job.RecipeIds) == 0 {
+			continue
+		}
+
+		results[job.Id] = job.RecipeIds
+	}
+
+	return results, nil
 }
