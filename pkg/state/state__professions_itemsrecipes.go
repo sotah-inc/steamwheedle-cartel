@@ -59,7 +59,7 @@ func (sta ProfessionsState) ListenForItemsRecipes(stop ListenStopChan) error {
 		}
 
 		// dumping it out
-		m.Data = string(encodedMessage)
+		m.Data = encodedMessage
 		sta.Messenger.ReplyTo(natsMsg, m)
 	})
 	if err != nil {

@@ -1,18 +1,15 @@
 package disk
 
 import (
-	"encoding/base64"
 	"errors"
 	"strconv"
 	"time"
 
-	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger/codes"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state/subjects"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 )
 
 func (c Client) CallEnchantingRecipeCorrelation() error {
@@ -38,17 +35,10 @@ func (c Client) CallEnchantingRecipeCorrelation() error {
 		return errors.New(recipeDescriptionMessage.Err)
 	}
 
-	data := []byte(recipeDescriptionMessage.Data)
-
-	logging.WithField(
-		"recipeDescriptionMessage.Data-length",
-		len(data),
-	).Info("received recipe-description response")
-
 	// resolving matching items
 	matchingItemsMessage, err := c.messengerClient.Request(messenger.RequestOptions{
 		Subject: string(subjects.ItemsFindMatchingRecipes),
-		Data:    data,
+		Data:    []byte(recipeDescriptionMessage.Data),
 		Timeout: 10 * time.Minute,
 	})
 	if err != nil {
@@ -67,39 +57,26 @@ func (c Client) CallEnchantingRecipeCorrelation() error {
 		return errors.New(matchingItemsMessage.Err)
 	}
 
-	gzipEncoded, err := base64.StdEncoding.DecodeString(matchingItemsMessage.Data)
+	itemRecipesIntakeMessage, err := c.messengerClient.Request(messenger.RequestOptions{
+		Subject: string(subjects.ItemRecipesIntake),
+		Data:    []byte(matchingItemsMessage.Data),
+		Timeout: 10 * time.Minute,
+	})
 	if err != nil {
-		logging.WithField(
-			"error",
-			err.Error(),
-		).Error("failed to base64-decode matching-items message")
+		logging.WithField("error", err.Error()).Error(
+			"failed to publish message for item-recipes intake",
+		)
 
 		return err
 	}
 
-	jsonEncoded, err := util.GzipDecode(gzipEncoded)
-	if err != nil {
-		logging.WithField(
-			"error",
-			err.Error(),
-		).Error("failed to gzip-decode matching-items message")
+	if itemRecipesIntakeMessage.Code != codes.Ok {
+		logging.WithFields(
+			itemRecipesIntakeMessage.ToLogrusFields(),
+		).Error("item-recipes intake request failed")
 
 		return err
 	}
-
-	matchingItems, err := blizzardv2.NewItemRecipesMap(jsonEncoded)
-	if err != nil {
-		logging.WithField(
-			"error",
-			err.Error(),
-		).Error("failed to decode response data for matching-items")
-
-		return err
-	}
-
-	logging.WithFields(logrus.Fields{
-		"matching-items": matchingItems,
-	}).Info("found matches")
 
 	return nil
 }

@@ -1,10 +1,13 @@
 package blizzardv2
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
+
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 
 	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/inventorytype"
@@ -23,9 +26,19 @@ type GetItemURLFunc func(string, ItemId, RegionName) string
 
 type ItemId int
 
-func NewItemRecipesMap(data []byte) (ItemRecipesMap, error) {
+func NewItemRecipesMap(base64Encoded string) (ItemRecipesMap, error) {
+	gzipEncoded, err := base64.StdEncoding.DecodeString(base64Encoded)
+	if err != nil {
+		return ItemRecipesMap{}, err
+	}
+
+	jsonEncoded, err := util.GzipDecode(gzipEncoded)
+	if err != nil {
+		return ItemRecipesMap{}, err
+	}
+
 	out := ItemRecipesMap{}
-	if err := json.Unmarshal(data, &out); err != nil {
+	if err := json.Unmarshal(jsonEncoded, &out); err != nil {
 		return ItemRecipesMap{}, err
 	}
 
@@ -68,8 +81,18 @@ func (irMap ItemRecipesMap) Merge(input ItemRecipesMap) ItemRecipesMap {
 	return out
 }
 
-func (irMap ItemRecipesMap) EncodeForDelivery() ([]byte, error) {
-	return json.Marshal(irMap)
+func (irMap ItemRecipesMap) EncodeForDelivery() (string, error) {
+	jsonEncoded, err := json.Marshal(irMap)
+	if err != nil {
+		return "", err
+	}
+
+	gzipEncoded, err := util.GzipEncode(jsonEncoded)
+	if err != nil {
+		return "", err
+	}
+
+	return base64.StdEncoding.EncodeToString(gzipEncoded), nil
 }
 
 func (irMap ItemRecipesMap) FilterBlank() ItemRecipesMap {
