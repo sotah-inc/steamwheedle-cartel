@@ -34,6 +34,11 @@ func (pdBase Database) PersistItemRecipes(providedItemRecipes blizzardv2.ItemRec
 		}
 
 		for itemId, recipeIds := range nextItemRecipes {
+			logging.WithFields(logrus.Fields{
+				"item":    itemId,
+				"recipes": recipeIds,
+			}).Info("persisting item recipes")
+
 			encodedRecipeIds, err := recipeIds.EncodeForStorage()
 			if err != nil {
 				return err
