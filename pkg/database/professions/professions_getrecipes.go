@@ -1,40 +1,52 @@
 package professions
 
 import (
-	"github.com/boltdb/bolt"
+	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 )
 
-func (pdBase Database) GetRecipes(idList []blizzardv2.RecipeId) ([]sotah.Recipe, error) {
-	var out []sotah.Recipe
+type GetRecipesJob struct {
+	Err    error
+	Id     blizzardv2.RecipeId
+	Recipe sotah.Recipe
+}
 
-	// peeking into the professions database
-	err := pdBase.db.View(func(tx *bolt.Tx) error {
-		recipesBucket := tx.Bucket(recipesBucketName())
-		if recipesBucket == nil {
-			return nil
-		}
+func (job GetRecipesJob) ToLogrusFields() logrus.Fields {
+	return logrus.Fields{
+		"error":  job.Err.Error(),
+		"recipe": job.Id,
+	}
+}
 
-		for _, id := range idList {
-			value := recipesBucket.Get(recipeKeyName(id))
-			if value == nil {
+func (pdBase Database) GetRecipes(ids []blizzardv2.RecipeId) chan GetRecipesJob {
+	out := make(chan GetRecipesJob)
+
+	worker := func() {
+		for _, id := range ids {
+			recipe, err := pdBase.GetRecipe(id)
+			if err != nil {
+				out <- GetRecipesJob{
+					Err:    err,
+					Id:     id,
+					Recipe: sotah.Recipe{},
+				}
+
 				continue
 			}
 
-			recipe, err := sotah.NewRecipe(value)
-			if err != nil {
-				return err
+			out <- GetRecipesJob{
+				Err:    nil,
+				Id:     id,
+				Recipe: recipe,
 			}
-
-			out = append(out, recipe)
 		}
-
-		return nil
-	})
-	if err != nil {
-		return []sotah.Recipe{}, err
 	}
+	postWork := func() {
+		close(out)
+	}
+	util.Work(4, worker, postWork)
 
-	return out, nil
+	return out
 }

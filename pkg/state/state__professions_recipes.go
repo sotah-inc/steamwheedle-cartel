@@ -83,13 +83,18 @@ func (sta ProfessionsState) ListenForRecipes(stop ListenStopChan) error {
 			return
 		}
 
-		recipes, err := sta.ProfessionsDatabase.GetRecipes(req.RecipeIds)
-		if err != nil {
-			m.Err = err.Error()
-			m.Code = codes.GenericError
-			sta.Messenger.ReplyTo(natsMsg, m)
+		recipesOut := sta.ProfessionsDatabase.GetRecipes(req.RecipeIds)
+		var recipes []sotah.Recipe
+		for recipesOutJob := range recipesOut {
+			if recipesOutJob.Err != nil {
+				m.Err = recipesOutJob.Err.Error()
+				m.Code = codes.GenericError
+				sta.Messenger.ReplyTo(natsMsg, m)
 
-			return
+				return
+			}
+
+			recipes = append(recipes, recipesOutJob.Recipe)
 		}
 
 		respRecipes := make([]sotah.ShortRecipe, len(recipes))

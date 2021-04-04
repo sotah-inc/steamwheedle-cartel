@@ -94,13 +94,18 @@ func (sta ProfessionsState) ListenForSkillTier(stop ListenStopChan) error {
 			return
 		}
 
-		recipes, err := sta.ProfessionsDatabase.GetRecipes(skillTier.RecipeIds())
-		if err != nil {
-			m.Err = err.Error()
-			m.Code = codes.GenericError
-			sta.Messenger.ReplyTo(natsMsg, m)
+		recipesOut := sta.ProfessionsDatabase.GetRecipes(skillTier.RecipeIds())
+		var recipes []sotah.Recipe
+		for recipesOutJob := range recipesOut {
+			if recipesOutJob.Err != nil {
+				m.Err = recipesOutJob.Err.Error()
+				m.Code = codes.GenericError
+				sta.Messenger.ReplyTo(natsMsg, m)
 
-			return
+				return
+			}
+
+			recipes = append(recipes, recipesOutJob.Recipe)
 		}
 
 		recipesMap := map[blizzardv2.RecipeId]sotah.Recipe{}
