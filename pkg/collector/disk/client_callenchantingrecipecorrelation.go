@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
@@ -13,6 +14,8 @@ import (
 )
 
 func (c Client) CallEnchantingRecipeCorrelation() error {
+	startTime := time.Now()
+
 	// resolving recipe-names
 	recipeDescriptionMessage, err := c.messengerClient.Request(messenger.RequestOptions{
 		Subject: string(subjects.ProfessionRecipeDescriptions),
@@ -77,6 +80,10 @@ func (c Client) CallEnchantingRecipeCorrelation() error {
 
 		return err
 	}
+
+	logging.WithFields(logrus.Fields{
+		"duration-in-ms": time.Since(startTime).Milliseconds(),
+	}).Info("finished enchanting-recipe-correlation")
 
 	return nil
 }
