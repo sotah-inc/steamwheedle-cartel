@@ -3,13 +3,14 @@ package state
 import (
 	"time"
 
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
-
 	"github.com/nats-io/nats.go"
 	"github.com/sirupsen/logrus"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
+	ProfessionsDatabase "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database/professions" // nolint:lll
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger/codes"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state/subjects"
 )
 
@@ -51,6 +52,45 @@ func (sta ProfessionsState) ItemRecipesIntake(irMap blizzardv2.ItemRecipesMap) e
 
 		return err
 	}
+
+	persistEncodedRecipesIn := make(chan ProfessionsDatabase.PersistEncodedRecipesInJob)
+	go func() {
+		recipeItems := irMap.ToRecipesItemMap()
+		for getRecipesOutJob := range sta.ProfessionsDatabase.GetRecipes(irMap.RecipeIds()) {
+			if getRecipesOutJob.Err != nil {
+				logging.WithFields(getRecipesOutJob.ToLogrusFields()).Error("failed to fetch recipe")
+
+				continue
+			}
+
+			if _, ok := recipeItems[getRecipesOutJob.Id]; !ok {
+				continue
+			}
+
+			nextRecipe := sotah.Recipe{
+				BlizzardMeta: getRecipesOutJob.Recipe.BlizzardMeta,
+				SotahMeta: sotah.RecipeMeta{
+					ProfessionId:              getRecipesOutJob.Recipe.SotahMeta.ProfessionId,
+					SkillTierId:               getRecipesOutJob.Recipe.SotahMeta.SkillTierId,
+					IconUrl:                   getRecipesOutJob.Recipe.SotahMeta.IconUrl,
+					SupplementalCraftedItemId: recipeItems[getRecipesOutJob.Id],
+				},
+			}
+
+			encodedNextRecipe, err := nextRecipe.EncodeForStorage()
+			if err != nil {
+				logging.WithField("error", err.Error()).Error("failed to encode next-recipe for storage")
+
+				continue
+			}
+
+			persistEncodedRecipesIn <- ProfessionsDatabase.PersistEncodedRecipesInJob{
+				RecipeId:              getRecipesOutJob.Id,
+				EncodedRecipe:         encodedNextRecipe,
+				EncodedNormalizedName: nil,
+			}
+		}
+	}()
 
 	logging.WithFields(logrus.Fields{
 		"duration-in-ms": time.Since(startTime).Milliseconds(),

@@ -108,6 +108,36 @@ func (irMap ItemRecipesMap) FilterBlank() ItemRecipesMap {
 	return out
 }
 
+func (irMap ItemRecipesMap) ToRecipesItemMap() map[RecipeId]ItemId {
+	out := map[RecipeId]ItemId{}
+	for itemId, recipeIds := range irMap {
+		for _, recipeId := range recipeIds {
+			out[recipeId] = itemId
+		}
+	}
+
+	return out
+}
+
+func (irMap ItemRecipesMap) RecipeIds() RecipeIds {
+	outMap := map[RecipeId]struct{}{}
+	for _, recipeIds := range irMap {
+		for _, recipeId := range recipeIds {
+			outMap[recipeId] = struct{}{}
+		}
+	}
+
+	out := make(RecipeIds, len(outMap))
+	i := 0
+	for recipeId := range outMap {
+		out[i] = recipeId
+
+		i += 1
+	}
+
+	return out
+}
+
 type ItemQuality struct {
 	Type itemquality.ItemQuality `json:"type"`
 	Name locale.Mapping          `json:"name"`
