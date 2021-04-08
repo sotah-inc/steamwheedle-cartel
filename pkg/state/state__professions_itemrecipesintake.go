@@ -70,18 +70,13 @@ func (sta ProfessionsState) ItemRecipesIntake(irMap blizzardv2.ItemRecipesMap) e
 				continue
 			}
 
-			logging.WithFields(logrus.Fields{
-				"recipe": getRecipesOutJob.Id,
-				"item": supplementalItemId,
-			}).Info("setting supplemental-item-id for recipe")
-
 			nextRecipe := sotah.Recipe{
 				BlizzardMeta: getRecipesOutJob.Recipe.BlizzardMeta,
 				SotahMeta: sotah.RecipeMeta{
 					ProfessionId:              getRecipesOutJob.Recipe.SotahMeta.ProfessionId,
 					SkillTierId:               getRecipesOutJob.Recipe.SotahMeta.SkillTierId,
 					IconUrl:                   getRecipesOutJob.Recipe.SotahMeta.IconUrl,
-					SupplementalCraftedItemId: recipeItems[getRecipesOutJob.Id],
+					SupplementalCraftedItemId: supplementalItemId,
 				},
 			}
 
