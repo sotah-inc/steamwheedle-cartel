@@ -63,9 +63,17 @@ func (sta ProfessionsState) ItemRecipesIntake(irMap blizzardv2.ItemRecipesMap) e
 				continue
 			}
 
-			if _, ok := recipeItems[getRecipesOutJob.Id]; !ok {
+			supplementalItemId, ok := recipeItems[getRecipesOutJob.Id]
+			if !ok {
+				logging.WithField("recipe", getRecipesOutJob.Id).Info("no item for recipe")
+
 				continue
 			}
+
+			logging.WithFields(logrus.Fields{
+				"recipe": getRecipesOutJob.Id,
+				"item": supplementalItemId,
+			}).Info("setting supplemental-item-id for recipe")
 
 			nextRecipe := sotah.Recipe{
 				BlizzardMeta: getRecipesOutJob.Recipe.BlizzardMeta,
@@ -90,11 +98,19 @@ func (sta ProfessionsState) ItemRecipesIntake(irMap blizzardv2.ItemRecipesMap) e
 				EncodedNormalizedName: nil,
 			}
 		}
+
+		close(persistEncodedRecipesIn)
 	}()
 
+	totalPersisted, err := sta.ProfessionsDatabase.PersistEncodedRecipes(persistEncodedRecipesIn)
+	if err != nil {
+		return err
+	}
+
 	logging.WithFields(logrus.Fields{
+		"total": totalPersisted,
 		"duration-in-ms": time.Since(startTime).Milliseconds(),
-	}).Info("persisted item-recipes")
+	}).Info("persisted recipes")
 
 	return nil
 }
