@@ -8,4 +8,6 @@ git add . \
   && cd app/ && go get source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git && git status . \
   && go mod vendor && go mod tidy && git status . \
   && cd ../ && gcloud builds submit --config ./cloudbuild-gcr.yaml && docker pull gcr.io/sotah-prod/server && git status . \
-  && git add . && git commit -m 'Update to latest.' && git push origin HEAD
+  && git add . && git commit -m 'Update to latest.' && git push origin HEAD \
+  && cd ../../../venture-co/extern/infra \
+  && export $(cat ~/bin/battlenet-creds.env | xargs) && docker-compose up -d sotah-server-api
