@@ -3,6 +3,8 @@ package state
 import (
 	"time"
 
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/locale"
+
 	"github.com/nats-io/nats.go"
 	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
@@ -70,14 +72,31 @@ func (sta ProfessionsState) ItemRecipesIntake(irMap blizzardv2.ItemRecipesMap) e
 				continue
 			}
 
+			logging.WithFields(logrus.Fields{
+				"recipe": getRecipesOutJob.Id,
+				"item":   supplementalItemId,
+			}).Info("updating crafted-item for recipe")
+
 			nextRecipe := sotah.Recipe{
-				BlizzardMeta: getRecipesOutJob.Recipe.BlizzardMeta,
-				SotahMeta: sotah.RecipeMeta{
-					ProfessionId:              getRecipesOutJob.Recipe.SotahMeta.ProfessionId,
-					SkillTierId:               getRecipesOutJob.Recipe.SotahMeta.SkillTierId,
-					IconUrl:                   getRecipesOutJob.Recipe.SotahMeta.IconUrl,
-					SupplementalCraftedItemId: supplementalItemId,
+				BlizzardMeta: blizzardv2.RecipeResponse{
+					LinksBase:   getRecipesOutJob.Recipe.BlizzardMeta.LinksBase,
+					Id:          getRecipesOutJob.Recipe.BlizzardMeta.Id,
+					Name:        getRecipesOutJob.Recipe.BlizzardMeta.Name,
+					Description: getRecipesOutJob.Recipe.BlizzardMeta.Description,
+					Media:       getRecipesOutJob.Recipe.BlizzardMeta.Media,
+					CraftedItem: blizzardv2.RecipeItem{
+						Key:  blizzardv2.HrefReference{},
+						Name: map[locale.Locale]string{},
+						Id:   supplementalItemId,
+					},
+					AllianceCraftedItem:   getRecipesOutJob.Recipe.BlizzardMeta.AllianceCraftedItem,
+					HordeCraftedItem:      getRecipesOutJob.Recipe.BlizzardMeta.HordeCraftedItem,
+					Reagents:              getRecipesOutJob.Recipe.BlizzardMeta.Reagents,
+					Rank:                  getRecipesOutJob.Recipe.BlizzardMeta.Rank,
+					CraftedQuantity:       getRecipesOutJob.Recipe.BlizzardMeta.CraftedQuantity,
+					ModifiedCraftingSlots: getRecipesOutJob.Recipe.BlizzardMeta.ModifiedCraftingSlots,
 				},
+				SotahMeta: getRecipesOutJob.Recipe.SotahMeta,
 			}
 
 			encodedNextRecipe, err := nextRecipe.EncodeForStorage()
@@ -103,7 +122,7 @@ func (sta ProfessionsState) ItemRecipesIntake(irMap blizzardv2.ItemRecipesMap) e
 	}
 
 	logging.WithFields(logrus.Fields{
-		"total": totalPersisted,
+		"total":          totalPersisted,
 		"duration-in-ms": time.Since(startTime).Milliseconds(),
 	}).Info("persisted recipes")
 

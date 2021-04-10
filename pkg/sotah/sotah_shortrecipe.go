@@ -56,26 +56,24 @@ func NewShortRecipe(recipe Recipe, providedLocale locale.Locale) ShortRecipe {
 			recipe.BlizzardMeta.HordeCraftedItem,
 			providedLocale,
 		),
-		SupplementalCraftedItemId: recipe.SotahMeta.SupplementalCraftedItemId,
-		Reagents:                  NewShortRecipeReagents(recipe.BlizzardMeta.Reagents, providedLocale),
-		Rank:                      recipe.BlizzardMeta.Rank,
-		CraftedQuantity:           recipe.BlizzardMeta.CraftedQuantity.Value,
-		IconUrl:                   recipe.SotahMeta.IconUrl,
+		Reagents:        NewShortRecipeReagents(recipe.BlizzardMeta.Reagents, providedLocale),
+		Rank:            recipe.BlizzardMeta.Rank,
+		CraftedQuantity: recipe.BlizzardMeta.CraftedQuantity.Value,
+		IconUrl:         recipe.SotahMeta.IconUrl,
 	}
 }
 
 type ShortRecipe struct {
-	Id                        blizzardv2.RecipeId     `json:"id"`
-	ProfessionId              blizzardv2.ProfessionId `json:"profession_id"`
-	SkillTierId               blizzardv2.SkillTierId  `json:"skilltier_id"`
-	Name                      string                  `json:"name"`
-	Description               string                  `json:"description"`
-	CraftedItem               ShortRecipeItem         `json:"crafted_item"`
-	AllianceCraftedItem       ShortRecipeItem         `json:"alliance_crafted_item"`
-	HordeCraftedItem          ShortRecipeItem         `json:"horde_crafted_item"`
-	SupplementalCraftedItemId blizzardv2.ItemId       `json:"supplemental_crafted_item_id"`
-	Reagents                  []ShortRecipeReagent    `json:"reagents"`
-	Rank                      int                     `json:"rank"`
-	CraftedQuantity           float32                 `json:"crafted_quantity"`
-	IconUrl                   string                  `json:"icon_url"`
+	Id                  blizzardv2.RecipeId     `json:"id"`
+	ProfessionId        blizzardv2.ProfessionId `json:"profession_id"`
+	SkillTierId         blizzardv2.SkillTierId  `json:"skilltier_id"`
+	Name                string                  `json:"name"`
+	Description         string                  `json:"description"`
+	CraftedItem         ShortRecipeItem         `json:"crafted_item"`
+	AllianceCraftedItem ShortRecipeItem         `json:"alliance_crafted_item"`
+	HordeCraftedItem    ShortRecipeItem         `json:"horde_crafted_item"`
+	Reagents            []ShortRecipeReagent    `json:"reagents"`
+	Rank                int                     `json:"rank"`
+	CraftedQuantity     float32                 `json:"crafted_quantity"`
+	IconUrl             string                  `json:"icon_url"`
 }
