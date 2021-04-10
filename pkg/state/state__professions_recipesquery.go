@@ -4,6 +4,7 @@ import (
 	"github.com/nats-io/nats.go"
 	dCodes "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database/codes"
 	ProfessionsDatabase "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database/professions" // nolint:lll
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
 	mCodes "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger/codes"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state/subjects"
@@ -26,6 +27,11 @@ func (sta ProfessionsState) ListenForRecipesQuery(stop ListenStopChan) error {
 		// querying the items-database
 		resp, respCode, err := sta.ProfessionsDatabase.QueryRecipes(request)
 		if err != nil {
+			logging.WithField(
+				"error",
+				err.Error(),
+			).Error("failed to call sta.ProfessionsDatabase.QueryRecipes")
+
 			m.Err = err.Error()
 			m.Code = DatabaseCodeToMessengerCode(respCode)
 			sta.Messenger.ReplyTo(natsMsg, m)
@@ -43,6 +49,11 @@ func (sta ProfessionsState) ListenForRecipesQuery(stop ListenStopChan) error {
 		// marshalling for messenger
 		encodedMessage, err := resp.EncodeForDelivery()
 		if err != nil {
+			logging.WithField(
+				"error",
+				err.Error(),
+			).Error("failed to call pdBase.GetIdNormalizedNameMap")
+
 			m.Err = err.Error()
 			m.Code = mCodes.GenericError
 			sta.Messenger.ReplyTo(natsMsg, m)
