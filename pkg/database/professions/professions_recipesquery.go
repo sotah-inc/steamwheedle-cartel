@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"sort"
 
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
+
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/locale"
 
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
@@ -109,12 +111,22 @@ func (pdBase Database) QueryRecipes(req QueryRequest) (QueryResponse, codes.Code
 	// gathering id/normalized-name map
 	idNormalizedNameMap, err := pdBase.GetIdNormalizedNameMap()
 	if err != nil {
+		logging.WithField(
+			"error",
+			err.Error(),
+		).Error("failed to call pdBase.GetIdNormalizedNameMap")
+
 		return QueryResponse{}, codes.GenericError, err
 	}
 
 	// reformatting into query-item list
 	queryItems, err := NewQueryItemList(idNormalizedNameMap, req.Locale)
 	if err != nil {
+		logging.WithField(
+			"error",
+			err.Error(),
+		).Error("failed to call NewQueryItemList")
+
 		return QueryResponse{}, codes.UserError, err
 	}
 
