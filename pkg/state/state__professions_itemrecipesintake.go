@@ -1,6 +1,7 @@
 package state
 
 import (
+	"errors"
 	"time"
 
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/locale"
@@ -106,10 +107,40 @@ func (sta ProfessionsState) ItemRecipesIntake(irMap blizzardv2.ItemRecipesMap) e
 				continue
 			}
 
+			normalizedName, err := func() (locale.Mapping, error) {
+				foundName, ok := nextRecipe.BlizzardMeta.Name[locale.EnUS]
+				if !ok {
+					return locale.Mapping{}, errors.New("failed to resolve enUS name")
+				}
+
+				normalizedName, err := sotah.NormalizeString(foundName)
+				if err != nil {
+					return locale.Mapping{}, err
+				}
+
+				return locale.Mapping{locale.EnUS: normalizedName}, nil
+			}()
+			if err != nil {
+				logging.WithFields(logrus.Fields{
+					"error": err.Error(),
+				}).Error("failed to normalize name")
+
+				continue
+			}
+
+			encodedNormalizedName, err := normalizedName.EncodeForStorage()
+			if err != nil {
+				logging.WithFields(logrus.Fields{
+					"error": err.Error(),
+				}).Error("failed to encode normalized-name")
+
+				continue
+			}
+
 			persistEncodedRecipesIn <- ProfessionsDatabase.PersistEncodedRecipesInJob{
 				RecipeId:              getRecipesOutJob.Id,
 				EncodedRecipe:         encodedNextRecipe,
-				EncodedNormalizedName: nil,
+				EncodedNormalizedName: encodedNormalizedName,
 			}
 		}
 
