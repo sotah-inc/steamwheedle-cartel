@@ -1,5 +1,6 @@
 #! /bin/sh
 
+ORIGINAL_DIR=`pwd`
 COMMIT_MESSAGE=$1
 git add . \
   && git commit -m "$COMMIT_MESSAGE" \
@@ -10,4 +11,5 @@ git add . \
   && cd ../ && gcloud builds submit --config ./cloudbuild-gcr.yaml && docker pull gcr.io/sotah-prod/server && git status . \
   && git add . && git commit -m 'Update to latest.' && git push origin HEAD \
   && cd ../../../venture-co/extern/infra \
-  && export $(cat ~/bin/battlenet-creds.env | xargs) && docker-compose up -d sotah-server-api
+  && export $(cat ~/bin/battlenet-creds.env | xargs) && docker-compose up -d sotah-server-api \
+  && cd $ORIGINAL_DIR && git add extern/ && git commit -m 'Misc.' && git push origin HEAD
