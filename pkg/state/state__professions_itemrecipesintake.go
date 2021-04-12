@@ -50,7 +50,20 @@ func (sta ProfessionsState) ListenForItemRecipesIntake(stop ListenStopChan) erro
 func (sta ProfessionsState) ItemRecipesIntake(irMap blizzardv2.ItemRecipesMap) error {
 	startTime := time.Now()
 
-	if err := sta.ProfessionsDatabase.PersistItemRecipes(irMap); err != nil {
+	// resolving existing ir-map and merging results in
+	currentIrMap, err := sta.ProfessionsDatabase.GetItemRecipesMap(irMap.ItemIds())
+	if err != nil {
+		logging.WithField(
+			"error",
+			err.Error(),
+		).Error("failed to resolve item-recipes map")
+
+		return err
+	}
+	nextIrMap := currentIrMap.Merge(irMap)
+
+	// pushing next ir-map out
+	if err := sta.ProfessionsDatabase.PersistItemRecipes(nextIrMap); err != nil {
 		logging.WithField("error", err.Error()).Error("failed to persist item-recipes")
 
 		return err
@@ -58,8 +71,8 @@ func (sta ProfessionsState) ItemRecipesIntake(irMap blizzardv2.ItemRecipesMap) e
 
 	persistEncodedRecipesIn := make(chan ProfessionsDatabase.PersistEncodedRecipesInJob)
 	go func() {
-		recipeItems := irMap.ToRecipesItemMap()
-		for getRecipesOutJob := range sta.ProfessionsDatabase.GetRecipes(irMap.RecipeIds()) {
+		recipeItems := nextIrMap.ToRecipesItemMap()
+		for getRecipesOutJob := range sta.ProfessionsDatabase.GetRecipes(nextIrMap.RecipeIds()) {
 			if getRecipesOutJob.Err != nil {
 				logging.WithFields(getRecipesOutJob.ToLogrusFields()).Error("failed to fetch recipe")
 

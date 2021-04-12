@@ -188,6 +188,15 @@ type RecipeResponse struct {
 	ModifiedCraftingSlots []RecipeModifiedCraftingSlots `json:"modified_crafting_slots"`
 }
 
+func (res RecipeResponse) ReagentItemIds() []ItemId {
+	out := make([]ItemId, len(res.Reagents))
+	for _, reagentItem := range res.Reagents {
+		out = append(out, reagentItem.Reagent.Id)
+	}
+
+	return out
+}
+
 func NewRecipeResponse(body []byte) (RecipeResponse, error) {
 	psTier := &RecipeResponse{}
 	if err := json.Unmarshal(body, psTier); err != nil {
