@@ -197,6 +197,12 @@ func (res RecipeResponse) ReagentItemIds() []ItemId {
 	return out
 }
 
+func (res RecipeResponse) HasCraftedItem() bool {
+	return !res.CraftedItem.IsZero() ||
+		!res.AllianceCraftedItem.IsZero() ||
+		!res.HordeCraftedItem.IsZero()
+}
+
 func NewRecipeResponse(body []byte) (RecipeResponse, error) {
 	psTier := &RecipeResponse{}
 	if err := json.Unmarshal(body, psTier); err != nil {

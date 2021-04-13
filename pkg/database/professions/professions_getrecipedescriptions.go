@@ -29,6 +29,10 @@ func (pdBase Database) GetRecipeSubjects(
 				return err
 			}
 
+			if recipe.BlizzardMeta.HasCraftedItem() {
+				continue
+			}
+
 			defaultDescription := recipe.BlizzardMeta.Description.ResolveDefaultName()
 			if defaultDescription == "" {
 				return nil
