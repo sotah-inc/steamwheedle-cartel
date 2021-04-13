@@ -75,7 +75,7 @@ func GetAllConnectedRealms(
 			cRealm.Realms = func() RealmResponses {
 				foundRealms := RealmResponses{}
 				for _, realm := range cRealm.Realms {
-					if !opts.RealmWhitelist.Has(realm.Slug) {
+					if len(opts.RealmWhitelist) > 0 && !opts.RealmWhitelist.Has(realm.Slug) {
 						continue
 					}
 

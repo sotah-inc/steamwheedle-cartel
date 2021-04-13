@@ -38,10 +38,6 @@ func NewRegionState(opts NewRegionStateOptions) (RegionsState, error) {
 
 	for _, region := range opts.Regions {
 		resolvedWhitelist := opts.RegionRealmSlugWhitelist.Get(region.Name)
-		if len(resolvedWhitelist) == 0 {
-			continue
-		}
-
 		connectedRealmIds, err := regionsDatabase.GetConnectedRealmIds(region.Name)
 		if err != nil {
 			return RegionsState{}, err
