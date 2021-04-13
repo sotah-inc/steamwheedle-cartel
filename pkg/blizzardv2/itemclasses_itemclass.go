@@ -59,6 +59,7 @@ func NewItemClassFromHTTP(uri string) (ItemClassResponse, ResponseMeta, error) {
 		logging.WithFields(logrus.Fields{
 			"status": resp.Status,
 			"uri":    ClearAccessToken(uri),
+			"body":   string(resp.Body),
 		}).Error("resp from item-class was not 200")
 
 		return ItemClassResponse{}, resp, errors.New("status was not 200")
