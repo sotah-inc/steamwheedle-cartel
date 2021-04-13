@@ -49,19 +49,19 @@ type ProfessionsState struct {
 
 func (sta ProfessionsState) GetListeners() SubjectListeners {
 	return SubjectListeners{
-		subjects.ProfessionsIntake:            sta.ListenForProfessionsIntake,
-		subjects.SkillTiersIntake:             sta.ListenForSkillTiersIntake,
-		subjects.Professions:                  sta.ListenForProfessions,
-		subjects.ProfessionsFromIds:           sta.ListenForProfessionsFromIds,
-		subjects.RecipesIntake:                sta.ListenForRecipesIntake,
-		subjects.SkillTier:                    sta.ListenForSkillTier,
-		subjects.SkillTiers:                   sta.ListenForSkillTiers,
-		subjects.Recipe:                       sta.ListenForRecipe,
-		subjects.Recipes:                      sta.ListenForRecipes,
-		subjects.MiniRecipes:                  sta.ListenForMiniRecipes,
-		subjects.RecipesQuery:                 sta.ListenForRecipesQuery,
-		subjects.ItemsRecipes:                 sta.ListenForItemsRecipes,
-		subjects.ItemRecipesIntake:            sta.ListenForItemRecipesIntake,
-		subjects.ProfessionRecipeDescriptions: sta.ListenForProfessionRecipeDescriptions,
+		subjects.ProfessionsIntake:        sta.ListenForProfessionsIntake,
+		subjects.SkillTiersIntake:         sta.ListenForSkillTiersIntake,
+		subjects.Professions:              sta.ListenForProfessions,
+		subjects.ProfessionsFromIds:       sta.ListenForProfessionsFromIds,
+		subjects.RecipesIntake:            sta.ListenForRecipesIntake,
+		subjects.SkillTier:                sta.ListenForSkillTier,
+		subjects.SkillTiers:               sta.ListenForSkillTiers,
+		subjects.Recipe:                   sta.ListenForRecipe,
+		subjects.Recipes:                  sta.ListenForRecipes,
+		subjects.MiniRecipes:              sta.ListenForMiniRecipes,
+		subjects.RecipesQuery:             sta.ListenForRecipesQuery,
+		subjects.ItemsRecipes:             sta.ListenForItemsRecipes,
+		subjects.ItemRecipesIntake:        sta.ListenForItemRecipesIntake,
+		subjects.ProfessionRecipeSubjects: sta.ListenForProfessionRecipeSubjects,
 	}
 }

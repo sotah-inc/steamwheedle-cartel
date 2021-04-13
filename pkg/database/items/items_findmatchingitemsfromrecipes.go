@@ -12,7 +12,7 @@ type FindMatchingItemsFromRecipesJob struct {
 }
 
 func (idBase Database) FindMatchingItemsFromRecipes(
-	recipeDescriptions blizzardv2.RecipeIdDescriptionMap,
+	rsMap blizzardv2.RecipeSubjectMap,
 ) (blizzardv2.ItemRecipesMap, error) {
 	// resolving all item-ids
 	ids, err := idBase.GetItemIds()
@@ -27,7 +27,7 @@ func (idBase Database) FindMatchingItemsFromRecipes(
 	// spinning up workers
 	worker := func() {
 		for id := range in {
-			recipeIds, err := idBase.FindMatchingItemFromRecipes(id, recipeDescriptions)
+			recipeIds, err := idBase.FindMatchingItemFromRecipes(id, rsMap)
 			if err != nil {
 				out <- FindMatchingItemsFromRecipesJob{
 					Err:       err,

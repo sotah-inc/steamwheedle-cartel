@@ -10,9 +10,9 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state/subjects"
 )
 
-func (sta ProfessionsState) ListenForProfessionRecipeDescriptions(stop ListenStopChan) error {
+func (sta ProfessionsState) ListenForProfessionRecipeSubjects(stop ListenStopChan) error {
 	return sta.Messenger.Subscribe(
-		string(subjects.ProfessionRecipeDescriptions),
+		string(subjects.ProfessionRecipeSubjects),
 		stop,
 		func(natsMsg nats.Msg) {
 			m := messenger.NewMessage()
@@ -37,7 +37,7 @@ func (sta ProfessionsState) ListenForProfessionRecipeDescriptions(stop ListenSto
 				return
 			}
 
-			rdMap, err := sta.ProfessionsDatabase.GetRecipeDescriptions(recipeIds)
+			rsMap, err := sta.ProfessionsDatabase.GetRecipeSubjects(recipeIds)
 			if err != nil {
 				m.Err = err.Error()
 				m.Code = mCodes.GenericError
@@ -47,7 +47,7 @@ func (sta ProfessionsState) ListenForProfessionRecipeDescriptions(stop ListenSto
 			}
 
 			// marshalling for messenger
-			encodedMessage, err := rdMap.EncodeForDelivery()
+			encodedMessage, err := rsMap.EncodeForDelivery()
 			if err != nil {
 				m.Err = err.Error()
 				m.Code = mCodes.GenericError

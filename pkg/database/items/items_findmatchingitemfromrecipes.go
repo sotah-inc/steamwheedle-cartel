@@ -10,7 +10,7 @@ import (
 
 func (idBase Database) FindMatchingItemFromRecipes(
 	id blizzardv2.ItemId,
-	recipeDescriptions blizzardv2.RecipeIdDescriptionMap,
+	rsMap blizzardv2.RecipeSubjectMap,
 ) (blizzardv2.RecipeIds, error) {
 	out := blizzardv2.RecipeIds{}
 
@@ -41,8 +41,8 @@ func (idBase Database) FindMatchingItemFromRecipes(
 			return nil
 		}
 
-		for recipeId, recipeDescription := range recipeDescriptions {
-			if !strings.Contains(foundDescription, recipeDescription) {
+		for recipeId, recipeSubject := range rsMap {
+			if !strings.Contains(foundDescription, recipeSubject) {
 				continue
 			}
 

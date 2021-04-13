@@ -13,35 +13,39 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state/subjects"
 )
 
+const EnchantingProfessionId = blizzardv2.ProfessionId(333)
+
 func (c Client) CallEnchantingRecipeCorrelation() error {
 	startTime := time.Now()
 
-	// resolving recipe-names
-	recipeDescriptionMessage, err := c.messengerClient.Request(messenger.RequestOptions{
-		Subject: string(subjects.ProfessionRecipeDescriptions),
-		Data:    []byte(strconv.Itoa(int(blizzardv2.ProfessionId(333)))),
+	// resolve recipes without crafting-item
+
+	// resolving recipe-subjects
+	recipeSubjectsMessage, err := c.messengerClient.Request(messenger.RequestOptions{
+		Subject: string(subjects.ProfessionRecipeSubjects),
+		Data:    []byte(strconv.Itoa(int(EnchantingProfessionId))),
 		Timeout: 10 * time.Minute,
 	})
 	if err != nil {
 		logging.WithField("error", err.Error()).Error(
-			"failed to resolve profession-recipe-names for profession 202 (enchanting)",
+			"failed to resolve profession-recipe-subjects for profession 202 (enchanting)",
 		)
 
 		return err
 	}
 
-	if recipeDescriptionMessage.Code != codes.Ok {
+	if recipeSubjectsMessage.Code != codes.Ok {
 		logging.WithFields(
-			recipeDescriptionMessage.ToLogrusFields(),
-		).Error("profession-recipe-names request failed")
+			recipeSubjectsMessage.ToLogrusFields(),
+		).Error("profession-recipe-subjects request failed")
 
-		return errors.New(recipeDescriptionMessage.Err)
+		return errors.New(recipeSubjectsMessage.Err)
 	}
 
 	// resolving matching items
 	matchingItemsMessage, err := c.messengerClient.Request(messenger.RequestOptions{
 		Subject: string(subjects.ItemsFindMatchingRecipes),
-		Data:    []byte(recipeDescriptionMessage.Data),
+		Data:    []byte(recipeSubjectsMessage.Data),
 		Timeout: 10 * time.Minute,
 	})
 	if err != nil {
