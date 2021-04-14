@@ -17,6 +17,8 @@ func (sta ProfessionsState) ListenForRecipesQuery(stop ListenStopChan) error {
 		// resolving the request
 		request, err := ProfessionsDatabase.NewQueryRequest(natsMsg.Data)
 		if err != nil {
+			logging.WithField("error", err.Error()).Error("failed to decode query-request")
+
 			m.Err = err.Error()
 			m.Code = mCodes.MsgJSONParseError
 			sta.Messenger.ReplyTo(natsMsg, m)
