@@ -29,7 +29,7 @@ func (pdBase Database) GetRecipe(id blizzardv2.RecipeId) (sotah.Recipe, error) {
 		data := recipesBucket.Get(recipeKeyName(id))
 		if data == nil {
 			return &GetRecipeError{
-				Err:    errors.New("error not found"),
+				Err:    errors.New("recipe not found"),
 				Exists: false,
 			}
 		}

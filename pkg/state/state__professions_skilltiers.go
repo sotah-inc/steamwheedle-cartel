@@ -102,7 +102,7 @@ func (sta ProfessionsState) ListenForSkillTiers(stop ListenStopChan) error {
 			var recipes []sotah.Recipe
 			for recipesOutJob := range recipesOut {
 				if recipesOutJob.Err != nil {
-					if getRecipeError, ok := recipesOutJob.Err.(professions.GetRecipeError); ok {
+					if getRecipeError, ok := recipesOutJob.Err.(*professions.GetRecipeError); ok {
 						if !getRecipeError.Exists {
 							logging.WithField("recipe", recipesOutJob.Id).Info("recipe not found")
 
