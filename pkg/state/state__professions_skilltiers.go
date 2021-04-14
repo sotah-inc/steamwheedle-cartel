@@ -4,6 +4,8 @@ import (
 	"encoding/base64"
 	"encoding/json"
 
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
+
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database/professions"
 
 	"github.com/nats-io/nats.go"
@@ -102,6 +104,8 @@ func (sta ProfessionsState) ListenForSkillTiers(stop ListenStopChan) error {
 				if recipesOutJob.Err != nil {
 					if getRecipeError, ok := recipesOutJob.Err.(professions.GetRecipeError); ok {
 						if !getRecipeError.Exists {
+							logging.WithField("recipe", recipesOutJob.Id).Info("recipe not found")
+
 							continue
 						}
 					}
