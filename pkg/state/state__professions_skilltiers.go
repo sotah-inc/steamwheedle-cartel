@@ -4,6 +4,8 @@ import (
 	"encoding/base64"
 	"encoding/json"
 
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database/professions"
+
 	"github.com/nats-io/nats.go"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/locale"
@@ -98,6 +100,12 @@ func (sta ProfessionsState) ListenForSkillTiers(stop ListenStopChan) error {
 			var recipes []sotah.Recipe
 			for recipesOutJob := range recipesOut {
 				if recipesOutJob.Err != nil {
+					if getRecipeError, ok := recipesOutJob.Err.(professions.GetRecipeError); ok {
+						if !getRecipeError.Exists {
+							continue
+						}
+					}
+
 					m.Err = recipesOutJob.Err.Error()
 					m.Code = codes.GenericError
 					sta.Messenger.ReplyTo(natsMsg, m)

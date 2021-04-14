@@ -8,6 +8,14 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 )
 
+type GetRecipeError struct {
+	Err error
+
+	Exists bool
+}
+
+func (err GetRecipeError) Error() string { return err.Err.Error() }
+
 func (pdBase Database) GetRecipe(id blizzardv2.RecipeId) (sotah.Recipe, error) {
 	out := sotah.Recipe{}
 
@@ -20,14 +28,18 @@ func (pdBase Database) GetRecipe(id blizzardv2.RecipeId) (sotah.Recipe, error) {
 
 		data := recipesBucket.Get(recipeKeyName(id))
 		if data == nil {
-			return errors.New("recipe not found")
+			return &GetRecipeError{
+				Err:    errors.New("error not found"),
+				Exists: false,
+			}
 		}
 
-		var err error
-		out, err = sotah.NewRecipe(data)
+		recipe, err := sotah.NewRecipe(data)
 		if err != nil {
 			return err
 		}
+
+		out = recipe
 
 		return nil
 	})
