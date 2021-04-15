@@ -16,6 +16,10 @@ func namesBucketName() []byte {
 	return []byte("pet-names")
 }
 
+func flagsBucketName() []byte {
+	return []byte("flags")
+}
+
 // keying
 func baseKeyName(id blizzardv2.PetId) []byte {
 	return []byte(fmt.Sprintf("pet-%d", id))
@@ -41,6 +45,10 @@ func petIdFromNameKeyName(key []byte) (blizzardv2.PetId, error) {
 	}
 
 	return blizzardv2.PetId(unparsedId), nil
+}
+
+func isCompleteKeyName() []byte {
+	return []byte("is-complete")
 }
 
 // db

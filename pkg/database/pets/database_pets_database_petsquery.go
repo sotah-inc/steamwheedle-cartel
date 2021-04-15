@@ -43,7 +43,10 @@ func NewQueryItems(
 	for id, normalizedName := range idNormalizedNameMap {
 		foundName, ok := normalizedName[providedLocale]
 		if !ok {
-			return QueryItems{}, fmt.Errorf("could not resolve normalized-name from locale %s", providedLocale)
+			return QueryItems{}, fmt.Errorf(
+				"could not resolve normalized-name from locale %s",
+				providedLocale,
+			)
 		}
 
 		out[i] = QueryItem{PetId: id, Target: foundName}
