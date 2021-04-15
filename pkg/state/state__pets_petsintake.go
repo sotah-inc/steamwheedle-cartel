@@ -34,6 +34,18 @@ func (sta PetsState) ListenForPetsIntake(stop ListenStopChan) error {
 }
 
 func (sta PetsState) petsIntake() error {
+	// checking if pets-intake is complete first
+	isComplete, err := sta.PetsDatabase.IsComplete()
+	if err != nil {
+		logging.WithField("error", err.Error()).Error("failed to check if pets-database is complete")
+
+		return err
+	}
+
+	if isComplete {
+		return nil
+	}
+
 	startTime := time.Now()
 
 	// resolving pet-ids to not sync
@@ -81,6 +93,15 @@ func (sta PetsState) petsIntake() error {
 		logging.WithField("error", err.Error()).Error("failed to persist pets")
 
 		return err
+	}
+
+	if totalPersisted == 0 {
+		logging.WithFields(logrus.Fields{
+			"total":          totalPersisted,
+			"duration-in-ms": time.Since(startTime).Milliseconds(),
+		}).Info("none were persisted in pets-intake, flagging as complete")
+
+		return sta.PetsDatabase.SetIsComplete()
 	}
 
 	logging.WithFields(logrus.Fields{

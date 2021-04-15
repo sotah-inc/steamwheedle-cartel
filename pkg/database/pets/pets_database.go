@@ -128,3 +128,45 @@ func (pdBase Database) FindPets(petIds []blizzardv2.PetId) ([]sotah.Pet, error) 
 
 	return out, nil
 }
+
+func (pdBase Database) IsComplete() (bool, error) {
+	out := false
+
+	err := pdBase.db.View(func(tx *bolt.Tx) error {
+		bkt := tx.Bucket(flagsBucketName())
+		if bkt == nil {
+			return nil
+		}
+
+		data := bkt.Get(isCompleteKeyName())
+		if data == nil {
+			return nil
+		}
+
+		if string(data) == "1" {
+			out = true
+		}
+
+		return nil
+	})
+	if err != nil {
+		return false, err
+	}
+
+	return out, nil
+}
+
+func (pdBase Database) SetIsComplete() error {
+	return pdBase.db.Batch(func(tx *bolt.Tx) error {
+		bkt, err := tx.CreateBucketIfNotExists(flagsBucketName())
+		if err != nil {
+			return err
+		}
+
+		if err := bkt.Put(isCompleteKeyName(), []byte("1")); err != nil {
+			return err
+		}
+
+		return nil
+	})
+}
