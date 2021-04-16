@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 
 	nats "github.com/nats-io/nats.go"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger/codes"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
@@ -12,9 +11,8 @@ import (
 )
 
 type BootResponse struct {
-	Regions     sotah.RegionList               `json:"regions"`
-	ItemClasses []blizzardv2.ItemClassResponse `json:"item_classes"`
-	Expansions  []sotah.Expansion              `json:"expansions"`
+	Regions    sotah.RegionList  `json:"regions"`
+	Expansions []sotah.Expansion `json:"expansions"`
 }
 
 func (res BootResponse) EncodeForDelivery() ([]byte, error) {
@@ -26,9 +24,8 @@ func (sta BootState) ListenForBoot(stop ListenStopChan) error {
 		m := messenger.NewMessage()
 
 		res := BootResponse{
-			Regions:     sta.Regions,
-			ItemClasses: sta.ItemClasses,
-			Expansions:  sta.Expansions,
+			Regions:    sta.Regions,
+			Expansions: sta.Expansions,
 		}
 
 		encodedResponse, err := res.EncodeForDelivery()
