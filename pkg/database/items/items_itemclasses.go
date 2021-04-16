@@ -3,6 +3,8 @@ package items
 import (
 	"encoding/json"
 
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
+
 	"github.com/boltdb/bolt"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 )
@@ -55,14 +57,11 @@ func (idBase Database) GetItemClasses() ([]blizzardv2.ItemClassResponse, error) 
 	return out, nil
 }
 
-func (idBase Database) PersistItemClasses(itemClasses []blizzardv2.ItemClassResponse) error {
+func (idBase Database) PersistItemClasses(encodedItemClasses []byte) error {
+	logging.Info("persisting encoded item-classes")
+
 	return idBase.db.Batch(func(tx *bolt.Tx) error {
 		bkt, err := tx.CreateBucketIfNotExists(itemClassesBucket())
-		if err != nil {
-			return err
-		}
-
-		encodedItemClasses, err := json.Marshal(itemClasses)
 		if err != nil {
 			return err
 		}

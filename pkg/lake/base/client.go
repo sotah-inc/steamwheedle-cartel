@@ -34,4 +34,5 @@ type Client interface {
 		name blizzardv2.RegionName,
 		ids []blizzardv2.ConnectedRealmId,
 	) ([]byte, error)
+	GetEncodedItemClasses() ([]byte, error)
 }

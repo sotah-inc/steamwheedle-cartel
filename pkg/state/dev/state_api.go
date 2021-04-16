@@ -96,6 +96,9 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 		},
 		ResolveRecipeMedias: sta.BlizzardState.ResolveRecipeMedias,
 		PrimarySkillTiers:   config.SotahConfig.PrimarySkillTiers,
+		ResolveItemClasses: func() ([]blizzardv2.ItemClassResponse, error) {
+			return sta.BlizzardState.ResolveItemClasses(regions)
+		},
 	})
 	if err != nil {
 		logging.WithField("error", err.Error()).Error("failed to initialise lake-client")

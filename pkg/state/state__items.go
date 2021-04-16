@@ -32,9 +32,26 @@ func NewItemsState(opts NewItemsStateOptions) (ItemsState, error) {
 
 	hasItemClasses, err := itemsDatabase.HasItemClasses()
 	if err != nil {
-		logging.WithField("error", err.Error()).Error("failed to check if items-database has item-classes")
+		logging.WithField(
+			"error",
+			err.Error(),
+		).Error("failed to check if items-database has item-classes")
 
 		return ItemsState{}, err
+	}
+	if !hasItemClasses {
+		encodedItemClasses, err := opts.LakeClient.GetEncodedItemClasses()
+		if err != nil {
+			logging.WithField("error", err.Error()).Error("failed to gather encoded item-classes")
+
+			return ItemsState{}, err
+		}
+
+		if err := itemsDatabase.PersistItemClasses(encodedItemClasses); err != nil {
+			logging.WithField("error", err.Error()).Error("failed to persist encoded item-classes")
+
+			return ItemsState{}, err
+		}
 	}
 
 	return ItemsState{

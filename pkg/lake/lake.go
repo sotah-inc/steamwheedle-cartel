@@ -27,16 +27,17 @@ type NewClientOptions struct {
 	ResolveRecipeMedias func(
 		in chan blizzardv2.GetRecipeMediasInJob,
 	) chan blizzardv2.GetRecipeMediasOutJob
-	PrimarySkillTiers map[string][]blizzardv2.SkillTierId
+	PrimarySkillTiers  map[string][]blizzardv2.SkillTierId
+	ResolveItemClasses func() ([]blizzardv2.ItemClassResponse, error)
 }
 
 func NewClient(opts NewClientOptions) (BaseLake.Client, error) {
 	if opts.UseGCloud {
 		return DiskLake.NewClient(DiskLake.NewClientOptions{
 			CacheDir:                opts.CacheDir,
+			RegionNames:             opts.RegionNames,
 			ResolveItems:            opts.ResolveItems,
 			ResolveItemMedias:       opts.ResolveItemMedias,
-			RegionNames:             opts.RegionNames,
 			ResolvePets:             opts.ResolvePets,
 			ResolveProfessions:      opts.ResolveProfessions,
 			ResolveProfessionMedias: opts.ResolveProfessionMedias,
@@ -44,6 +45,7 @@ func NewClient(opts NewClientOptions) (BaseLake.Client, error) {
 			ResolveRecipes:          opts.ResolveRecipes,
 			ResolveRecipeMedias:     opts.ResolveRecipeMedias,
 			PrimarySkillTiers:       opts.PrimarySkillTiers,
+			ResolveItemClasses:      opts.ResolveItemClasses,
 		})
 	}
 
@@ -59,5 +61,6 @@ func NewClient(opts NewClientOptions) (BaseLake.Client, error) {
 		ResolveRecipes:          opts.ResolveRecipes,
 		ResolveRecipeMedias:     opts.ResolveRecipeMedias,
 		PrimarySkillTiers:       opts.PrimarySkillTiers,
+		ResolveItemClasses:      opts.ResolveItemClasses,
 	})
 }
