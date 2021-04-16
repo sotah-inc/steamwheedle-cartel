@@ -20,6 +20,10 @@ func blacklistBucketName() []byte {
 	return []byte("item-blacklist")
 }
 
+func itemClassesBucket() []byte {
+	return []byte("item-classes")
+}
+
 // keying
 func baseKeyName(id blizzardv2.ItemId) []byte {
 	return []byte(fmt.Sprintf("item-%d", id))
@@ -58,6 +62,10 @@ func itemIdFromBlacklistKeyName(key []byte) (blizzardv2.ItemId, error) {
 	}
 
 	return blizzardv2.ItemId(unparsedItemId), nil
+}
+
+func itemClassesKeyName() []byte {
+	return []byte("item-classes")
 }
 
 // db
