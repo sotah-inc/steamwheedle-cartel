@@ -74,6 +74,7 @@ type ResponseMeta struct {
 	ConnectionDuration time.Duration
 	RequestDuration    time.Duration
 	LastModified       time.Time
+	Headers            map[string][]string
 }
 
 type DownloadOptions struct {
@@ -129,6 +130,7 @@ func Download(opts DownloadOptions) (ResponseMeta, error) {
 		ConnectionDuration: tp.ConnDuration(),
 		RequestDuration:    tp.ReqDuration(),
 		LastModified:       parsedLastModified,
+		Headers:            resp.Header,
 	}
 
 	// parsing the body
