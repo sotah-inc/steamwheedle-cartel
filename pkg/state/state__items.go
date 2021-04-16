@@ -30,6 +30,13 @@ func NewItemsState(opts NewItemsStateOptions) (ItemsState, error) {
 		return ItemsState{}, err
 	}
 
+	hasItemClasses, err := itemsDatabase.HasItemClasses()
+	if err != nil {
+		logging.WithField("error", err.Error()).Error("failed to check if items-database has item-classes")
+
+		return ItemsState{}, err
+	}
+
 	return ItemsState{
 		LakeClient:    opts.LakeClient,
 		Messenger:     opts.Messenger,
