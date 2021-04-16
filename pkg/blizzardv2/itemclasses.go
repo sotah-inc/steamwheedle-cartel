@@ -76,7 +76,7 @@ func GetAllItemClasses(opts GetAllItemClassesOptions) ([]ItemClassResponse, erro
 	postWork := func() {
 		close(out)
 	}
-	util.Work(4, worker, postWork)
+	util.Work(2, worker, postWork)
 
 	// queueing it up
 	go func() {
