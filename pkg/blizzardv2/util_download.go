@@ -92,6 +92,8 @@ func Download(opts DownloadOptions) (ResponseMeta, error) {
 	}
 	req.Header.Add("Accept-Encoding", "gzip")
 
+	req.Header.Set("User-Agent", "SteamwheedleCartelServer/0.1")
+
 	// optionally adding if-modified-since header
 	if !opts.IfModifiedSince.IsZero() {
 		req.Header.Add("If-Modified-Since", opts.IfModifiedSince.Format(RFC1123Blizzard))
