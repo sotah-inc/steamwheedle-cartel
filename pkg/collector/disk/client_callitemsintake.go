@@ -12,6 +12,10 @@ import (
 )
 
 func (c Client) CallItemsIntake(ids blizzardv2.ItemIds) error {
+	if len(ids) == 0 {
+		return nil
+	}
+
 	// forwarding the received item-ids to items-history intake
 	encodedTuples, err := ids.EncodeForDelivery()
 	if err != nil {
