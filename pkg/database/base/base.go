@@ -33,7 +33,7 @@ func Paths(databaseDir string) ([]databasePathPair, error) {
 	}
 
 	out := make([]databasePathPair, len(databaseFilepaths))
-	for _, fPath := range databaseFilepaths {
+	for i, fPath := range databaseFilepaths {
 		targetTimestamp, err := strconv.Atoi(fPath.Name()[0 : len(fPath.Name())-len(".db")])
 		if err != nil {
 			logging.WithFields(logrus.Fields{
@@ -56,10 +56,10 @@ func Paths(databaseDir string) ([]databasePathPair, error) {
 			return []databasePathPair{}, err
 		}
 
-		out = append(out, databasePathPair{
+		out[i] = databasePathPair{
 			FullPath:  fullPath,
 			Timestamp: sotah.UnixTimestamp(targetTimestamp),
-		})
+		}
 	}
 
 	return out, nil
