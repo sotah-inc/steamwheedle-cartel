@@ -13,7 +13,7 @@ import (
 )
 
 func RetentionLimit() time.Time {
-	return time.Now().Add(-1 * time.Hour * 24 * 30)
+	return time.Now().Add(-1 * time.Hour * 24 * 1)
 }
 
 type databasePathPair struct {
@@ -32,7 +32,7 @@ func Paths(databaseDir string) ([]databasePathPair, error) {
 		return []databasePathPair{}, err
 	}
 
-	var out []databasePathPair
+	out := make([]databasePathPair, len(databaseFilepaths))
 	for _, fPath := range databaseFilepaths {
 		targetTimestamp, err := strconv.Atoi(fPath.Name()[0 : len(fPath.Name())-len(".db")])
 		if err != nil {
