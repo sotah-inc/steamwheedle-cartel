@@ -13,7 +13,7 @@ import (
 )
 
 func RetentionLimit() time.Time {
-	return time.Now().Add(-1 * time.Hour * 24 * 1)
+	return time.Now().Add(-1 * time.Hour * 24 * 30)
 }
 
 type databasePathPair struct {
