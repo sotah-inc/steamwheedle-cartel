@@ -11,20 +11,26 @@ func (c Client) Collect() error {
 	startTime := time.Now()
 	logging.Info("calling DiskCollector.Collect()")
 
-	collectAuctionsResults, err := c.collectAuctions()
-	if err != nil {
-		return err
+	//collectAuctionsResults, err := c.collectAuctions()
+	//if err != nil {
+	//	return err
+	//}
+
+	collectAuctionsResults := collectAuctionsResults{
+		itemIds:          blizzardv2.ItemIds{},
+		regionTimestamps: nil,
+		tuples:           nil,
 	}
 
-	if err := c.CallLiveAuctionsIntake(
-		collectAuctionsResults.tuples.RegionConnectedRealmTuples(),
-	); err != nil {
-		return err
-	}
+	//if err := c.CallLiveAuctionsIntake(
+	//	collectAuctionsResults.tuples.RegionConnectedRealmTuples(),
+	//); err != nil {
+	//	return err
+	//}
 
-	if err := c.CallItemPricesIntake(collectAuctionsResults.tuples); err != nil {
-		return err
-	}
+	//if err := c.CallItemPricesIntake(collectAuctionsResults.tuples); err != nil {
+	//	return err
+	//}
 
 	if err := c.CallPetsIntake(); err != nil {
 		return err
@@ -43,13 +49,13 @@ func (c Client) Collect() error {
 		return err
 	}
 
-	if err := c.CallRecipePricesIntake(collectAuctionsResults.tuples); err != nil {
-		return err
-	}
+	//if err := c.CallRecipePricesIntake(collectAuctionsResults.tuples); err != nil {
+	//	return err
+	//}
 
-	if err := c.CallStatsIntake(collectAuctionsResults.tuples); err != nil {
-		return err
-	}
+	//if err := c.CallStatsIntake(collectAuctionsResults.tuples); err != nil {
+	//	return err
+	//}
 
 	if err := c.CallPrunePricelistHistories(); err != nil {
 		return err
