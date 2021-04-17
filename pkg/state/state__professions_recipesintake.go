@@ -9,6 +9,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	ProfessionsDatabase "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database/professions" // nolint:lll
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database/professions/professionsflags"    // nolint:lll
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger/codes"
@@ -87,6 +88,20 @@ func (resp RecipesIntakeResponse) EncodeForDelivery() (string, error) {
 }
 
 func (sta ProfessionsState) RecipesIntake() (RecipesIntakeResponse, error) {
+	isComplete, err := sta.ProfessionsDatabase.IsComplete(professionsflags.Recipes)
+	if err != nil {
+		logging.WithField(
+			"error",
+			err.Error(),
+		).Error("failed to get is-complete for professions-database")
+
+		return RecipesIntakeResponse{}, err
+	}
+
+	if isComplete {
+		return RecipesIntakeResponse{}, nil
+	}
+
 	startTime := time.Now()
 
 	// gathering profession recipes-group
@@ -183,6 +198,14 @@ func (sta ProfessionsState) RecipesIntake() (RecipesIntakeResponse, error) {
 
 	resp := RecipesIntakeResponse{
 		RecipeItemIds: recipeItemIds,
+	}
+
+	if totalPersisted == 0 {
+		if err := sta.ProfessionsDatabase.SetIsComplete(professionsflags.Recipes); err != nil {
+			return RecipesIntakeResponse{}, err
+		}
+
+		return resp, nil
 	}
 
 	return resp, nil

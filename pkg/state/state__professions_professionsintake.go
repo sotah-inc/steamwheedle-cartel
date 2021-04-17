@@ -3,11 +3,11 @@ package state
 import (
 	"time"
 
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
-
 	"github.com/nats-io/nats.go"
 	"github.com/sirupsen/logrus"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	ProfessionsDatabase "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database/professions" // nolint:lll
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database/professions/professionsflags"    // nolint:lll
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger/codes"
@@ -36,6 +36,20 @@ func (sta ProfessionsState) ListenForProfessionsIntake(stop ListenStopChan) erro
 }
 
 func (sta ProfessionsState) ProfessionsIntake() error {
+	isComplete, err := sta.ProfessionsDatabase.IsComplete(professionsflags.Professions)
+	if err != nil {
+		logging.WithField(
+			"error",
+			err.Error(),
+		).Error("failed to get is-complete for professions-database")
+
+		return err
+	}
+
+	if isComplete {
+		return nil
+	}
+
 	startTime := time.Now()
 
 	// resolving profession-ids to not sync
@@ -102,6 +116,10 @@ func (sta ProfessionsState) ProfessionsIntake() error {
 		"total":          totalPersisted,
 		"duration-in-ms": time.Since(startTime).Milliseconds(),
 	}).Info("total persisted in professions-intake")
+
+	if totalPersisted == 0 {
+		return sta.ProfessionsDatabase.SetIsComplete(professionsflags.Professions)
+	}
 
 	return nil
 }

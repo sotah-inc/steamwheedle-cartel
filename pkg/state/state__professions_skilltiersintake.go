@@ -7,6 +7,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	ProfessionsDatabase "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database/professions" // nolint:lll
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database/professions/professionsflags"    // nolint:lll
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger/codes"
@@ -45,6 +46,20 @@ func (sta ProfessionsState) ListenForSkillTiersIntake(stop ListenStopChan) error
 }
 
 func (sta ProfessionsState) SkillTiersIntake(professionId blizzardv2.ProfessionId) error {
+	isComplete, err := sta.ProfessionsDatabase.IsComplete(professionsflags.SkillTiers)
+	if err != nil {
+		logging.WithField(
+			"error",
+			err.Error(),
+		).Error("failed to get is-complete for professions-database")
+
+		return err
+	}
+
+	if isComplete {
+		return nil
+	}
+
 	startTime := time.Now()
 
 	// resolving the profession
@@ -124,6 +139,10 @@ func (sta ProfessionsState) SkillTiersIntake(professionId blizzardv2.ProfessionI
 		"total":          totalPersisted,
 		"duration-in-ms": time.Since(startTime).Milliseconds(),
 	}).Info("total persisted in skill-tier-intake")
+
+	if totalPersisted == 0 {
+		return sta.ProfessionsDatabase.SetIsComplete(professionsflags.SkillTiers)
+	}
 
 	return nil
 }

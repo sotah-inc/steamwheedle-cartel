@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database/professions/professionsflags" // nolint:lll
 )
 
 // bucketing
@@ -40,6 +41,10 @@ func professionIdFromKeyName(key []byte) (blizzardv2.ProfessionId, error) {
 	}
 
 	return blizzardv2.ProfessionId(unparsedId), nil
+}
+
+func flagsBucketName() []byte {
+	return []byte("flags")
 }
 
 // skill-tiers keying
@@ -85,6 +90,10 @@ func recipeIdFromNameKeyName(key []byte) (blizzardv2.RecipeId, error) {
 
 func itemsCraftedByKeyName(id blizzardv2.ItemId) []byte {
 	return []byte(fmt.Sprintf("item-%d-crafted-by", id))
+}
+
+func isCompleteKeyName(flag professionsflags.ProfessionFlag) []byte {
+	return []byte(flag)
 }
 
 // db
