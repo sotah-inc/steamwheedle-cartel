@@ -141,6 +141,12 @@ func (client Client) GetEncodedRecipes(
 				job.RecipeResponse.HordeCraftedItem.Id,
 				job.RecipeResponse.AllianceCraftedItem.Id,
 			}
+
+			logging.WithFields(logrus.Fields{
+				"crafted-item-ids":          craftedItemIds,
+				"crafted-item-ids-non-zero": craftedItemIds.NonZero(),
+			}).Info("crafted item-ids")
+
 			itemRecipesMap := blizzardv2.ItemRecipesMap{}
 			for _, id := range craftedItemIds.NonZero() {
 				logging.WithFields(logrus.Fields{
