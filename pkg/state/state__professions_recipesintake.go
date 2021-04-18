@@ -160,9 +160,10 @@ func (sta ProfessionsState) RecipesIntake() (RecipesIntakeResponse, error) {
 			}
 
 			logging.WithFields(logrus.Fields{
-				"src": job.ItemRecipesMap(),
-				"dst": itemRecipes,
-			})
+				"recipe": job.Id(),
+				"src":    job.ItemRecipesMap(),
+				"dst":    itemRecipes,
+			}).Info("handling item-recipes")
 
 			itemRecipes = itemRecipes.Merge(job.ItemRecipesMap())
 		}
@@ -170,8 +171,6 @@ func (sta ProfessionsState) RecipesIntake() (RecipesIntakeResponse, error) {
 		close(persistRecipesIn)
 
 		itemRecipesOut <- itemRecipes
-
-		logging.WithField("item-recipes", itemRecipesOut).Info("received aggregated item-recipes")
 
 		close(itemRecipesOut)
 	}()
@@ -186,7 +185,7 @@ func (sta ProfessionsState) RecipesIntake() (RecipesIntakeResponse, error) {
 
 	// persisting item-recipe-ids
 	itemRecipes := <-itemRecipesOut
-	logging.WithField("item-recipes", itemRecipes).Info("persisting")
+	logging.WithField("item-recipes", itemRecipes).Info("received aggregated item-recipes")
 	if err := sta.ProfessionsDatabase.PersistItemRecipes(itemRecipes); err != nil {
 		logging.WithField("error", err.Error()).Error("failed to persist item-recipes")
 
