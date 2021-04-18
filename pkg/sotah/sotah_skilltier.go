@@ -3,6 +3,8 @@ package sotah
 import (
 	"encoding/json"
 
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/locale"
+
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 )
@@ -44,6 +46,10 @@ func (skillTier SkillTier) RecipeIds() []blizzardv2.RecipeId {
 
 	for _, category := range skillTier.BlizzardMeta.Categories {
 		for _, recipe := range category.Recipes {
+			if recipe.Name[locale.EnUS] != "Boneshatter Armguards" {
+				continue
+			}
+
 			out = append(out, recipe.Id)
 		}
 	}
