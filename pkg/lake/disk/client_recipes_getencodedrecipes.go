@@ -143,11 +143,21 @@ func (client Client) GetEncodedRecipes(
 			}
 			itemRecipesMap := blizzardv2.ItemRecipesMap{}
 			for _, id := range craftedItemIds.NonZero() {
+				logging.WithFields(logrus.Fields{
+					"item":   id,
+					"recipe": job.RecipeResponse.Id,
+				}).Info("adding entry to item-recipes map")
+
 				itemRecipesMap = itemRecipesMap.Merge(blizzardv2.ItemRecipesMap{
 					id: blizzardv2.RecipeIds{job.RecipeResponse.Id},
 				})
 			}
 			for _, id := range job.RecipeResponse.ReagentItemIds() {
+				logging.WithFields(logrus.Fields{
+					"item":   id,
+					"recipe": job.RecipeResponse.Id,
+				}).Info("adding entry to item-recipes map")
+
 				itemRecipesMap = itemRecipesMap.Merge(blizzardv2.ItemRecipesMap{
 					id: blizzardv2.RecipeIds{job.RecipeResponse.Id},
 				})
