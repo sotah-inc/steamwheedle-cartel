@@ -188,8 +188,8 @@ type RecipeResponse struct {
 	ModifiedCraftingSlots []RecipeModifiedCraftingSlots `json:"modified_crafting_slots"`
 }
 
-func (res RecipeResponse) ReagentItemIds() []ItemId {
-	out := make([]ItemId, len(res.Reagents))
+func (res RecipeResponse) ReagentItemIds() ItemIds {
+	out := make(ItemIds, len(res.Reagents))
 	for _, reagentItem := range res.Reagents {
 		out = append(out, reagentItem.Reagent.Id)
 	}
