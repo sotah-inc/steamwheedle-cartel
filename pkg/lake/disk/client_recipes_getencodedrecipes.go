@@ -136,30 +136,15 @@ func (client Client) GetEncodedRecipes(
 				continue
 			}
 
-			craftedItemIds := blizzardv2.ItemIds{
-				job.RecipeResponse.CraftedItem.Id,
-				job.RecipeResponse.HordeCraftedItem.Id,
-				job.RecipeResponse.AllianceCraftedItem.Id,
-			}
-
 			itemRecipesMap := blizzardv2.ItemRecipesMap{}
-			for _, id := range craftedItemIds.NonZero() {
-				itemRecipesMap = itemRecipesMap.Merge(blizzardv2.ItemRecipesMap{
-					id: blizzardv2.RecipeIds{job.RecipeResponse.Id},
-				})
-			}
-
-			logging.WithFields(logrus.Fields{
-				"reagent-item-ids":          job.RecipeResponse.ReagentItemIds(),
-				"reagent-item-ids-non-zero": job.RecipeResponse.ReagentItemIds().NonZero(),
-			}).Info("reagent item-ids")
-
-			for _, id := range job.RecipeResponse.ReagentItemIds().NonZero() {
-				logging.WithFields(logrus.Fields{
-					"item":   id,
-					"recipe": job.RecipeResponse.Id,
-				}).Info("adding entry to item-recipes map")
-
+			totalItemIds := job.RecipeResponse.ReagentItemIds().NonZero().Merge(
+				blizzardv2.ItemIds{
+					job.RecipeResponse.CraftedItem.Id,
+					job.RecipeResponse.HordeCraftedItem.Id,
+					job.RecipeResponse.AllianceCraftedItem.Id,
+				}.NonZero(),
+			)
+			for _, id := range totalItemIds {
 				itemRecipesMap = itemRecipesMap.Merge(blizzardv2.ItemRecipesMap{
 					id: blizzardv2.RecipeIds{job.RecipeResponse.Id},
 				})
@@ -170,7 +155,7 @@ func (client Client) GetEncodedRecipes(
 			out <- getEncodedRecipeJob{
 				err:                   nil,
 				id:                    job.RecipeResponse.Id,
-				itemRecipesMap:        blizzardv2.ItemRecipesMap{},
+				itemRecipesMap:        itemRecipesMap,
 				encodedRecipe:         encodedRecipe,
 				encodedNormalizedName: encodedNormalizedName,
 			}
