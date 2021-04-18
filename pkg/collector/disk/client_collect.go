@@ -25,9 +25,9 @@ func (c Client) Collect() error {
 	//	return err
 	//}
 
-	if err := c.CallPetsIntake(); err != nil {
-		return err
-	}
+	//if err := c.CallPetsIntake(); err != nil {
+	//	return err
+	//}
 
 	if err := c.CallProfessionsIntake(); err != nil {
 		return err
@@ -52,9 +52,9 @@ func (c Client) Collect() error {
 	//	return err
 	//}
 
-	if err := c.CallPrunePricelistHistories(); err != nil {
-		return err
-	}
+	//if err := c.CallPrunePricelistHistories(); err != nil {
+	//	return err
+	//}
 
 	// resolving next item-ids from auctions and recipes intake
 	//nextItemIds := blizzardv2.ItemIdsMap{}
@@ -69,13 +69,13 @@ func (c Client) Collect() error {
 	//	return err
 	//}
 
-	if err := c.CallTokenHistoryIntake(); err != nil {
-		return err
-	}
+	//if err := c.CallTokenHistoryIntake(); err != nil {
+	//	return err
+	//}
 
-	if err := c.CallEnchantingRecipeCorrelation(); err != nil {
-		return err
-	}
+	//if err := c.CallEnchantingRecipeCorrelation(); err != nil {
+	//	return err
+	//}
 
 	logging.WithField(
 		"duration-in-ms",
