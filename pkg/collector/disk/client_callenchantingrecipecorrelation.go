@@ -18,8 +18,6 @@ const EnchantingProfessionId = blizzardv2.ProfessionId(333)
 func (c Client) CallEnchantingRecipeCorrelation() error {
 	startTime := time.Now()
 
-	// resolve recipes without crafting-item
-
 	// resolving recipe-subjects
 	recipeSubjectsMessage, err := c.messengerClient.Request(messenger.RequestOptions{
 		Subject: string(subjects.ProfessionRecipeSubjects),
