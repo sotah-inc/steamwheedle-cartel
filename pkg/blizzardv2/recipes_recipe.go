@@ -131,7 +131,7 @@ func (ids RecipeIds) Subtract(input RecipeIds) RecipeIds {
 }
 
 func (ids RecipeIds) Merge(input RecipeIds) RecipeIds {
-	inputMap := NewRecipeIdsMap(input)
+	inputMap := NewRecipeIdsMap(ids)
 	for _, id := range input {
 		inputMap[id] = struct{}{}
 	}

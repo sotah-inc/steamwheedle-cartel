@@ -163,6 +163,7 @@ func (sta ProfessionsState) RecipesIntake() (RecipesIntakeResponse, error) {
 				"recipe": job.Id(),
 				"src":    job.ItemRecipesMap(),
 				"dst":    itemRecipes,
+				"merged": itemRecipes.Merge(job.ItemRecipesMap()),
 			}).Info("handling item-recipes")
 
 			itemRecipes = itemRecipes.Merge(job.ItemRecipesMap())
