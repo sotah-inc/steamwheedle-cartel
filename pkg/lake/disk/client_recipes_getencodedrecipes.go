@@ -156,7 +156,7 @@ func (client Client) GetEncodedRecipes(
 			out <- getEncodedRecipeJob{
 				err:                   nil,
 				id:                    job.RecipeResponse.Id,
-				itemRecipesMap:        itemRecipesMap,
+				itemRecipesMap:        blizzardv2.ItemRecipesMap{},
 				encodedRecipe:         encodedRecipe,
 				encodedNormalizedName: encodedNormalizedName,
 			}
