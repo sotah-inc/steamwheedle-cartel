@@ -142,7 +142,7 @@ func (client Client) GetEncodedRecipes(
 				job.RecipeResponse.AllianceCraftedItem.Id,
 			}
 			itemRecipesMap := blizzardv2.ItemRecipesMap{}
-			for _, id := range craftedItemIds {
+			for _, id := range craftedItemIds.NonZero() {
 				itemRecipesMap = itemRecipesMap.Merge(blizzardv2.ItemRecipesMap{
 					id: blizzardv2.RecipeIds{job.RecipeResponse.Id},
 				})
