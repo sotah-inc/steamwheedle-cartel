@@ -150,8 +150,6 @@ func (client Client) GetEncodedRecipes(
 				})
 			}
 
-			logging.WithField("item-recipes", itemRecipesMap).Info("resolve item-recipes")
-
 			out <- getEncodedRecipeJob{
 				err:                   nil,
 				id:                    job.RecipeResponse.Id,
