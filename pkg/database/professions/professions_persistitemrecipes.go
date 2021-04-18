@@ -22,9 +22,9 @@ func (pdBase Database) PersistItemRecipes(providedItemRecipes blizzardv2.ItemRec
 	nextItemRecipes := currentItemRecipes.Merge(providedItemRecipes)
 
 	logging.WithFields(logrus.Fields{
-		"provided-items": providedItemRecipes,
-		"current-items":  currentItemRecipes,
-		"next-items":     nextItemRecipes,
+		"provided-items": len(providedItemRecipes),
+		"current-items":  len(currentItemRecipes),
+		"next-items":     len(nextItemRecipes),
 	}).Info("persisting item-recipes")
 
 	return pdBase.db.Batch(func(tx *bolt.Tx) error {
