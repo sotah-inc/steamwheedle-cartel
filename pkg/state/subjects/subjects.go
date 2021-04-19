@@ -30,7 +30,7 @@ const (
 	RecipesQuery             Subject = "recipesQuery"
 	MiniRecipes              Subject = "miniRecipes"
 	ItemsRecipes             Subject = "itemsRecipes"
-	ProfessionRecipeSubjects Subject = "professionRecipeNames"
+	ProfessionRecipeSubjects Subject = "professionRecipeSubjects"
 )
 
 const (
