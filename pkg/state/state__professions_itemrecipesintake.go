@@ -50,6 +50,10 @@ func (sta ProfessionsState) ListenForItemRecipesIntake(stop ListenStopChan) erro
 func (sta ProfessionsState) ItemRecipesIntake(irMap blizzardv2.ItemRecipesMap) error {
 	startTime := time.Now()
 
+	logging.WithFields(logrus.Fields{
+		"item-recipes": len(irMap),
+	}).Info("handling request for professions item-recipes intake")
+
 	// resolving existing ir-map and merging results in
 	currentIrMap, err := sta.ProfessionsDatabase.GetItemRecipesMap(irMap.ItemIds())
 	if err != nil {
@@ -60,7 +64,19 @@ func (sta ProfessionsState) ItemRecipesIntake(irMap blizzardv2.ItemRecipesMap) e
 
 		return err
 	}
+
+	logging.WithFields(logrus.Fields{
+		"item-recipes":         len(irMap),
+		"current-item-recipes": len(currentIrMap),
+	}).Info("found current item-recipes")
+
 	nextIrMap := currentIrMap.Merge(irMap)
+
+	logging.WithFields(logrus.Fields{
+		"item-recipes":         len(irMap),
+		"current-item-recipes": len(currentIrMap),
+		"merged-item-recipes":  len(nextIrMap),
+	}).Info("resolved merged item-recipes")
 
 	// pushing next ir-map out
 	if err := sta.ProfessionsDatabase.PersistItemRecipes(nextIrMap); err != nil {
