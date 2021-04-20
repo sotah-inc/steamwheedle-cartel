@@ -37,13 +37,13 @@ func (c Client) Collect() error {
 		return err
 	}
 
-	//recipesItemIds, err := c.CallRecipesIntake()
-	//if err != nil {
-	//	return err
-	//}
-	//
-	//logging.WithField("recipe-item-ids", recipesItemIds).Info("receive recipe-items")
-	//
+	recipesItemIds, err := c.CallRecipesIntake()
+	if err != nil {
+		return err
+	}
+
+	logging.WithField("recipe-item-ids", recipesItemIds).Info("receive recipe-items")
+
 	//if err := c.CallRecipePricesIntake(collectAuctionsResults.tuples); err != nil {
 	//	return err
 	//}

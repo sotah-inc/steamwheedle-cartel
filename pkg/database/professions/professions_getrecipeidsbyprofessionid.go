@@ -13,10 +13,6 @@ func (pdBase Database) GetRecipeIdsByProfessionId(
 ) ([]blizzardv2.RecipeId, error) {
 	var out []blizzardv2.RecipeId
 
-	logging.WithFields(logrus.Fields{
-		"profession": professionId,
-	}).Info("checking for recipe-ids by profession")
-
 	// peeking into the professions database
 	err := pdBase.db.View(func(tx *bolt.Tx) error {
 		stBucket := tx.Bucket(skillTiersBucketName(professionId))
@@ -34,26 +30,8 @@ func (pdBase Database) GetRecipeIdsByProfessionId(
 				return err
 			}
 
-			logging.WithFields(logrus.Fields{
-				"profession": professionId,
-				"skill-tier": skillTier,
-			}).Info("checking skill-tier")
-
 			for _, category := range skillTier.BlizzardMeta.Categories {
-				logging.WithFields(logrus.Fields{
-					"profession": professionId,
-					"skill-tier": skillTier,
-					"category":   category,
-				}).Info("checking category")
-
 				for _, categoryRecipe := range category.Recipes {
-					logging.WithFields(logrus.Fields{
-						"profession": professionId,
-						"skill-tier": skillTier,
-						"category":   category,
-						"recipe":     categoryRecipe.Id,
-					}).Info("appending category recipe")
-
 					out = append(out, categoryRecipe.Id)
 				}
 			}
