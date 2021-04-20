@@ -1,6 +1,7 @@
 package state
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/nats-io/nats.go"
@@ -46,7 +47,9 @@ func (sta ProfessionsState) ListenForSkillTiersIntake(stop ListenStopChan) error
 }
 
 func (sta ProfessionsState) SkillTiersIntake(professionId blizzardv2.ProfessionId) error {
-	isComplete, err := sta.ProfessionsDatabase.IsComplete(professionsflags.SkillTiers)
+	flag := fmt.Sprintf("profession-%d-%s", professionId, professionsflags.SkillTiers)
+
+	isComplete, err := sta.ProfessionsDatabase.IsComplete(flag)
 	if err != nil {
 		logging.WithField(
 			"error",
@@ -168,7 +171,7 @@ func (sta ProfessionsState) SkillTiersIntake(professionId blizzardv2.ProfessionI
 	}).Info("total persisted in skill-tier-intake")
 
 	if totalPersisted == 0 {
-		return sta.ProfessionsDatabase.SetIsComplete(professionsflags.SkillTiers)
+		return sta.ProfessionsDatabase.SetIsComplete(flag)
 	}
 
 	return nil

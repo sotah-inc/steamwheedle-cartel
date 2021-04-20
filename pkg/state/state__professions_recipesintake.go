@@ -88,7 +88,7 @@ func (resp RecipesIntakeResponse) EncodeForDelivery() (string, error) {
 }
 
 func (sta ProfessionsState) RecipesIntake() (RecipesIntakeResponse, error) {
-	isComplete, err := sta.ProfessionsDatabase.IsComplete(professionsflags.Recipes)
+	isComplete, err := sta.ProfessionsDatabase.IsComplete(string(professionsflags.Recipes))
 	if err != nil {
 		logging.WithField(
 			"error",
@@ -201,7 +201,7 @@ func (sta ProfessionsState) RecipesIntake() (RecipesIntakeResponse, error) {
 	}
 
 	if totalPersisted == 0 {
-		if err := sta.ProfessionsDatabase.SetIsComplete(professionsflags.Recipes); err != nil {
+		if err := sta.ProfessionsDatabase.SetIsComplete(string(professionsflags.Recipes)); err != nil {
 			return RecipesIntakeResponse{}, err
 		}
 

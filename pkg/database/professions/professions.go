@@ -5,7 +5,7 @@ import (
 	"strconv"
 
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database/professions/professionsflags" // nolint:lll
+	// nolint:lll
 )
 
 // bucketing
@@ -92,7 +92,7 @@ func itemsCraftedByKeyName(id blizzardv2.ItemId) []byte {
 	return []byte(fmt.Sprintf("item-%d-crafted-by", id))
 }
 
-func isCompleteKeyName(flag professionsflags.ProfessionFlag) []byte {
+func isCompleteKeyName(flag string) []byte {
 	return []byte(flag)
 }
 

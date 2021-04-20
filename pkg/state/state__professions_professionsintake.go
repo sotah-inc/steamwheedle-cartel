@@ -36,7 +36,7 @@ func (sta ProfessionsState) ListenForProfessionsIntake(stop ListenStopChan) erro
 }
 
 func (sta ProfessionsState) ProfessionsIntake() error {
-	isComplete, err := sta.ProfessionsDatabase.IsComplete(professionsflags.Professions)
+	isComplete, err := sta.ProfessionsDatabase.IsComplete(string(professionsflags.Professions))
 	if err != nil {
 		logging.WithField(
 			"error",
@@ -118,7 +118,7 @@ func (sta ProfessionsState) ProfessionsIntake() error {
 	}).Info("total persisted in professions-intake")
 
 	if totalPersisted == 0 {
-		return sta.ProfessionsDatabase.SetIsComplete(professionsflags.Professions)
+		return sta.ProfessionsDatabase.SetIsComplete(string(professionsflags.Professions))
 	}
 
 	return nil
