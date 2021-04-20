@@ -57,6 +57,11 @@ func (sta ProfessionsState) SkillTiersIntake(professionId blizzardv2.ProfessionI
 	}
 
 	if isComplete {
+		logging.WithField(
+			"flag",
+			professionsflags.SkillTiers,
+		).Info("skipping skill-tiers intake as it is complete")
+
 		return nil
 	}
 
@@ -73,8 +78,17 @@ func (sta ProfessionsState) SkillTiersIntake(professionId blizzardv2.ProfessionI
 		return err
 	}
 
+	logging.WithFields(logrus.Fields{
+		"profession": profession.BlizzardMeta.Id,
+	}).Info("handling skill-tiers intake for profession")
+
 	// gathering profession skill-tier ids
 	professionSkillTierIds := profession.SkillTierIds()
+
+	logging.WithFields(logrus.Fields{
+		"profession":             profession.BlizzardMeta.Id,
+		"profession-skill-tiers": len(professionSkillTierIds),
+	}).Info("found profession-skill-tiers")
 
 	// gathering current skill-tier ids
 	currentSkillTierIds, err := sta.ProfessionsDatabase.GetSkillTierIds(professionId)
@@ -83,6 +97,12 @@ func (sta ProfessionsState) SkillTiersIntake(professionId blizzardv2.ProfessionI
 
 		return err
 	}
+
+	logging.WithFields(logrus.Fields{
+		"profession":             profession.BlizzardMeta.Id,
+		"profession-skill-tiers": len(professionSkillTierIds),
+		"current-skill-tiers":    len(currentSkillTierIds),
+	}).Info("found current-skill-tiers")
 
 	// resolving skill-tier-ids to fetch
 	currentSkillTierIdsMap := map[blizzardv2.SkillTierId]struct{}{}
@@ -97,6 +117,13 @@ func (sta ProfessionsState) SkillTiersIntake(professionId blizzardv2.ProfessionI
 
 		skillTierIdsToFetch = append(skillTierIdsToFetch, id)
 	}
+
+	logging.WithFields(logrus.Fields{
+		"profession":             profession.BlizzardMeta.Id,
+		"profession-skill-tiers": len(professionSkillTierIds),
+		"current-skill-tiers":    len(currentSkillTierIds),
+		"skill-tiers-to-fetch":   len(skillTierIdsToFetch),
+	}).Info("found skill-tiers to fetch")
 
 	// starting up an intake queue
 	getEncodedSkillTiersOut := sta.LakeClient.GetEncodedSkillTiers(
