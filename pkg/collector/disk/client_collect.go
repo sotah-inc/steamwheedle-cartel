@@ -29,9 +29,9 @@ func (c Client) Collect() error {
 	//	return err
 	//}
 	//
-	//if err := c.CallProfessionsIntake(); err != nil {
-	//	return err
-	//}
+	if err := c.CallProfessionsIntake(); err != nil {
+		return err
+	}
 	//
 	//if err := c.CallSkillTiersIntake(); err != nil {
 	//	return err
