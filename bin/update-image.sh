@@ -11,7 +11,9 @@ git add . \
   && cd ../ && gcloud builds submit --config ./cloudbuild-gcr.yaml && docker pull gcr.io/sotah-prod/server && git status . \
   && git add . && git commit -m 'Update to latest.' && git push origin HEAD \
   && cd $ORIGINAL_DIR && git add extern/ && git commit -m 'Misc.' && git push origin HEAD \
+  && cd ~/sites/venture-co/extern/infra \
   && docker-compose stop sotah-server-api \
   && docker-compose rm -fv sotah-server-api \
   && export $(cat ~/bin/battlenet-creds.env | xargs) \
-  && docker-compose up -d sotah-server-api
+  && docker-compose up -d sotah-server-api \
+  && cd $ORIGINAL_DIR

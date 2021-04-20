@@ -32,11 +32,11 @@ func (c Client) Collect() error {
 	if err := c.CallProfessionsIntake(); err != nil {
 		return err
 	}
-	//
-	//if err := c.CallSkillTiersIntake(); err != nil {
-	//	return err
-	//}
-	//
+
+	if err := c.CallSkillTiersIntake(); err != nil {
+		return err
+	}
+
 	//recipesItemIds, err := c.CallRecipesIntake()
 	//if err != nil {
 	//	return err
