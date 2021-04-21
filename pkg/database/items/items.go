@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strconv"
 
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/itemclass"
+
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 )
 
@@ -22,6 +24,10 @@ func blacklistBucketName() []byte {
 
 func itemClassesBucket() []byte {
 	return []byte("item-classes")
+}
+
+func itemClassItemsBucket() []byte {
+	return []byte("item-class-items")
 }
 
 // keying
@@ -66,6 +72,10 @@ func itemIdFromBlacklistKeyName(key []byte) (blizzardv2.ItemId, error) {
 
 func itemClassesKeyName() []byte {
 	return []byte("item-classes")
+}
+
+func itemClassItemsKeyName(id itemclass.Id) []byte {
+	return []byte(fmt.Sprintf("item-class-%d-item-ids", id))
 }
 
 // db
