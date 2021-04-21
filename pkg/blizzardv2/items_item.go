@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"net/http"
 
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/itemclass"
+
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 
 	"github.com/sirupsen/logrus"
@@ -23,6 +25,35 @@ func DefaultGetItemURL(regionHostname string, id ItemId, regionName RegionName) 
 }
 
 type GetItemURLFunc func(string, ItemId, RegionName) string
+
+type ItemClassItemsMap map[itemclass.Id]ItemIds
+
+func (iciMap ItemClassItemsMap) Find(classId itemclass.Id) ItemIds {
+	found, ok := iciMap[classId]
+	if !ok {
+		return ItemIds{}
+	}
+
+	return found
+}
+
+func (iciMap ItemClassItemsMap) Insert(
+	providedClassId itemclass.Id,
+	providedItemId ItemId,
+) ItemClassItemsMap {
+	out := ItemClassItemsMap{}
+	for classId, itemIds := range iciMap {
+		if classId != providedClassId {
+			out[classId] = itemIds
+
+			continue
+		}
+
+		out[classId] = itemIds.Merge(ItemIds{providedItemId})
+	}
+
+	return out
+}
 
 type ItemId int
 

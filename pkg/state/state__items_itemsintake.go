@@ -63,6 +63,7 @@ func (sta ItemsState) itemsIntake(ids blizzardv2.ItemIds) error {
 
 	// queueing it all up
 	go func() {
+		itemClassItems := blizzardv2.ItemClassItemsMap{}
 		for job := range getEncodedItemsOut {
 			if job.Err() != nil {
 				logging.WithFields(job.ToLogrusFields()).Error("failed to resolve item")
@@ -77,7 +78,11 @@ func (sta ItemsState) itemsIntake(ids blizzardv2.ItemIds) error {
 				EncodedItem:           job.EncodedItem(),
 				EncodedNormalizedName: job.EncodedNormalizedName(),
 			}
+
+			itemClassItems = itemClassItems.Insert(job.ItemClass(), job.Id())
 		}
+
+		logging.WithField("item-class-items", itemClassItems).Info("received item-class-items")
 
 		close(persistItemsIn)
 	}()
