@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"time"
 
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/itemclass"
+
 	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/locale"
@@ -18,12 +20,14 @@ type getEncodedItemJob struct {
 	id                    blizzardv2.ItemId
 	encodedItem           []byte
 	encodedNormalizedName []byte
+	itemClass             itemclass.Id
 }
 
 func (g getEncodedItemJob) Err() error                    { return g.err }
 func (g getEncodedItemJob) Id() blizzardv2.ItemId         { return g.id }
 func (g getEncodedItemJob) EncodedItem() []byte           { return g.encodedItem }
 func (g getEncodedItemJob) EncodedNormalizedName() []byte { return g.encodedNormalizedName }
+func (g getEncodedItemJob) ItemClass() itemclass.Id       { return g.itemClass }
 func (g getEncodedItemJob) ToLogrusFields() logrus.Fields {
 	return logrus.Fields{
 		"error": g.err.Error(),
@@ -90,6 +94,13 @@ func (client Client) GetEncodedItems(
 		for job := range itemMediasOut {
 			if job.Err != nil {
 				logging.WithFields(job.ToLogrusFields()).Error("failed to resolve item-media")
+				out <- getEncodedItemJob{
+					err:                   job.Err,
+					id:                    job.Item.Id,
+					encodedItem:           []byte{},
+					encodedNormalizedName: []byte{},
+					itemClass:             0,
+				}
 
 				continue
 			}
@@ -100,6 +111,13 @@ func (client Client) GetEncodedItems(
 					"error":    err.Error(),
 					"response": job.ItemMediaResponse,
 				}).Error("failed to resolve item-icon from item-media")
+				out <- getEncodedItemJob{
+					err:                   err,
+					id:                    job.Item.Id,
+					encodedItem:           []byte{},
+					encodedNormalizedName: []byte{},
+					itemClass:             0,
+				}
 
 				continue
 			}
@@ -122,6 +140,13 @@ func (client Client) GetEncodedItems(
 					"error":    err.Error(),
 					"response": job.ItemMediaResponse,
 				}).Error("failed to normalize name")
+				out <- getEncodedItemJob{
+					err:                   err,
+					id:                    job.Item.Id,
+					encodedItem:           []byte{},
+					encodedNormalizedName: []byte{},
+					itemClass:             0,
+				}
 
 				continue
 			}
@@ -145,6 +170,13 @@ func (client Client) GetEncodedItems(
 					"error": err.Error(),
 					"item":  item.BlizzardMeta.Id,
 				}).Error("failed to encode item for storage")
+				out <- getEncodedItemJob{
+					err:                   err,
+					id:                    job.Item.Id,
+					encodedItem:           []byte{},
+					encodedNormalizedName: []byte{},
+					itemClass:             0,
+				}
 
 				continue
 			}
@@ -155,14 +187,23 @@ func (client Client) GetEncodedItems(
 					"error": err.Error(),
 					"item":  item.BlizzardMeta.Id,
 				}).Error("failed to encode normalized-name for storage")
+				out <- getEncodedItemJob{
+					err:                   err,
+					id:                    job.Item.Id,
+					encodedItem:           []byte{},
+					encodedNormalizedName: []byte{},
+					itemClass:             0,
+				}
 
 				continue
 			}
 
 			out <- getEncodedItemJob{
+				err:                   nil,
 				id:                    job.Item.Id,
 				encodedItem:           encodedItem,
 				encodedNormalizedName: encodedNormalizedName,
+				itemClass:             job.Item.ItemClass.Id,
 			}
 		}
 
