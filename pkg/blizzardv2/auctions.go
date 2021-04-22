@@ -91,7 +91,7 @@ func GetAuctions(opts GetAuctionsOptions) chan GetAuctionsJob {
 	postWork := func() {
 		close(out)
 	}
-	util.Work(4, worker, postWork)
+	util.Work(8, worker, postWork)
 
 	// spinning it up
 	go func() {

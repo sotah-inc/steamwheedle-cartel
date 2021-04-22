@@ -70,7 +70,7 @@ func GetItems(opts GetItemsOptions) chan GetItemsOutJob {
 	postWork := func() {
 		close(out)
 	}
-	util.Work(4, worker, postWork)
+	util.Work(8, worker, postWork)
 
 	// queueing it up
 	go func() {

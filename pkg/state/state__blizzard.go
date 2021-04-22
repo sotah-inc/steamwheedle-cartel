@@ -120,7 +120,7 @@ func (sta BlizzardState) ResolveItems(
 			)
 		},
 		ItemIds: ids,
-		Limit:   100,
+		Limit:   250,
 	})
 }
 
