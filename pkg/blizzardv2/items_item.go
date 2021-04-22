@@ -50,18 +50,9 @@ func (iciMap ItemClassItemsMap) Insert(
 	providedClassId itemclass.Id,
 	providedItemId ItemId,
 ) ItemClassItemsMap {
-	out := ItemClassItemsMap{}
-	for classId, itemIds := range iciMap {
-		if classId != providedClassId {
-			out[classId] = itemIds
+	iciMap[providedClassId] = iciMap.Find(providedClassId).Merge(ItemIds{providedItemId})
 
-			continue
-		}
-
-		out[classId] = itemIds.Merge(ItemIds{providedItemId})
-	}
-
-	return out
+	return iciMap
 }
 
 func (iciMap ItemClassItemsMap) ItemClassIds() []itemclass.Id {
