@@ -66,6 +66,7 @@ func (sta ItemsState) itemsIntake(ids blizzardv2.ItemIds) error {
 	// starting up an intake queue
 	getEncodedItemsOut, erroneousItemIdsOut := sta.LakeClient.GetEncodedItems(itemIds)
 	persistItemsIn := make(chan ItemsDatabase.PersistEncodedItemsInJob)
+	itemClassItemsOut := make(chan blizzardv2.ItemClassItemsMap)
 
 	// queueing it all up
 	go func() {
@@ -85,17 +86,13 @@ func (sta ItemsState) itemsIntake(ids blizzardv2.ItemIds) error {
 				EncodedNormalizedName: job.EncodedNormalizedName(),
 			}
 
-			logging.WithFields(logrus.Fields{
-				"item-class": job.ItemClass(),
-				"item":       job.Id(),
-			}).Info("inserting item-class/item into item-class-items")
-
 			itemClassItems = itemClassItems.Insert(job.ItemClass(), job.Id())
 		}
 
-		logging.WithField("item-class-items", itemClassItems).Info("received item-class-items")
-
 		close(persistItemsIn)
+
+		itemClassItemsOut <- itemClassItems
+		close(itemClassItemsOut)
 	}()
 
 	totalPersisted, err := sta.ItemsDatabase.PersistEncodedItems(persistItemsIn)
@@ -108,6 +105,13 @@ func (sta ItemsState) itemsIntake(ids blizzardv2.ItemIds) error {
 	erroneousItemIds := <-erroneousItemIdsOut
 	if err := sta.ItemsDatabase.PersistBlacklistedIds(erroneousItemIds); err != nil {
 		logging.WithField("error", err.Error()).Error("failed to persist blacklisted item-ids")
+
+		return err
+	}
+
+	itemClassItems := <-itemClassItemsOut
+	if err := sta.ItemsDatabase.ReceiveItemClassItemsMap(itemClassItems); err != nil {
+		logging.WithField("error", err.Error()).Error("failed to receive item-class-items")
 
 		return err
 	}
