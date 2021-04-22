@@ -33,7 +33,21 @@ type ItemClassIndexResponse struct {
 }
 
 func NewItemClassIndexFromHTTP(uri string) (ItemClassIndexResponse, ResponseMeta, error) {
-	resp, err := Download(DownloadOptions{Uri: uri})
+	resp, err := func() (ResponseMeta, error) {
+		var lastError error
+		for i := 0; i < 4; i++ {
+			resp, err := Download(DownloadOptions{Uri: uri})
+			if err != nil {
+				lastError = err
+
+				continue
+			}
+
+			return resp, nil
+		}
+
+		return ResponseMeta{}, lastError
+	}()
 	if err != nil {
 		logging.WithFields(logrus.Fields{
 			"error": err.Error(),
