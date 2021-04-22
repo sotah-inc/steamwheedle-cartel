@@ -26,7 +26,7 @@ func (sta ItemsState) ListenForItemsIntake(stop ListenStopChan) error {
 			return
 		}
 
-		logging.WithField("items", len(ids)).Info("received")
+		logging.WithField("items", len(ids)).Info("received item-ids")
 		if err := sta.itemsIntake(ids); err != nil {
 			m.Err = err.Error()
 			m.Code = codes.GenericError
@@ -48,17 +48,23 @@ func (sta ItemsState) itemsIntake(ids blizzardv2.ItemIds) error {
 	startTime := time.Now()
 
 	// resolving items to sync
-	itemsSyncPayload, err := sta.ItemsDatabase.FilterInItemsToSync(ids)
+	itemIds, err := sta.ItemsDatabase.FilterInItemsToSync(ids)
 	if err != nil {
 		logging.WithField("error", err.Error()).Error("failed to filter in items to sync")
 
 		return err
 	}
 
-	logging.WithField("items", len(itemsSyncPayload.Ids)).Info("collecting items")
+	if len(itemIds) == 0 {
+		logging.Info("skipping items-intake as none were filtered in")
+
+		return nil
+	}
+
+	logging.WithField("items", len(itemIds)).Info("collecting items")
 
 	// starting up an intake queue
-	getEncodedItemsOut, erroneousItemIdsOut := sta.LakeClient.GetEncodedItems(itemsSyncPayload.Ids)
+	getEncodedItemsOut, erroneousItemIdsOut := sta.LakeClient.GetEncodedItems(itemIds)
 	persistItemsIn := make(chan ItemsDatabase.PersistEncodedItemsInJob)
 
 	// queueing it all up

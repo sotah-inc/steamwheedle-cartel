@@ -48,20 +48,19 @@ func (p SyncPayload) EncodeForDelivery() (string, error) {
 	return base64.StdEncoding.EncodeToString(gzipEncoded), nil
 }
 
-func (idBase Database) FilterInItemsToSync(providedIds blizzardv2.ItemIds) (SyncPayload, error) {
+func (idBase Database) FilterInItemsToSync(
+	providedIds blizzardv2.ItemIds,
+) (blizzardv2.ItemIds, error) {
 	// gathering blacklisted ids
 	blacklistedIds, err := idBase.GetBlacklistedIds()
 	if err != nil {
-		return SyncPayload{}, err
+		return blizzardv2.ItemIds{}, err
 	}
 
 	ids := providedIds.Sub(blacklistedIds)
 
 	// producing a blank whitelist
 	syncWhitelist := sotah.NewItemSyncWhitelist(ids)
-
-	// producing a blank map of icon->item-ids
-	iconsToSync := sotah.IconIdsMap{}
 
 	// peeking into the items database
 	err = idBase.db.View(func(tx *bolt.Tx) error {
@@ -77,50 +76,18 @@ func (idBase Database) FilterInItemsToSync(providedIds blizzardv2.ItemIds) (Sync
 
 		for _, id := range ids {
 			value := itemsBucket.Get(baseKeyName(id))
-			if value == nil {
-				syncWhitelist[id] = true
-
+			if value != nil {
 				continue
 			}
 
-			//item, err := sotah.NewItemFromGzipped(value)
-			//if err != nil {
-			//	return err
-			//}
-			//
-			//hasBlankIconMeta := item.SotahMeta.ItemIconMeta.IsZero()
-			//hasIncorrectIconMeta := func() bool {
-			//	if hasBlankIconMeta {
-			//		return false
-			//	}
-			//
-			//	correctIconObjectName := sotah.NewItemObjectName(item.SotahMeta.ItemIconMeta.Icon)
-			//	//correctIconURL := fmt.Sprintf(
-			//	//	store.ItemIconURLFormat,
-			//	//	"sotah-item-icons",
-			//	//	correctIconObjectName,
-			//	//)
-			//	correctIconURL := blizzardv2.DefaultGetItemIconURL(correctIconObjectName)
-			//
-			//	return item.SotahMeta.ItemIconMeta.ObjectName != correctIconObjectName ||
-			//		item.SotahMeta.ItemIconMeta.URL != correctIconURL
-			//}()
-			//if hasBlankIconMeta || hasIncorrectIconMeta {
-			//	iconsToSync = iconsToSync.Append(item.SotahMeta.ItemIconMeta.Icon, item.BlizzardMeta.Id)
-			//}
-			//
-			//isMissingNames := item.SotahMeta.NormalizedName.IsZero()
-			//isMissingNormalizedName := itemNamesBucket.Get(nameKeyName(id)) == nil
-			//if isMissingNames || isMissingNormalizedName {
-			//	syncWhitelist[id] = true
-			//}
+			syncWhitelist[id] = true
 		}
 
 		return nil
 	})
 	if err != nil {
-		return SyncPayload{}, err
+		return blizzardv2.ItemIds{}, err
 	}
 
-	return SyncPayload{Ids: syncWhitelist.ToItemIds(), IconIdsMap: iconsToSync}, nil
+	return syncWhitelist.ToItemIds(), nil
 }
