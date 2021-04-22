@@ -4,6 +4,9 @@ import (
 	"encoding/base64"
 	"encoding/json"
 
+	"github.com/sirupsen/logrus"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
+
 	"github.com/boltdb/bolt"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
@@ -57,8 +60,15 @@ func (idBase Database) FilterInItemsToSync(
 		return blizzardv2.ItemIds{}, err
 	}
 
+	logging.WithFields(logrus.Fields{
+		"provided-items":    len(providedIds),
+		"blacklisted-items": len(blacklistedIds),
+	}).Info("filtering blacklisted from provided")
+
 	nextItemIds := providedIds.Sub(blacklistedIds)
 	if len(nextItemIds) == 0 {
+		logging.Info("resulting next-items was blank, skipping early")
+
 		return blizzardv2.ItemIds{}, nil
 	}
 
@@ -66,6 +76,7 @@ func (idBase Database) FilterInItemsToSync(
 	syncWhitelist := sotah.NewItemSyncWhitelist(nextItemIds)
 
 	// peeking into the items database
+	logging.Info("checking items database for items to sync")
 	err = idBase.db.View(func(tx *bolt.Tx) error {
 		itemsBucket := tx.Bucket(baseBucketName())
 		if itemsBucket == nil {
@@ -92,5 +103,12 @@ func (idBase Database) FilterInItemsToSync(
 		return blizzardv2.ItemIds{}, err
 	}
 
-	return syncWhitelist.ToItemIds(), nil
+	syncItems := syncWhitelist.ToItemIds()
+
+	logging.WithField(
+		"sync-whitelist-items",
+		len(syncItems),
+	).Info("returning sync-whitelist items")
+
+	return syncItems, nil
 }
