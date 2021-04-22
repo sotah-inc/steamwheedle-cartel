@@ -57,10 +57,13 @@ func (idBase Database) FilterInItemsToSync(
 		return blizzardv2.ItemIds{}, err
 	}
 
-	ids := providedIds.Sub(blacklistedIds)
+	nextItemIds := providedIds.Sub(blacklistedIds)
+	if len(nextItemIds) == 0 {
+		return blizzardv2.ItemIds{}, nil
+	}
 
 	// producing a blank whitelist
-	syncWhitelist := sotah.NewItemSyncWhitelist(ids)
+	syncWhitelist := sotah.NewItemSyncWhitelist(nextItemIds)
 
 	// peeking into the items database
 	err = idBase.db.View(func(tx *bolt.Tx) error {
@@ -74,7 +77,7 @@ func (idBase Database) FilterInItemsToSync(
 			return nil
 		}
 
-		for _, id := range ids {
+		for _, id := range nextItemIds {
 			value := itemsBucket.Get(baseKeyName(id))
 			if value != nil {
 				continue
