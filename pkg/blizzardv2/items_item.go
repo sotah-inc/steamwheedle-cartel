@@ -26,6 +26,15 @@ func DefaultGetItemURL(regionHostname string, id ItemId, regionName RegionName) 
 
 type GetItemURLFunc func(string, ItemId, RegionName) string
 
+func NewItemClassItemsMap(ids []itemclass.Id) ItemClassItemsMap {
+	out := ItemClassItemsMap{}
+	for _, id := range ids {
+		out[id] = ItemIds{}
+	}
+
+	return out
+}
+
 type ItemClassItemsMap map[itemclass.Id]ItemIds
 
 func (iciMap ItemClassItemsMap) Find(classId itemclass.Id) ItemIds {
@@ -50,6 +59,18 @@ func (iciMap ItemClassItemsMap) Insert(
 		}
 
 		out[classId] = itemIds.Merge(ItemIds{providedItemId})
+	}
+
+	return out
+}
+
+func (iciMap ItemClassItemsMap) ItemClassIds() []itemclass.Id {
+	out := make([]itemclass.Id, len(iciMap))
+	i := 0
+	for id := range iciMap {
+		out[i] = id
+
+		i += 1
 	}
 
 	return out
