@@ -80,11 +80,15 @@ func (idBase Database) FilterInItemsToSync(
 	err = idBase.db.View(func(tx *bolt.Tx) error {
 		itemsBucket := tx.Bucket(baseBucketName())
 		if itemsBucket == nil {
+			syncWhitelist = syncWhitelist.ActivateAll()
+
 			return nil
 		}
 
 		itemNamesBucket := tx.Bucket(namesBucketName())
 		if itemNamesBucket == nil {
+			syncWhitelist = syncWhitelist.ActivateAll()
+
 			return nil
 		}
 

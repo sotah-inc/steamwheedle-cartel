@@ -37,3 +37,12 @@ func (wl ItemSyncWhitelist) ToItemIds() blizzardv2.ItemIds {
 
 	return out
 }
+
+func (wl ItemSyncWhitelist) ActivateAll() ItemSyncWhitelist {
+	out := ItemSyncWhitelist{}
+	for id := range wl {
+		out[id] = true
+	}
+
+	return out
+}
