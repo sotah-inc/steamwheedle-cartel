@@ -85,6 +85,11 @@ func (sta ItemsState) itemsIntake(ids blizzardv2.ItemIds) error {
 				EncodedNormalizedName: job.EncodedNormalizedName(),
 			}
 
+			logging.WithFields(logrus.Fields{
+				"item-class": job.ItemClass(),
+				"item":       job.Id(),
+			}).Info("inserting item-class/item into item-class-items")
+
 			itemClassItems = itemClassItems.Insert(job.ItemClass(), job.Id())
 		}
 
