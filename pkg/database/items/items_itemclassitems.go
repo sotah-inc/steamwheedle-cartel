@@ -1,6 +1,8 @@
 package items
 
 import (
+	"encoding/json"
+
 	"github.com/boltdb/bolt"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/itemclass"
@@ -77,4 +79,27 @@ func (idBase Database) ReceiveItemClassItemsMap(
 	}
 
 	return idBase.PersistItemClassItemsMap(foundIciMap)
+}
+
+func (idBase Database) GetItemClassItemIds(id itemclass.Id) (blizzardv2.ItemIds, error) {
+	out := blizzardv2.ItemIds{}
+
+	err := idBase.db.View(func(tx *bolt.Tx) error {
+		bkt := tx.Bucket(itemClassItemsBucket())
+		if bkt == nil {
+			return nil
+		}
+
+		v := bkt.Get(itemClassItemsKeyName(id))
+		if v == nil {
+			return nil
+		}
+
+		return json.Unmarshal(v, &out)
+	})
+	if err != nil {
+		return blizzardv2.ItemIds{}, err
+	}
+
+	return out, nil
 }
