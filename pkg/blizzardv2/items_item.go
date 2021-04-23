@@ -1,15 +1,10 @@
 package blizzardv2
 
 import (
-	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
-
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/itemclass"
-
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 
 	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/inventorytype"
@@ -26,160 +21,7 @@ func DefaultGetItemURL(regionHostname string, id ItemId, regionName RegionName) 
 
 type GetItemURLFunc func(string, ItemId, RegionName) string
 
-func NewItemClassItemsMap(ids []itemclass.Id) ItemClassItemsMap {
-	out := ItemClassItemsMap{}
-	for _, id := range ids {
-		out[id] = ItemIds{}
-	}
-
-	return out
-}
-
-type ItemClassItemsMap map[itemclass.Id]ItemIds
-
-func (iciMap ItemClassItemsMap) Find(classId itemclass.Id) ItemIds {
-	found, ok := iciMap[classId]
-	if !ok {
-		return ItemIds{}
-	}
-
-	return found
-}
-
-func (iciMap ItemClassItemsMap) Insert(
-	providedClassId itemclass.Id,
-	providedItemId ItemId,
-) ItemClassItemsMap {
-	iciMap[providedClassId] = iciMap.Find(providedClassId).Merge(ItemIds{providedItemId})
-
-	return iciMap
-}
-
-func (iciMap ItemClassItemsMap) ItemClassIds() []itemclass.Id {
-	out := make([]itemclass.Id, len(iciMap))
-	i := 0
-	for id := range iciMap {
-		out[i] = id
-
-		i += 1
-	}
-
-	return out
-}
-
 type ItemId int
-
-func NewItemRecipesMap(base64Encoded string) (ItemRecipesMap, error) {
-	gzipEncoded, err := base64.StdEncoding.DecodeString(base64Encoded)
-	if err != nil {
-		return ItemRecipesMap{}, err
-	}
-
-	jsonEncoded, err := util.GzipDecode(gzipEncoded)
-	if err != nil {
-		return ItemRecipesMap{}, err
-	}
-
-	out := ItemRecipesMap{}
-	if err := json.Unmarshal(jsonEncoded, &out); err != nil {
-		return ItemRecipesMap{}, err
-	}
-
-	return out, nil
-}
-
-type ItemRecipesMap map[ItemId]RecipeIds
-
-func (irMap ItemRecipesMap) ItemIds() []ItemId {
-	out := make([]ItemId, len(irMap))
-	i := 0
-	for id := range irMap {
-		out[i] = id
-
-		i += 1
-	}
-
-	return out
-}
-
-func (irMap ItemRecipesMap) Find(id ItemId) RecipeIds {
-	found, ok := irMap[id]
-	if !ok {
-		return RecipeIds{}
-	}
-
-	return found
-}
-
-func (irMap ItemRecipesMap) Merge(input ItemRecipesMap) ItemRecipesMap {
-	out := ItemRecipesMap{}
-	for id, recipeIds := range irMap {
-		out[id] = recipeIds
-	}
-	for id, providedRecipeIds := range input {
-		foundRecipeIds := irMap.Find(id)
-		out[id] = foundRecipeIds.Merge(providedRecipeIds)
-	}
-
-	return out
-}
-
-func (irMap ItemRecipesMap) EncodeForDelivery() (string, error) {
-	jsonEncoded, err := json.Marshal(irMap)
-	if err != nil {
-		return "", err
-	}
-
-	gzipEncoded, err := util.GzipEncode(jsonEncoded)
-	if err != nil {
-		return "", err
-	}
-
-	return base64.StdEncoding.EncodeToString(gzipEncoded), nil
-}
-
-func (irMap ItemRecipesMap) FilterBlank() ItemRecipesMap {
-	out := ItemRecipesMap{}
-	for itemId, recipeIds := range irMap {
-		if len(recipeIds) == 0 {
-			continue
-		}
-
-		out[itemId] = recipeIds
-	}
-
-	return out
-}
-
-func (irMap ItemRecipesMap) ToRecipesItemMap() map[RecipeId]ItemId {
-	out := map[RecipeId]ItemId{}
-	for itemId, recipeIds := range irMap {
-		for _, recipeId := range recipeIds {
-			out[recipeId] = itemId
-		}
-	}
-
-	return out
-}
-
-func (irMap ItemRecipesMap) RecipeIds() RecipeIds {
-	outMap := map[RecipeId]struct{}{}
-	for _, recipeIds := range irMap {
-		for _, recipeId := range recipeIds {
-			outMap[recipeId] = struct{}{}
-		}
-	}
-
-	out := make(RecipeIds, len(outMap))
-	i := 0
-	for recipeId := range outMap {
-		out[i] = recipeId
-
-		i += 1
-	}
-
-	return out
-}
 
 type ItemQuality struct {
 	Type itemquality.ItemQuality `json:"type"`
