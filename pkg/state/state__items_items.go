@@ -69,16 +69,25 @@ func (sta ItemsState) ListenForItems(stop ListenStopChan) error {
 			return
 		}
 
-		iMap, err := sta.ItemsDatabase.FindItems(iRequest.ItemIds)
-		if err != nil {
-			m.Err = err.Error()
-			m.Code = codes.GenericError
-			sta.Messenger.ReplyTo(natsMsg, m)
+		itemsOut := sta.ItemsDatabase.FindItems(iRequest.ItemIds)
+		var foundItems []sotah.Item
+		for itemsOutJob := range itemsOut {
+			if itemsOutJob.Err != nil {
+				m.Err = itemsOutJob.Err.Error()
+				m.Code = codes.GenericError
+				sta.Messenger.ReplyTo(natsMsg, m)
 
-			return
+				return
+			}
+
+			if !itemsOutJob.Exists {
+				continue
+			}
+
+			foundItems = append(foundItems, itemsOutJob.Item)
 		}
 
-		resolvedShortItems := sotah.NewShortItemList(iMap.ToList(), iRequest.Locale)
+		resolvedShortItems := sotah.NewShortItemList(foundItems, iRequest.Locale)
 
 		iResponse := ItemsResponse{Items: resolvedShortItems}
 		data, err := iResponse.EncodeForMessage()

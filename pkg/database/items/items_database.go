@@ -1,7 +1,9 @@
 package items
 
 import (
+	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/locale"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 
@@ -63,41 +65,6 @@ func (idBase Database) GetItemIds() (blizzardv2.ItemIds, error) {
 	return out, nil
 }
 
-func (idBase Database) GetItems() (sotah.ItemsMap, error) {
-	out := sotah.ItemsMap{}
-
-	err := idBase.db.View(func(tx *bolt.Tx) error {
-		bkt := tx.Bucket(baseBucketName())
-		if bkt == nil {
-			return nil
-		}
-
-		err := bkt.ForEach(func(k, v []byte) error {
-			id, err := itemIdFromKeyName(k)
-			if err != nil {
-				return err
-			}
-
-			out[id], err = sotah.NewItemFromGzipped(v)
-			if err != nil {
-				return err
-			}
-
-			return nil
-		})
-		if err != nil {
-			return err
-		}
-
-		return nil
-	})
-	if err != nil {
-		return sotah.ItemsMap{}, err
-	}
-
-	return out, nil
-}
-
 func (idBase Database) GetIdNormalizedNameMap() (sotah.ItemIdNameMap, error) {
 	out := sotah.ItemIdNameMap{}
 
@@ -133,32 +100,82 @@ func (idBase Database) GetIdNormalizedNameMap() (sotah.ItemIdNameMap, error) {
 	return out, nil
 }
 
-func (idBase Database) FindItems(itemIds blizzardv2.ItemIds) (sotah.ItemsMap, error) {
-	out := sotah.ItemsMap{}
+type FindItemsJob struct {
+	Err    error
+	Id     blizzardv2.ItemId
+	Item   sotah.Item
+	Exists bool
+}
+
+func (job FindItemsJob) ToLogrusFields() logrus.Fields {
+	return logrus.Fields{
+		"error": job.Err.Error(),
+		"item":  job.Id,
+	}
+}
+
+func (idBase Database) FindItems(ids blizzardv2.ItemIds) chan FindItemsJob {
+	// starting up workers for gathering items
+	out := make(chan FindItemsJob)
+	worker := func() {
+		for _, id := range ids {
+			item, exists, err := idBase.GetItem(id)
+			if err != nil {
+				out <- FindItemsJob{
+					Err:    err,
+					Id:     id,
+					Item:   sotah.Item{},
+					Exists: false,
+				}
+
+				continue
+			}
+
+			out <- FindItemsJob{
+				Err:    nil,
+				Id:     id,
+				Item:   item,
+				Exists: exists,
+			}
+		}
+	}
+	postWork := func() {
+		close(out)
+	}
+	util.Work(4, worker, postWork)
+
+	return out
+}
+
+func (idBase Database) GetItem(id blizzardv2.ItemId) (sotah.Item, bool, error) {
+	out := sotah.Item{}
+	exists := false
+
 	err := idBase.db.View(func(tx *bolt.Tx) error {
 		bkt := tx.Bucket(baseBucketName())
 		if bkt == nil {
 			return nil
 		}
 
-		for _, id := range itemIds {
-			value := bkt.Get(baseKeyName(id))
-			if value == nil {
-				continue
-			}
-
-			var err error
-			out[id], err = sotah.NewItemFromGzipped(value)
-			if err != nil {
-				return err
-			}
+		v := bkt.Get(baseKeyName(id))
+		if v == nil {
+			return nil
 		}
+
+		exists = true
+
+		item, err := sotah.NewItemFromGzipped(v)
+		if err != nil {
+			return err
+		}
+
+		out = item
 
 		return nil
 	})
 	if err != nil {
-		return sotah.ItemsMap{}, err
+		return sotah.Item{}, false, err
 	}
 
-	return out, nil
+	return out, exists, nil
 }
