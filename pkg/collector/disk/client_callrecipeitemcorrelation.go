@@ -19,74 +19,31 @@ const RecipeItemClassId = itemclass.Recipe
 func (c Client) CallRecipeItemCorrelation() error {
 	startTime := time.Now()
 
-	// resolving recipe-subjects
-	recipeSubjectsMessage, err := c.messengerClient.Request(messenger.RequestOptions{
-		Subject: string(subjects.ProfessionRecipeSubjects),
-		Data:    []byte(strconv.Itoa(int(EnchantingProfessionId))),
+	// resolving item-subjects
+	itemSubjectsMessage, err := c.messengerClient.Request(messenger.RequestOptions{
+		Subject: string(subjects.ItemSubjectsByItemClass),
+		Data:    []byte(strconv.Itoa(int(RecipeItemClassId))),
 		Timeout: 10 * time.Minute,
 	})
 	if err != nil {
 		logging.WithField("error", err.Error()).Error(
-			"failed to resolve profession-recipe-subjects for profession 202 (enchanting)",
+			"failed to resolve item-subjects for item-class 9 (recipes)",
 		)
 
 		return err
 	}
 
-	if recipeSubjectsMessage.Code != codes.Ok {
+	if itemSubjectsMessage.Code != codes.Ok {
 		logging.WithFields(
-			recipeSubjectsMessage.ToLogrusFields(),
-		).Error("profession-recipe-subjects request failed")
+			itemSubjectsMessage.ToLogrusFields(),
+		).Error("item-subjects request failed")
 
-		return errors.New(recipeSubjectsMessage.Err)
-	}
-
-	// resolving matching items
-	matchingItemsMessage, err := c.messengerClient.Request(messenger.RequestOptions{
-		Subject: string(subjects.ItemsFindMatchingRecipes),
-		Data:    []byte(recipeSubjectsMessage.Data),
-		Timeout: 10 * time.Minute,
-	})
-	if err != nil {
-		logging.WithField("error", err.Error()).Error(
-			"failed to resolve items-find-matching-recipes",
-		)
-
-		return err
-	}
-
-	if matchingItemsMessage.Code != codes.Ok {
-		logging.WithFields(
-			matchingItemsMessage.ToLogrusFields(),
-		).Error("items-find-matching-recipes request failed")
-
-		return errors.New(matchingItemsMessage.Err)
-	}
-
-	itemRecipesIntakeMessage, err := c.messengerClient.Request(messenger.RequestOptions{
-		Subject: string(subjects.ItemRecipesIntake),
-		Data:    []byte(matchingItemsMessage.Data),
-		Timeout: 10 * time.Minute,
-	})
-	if err != nil {
-		logging.WithField("error", err.Error()).Error(
-			"failed to publish message for item-recipes intake",
-		)
-
-		return err
-	}
-
-	if itemRecipesIntakeMessage.Code != codes.Ok {
-		logging.WithFields(
-			itemRecipesIntakeMessage.ToLogrusFields(),
-		).Error("item-recipes intake request failed")
-
-		return err
+		return errors.New(itemSubjectsMessage.Err)
 	}
 
 	logging.WithFields(logrus.Fields{
 		"duration-in-ms": time.Since(startTime).Milliseconds(),
-	}).Info("finished enchanting-recipe-correlation")
+	}).Info("finished recipe-item-correlation")
 
 	return nil
 }
