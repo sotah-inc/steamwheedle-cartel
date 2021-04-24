@@ -20,7 +20,12 @@ func (idBase Database) GetItemSubjects(ids blizzardv2.ItemIds) (blizzardv2.ItemS
 			return blizzardv2.ItemSubjectsMap{}, errors.New("item not found")
 		}
 
-		out[job.Id] = job.Item.SotahMeta.NormalizedName.ResolveDefaultName()
+		foundName := job.Item.BlizzardMeta.Name.ResolveDefaultName()
+		if foundName == "" {
+			continue
+		}
+
+		out[job.Id] = foundName
 	}
 
 	return out, nil
