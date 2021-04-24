@@ -74,5 +74,6 @@ func (sta ItemsState) GetListeners() SubjectListeners {
 		subjects.ItemsIntake:              sta.ListenForItemsIntake,
 		subjects.ItemsFindMatchingRecipes: sta.ListenForItemsFindMatchingRecipes,
 		subjects.ItemClasses:              sta.ListenForItemClasses,
+		subjects.ItemSubjectsByItemClass:  sta.ListenForItemSubjectsByItemClass,
 	}
 }
