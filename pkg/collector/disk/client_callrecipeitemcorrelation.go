@@ -43,6 +43,15 @@ func (c Client) CallRecipeItemCorrelation() error {
 		return errors.New(itemSubjectsMessage.Err)
 	}
 
+	isMap, err := blizzardv2.NewItemSubjectsMap(itemSubjectsMessage.Data)
+	if err != nil {
+		logging.WithField("error", err.Error()).Error("failed to decode item-subjects map")
+
+		return err
+	}
+
+	logging.WithField("item-subjects", isMap).Info("received item-subjects map")
+
 	// resolving item-recipes from professions
 	professionsMatchingItemsMessage, err := c.messengerClient.Request(messenger.RequestOptions{
 		Subject: string(subjects.ProfessionsFindMatchingItems),
