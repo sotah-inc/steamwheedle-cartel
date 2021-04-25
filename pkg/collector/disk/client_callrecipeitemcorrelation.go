@@ -41,6 +41,28 @@ func (c Client) CallRecipeItemCorrelation() error {
 		return errors.New(itemSubjectsMessage.Err)
 	}
 
+	// resolving item-recipes from professions
+	professionsMatchingItemsMessage, err := c.messengerClient.Request(messenger.RequestOptions{
+		Subject: string(subjects.ProfessionsFindMatchingItems),
+		Data:    []byte(strconv.Itoa(int(RecipeItemClassId))),
+		Timeout: 10 * time.Minute,
+	})
+	if err != nil {
+		logging.WithField("error", err.Error()).Error(
+			"failed to resolve matching-items",
+		)
+
+		return err
+	}
+
+	if professionsMatchingItemsMessage.Code != codes.Ok {
+		logging.WithFields(
+			itemSubjectsMessage.ToLogrusFields(),
+		).Error("matching-items request failed")
+
+		return errors.New(professionsMatchingItemsMessage.Err)
+	}
+
 	logging.WithFields(logrus.Fields{
 		"duration-in-ms": time.Since(startTime).Milliseconds(),
 	}).Info("finished recipe-item-correlation")
