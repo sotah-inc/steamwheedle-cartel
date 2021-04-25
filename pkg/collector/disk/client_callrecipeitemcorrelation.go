@@ -44,7 +44,7 @@ func (c Client) CallRecipeItemCorrelation() error {
 	// resolving item-recipes from professions
 	professionsMatchingItemsMessage, err := c.messengerClient.Request(messenger.RequestOptions{
 		Subject: string(subjects.ProfessionsFindMatchingItems),
-		Data:    []byte(strconv.Itoa(int(RecipeItemClassId))),
+		Data:    []byte(itemSubjectsMessage.Data),
 		Timeout: 10 * time.Minute,
 	})
 	if err != nil {
