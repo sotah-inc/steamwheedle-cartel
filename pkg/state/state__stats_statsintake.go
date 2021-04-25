@@ -78,7 +78,7 @@ func (sta StatsState) RegionRealmsIntake(
 
 		logging.WithFields(logrus.Fields{
 			"region":           name,
-			"connected-realms": ids,
+			"connected-realms": len(ids),
 			"stats":            len(encodedStats),
 			"timestamp":        currentTimestamp,
 		}).Info("persisting stats")
