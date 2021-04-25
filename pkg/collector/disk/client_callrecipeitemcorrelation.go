@@ -5,6 +5,8 @@ import (
 	"strconv"
 	"time"
 
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
+
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/itemclass"
 
 	"github.com/sirupsen/logrus"
@@ -62,6 +64,15 @@ func (c Client) CallRecipeItemCorrelation() error {
 
 		return errors.New(professionsMatchingItemsMessage.Err)
 	}
+
+	irMap, err := blizzardv2.NewItemRecipesMap(professionsMatchingItemsMessage.Data)
+	if err != nil {
+		logging.WithField("error", err.Error()).Error("failed to decode item-recipes map")
+
+		return err
+	}
+
+	logging.WithField("item-recipes", irMap).Info("received item-recipes map")
 
 	logging.WithFields(logrus.Fields{
 		"duration-in-ms": time.Since(startTime).Milliseconds(),
