@@ -3,6 +3,8 @@ package items
 import (
 	"encoding/json"
 
+	"github.com/sirupsen/logrus"
+
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 
 	"github.com/boltdb/bolt"
@@ -48,9 +50,9 @@ func (idBase Database) PersistItemClassItemsMap(
 	iciMap blizzardv2.ItemClassItemsMap,
 ) error {
 	return idBase.db.Batch(func(tx *bolt.Tx) error {
-		bkt := tx.Bucket(itemClassItemsBucket())
-		if bkt == nil {
-			return nil
+		bkt, err := tx.CreateBucketIfNotExists(itemClassItemsBucket())
+		if err != nil {
+			return err
 		}
 
 		for id, itemIds := range iciMap {
@@ -58,6 +60,11 @@ func (idBase Database) PersistItemClassItemsMap(
 			if err != nil {
 				return err
 			}
+
+			logging.WithFields(logrus.Fields{
+				"item-class-id":    id,
+				"encoded-item-ids": len(encodedItemIds),
+			}).Info("persisting item-class item-ids")
 
 			if err := bkt.Put(itemClassItemsKeyName(id), encodedItemIds); err != nil {
 				return err
