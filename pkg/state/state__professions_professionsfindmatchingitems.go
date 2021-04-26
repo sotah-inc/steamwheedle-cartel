@@ -27,8 +27,6 @@ func (sta ProfessionsState) ListenForProfessionsFindMatchingItems(stop ListenSto
 				return
 			}
 
-			logging.WithField("item-subject map", len(isMap)).Info("resolved item-subject map")
-
 			irMap, err := sta.ProfessionsDatabase.FindMatchingRecipesFromItems(isMap)
 			if err != nil {
 				m.Err = err.Error()

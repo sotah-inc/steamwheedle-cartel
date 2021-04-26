@@ -29,8 +29,6 @@ func (sta ItemsState) ListenForItemSubjectsByItemClass(stop ListenStopChan) erro
 				return
 			}
 
-			logging.WithField("item-class-id", itemClassId).Info("using item-class id")
-
 			itemIds, err := sta.ItemsDatabase.GetItemClassItemIds(itemclass.Id(itemClassId))
 			if err != nil {
 				m.Err = err.Error()
@@ -40,8 +38,6 @@ func (sta ItemsState) ListenForItemSubjectsByItemClass(stop ListenStopChan) erro
 				return
 			}
 
-			logging.WithField("item-ids", itemIds).Info("found item-ids ")
-
 			itemSubjects, err := sta.ItemsDatabase.GetItemSubjects(itemIds)
 			if err != nil {
 				m.Err = err.Error()
@@ -50,8 +46,6 @@ func (sta ItemsState) ListenForItemSubjectsByItemClass(stop ListenStopChan) erro
 
 				return
 			}
-
-			logging.WithField("item-subjects", itemSubjects).Info("found item-subjects")
 
 			encodedItemSubjects, err := itemSubjects.EncodeForDelivery()
 			if err != nil {
