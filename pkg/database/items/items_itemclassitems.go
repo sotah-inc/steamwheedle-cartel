@@ -3,6 +3,8 @@ package items
 import (
 	"encoding/json"
 
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
+
 	"github.com/boltdb/bolt"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/itemclass"
@@ -77,6 +79,8 @@ func (idBase Database) ReceiveItemClassItemsMap(
 	for id, itemIds := range foundIciMap {
 		foundIciMap[id] = itemIds.Merge(iciMap.Find(id))
 	}
+
+	logging.WithField("found-ici-map", foundIciMap).Info("persisting with merged ici-map")
 
 	return idBase.PersistItemClassItemsMap(foundIciMap)
 }
