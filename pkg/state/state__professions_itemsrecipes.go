@@ -3,6 +3,9 @@ package state
 import (
 	"encoding/json"
 
+	"github.com/sirupsen/logrus"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
+
 	"github.com/nats-io/nats.go"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
@@ -47,6 +50,11 @@ func (sta ProfessionsState) ListenForItemsRecipes(stop ListenStopChan) error {
 
 			return
 		}
+
+		logging.WithFields(logrus.Fields{
+			"items":        request.ItemIds,
+			"item-recipes": irMap,
+		}).Info("resolved item-recipes with items")
 
 		// marshalling for messenger
 		encodedMessage, err := irMap.EncodeForDelivery()
