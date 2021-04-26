@@ -3,10 +3,6 @@ package items
 import (
 	"encoding/json"
 
-	"github.com/sirupsen/logrus"
-
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
-
 	"github.com/boltdb/bolt"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/itemclass"
@@ -61,11 +57,6 @@ func (idBase Database) PersistItemClassItemsMap(
 				return err
 			}
 
-			logging.WithFields(logrus.Fields{
-				"item-class-id":    id,
-				"encoded-item-ids": len(encodedItemIds),
-			}).Info("persisting item-class item-ids")
-
 			if err := bkt.Put(itemClassItemsKeyName(id), encodedItemIds); err != nil {
 				return err
 			}
@@ -86,8 +77,6 @@ func (idBase Database) ReceiveItemClassItemsMap(
 	for id, itemIds := range foundIciMap {
 		foundIciMap[id] = itemIds.Merge(iciMap.Find(id))
 	}
-
-	logging.WithField("found-ici-map", foundIciMap).Info("persisting with merged ici-map")
 
 	return idBase.PersistItemClassItemsMap(foundIciMap)
 }

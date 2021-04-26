@@ -30,12 +30,6 @@ func NewItemsState(opts NewItemsStateOptions) (ItemsState, error) {
 		return ItemsState{}, err
 	}
 
-	if err := itemsDatabase.ResetItems(); err != nil {
-		logging.WithField("error", err.Error()).Error("failed to reset items database")
-
-		return ItemsState{}, err
-	}
-
 	hasItemClasses, err := itemsDatabase.HasItemClasses()
 	if err != nil {
 		logging.WithField(

@@ -110,9 +110,6 @@ func (sta ItemsState) itemsIntake(ids blizzardv2.ItemIds) error {
 	}
 
 	itemClassItems := <-itemClassItemsOut
-
-	logging.WithField("item-class-items", itemClassItems).Info("persisting item-class items")
-
 	if err := sta.ItemsDatabase.ReceiveItemClassItemsMap(itemClassItems); err != nil {
 		logging.WithField("error", err.Error()).Error("failed to receive item-class-items")
 
