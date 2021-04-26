@@ -91,7 +91,8 @@ func NewAuctionsFromHTTP(
 	uri string,
 	ifModifiedSince time.Time,
 ) (AuctionsResponse, ResponseMeta, error) {
-	resp, err := Download(DownloadOptions{Uri: uri, IfModifiedSince: ifModifiedSince})
+	//resp, err := Download(DownloadOptions{Uri: uri, IfModifiedSince: ifModifiedSince})
+	resp, err := Download(DownloadOptions{Uri: uri})
 	if err != nil {
 		logging.WithFields(logrus.Fields{
 			"error": err.Error(),
