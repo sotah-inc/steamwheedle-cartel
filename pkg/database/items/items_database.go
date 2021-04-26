@@ -179,3 +179,30 @@ func (idBase Database) GetItem(id blizzardv2.ItemId) (sotah.Item, bool, error) {
 
 	return out, exists, nil
 }
+
+func (idBase Database) ResetItems() error {
+	bucketNames := [][]byte{
+		baseBucketName(),
+		namesBucketName(),
+		blacklistBucketName(),
+		itemClassItemsBucket(),
+	}
+
+	for _, bucketName := range bucketNames {
+		err := idBase.db.Batch(func(tx *bolt.Tx) error {
+			bkt := tx.Bucket(bucketName)
+			if bkt == nil {
+				return nil
+			}
+
+			return bkt.ForEach(func(k []byte, v []byte) error {
+				return bkt.Delete(k)
+			})
+		})
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
