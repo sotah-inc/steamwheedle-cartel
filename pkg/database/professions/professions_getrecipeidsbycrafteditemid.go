@@ -24,11 +24,7 @@ func (pdBase Database) GetRecipeIdsByCraftedItemId(
 			return nil
 		}
 
-		if err := json.Unmarshal(v, &out); err != nil {
-			return err
-		}
-
-		return nil
+		return json.Unmarshal(v, &out)
 	})
 	if err != nil {
 		return []blizzardv2.RecipeId{}, err

@@ -83,6 +83,27 @@ func (c Client) CallRecipeItemCorrelation() error {
 		return errors.New(professionsMatchingItemsMessage.Err)
 	}
 
+	itemRecipesIntakeMessage, err := c.messengerClient.Request(messenger.RequestOptions{
+		Subject: string(subjects.ItemRecipesIntake),
+		Data:    []byte(professionsMatchingItemsMessage.Data),
+		Timeout: 10 * time.Minute,
+	})
+	if err != nil {
+		logging.WithField("error", err.Error()).Error(
+			"failed to publish message for item-recipes intake",
+		)
+
+		return err
+	}
+
+	if itemRecipesIntakeMessage.Code != codes.Ok {
+		logging.WithFields(
+			itemRecipesIntakeMessage.ToLogrusFields(),
+		).Error("item-recipes intake request failed")
+
+		return err
+	}
+
 	logging.WithFields(logrus.Fields{
 		"duration-in-ms": time.Since(startTime).Milliseconds(),
 	}).Info("finished recipe-item-correlation")
