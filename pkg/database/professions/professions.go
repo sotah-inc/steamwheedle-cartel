@@ -5,7 +5,7 @@ import (
 	"strconv"
 
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
-	// nolint:lll
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database/professions/itemrecipekind" // nolint:lll
 )
 
 // bucketing
@@ -25,8 +25,8 @@ func recipeNamesBucketName() []byte {
 	return []byte("recipe-names")
 }
 
-func itemsCraftedByBucketName() []byte {
-	return []byte("items-crafted-by")
+func itemRecipesBucketName(kind itemrecipekind.ItemRecipeKind) []byte {
+	return []byte(fmt.Sprintf("%s-item-recipes", kind))
 }
 
 // base keying
@@ -88,8 +88,8 @@ func recipeIdFromNameKeyName(key []byte) (blizzardv2.RecipeId, error) {
 	return blizzardv2.RecipeId(unparsedId), nil
 }
 
-func itemsCraftedByKeyName(id blizzardv2.ItemId) []byte {
-	return []byte(fmt.Sprintf("item-%d-crafted-by", id))
+func itemRecipesKeyName(id blizzardv2.ItemId) []byte {
+	return []byte(fmt.Sprintf("item-%d-recipes", id))
 }
 
 func isCompleteKeyName(flag string) []byte {

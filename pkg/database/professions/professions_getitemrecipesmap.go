@@ -3,6 +3,7 @@ package professions
 import (
 	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database/professions/itemrecipekind" // nolint:lll
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 )
@@ -21,6 +22,7 @@ func (job GetItemRecipesMapOutJob) ToLogrusFields() logrus.Fields {
 }
 
 func (pdBase Database) GetItemRecipesMap(
+	kind itemrecipekind.ItemRecipeKind,
 	ids blizzardv2.ItemIds,
 ) (blizzardv2.ItemRecipesMap, error) {
 	// establishing channels
@@ -29,7 +31,7 @@ func (pdBase Database) GetItemRecipesMap(
 	// spinning up workers for receiving encoded-data and persisting it
 	worker := func() {
 		for _, id := range ids {
-			recipeIds, err := pdBase.GetRecipeIdsByCraftedItemId(id)
+			recipeIds, err := pdBase.GetRecipeIdsByItemId(kind, id)
 			if err != nil {
 				out <- GetItemRecipesMapOutJob{
 					Err:       err,

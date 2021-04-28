@@ -62,23 +62,23 @@ func (c Client) CallEnchantingRecipeCorrelation() error {
 		return errors.New(matchingItemsMessage.Err)
 	}
 
-	itemRecipesIntakeMessage, err := c.messengerClient.Request(messenger.RequestOptions{
-		Subject: string(subjects.ItemRecipesIntake),
+	craftedItemRecipesIntakeMessage, err := c.messengerClient.Request(messenger.RequestOptions{
+		Subject: string(subjects.CraftedItemRecipesIntake),
 		Data:    []byte(matchingItemsMessage.Data),
 		Timeout: 10 * time.Minute,
 	})
 	if err != nil {
 		logging.WithField("error", err.Error()).Error(
-			"failed to publish message for item-recipes intake",
+			"failed to publish message for crafted-item-recipes intake",
 		)
 
 		return err
 	}
 
-	if itemRecipesIntakeMessage.Code != codes.Ok {
+	if craftedItemRecipesIntakeMessage.Code != codes.Ok {
 		logging.WithFields(
-			itemRecipesIntakeMessage.ToLogrusFields(),
-		).Error("item-recipes intake request failed")
+			craftedItemRecipesIntakeMessage.ToLogrusFields(),
+		).Error("crafted-item-recipes intake request failed")
 
 		return err
 	}

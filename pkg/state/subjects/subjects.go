@@ -25,6 +25,7 @@ const (
 	SkillTiers                   Subject = "skillTiers"
 	RecipesIntake                Subject = "recipesIntake"
 	ItemRecipesIntake            Subject = "itemRecipesIntake"
+	CraftedItemRecipesIntake     Subject = "craftedItemRecipesIntake"
 	SkillTier                    Subject = "skillTier"
 	Recipe                       Subject = "recipe"
 	Recipes                      Subject = "recipes"

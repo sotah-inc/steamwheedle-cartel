@@ -3,11 +3,11 @@ package state
 import (
 	"encoding/json"
 
-	"github.com/sirupsen/logrus"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
-
 	"github.com/nats-io/nats.go"
+	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database/professions/itemrecipekind" // nolint:lll
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
 	mCodes "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger/codes"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state/subjects"
@@ -24,7 +24,8 @@ func NewItemsRecipesRequest(body []byte) (ItemsRecipesRequest, error) {
 }
 
 type ItemsRecipesRequest struct {
-	ItemIds blizzardv2.ItemIds `json:"item_ids"`
+	Kind    itemrecipekind.ItemRecipeKind `json:"kind"`
+	ItemIds blizzardv2.ItemIds            `json:"item_ids"`
 }
 
 func (sta ProfessionsState) ListenForItemsRecipes(stop ListenStopChan) error {
@@ -42,7 +43,7 @@ func (sta ProfessionsState) ListenForItemsRecipes(stop ListenStopChan) error {
 		}
 
 		// gathering items-recipes map
-		irMap, err := sta.ProfessionsDatabase.GetItemRecipesMap(request.ItemIds)
+		irMap, err := sta.ProfessionsDatabase.GetItemRecipesMap(request.Kind, request.ItemIds)
 		if err != nil {
 			m.Err = err.Error()
 			m.Code = mCodes.GenericError
@@ -52,9 +53,10 @@ func (sta ProfessionsState) ListenForItemsRecipes(stop ListenStopChan) error {
 		}
 
 		logging.WithFields(logrus.Fields{
+			"kind":         request.Kind,
 			"items":        request.ItemIds,
 			"item-recipes": irMap,
-		}).Info("resolved item-recipes with items")
+		}).Info("resolved item-recipes with request")
 
 		// marshalling for messenger
 		encodedMessage, err := irMap.EncodeForDelivery()
