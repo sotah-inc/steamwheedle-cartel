@@ -71,6 +71,10 @@ func (c Client) Collect() error {
 	}
 
 	if recipesIntakeResponse.TotalPersisted > 0 || itemIntakeResponse.TotalPersisted > 0 {
+		recipeItemStartTime := time.Now()
+
+		logging.Info("starting item-recipes correlation tasks")
+
 		if err := c.CallEnchantingRecipeCorrelation(); err != nil {
 			return err
 		}
@@ -78,6 +82,11 @@ func (c Client) Collect() error {
 		if err := c.CallRecipeItemCorrelation(); err != nil {
 			return err
 		}
+
+		logging.WithField(
+			"duration-in-ms",
+			time.Since(recipeItemStartTime).Milliseconds(),
+		).Info("finished calling item-recipes correlation tasks")
 	}
 
 	logging.WithField(
