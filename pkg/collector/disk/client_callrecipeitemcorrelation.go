@@ -42,7 +42,7 @@ func (c Client) CallRecipeItemCorrelation() error {
 		return err
 	}
 
-	logging.WithField("item-subjects", isMap).Info("received item-subjects")
+	logging.WithField("item-subjects", len(isMap)).Info("received item-subjects")
 
 	if itemSubjectsMessage.Code != codes.Ok {
 		logging.WithFields(
