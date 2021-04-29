@@ -4,14 +4,12 @@ import (
 	"errors"
 	"time"
 
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database/professions/itemrecipekind"
-
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/locale"
-
 	"github.com/nats-io/nats.go"
 	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/locale"
 	ProfessionsDatabase "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database/professions" // nolint:lll
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database/professions/itemrecipekind"      // nolint:lll
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger/codes"
@@ -20,28 +18,32 @@ import (
 )
 
 func (sta ProfessionsState) ListenForCraftedItemRecipesIntake(stop ListenStopChan) error {
-	err := sta.Messenger.Subscribe(string(subjects.CraftedItemRecipesIntake), stop, func(natsMsg nats.Msg) {
-		m := messenger.NewMessage()
+	err := sta.Messenger.Subscribe(
+		string(subjects.CraftedItemRecipesIntake),
+		stop,
+		func(natsMsg nats.Msg) {
+			m := messenger.NewMessage()
 
-		irMap, err := blizzardv2.NewItemRecipesMap(string(natsMsg.Data))
-		if err != nil {
-			m.Err = err.Error()
-			m.Code = codes.GenericError
+			irMap, err := blizzardv2.NewItemRecipesMapFromGzip(string(natsMsg.Data))
+			if err != nil {
+				m.Err = err.Error()
+				m.Code = codes.GenericError
+				sta.Messenger.ReplyTo(natsMsg, m)
+
+				return
+			}
+
+			if err := sta.CraftedItemRecipesIntake(irMap); err != nil {
+				m.Err = err.Error()
+				m.Code = codes.GenericError
+				sta.Messenger.ReplyTo(natsMsg, m)
+
+				return
+			}
+
 			sta.Messenger.ReplyTo(natsMsg, m)
-
-			return
-		}
-
-		if err := sta.CraftedItemRecipesIntake(irMap); err != nil {
-			m.Err = err.Error()
-			m.Code = codes.GenericError
-			sta.Messenger.ReplyTo(natsMsg, m)
-
-			return
-		}
-
-		sta.Messenger.ReplyTo(natsMsg, m)
-	})
+		},
+	)
 	if err != nil {
 		return err
 	}
@@ -57,7 +59,10 @@ func (sta ProfessionsState) CraftedItemRecipesIntake(irMap blizzardv2.ItemRecipe
 	}).Info("handling request for professions crafted-item-recipes intake")
 
 	// resolving existing ir-map and merging results in
-	currentIrMap, err := sta.ProfessionsDatabase.GetItemRecipesMap(itemrecipekind.CraftedBy, irMap.ItemIds())
+	currentIrMap, err := sta.ProfessionsDatabase.GetItemRecipesMap(
+		itemrecipekind.CraftedBy,
+		irMap.ItemIds(),
+	)
 	if err != nil {
 		logging.WithField(
 			"error",
@@ -81,7 +86,10 @@ func (sta ProfessionsState) CraftedItemRecipesIntake(irMap blizzardv2.ItemRecipe
 	}).Info("resolved merged item-recipes")
 
 	// pushing next ir-map out
-	if err := sta.ProfessionsDatabase.PersistItemRecipes(itemrecipekind.CraftedBy, nextIrMap); err != nil {
+	if err := sta.ProfessionsDatabase.PersistItemRecipes(
+		itemrecipekind.CraftedBy,
+		nextIrMap,
+	); err != nil {
 		logging.WithField("error", err.Error()).Error("failed to persist item-recipes")
 
 		return err

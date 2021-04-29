@@ -38,7 +38,7 @@ func (c Client) Collect() error {
 		return err
 	}
 
-	recipesItemIds, err := c.CallRecipesIntake()
+	recipesIntakeResponse, err := c.CallRecipesIntake()
 	if err != nil {
 		return err
 	}
@@ -59,9 +59,10 @@ func (c Client) Collect() error {
 	nextItemIds := blizzardv2.ItemIds{}.Merge(
 		collectAuctionsResults.itemIds,
 	).Merge(
-		recipesItemIds,
+		recipesIntakeResponse.RecipeItemIds,
 	)
-	if err := c.CallItemsIntake(nextItemIds); err != nil {
+	itemIntakeResponse, err := c.CallItemsIntake(nextItemIds)
+	if err != nil {
 		return err
 	}
 
@@ -69,12 +70,14 @@ func (c Client) Collect() error {
 		return err
 	}
 
-	if err := c.CallEnchantingRecipeCorrelation(); err != nil {
-		return err
-	}
+	if recipesIntakeResponse.TotalPersisted > 0 || itemIntakeResponse.TotalPersisted > 0 {
+		if err := c.CallEnchantingRecipeCorrelation(); err != nil {
+			return err
+		}
 
-	if err := c.CallRecipeItemCorrelation(); err != nil {
-		return err
+		if err := c.CallRecipeItemCorrelation(); err != nil {
+			return err
+		}
 	}
 
 	logging.WithField(

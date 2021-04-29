@@ -1,6 +1,7 @@
 package state
 
 import (
+	"encoding/json"
 	"time"
 
 	"github.com/nats-io/nats.go"
@@ -12,6 +13,23 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger/codes"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state/subjects"
 )
+
+func NewItemsIntakeResponse(jsonEncoded []byte) (ItemsIntakeResponse, error) {
+	out := ItemsIntakeResponse{}
+	if err := json.Unmarshal(jsonEncoded, &out); err != nil {
+		return ItemsIntakeResponse{}, err
+	}
+
+	return out, nil
+}
+
+type ItemsIntakeResponse struct {
+	TotalPersisted int `json:"total_persisted"`
+}
+
+func (resp ItemsIntakeResponse) EncodeForDelivery() ([]byte, error) {
+	return json.Marshal(resp)
+}
 
 func (sta ItemsState) ListenForItemsIntake(stop ListenStopChan) error {
 	err := sta.Messenger.Subscribe(string(subjects.ItemsIntake), stop, func(natsMsg nats.Msg) {
@@ -27,13 +45,25 @@ func (sta ItemsState) ListenForItemsIntake(stop ListenStopChan) error {
 		}
 
 		logging.WithField("items", len(ids)).Info("received item-ids")
-		if err := sta.itemsIntake(ids); err != nil {
+		resp, err := sta.itemsIntake(ids)
+		if err != nil {
 			m.Err = err.Error()
 			m.Code = codes.GenericError
 			sta.Messenger.ReplyTo(natsMsg, m)
 
 			return
 		}
+
+		encodedResponse, err := resp.EncodeForDelivery()
+		if err != nil {
+			m.Err = err.Error()
+			m.Code = codes.GenericError
+			sta.Messenger.ReplyTo(natsMsg, m)
+
+			return
+		}
+
+		m.Data = string(encodedResponse)
 
 		sta.Messenger.ReplyTo(natsMsg, m)
 	})
@@ -44,7 +74,7 @@ func (sta ItemsState) ListenForItemsIntake(stop ListenStopChan) error {
 	return nil
 }
 
-func (sta ItemsState) itemsIntake(ids blizzardv2.ItemIds) error {
+func (sta ItemsState) itemsIntake(ids blizzardv2.ItemIds) (ItemsIntakeResponse, error) {
 	startTime := time.Now()
 
 	// resolving items to sync
@@ -52,13 +82,13 @@ func (sta ItemsState) itemsIntake(ids blizzardv2.ItemIds) error {
 	if err != nil {
 		logging.WithField("error", err.Error()).Error("failed to filter in items to sync")
 
-		return err
+		return ItemsIntakeResponse{}, err
 	}
 
 	if len(itemIds) == 0 {
 		logging.Info("skipping items-intake as none were filtered in")
 
-		return nil
+		return ItemsIntakeResponse{TotalPersisted: 0}, nil
 	}
 
 	logging.WithField("items", len(itemIds)).Info("collecting items")
@@ -99,21 +129,21 @@ func (sta ItemsState) itemsIntake(ids blizzardv2.ItemIds) error {
 	if err != nil {
 		logging.WithField("error", err.Error()).Error("failed to persist items")
 
-		return err
+		return ItemsIntakeResponse{}, err
 	}
 
 	erroneousItemIds := <-erroneousItemIdsOut
 	if err := sta.ItemsDatabase.PersistBlacklistedIds(erroneousItemIds); err != nil {
 		logging.WithField("error", err.Error()).Error("failed to persist blacklisted item-ids")
 
-		return err
+		return ItemsIntakeResponse{}, err
 	}
 
 	itemClassItems := <-itemClassItemsOut
 	if err := sta.ItemsDatabase.ReceiveItemClassItemsMap(itemClassItems); err != nil {
 		logging.WithField("error", err.Error()).Error("failed to receive item-class-items")
 
-		return err
+		return ItemsIntakeResponse{}, err
 	}
 
 	logging.WithFields(logrus.Fields{
@@ -121,5 +151,5 @@ func (sta ItemsState) itemsIntake(ids blizzardv2.ItemIds) error {
 		"duration-in-ms": time.Since(startTime).Milliseconds(),
 	}).Info("total persisted in collect-items")
 
-	return nil
+	return ItemsIntakeResponse{TotalPersisted: totalPersisted}, nil
 }

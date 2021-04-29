@@ -7,7 +7,7 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 )
 
-func NewItemRecipesMap(base64Encoded string) (ItemRecipesMap, error) {
+func NewItemRecipesMapFromGzip(base64Encoded string) (ItemRecipesMap, error) {
 	gzipEncoded, err := base64.StdEncoding.DecodeString(base64Encoded)
 	if err != nil {
 		return ItemRecipesMap{}, err
@@ -24,6 +24,15 @@ func NewItemRecipesMap(base64Encoded string) (ItemRecipesMap, error) {
 	}
 
 	return out, nil
+}
+
+func NewItemRecipesMap(recipeId RecipeId, itemIds ItemIds) ItemRecipesMap {
+	out := ItemRecipesMap{}
+	for _, id := range itemIds {
+		out[id] = RecipeIds{recipeId}
+	}
+
+	return out
 }
 
 type ItemRecipesMap map[ItemId]RecipeIds

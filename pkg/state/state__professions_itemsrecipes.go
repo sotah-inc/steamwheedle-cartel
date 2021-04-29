@@ -42,6 +42,14 @@ func (sta ProfessionsState) ListenForItemsRecipes(stop ListenStopChan) error {
 			return
 		}
 
+		if !itemrecipekind.IsValid(request.Kind) {
+			m.Err = "item-recipe kind is not valid"
+			m.Code = mCodes.UserError
+			sta.Messenger.ReplyTo(natsMsg, m)
+
+			return
+		}
+
 		// gathering items-recipes map
 		irMap, err := sta.ProfessionsDatabase.GetItemRecipesMap(request.Kind, request.ItemIds)
 		if err != nil {

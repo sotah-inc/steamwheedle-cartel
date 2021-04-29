@@ -9,6 +9,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	ProfessionsDatabase "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database/professions" // nolint:lll
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database/professions/itemrecipekind"      // nolint:lll
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database/professions/professionsflags"    // nolint:lll
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
@@ -70,7 +71,8 @@ func NewRecipesIntakeResponse(base64Encoded string) (RecipesIntakeResponse, erro
 }
 
 type RecipesIntakeResponse struct {
-	RecipeItemIds []blizzardv2.ItemId `json:"recipe_item_ids"`
+	RecipeItemIds  []blizzardv2.ItemId `json:"recipe_item_ids"`
+	TotalPersisted int                 `json:"total_persisted"`
 }
 
 func (resp RecipesIntakeResponse) EncodeForDelivery() (string, error) {
@@ -127,7 +129,10 @@ func (sta ProfessionsState) RecipesIntake() (RecipesIntakeResponse, error) {
 	recipesGroupToFetch := recipesGroup.FilterOut(currentRecipeIds)
 	totalRecipesToFetch := recipesGroupToFetch.TotalRecipes()
 	if totalRecipesToFetch == 0 {
-		return RecipesIntakeResponse{RecipeItemIds: []blizzardv2.ItemId{}}, nil
+		return RecipesIntakeResponse{
+			RecipeItemIds:  []blizzardv2.ItemId{},
+			TotalPersisted: 0,
+		}, nil
 	}
 
 	logging.WithFields(logrus.Fields{
@@ -139,11 +144,14 @@ func (sta ProfessionsState) RecipesIntake() (RecipesIntakeResponse, error) {
 	// starting up an intake queue
 	getEncodedRecipesOut := sta.LakeClient.GetEncodedRecipes(recipesGroupToFetch)
 	persistRecipesIn := make(chan ProfessionsDatabase.PersistEncodedRecipesInJob)
-	itemRecipesOut := make(chan blizzardv2.ItemRecipesMap)
+	kindRecipesMapOut := make(chan itemrecipekind.KindRecipesMap)
 
 	// queueing it all up
 	go func() {
-		itemRecipes := blizzardv2.ItemRecipesMap{}
+		krMap := itemrecipekind.NewKindRecipesMap([]itemrecipekind.ItemRecipeKind{
+			itemrecipekind.CraftedBy,
+			itemrecipekind.ReagentFor,
+		})
 		for job := range getEncodedRecipesOut {
 			if job.Err() != nil {
 				logging.WithFields(job.ToLogrusFields()).Error("failed to resolve recipe")
@@ -157,14 +165,17 @@ func (sta ProfessionsState) RecipesIntake() (RecipesIntakeResponse, error) {
 				EncodedNormalizedName: job.EncodedNormalizedName(),
 			}
 
-			itemRecipes = itemRecipes.Merge(job.ItemRecipesMap())
+			krMap = krMap.Insert(
+				itemrecipekind.CraftedBy,
+				job.CraftedItemRecipesMap(),
+			).Insert(itemrecipekind.ReagentFor, job.ReagentItemRecipesMap())
 		}
 
 		close(persistRecipesIn)
 
-		itemRecipesOut <- itemRecipes
+		kindRecipesMapOut <- krMap
 
-		close(itemRecipesOut)
+		close(kindRecipesMapOut)
 	}()
 
 	// waiting for persist-recipes to finish out
@@ -176,11 +187,13 @@ func (sta ProfessionsState) RecipesIntake() (RecipesIntakeResponse, error) {
 	}
 
 	// persisting item-recipe-ids
-	itemRecipes := <-itemRecipesOut
-	if err := sta.ProfessionsDatabase.PersistItemRecipes(itemRecipes); err != nil {
-		logging.WithField("error", err.Error()).Error("failed to persist item-recipes")
+	krMap := <-kindRecipesMapOut
+	for kind, irMap := range krMap {
+		if err := sta.ProfessionsDatabase.PersistItemRecipes(kind, irMap); err != nil {
+			logging.WithField("error", err.Error()).Error("failed to persist item-recipes")
 
-		return RecipesIntakeResponse{}, err
+			return RecipesIntakeResponse{}, err
+		}
 	}
 
 	// gathering recipe item-ids
@@ -197,7 +210,8 @@ func (sta ProfessionsState) RecipesIntake() (RecipesIntakeResponse, error) {
 	}).Info("total persisted in recipes-intake")
 
 	resp := RecipesIntakeResponse{
-		RecipeItemIds: recipeItemIds,
+		RecipeItemIds:  recipeItemIds,
+		TotalPersisted: totalPersisted,
 	}
 
 	if totalPersisted == 0 {

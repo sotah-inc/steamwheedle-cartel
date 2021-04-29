@@ -14,15 +14,21 @@ import (
 type getEncodedRecipeJob struct {
 	err                   error
 	id                    blizzardv2.RecipeId
-	itemRecipesMap        blizzardv2.ItemRecipesMap
+	craftedItemRecipesMap blizzardv2.ItemRecipesMap
+	reagentItemRecipesMap blizzardv2.ItemRecipesMap
 	encodedRecipe         []byte
 	encodedNormalizedName []byte
 }
 
-func (g getEncodedRecipeJob) Err() error                                { return g.err }
-func (g getEncodedRecipeJob) Id() blizzardv2.RecipeId                   { return g.id }
-func (g getEncodedRecipeJob) ItemRecipesMap() blizzardv2.ItemRecipesMap { return g.itemRecipesMap }
-func (g getEncodedRecipeJob) EncodedRecipe() []byte                     { return g.encodedRecipe }
+func (g getEncodedRecipeJob) Err() error              { return g.err }
+func (g getEncodedRecipeJob) Id() blizzardv2.RecipeId { return g.id }
+func (g getEncodedRecipeJob) CraftedItemRecipesMap() blizzardv2.ItemRecipesMap {
+	return g.craftedItemRecipesMap
+}
+func (g getEncodedRecipeJob) ReagentItemRecipesMap() blizzardv2.ItemRecipesMap {
+	return g.reagentItemRecipesMap
+}
+func (g getEncodedRecipeJob) EncodedRecipe() []byte { return g.encodedRecipe }
 func (g getEncodedRecipeJob) EncodedNormalizedName() []byte {
 	return g.encodedNormalizedName
 }
@@ -136,24 +142,21 @@ func (client Client) GetEncodedRecipes(
 				continue
 			}
 
-			itemRecipesMap := blizzardv2.ItemRecipesMap{}
-			totalItemIds := job.RecipeResponse.ReagentItemIds().NonZero().Merge(
-				blizzardv2.ItemIds{
-					job.RecipeResponse.CraftedItem.Id,
-					job.RecipeResponse.HordeCraftedItem.Id,
-					job.RecipeResponse.AllianceCraftedItem.Id,
-				}.NonZero(),
-			)
-			for _, id := range totalItemIds {
-				itemRecipesMap = itemRecipesMap.Merge(blizzardv2.ItemRecipesMap{
-					id: blizzardv2.RecipeIds{job.RecipeResponse.Id},
-				})
-			}
-
 			out <- getEncodedRecipeJob{
-				err:                   nil,
-				id:                    job.RecipeResponse.Id,
-				itemRecipesMap:        itemRecipesMap,
+				err: nil,
+				id:  job.RecipeResponse.Id,
+				craftedItemRecipesMap: blizzardv2.NewItemRecipesMap(
+					job.RecipeResponse.Id,
+					blizzardv2.ItemIds{
+						job.RecipeResponse.CraftedItem.Id,
+						job.RecipeResponse.HordeCraftedItem.Id,
+						job.RecipeResponse.AllianceCraftedItem.Id,
+					}.NonZero(),
+				),
+				reagentItemRecipesMap: blizzardv2.NewItemRecipesMap(
+					job.RecipeResponse.Id,
+					job.RecipeResponse.ReagentItemIds().NonZero(),
+				),
 				encodedRecipe:         encodedRecipe,
 				encodedNormalizedName: encodedNormalizedName,
 			}

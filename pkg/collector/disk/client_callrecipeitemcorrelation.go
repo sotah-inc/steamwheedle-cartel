@@ -5,14 +5,14 @@ import (
 	"strconv"
 	"time"
 
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
-
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/itemclass"
-
 	"github.com/sirupsen/logrus"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/itemclass"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database/professions/itemrecipekind" // nolint:lll
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger/codes"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state/subjects"
 )
 
@@ -66,7 +66,7 @@ func (c Client) CallRecipeItemCorrelation() error {
 		return err
 	}
 
-	irMap, err := blizzardv2.NewItemRecipesMap(professionsMatchingItemsMessage.Data)
+	irMap, err := blizzardv2.NewItemRecipesMapFromGzip(professionsMatchingItemsMessage.Data)
 	if err != nil {
 		logging.WithField("error", err.Error()).Error("failed to decode item-recipes map")
 
@@ -83,9 +83,23 @@ func (c Client) CallRecipeItemCorrelation() error {
 		return errors.New(professionsMatchingItemsMessage.Err)
 	}
 
+	req := state.ItemRecipesIntakeRequest{
+		Kind:           itemrecipekind.Teaches,
+		ItemRecipesMap: irMap,
+	}
+	encodedItemRecipesIntakeRequest, err := req.EncodeForDelivery()
+	if err != nil {
+		logging.WithField(
+			"error",
+			err.Error(),
+		).Error("failed to encode item-recipes-intake request")
+
+		return err
+	}
+
 	itemRecipesIntakeMessage, err := c.messengerClient.Request(messenger.RequestOptions{
 		Subject: string(subjects.ItemRecipesIntake),
-		Data:    []byte(professionsMatchingItemsMessage.Data),
+		Data:    []byte(encodedItemRecipesIntakeRequest),
 		Timeout: 10 * time.Minute,
 	})
 	if err != nil {

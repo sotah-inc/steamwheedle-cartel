@@ -8,12 +8,13 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger/codes"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state/subjects"
 )
 
-func (c Client) CallItemsIntake(ids blizzardv2.ItemIds) error {
+func (c Client) CallItemsIntake(ids blizzardv2.ItemIds) (state.ItemsIntakeResponse, error) {
 	if len(ids) == 0 {
-		return nil
+		return state.ItemsIntakeResponse{}, nil
 	}
 
 	// forwarding the received item-ids to items-history intake
@@ -21,7 +22,7 @@ func (c Client) CallItemsIntake(ids blizzardv2.ItemIds) error {
 	if err != nil {
 		logging.WithField("error", err.Error()).Error("failed to encode item-ids for delivery")
 
-		return err
+		return state.ItemsIntakeResponse{}, err
 	}
 
 	response, err := c.messengerClient.Request(messenger.RequestOptions{
@@ -34,14 +35,21 @@ func (c Client) CallItemsIntake(ids blizzardv2.ItemIds) error {
 			"failed to publish message for item-ids intake",
 		)
 
-		return err
+		return state.ItemsIntakeResponse{}, err
 	}
 
 	if response.Code != codes.Ok {
 		logging.WithFields(response.ToLogrusFields()).Error("item-ids intake request failed")
 
-		return errors.New(response.Err)
+		return state.ItemsIntakeResponse{}, errors.New(response.Err)
 	}
 
-	return nil
+	itemsIntakeResponse, err := state.NewItemsIntakeResponse([]byte(response.Data))
+	if err != nil {
+		logging.WithField("error", err.Error()).Error("failed to parse item-intake response")
+
+		return state.ItemsIntakeResponse{}, err
+	}
+
+	return itemsIntakeResponse, nil
 }
