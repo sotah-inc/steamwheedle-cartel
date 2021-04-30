@@ -116,9 +116,10 @@ func (job FindItemsJob) ToLogrusFields() logrus.Fields {
 
 func (idBase Database) FindItems(ids blizzardv2.ItemIds) chan FindItemsJob {
 	// starting up workers for gathering items
+	in := make(chan blizzardv2.ItemId)
 	out := make(chan FindItemsJob)
 	worker := func() {
-		for _, id := range ids {
+		for id := range in {
 			item, exists, err := idBase.GetItem(id)
 			if err != nil {
 				out <- FindItemsJob{
@@ -143,6 +144,14 @@ func (idBase Database) FindItems(ids blizzardv2.ItemIds) chan FindItemsJob {
 		close(out)
 	}
 	util.Work(4, worker, postWork)
+
+	go func() {
+		for _, id := range ids {
+			in <- id
+		}
+
+		close(in)
+	}()
 
 	return out
 }
