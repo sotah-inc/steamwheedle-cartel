@@ -4,6 +4,8 @@ import (
 	"encoding/base64"
 	"encoding/json"
 
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
+
 	nats "github.com/nats-io/nats.go"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/locale"
@@ -68,6 +70,8 @@ func (sta ItemsState) ListenForItems(stop ListenStopChan) error {
 
 			return
 		}
+
+		logging.WithField("request", iRequest).Info("received items request")
 
 		itemsOut := sta.ItemsDatabase.FindItems(iRequest.ItemIds)
 		var foundItems []sotah.Item
