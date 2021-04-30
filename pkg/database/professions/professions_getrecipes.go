@@ -21,10 +21,11 @@ func (job GetRecipesJob) ToLogrusFields() logrus.Fields {
 }
 
 func (pdBase Database) GetRecipes(ids []blizzardv2.RecipeId) chan GetRecipesJob {
+	in := make(chan blizzardv2.RecipeId)
 	out := make(chan GetRecipesJob)
 
 	worker := func() {
-		for _, id := range ids {
+		for id := range in {
 			recipe, err := pdBase.GetRecipe(id)
 			if err != nil {
 				out <- GetRecipesJob{
@@ -47,6 +48,14 @@ func (pdBase Database) GetRecipes(ids []blizzardv2.RecipeId) chan GetRecipesJob 
 		close(out)
 	}
 	util.Work(4, worker, postWork)
+
+	go func() {
+		for _, id := range ids {
+			in <- id
+		}
+
+		close(in)
+	}()
 
 	return out
 }

@@ -26,11 +26,12 @@ func (pdBase Database) GetItemRecipesMap(
 	ids blizzardv2.ItemIds,
 ) (blizzardv2.ItemRecipesMap, error) {
 	// establishing channels
+	in := make(chan blizzardv2.ItemId)
 	out := make(chan GetItemRecipesMapOutJob)
 
 	// spinning up workers for receiving encoded-data and persisting it
 	worker := func() {
-		for _, id := range ids {
+		for id := range in {
 			recipeIds, err := pdBase.GetRecipeIdsByItemId(kind, id)
 			if err != nil {
 				out <- GetItemRecipesMapOutJob{
@@ -53,6 +54,15 @@ func (pdBase Database) GetItemRecipesMap(
 		close(out)
 	}
 	util.Work(4, worker, postWork)
+
+	// queueing it up
+	go func() {
+		for _, id := range ids {
+			in <- id
+		}
+
+		close(in)
+	}()
 
 	results := blizzardv2.ItemRecipesMap{}
 	for job := range out {

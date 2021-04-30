@@ -36,9 +36,10 @@ func (phdBases *Databases) GetItemsMarketPrice(
 	}
 
 	// spinning up workers for receiving item market-prices
+	in := make(chan blizzardv2.ItemId)
 	out := make(chan getItemsMarketPricesJob)
 	worker := func() {
-		for _, id := range ids {
+		for id := range in {
 			marketPrice, err := phdBase.getItemMarketPrice(id)
 			if err != nil {
 				out <- getItemsMarketPricesJob{
@@ -61,6 +62,15 @@ func (phdBases *Databases) GetItemsMarketPrice(
 		close(out)
 	}
 	util.Work(4, worker, postWork)
+
+	// queueing it up
+	go func() {
+		for _, id := range ids {
+			in <- id
+		}
+
+		close(in)
+	}()
 
 	// filling in default values
 	results := map[blizzardv2.ItemId]float64{}

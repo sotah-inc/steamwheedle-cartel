@@ -145,6 +145,7 @@ func (idBase Database) FindItems(ids blizzardv2.ItemIds) chan FindItemsJob {
 	}
 	util.Work(4, worker, postWork)
 
+	// queueing it up
 	go func() {
 		for _, id := range ids {
 			in <- id
