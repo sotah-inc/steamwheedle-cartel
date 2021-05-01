@@ -213,12 +213,12 @@ func (client Client) GetEncodedItems(
 				continue
 			}
 
-			isVendorItem := strings.Contains(normalizedName.ResolveDefaultName(), "sold by")
+			isVendorItem := strings.Contains(job.Item.Description.ResolveDefaultName(), "Sold by")
 
 			if isVendorItem {
 				logging.WithFields(logrus.Fields{
 					"item":         job.Item.Id,
-					"name":         normalizedName.ResolveDefaultName(),
+					"name":         job.Item.Description.ResolveDefaultName(),
 					"vendor-price": job.Item.PurchasePrice,
 				}).Info("found item sold by vendor")
 			}
