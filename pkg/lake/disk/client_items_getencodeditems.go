@@ -3,6 +3,7 @@ package disk
 import (
 	"errors"
 	"net/http"
+	"strings"
 	"time"
 
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/itemclass"
@@ -21,13 +22,17 @@ type getEncodedItemJob struct {
 	encodedItem           []byte
 	encodedNormalizedName []byte
 	itemClass             itemclass.Id
+	isVendorItem          bool
+	vendorPrice           blizzardv2.PriceValue
 }
 
-func (g getEncodedItemJob) Err() error                    { return g.err }
-func (g getEncodedItemJob) Id() blizzardv2.ItemId         { return g.id }
-func (g getEncodedItemJob) EncodedItem() []byte           { return g.encodedItem }
-func (g getEncodedItemJob) EncodedNormalizedName() []byte { return g.encodedNormalizedName }
-func (g getEncodedItemJob) ItemClass() itemclass.Id       { return g.itemClass }
+func (g getEncodedItemJob) Err() error                         { return g.err }
+func (g getEncodedItemJob) Id() blizzardv2.ItemId              { return g.id }
+func (g getEncodedItemJob) EncodedItem() []byte                { return g.encodedItem }
+func (g getEncodedItemJob) EncodedNormalizedName() []byte      { return g.encodedNormalizedName }
+func (g getEncodedItemJob) ItemClass() itemclass.Id            { return g.itemClass }
+func (g getEncodedItemJob) IsVendorItem() bool                 { return g.isVendorItem }
+func (g getEncodedItemJob) VendorPrice() blizzardv2.PriceValue { return g.vendorPrice }
 func (g getEncodedItemJob) ToLogrusFields() logrus.Fields {
 	return logrus.Fields{
 		"error": g.err.Error(),
@@ -100,6 +105,8 @@ func (client Client) GetEncodedItems(
 					encodedItem:           []byte{},
 					encodedNormalizedName: []byte{},
 					itemClass:             0,
+					isVendorItem:          false,
+					vendorPrice:           0,
 				}
 
 				continue
@@ -117,6 +124,8 @@ func (client Client) GetEncodedItems(
 					encodedItem:           []byte{},
 					encodedNormalizedName: []byte{},
 					itemClass:             0,
+					isVendorItem:          false,
+					vendorPrice:           0,
 				}
 
 				continue
@@ -146,6 +155,8 @@ func (client Client) GetEncodedItems(
 					encodedItem:           []byte{},
 					encodedNormalizedName: []byte{},
 					itemClass:             0,
+					isVendorItem:          false,
+					vendorPrice:           0,
 				}
 
 				continue
@@ -176,6 +187,8 @@ func (client Client) GetEncodedItems(
 					encodedItem:           []byte{},
 					encodedNormalizedName: []byte{},
 					itemClass:             0,
+					isVendorItem:          false,
+					vendorPrice:           0,
 				}
 
 				continue
@@ -193,9 +206,21 @@ func (client Client) GetEncodedItems(
 					encodedItem:           []byte{},
 					encodedNormalizedName: []byte{},
 					itemClass:             0,
+					isVendorItem:          false,
+					vendorPrice:           0,
 				}
 
 				continue
+			}
+
+			isVendorItem := strings.Contains(normalizedName.ResolveDefaultName(), "sold by")
+
+			if isVendorItem {
+				logging.WithFields(logrus.Fields{
+					"item":         job.Item.Id,
+					"name":         normalizedName.ResolveDefaultName(),
+					"vendor-price": job.Item.PurchasePrice,
+				}).Info("found item sold by vendor")
 			}
 
 			out <- getEncodedItemJob{
@@ -204,6 +229,8 @@ func (client Client) GetEncodedItems(
 				encodedItem:           encodedItem,
 				encodedNormalizedName: encodedNormalizedName,
 				itemClass:             job.Item.ItemClass.Id,
+				isVendorItem:          isVendorItem,
+				vendorPrice:           job.Item.PurchasePrice,
 			}
 		}
 

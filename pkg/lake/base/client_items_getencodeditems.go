@@ -12,5 +12,7 @@ type GetEncodedItemJob interface {
 	ItemClass() itemclass.Id
 	EncodedItem() []byte
 	EncodedNormalizedName() []byte
+	IsVendorItem() bool
+	VendorPrice() blizzardv2.PriceValue
 	ToLogrusFields() logrus.Fields
 }
