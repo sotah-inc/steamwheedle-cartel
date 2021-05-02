@@ -222,7 +222,6 @@ func (client Client) GetEncodedItems(
 					"description":  job.Item.Description.ResolveDefaultName(),
 					"vendor-price": job.Item.PurchasePrice,
 				}).Info("found item sold by vendor")
-
 			}
 
 			out <- getEncodedItemJob{

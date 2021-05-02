@@ -97,10 +97,12 @@ func (sta ItemsState) itemsIntake(ids blizzardv2.ItemIds) (ItemsIntakeResponse, 
 	getEncodedItemsOut, erroneousItemIdsOut := sta.LakeClient.GetEncodedItems(itemIds)
 	persistItemsIn := make(chan ItemsDatabase.PersistEncodedItemsInJob)
 	itemClassItemsOut := make(chan blizzardv2.ItemClassItemsMap)
+	itemVendorPricesOut := make(chan map[blizzardv2.ItemId]blizzardv2.PriceValue)
 
 	// queueing it all up
 	go func() {
 		itemClassItems := blizzardv2.ItemClassItemsMap{}
+		itemVendorPrices := map[blizzardv2.ItemId]blizzardv2.PriceValue{}
 		for job := range getEncodedItemsOut {
 			if job.Err() != nil {
 				logging.WithFields(job.ToLogrusFields()).Error("failed to resolve item")
@@ -117,12 +119,19 @@ func (sta ItemsState) itemsIntake(ids blizzardv2.ItemIds) (ItemsIntakeResponse, 
 			}
 
 			itemClassItems = itemClassItems.Insert(job.ItemClass(), job.Id())
+
+			if job.IsVendorItem() {
+				itemVendorPrices[job.Id()] = job.VendorPrice()
+			}
 		}
 
 		close(persistItemsIn)
 
 		itemClassItemsOut <- itemClassItems
 		close(itemClassItemsOut)
+
+		itemVendorPricesOut <- itemVendorPrices
+		close(itemVendorPricesOut)
 	}()
 
 	totalPersisted, err := sta.ItemsDatabase.PersistEncodedItems(persistItemsIn)
@@ -144,6 +153,11 @@ func (sta ItemsState) itemsIntake(ids blizzardv2.ItemIds) (ItemsIntakeResponse, 
 		logging.WithField("error", err.Error()).Error("failed to receive item-class-items")
 
 		return ItemsIntakeResponse{}, err
+	}
+
+	itemVendorPrices := <-itemVendorPricesOut
+	if len(itemVendorPrices) > 0 {
+		logging.WithField("item-vendor-prices", itemVendorPrices).Info("received item-vendor-prices")
 	}
 
 	logging.WithFields(logrus.Fields{
