@@ -30,6 +30,10 @@ func itemClassItemsBucket() []byte {
 	return []byte("item-class-items")
 }
 
+func itemVendorPricesBucket() []byte {
+	return []byte("item-vendor-prices")
+}
+
 // keying
 func baseKeyName(id blizzardv2.ItemId) []byte {
 	return []byte(fmt.Sprintf("item-%d", id))
