@@ -66,3 +66,28 @@ func (pdBase Database) SetIsComplete(flag string) error {
 		return nil
 	})
 }
+
+func (pdBase Database) ResetRecipes() error {
+	bucketNames := [][]byte{
+		recipesBucketName(),
+		recipeNamesBucketName(),
+	}
+
+	for _, bucketName := range bucketNames {
+		err := pdBase.db.Batch(func(tx *bolt.Tx) error {
+			bkt := tx.Bucket(bucketName)
+			if bkt == nil {
+				return nil
+			}
+
+			return bkt.ForEach(func(k []byte, v []byte) error {
+				return bkt.Delete(k)
+			})
+		})
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
