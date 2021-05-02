@@ -32,11 +32,11 @@ func NewProfessionsState(opts NewProfessionsStateOptions) (ProfessionsState, err
 		return ProfessionsState{}, err
 	}
 
-	if err := professionsDatabase.ResetRecipes(); err != nil {
-		logging.WithField("error", err.Error()).Error("failed to reset recipes in professions-database")
-
-		return ProfessionsState{}, err
-	}
+	//if err := professionsDatabase.ResetRecipes(); err != nil {
+	//	logging.WithField("error", err.Error()).Error("failed to reset recipes in professions-database")
+	//
+	//	return ProfessionsState{}, err
+	//}
 
 	return ProfessionsState{
 		LakeClient:           opts.LakeClient,
