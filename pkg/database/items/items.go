@@ -1,6 +1,7 @@
 package items
 
 import (
+	"encoding/binary"
 	"fmt"
 	"strconv"
 
@@ -80,6 +81,21 @@ func itemClassesKeyName() []byte {
 
 func itemClassItemsKeyName(id itemclass.Id) []byte {
 	return []byte(fmt.Sprintf("item-class-%d-item-ids", id))
+}
+
+func itemVendorPriceKeyName(id blizzardv2.ItemId) []byte {
+	return []byte(fmt.Sprintf("item-%d-vendor-price", id))
+}
+
+func itemVendorPriceToValue(v blizzardv2.PriceValue) []byte {
+	b := make([]byte, 8)
+	binary.LittleEndian.PutUint64(b, uint64(v))
+
+	return b
+}
+
+func itemVendorPriceFromValue(v []byte) blizzardv2.PriceValue {
+	return blizzardv2.PriceValue(int64(binary.LittleEndian.Uint64(v)))
 }
 
 // db
