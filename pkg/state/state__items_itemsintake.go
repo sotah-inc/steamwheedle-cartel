@@ -157,7 +157,11 @@ func (sta ItemsState) itemsIntake(ids blizzardv2.ItemIds) (ItemsIntakeResponse, 
 
 	itemVendorPrices := <-itemVendorPricesOut
 	if len(itemVendorPrices) > 0 {
-		logging.WithField("item-vendor-prices", itemVendorPrices).Info("received item-vendor-prices")
+		if err := sta.ItemsDatabase.PersistVendorPrices(itemVendorPrices); err != nil {
+			logging.WithField("error", err.Error()).Error("failed to persist item-vendor-prices")
+
+			return ItemsIntakeResponse{}, err
+		}
 	}
 
 	logging.WithFields(logrus.Fields{

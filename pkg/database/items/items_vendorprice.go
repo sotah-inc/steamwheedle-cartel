@@ -107,3 +107,34 @@ func (idBase Database) VendorPrices(
 
 	return results, nil
 }
+
+type PersistVendorPricesJob struct {
+	Id          blizzardv2.ItemId
+	VendorPrice blizzardv2.PriceValue
+}
+
+func (idBase Database) PersistVendorPrices(
+	ivMap map[blizzardv2.ItemId]blizzardv2.PriceValue,
+) error {
+	logging.WithField("item-vendor-prices", ivMap).Info("persisting item-vendor-prices")
+
+	return idBase.db.Batch(func(tx *bolt.Tx) error {
+		bkt, err := tx.CreateBucketIfNotExists(itemVendorPricesBucket())
+		if err != nil {
+			return err
+		}
+
+		for id, vp := range ivMap {
+			v := bkt.Get(itemVendorPriceKeyName(id))
+			if v != nil {
+				continue
+			}
+
+			if err := bkt.Put(itemVendorPriceKeyName(id), itemVendorPriceToValue(vp)); err != nil {
+				return err
+			}
+		}
+
+		return nil
+	})
+}

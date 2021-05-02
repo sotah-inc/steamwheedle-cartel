@@ -30,9 +30,9 @@ func NewItemsState(opts NewItemsStateOptions) (ItemsState, error) {
 		return ItemsState{}, err
 	}
 
-	//if err := itemsDatabase.ResetItems(); err != nil {
-	//	return ItemsState{}, err
-	//}
+	if err := itemsDatabase.ResetItems(); err != nil {
+		return ItemsState{}, err
+	}
 
 	hasItemClasses, err := itemsDatabase.HasItemClasses()
 	if err != nil {
