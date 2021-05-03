@@ -9,6 +9,7 @@ const (
 	ItemsFindMatchingRecipes Subject = "itemsFindMatchingRecipes"
 	ItemClasses              Subject = "itemClasses"
 	ItemSubjectsByItemClass  Subject = "itemSubjectsByItemClass"
+	ItemsVendorPrices        Subject = "itemsVendorPrices"
 )
 
 const (
