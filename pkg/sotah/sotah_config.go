@@ -39,6 +39,10 @@ func (wl RegionRealmSlugWhitelist) Get(name blizzardv2.RegionName) blizzardv2.Re
 	return realmSlugs
 }
 
+type FirebaseConfig struct {
+	BrowserApiKey string `json:"browser_api_key"`
+}
+
 type Config struct {
 	Regions              RegionList                          `json:"regions"`
 	Whitelist            RegionRealmSlugWhitelist            `json:"whitelist"`
@@ -46,6 +50,7 @@ type Config struct {
 	Expansions           []Expansion                         `json:"expansions"`
 	PrimarySkillTiers    map[string][]blizzardv2.SkillTierId `json:"primary_skilltiers"`
 	ProfessionsBlacklist []blizzardv2.ProfessionId           `json:"professions_blacklist"`
+	FirebaseConfig       FirebaseConfig                      `json:"firebase_config"`
 }
 
 func (c Config) FilterInRegions(regs RegionList) RegionList {

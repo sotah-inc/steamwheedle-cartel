@@ -11,8 +11,9 @@ import (
 )
 
 type BootResponse struct {
-	Regions    sotah.RegionList  `json:"regions"`
-	Expansions []sotah.Expansion `json:"expansions"`
+	Regions        sotah.RegionList     `json:"regions"`
+	Expansions     []sotah.Expansion    `json:"expansions"`
+	FirebaseConfig sotah.FirebaseConfig `json:"firebase_config"`
 }
 
 func (res BootResponse) EncodeForDelivery() ([]byte, error) {
@@ -24,8 +25,9 @@ func (sta BootState) ListenForBoot(stop ListenStopChan) error {
 		m := messenger.NewMessage()
 
 		res := BootResponse{
-			Regions:    sta.Regions,
-			Expansions: sta.Expansions,
+			Regions:        sta.Regions,
+			Expansions:     sta.Expansions,
+			FirebaseConfig: sta.FirebaseConfig,
 		}
 
 		encodedResponse, err := res.EncodeForDelivery()

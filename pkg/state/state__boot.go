@@ -11,16 +11,18 @@ type NewBootStateOptions struct {
 	BlizzardState BlizzardState
 	Messenger     messenger.Messenger
 
-	Regions    sotah.RegionList
-	Expansions []sotah.Expansion
+	Regions        sotah.RegionList
+	Expansions     []sotah.Expansion
+	FirebaseConfig sotah.FirebaseConfig
 }
 
 func NewBootState(opts NewBootStateOptions) (BootState, error) {
 	return BootState{
-		Regions:       opts.Regions,
-		Messenger:     opts.Messenger,
-		SessionSecret: uuid.NewV4(),
-		Expansions:    opts.Expansions,
+		Regions:        opts.Regions,
+		Messenger:      opts.Messenger,
+		SessionSecret:  uuid.NewV4(),
+		Expansions:     opts.Expansions,
+		FirebaseConfig: opts.FirebaseConfig,
 	}, nil
 }
 
@@ -31,8 +33,9 @@ type BootState struct {
 	SessionSecret uuid.UUID
 
 	// receiving from config file
-	Regions    sotah.RegionList
-	Expansions []sotah.Expansion
+	Regions        sotah.RegionList
+	Expansions     []sotah.Expansion
+	FirebaseConfig sotah.FirebaseConfig
 }
 
 func (sta BootState) GetListeners() SubjectListeners {
