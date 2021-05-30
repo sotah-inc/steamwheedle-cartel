@@ -2,6 +2,7 @@ package state
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/sirupsen/logrus"
 
@@ -40,7 +41,10 @@ func (sta BlizzardState) ResolveConnectedRealms(
 	return blizzardv2.GetAllConnectedRealms(blizzardv2.GetAllConnectedRealmsOptions{
 		GetConnectedRealmIndexURL: func() (string, error) {
 			return sta.BlizzardClient.AppendAccessToken(
-				blizzardv2.DefaultConnectedRealmIndexURL(region.Hostname, region.Name),
+				blizzardv2.DefaultConnectedRealmIndexURL(
+					region.Hostname,
+					fmt.Sprintf("dynamic-%s", region.Name),
+				),
 			)
 		},
 		GetConnectedRealmURL: sta.BlizzardClient.AppendAccessToken,

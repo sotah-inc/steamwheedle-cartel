@@ -11,10 +11,10 @@ import (
 )
 
 // nolint:lll
-const connectedRealmIndexURLFormat = "https://%s/data/wow/connected-realm/index?namespace=dynamic-%s"
+const connectedRealmIndexURLFormat = "https://%s/data/wow/connected-realm/index?namespace=%s"
 
-func DefaultConnectedRealmIndexURL(regionHostname string, regionName RegionName) string {
-	return fmt.Sprintf(connectedRealmIndexURLFormat, regionHostname, regionName)
+func DefaultConnectedRealmIndexURL(regionHostname string, regionNamespace string) string {
+	return fmt.Sprintf(connectedRealmIndexURLFormat, regionHostname, regionNamespace)
 }
 
 type GetConnectedRealmIndexURLFunc func(string) string
