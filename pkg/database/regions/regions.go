@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strconv"
 
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/gameversion"
+
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 )
 
@@ -12,8 +14,8 @@ func baseBucketName() []byte {
 	return []byte("regions")
 }
 
-func connectedRealmsBucketName(name blizzardv2.RegionName) []byte {
-	return []byte(fmt.Sprintf("connected-realms-%s", name))
+func connectedRealmsBucketName(version gameversion.GameVersion, name blizzardv2.RegionName) []byte {
+	return []byte(fmt.Sprintf("connected-realms-%s-%s", version, name))
 }
 
 // base keying
