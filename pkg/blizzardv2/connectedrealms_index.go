@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"net/http"
 
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/gameversion"
+
 	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 )
@@ -13,8 +15,20 @@ import (
 // nolint:lll
 const connectedRealmIndexURLFormat = "https://%s/data/wow/connected-realm/index?namespace=%s"
 
-func DefaultConnectedRealmIndexURL(regionHostname string, regionNamespace string) string {
-	return fmt.Sprintf(connectedRealmIndexURLFormat, regionHostname, regionNamespace)
+func DefaultConnectedRealmIndexURL(
+	regionHostname string,
+	version gameversion.GameVersion,
+) (string, error) {
+	namespace, err := gameversion.DynamicNamespaceMap.Resolve(version)
+	if err != nil {
+		return "", err
+	}
+
+	return fmt.Sprintf(
+		connectedRealmIndexURLFormat,
+		regionHostname,
+		namespace,
+	), nil
 }
 
 type GetConnectedRealmIndexURLFunc func(string) string

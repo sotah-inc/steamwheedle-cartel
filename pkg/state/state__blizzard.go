@@ -2,7 +2,8 @@ package state
 
 import (
 	"errors"
-	"fmt"
+
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/gameversion"
 
 	"github.com/sirupsen/logrus"
 
@@ -34,18 +35,22 @@ type BlizzardState struct {
 }
 
 func (sta BlizzardState) ResolveConnectedRealms(
+	version gameversion.GameVersion,
 	region sotah.Region,
 	blacklist []blizzardv2.ConnectedRealmId,
 	whitelist blizzardv2.RealmSlugs,
 ) (chan blizzardv2.GetAllConnectedRealmsJob, error) {
 	return blizzardv2.GetAllConnectedRealms(blizzardv2.GetAllConnectedRealmsOptions{
 		GetConnectedRealmIndexURL: func() (string, error) {
-			return sta.BlizzardClient.AppendAccessToken(
-				blizzardv2.DefaultConnectedRealmIndexURL(
-					region.Hostname,
-					fmt.Sprintf("dynamic-%s", region.Name),
-				),
+			defaultUrl, err := blizzardv2.DefaultConnectedRealmIndexURL(
+				region.Hostname,
+				version,
 			)
+			if err != nil {
+				return "", err
+			}
+
+			return sta.BlizzardClient.AppendAccessToken(defaultUrl)
 		},
 		GetConnectedRealmURL: sta.BlizzardClient.AppendAccessToken,
 		Blacklist:            blacklist,
