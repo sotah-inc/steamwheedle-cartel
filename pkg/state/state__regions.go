@@ -3,6 +3,7 @@ package state
 import (
 	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/gameversion"
 	RegionsDatabase "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database/regions" // nolint:lll
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
@@ -13,6 +14,7 @@ import (
 type NewRegionStateOptions struct {
 	BlizzardState            BlizzardState
 	Regions                  sotah.RegionList
+	GameVersionList          gameversion.List
 	Messenger                messenger.Messenger
 	RegionRealmSlugWhitelist sotah.RegionRealmSlugWhitelist
 	RegionsDatabaseDir       string
@@ -36,69 +38,73 @@ func NewRegionState(opts NewRegionStateOptions) (RegionsState, error) {
 		}
 	}
 
-	for _, region := range opts.Regions {
-		resolvedWhitelist := opts.RegionRealmSlugWhitelist.Get(region.Name)
-		connectedRealmIds, err := regionsDatabase.GetConnectedRealmIds(region.Name)
-		if err != nil {
-			return RegionsState{}, err
-		}
-
-		if len(connectedRealmIds) > 0 {
-			logging.WithField(
-				"connected-realms",
-				len(connectedRealmIds),
-			).Info("connected-realms already present for region, skipping")
-
-			continue
-		}
-
-		connectedRealmsOut, err := opts.BlizzardState.ResolveConnectedRealms(
-			region,
-			connectedRealmIds,
-			resolvedWhitelist,
-		)
-		if err != nil {
-			return RegionsState{}, err
-		}
-
-		persistConnectedRealmsIn := make(chan RegionsDatabase.PersistConnectedRealmsInJob)
-		go func() {
-			for connectedRealmsOutJob := range connectedRealmsOut {
-				connectedRealmComposite := sotah.RealmComposite{
-					ConnectedRealmResponse: connectedRealmsOutJob.ConnectedRealmResponse,
-					ModificationDates: sotah.ConnectedRealmTimestamps{
-						Downloaded:           0,
-						LiveAuctionsReceived: 0,
-						ItemPricesReceived:   0,
-						RecipePricesReceived: 0,
-						StatsReceived:        0,
-					},
-				}
-
-				data, err := connectedRealmComposite.EncodeForStorage()
-				if err != nil {
-					logging.WithFields(logrus.Fields{
-						"err":             err.Error(),
-						"connected-realm": connectedRealmComposite.ConnectedRealmResponse.Id,
-					}).Error("failed to encode connected-realm for storage")
-
-					continue
-				}
-
-				persistConnectedRealmsIn <- RegionsDatabase.PersistConnectedRealmsInJob{
-					Id:   connectedRealmsOutJob.ConnectedRealmResponse.Id,
-					Data: data,
-				}
+	for _, version := range opts.GameVersionList {
+		for _, region := range opts.Regions {
+			resolvedWhitelist := opts.RegionRealmSlugWhitelist.Get(region.Name)
+			connectedRealmIds, err := regionsDatabase.GetConnectedRealmIds(region.Name)
+			if err != nil {
+				return RegionsState{}, err
 			}
 
-			close(persistConnectedRealmsIn)
-		}()
+			if len(connectedRealmIds) > 0 {
+				logging.WithField(
+					"connected-realms",
+					len(connectedRealmIds),
+				).Info("connected-realms already present for region, skipping")
 
-		if err := regionsDatabase.PersistConnectedRealms(
-			region.Name,
-			persistConnectedRealmsIn,
-		); err != nil {
-			return RegionsState{}, err
+				continue
+			}
+
+			connectedRealmsOut, err := opts.BlizzardState.ResolveConnectedRealms(
+				version,
+				region,
+				connectedRealmIds,
+				resolvedWhitelist,
+			)
+			if err != nil {
+				return RegionsState{}, err
+			}
+
+			persistConnectedRealmsIn := make(chan RegionsDatabase.PersistConnectedRealmsInJob)
+			go func() {
+				for connectedRealmsOutJob := range connectedRealmsOut {
+					connectedRealmComposite := sotah.RealmComposite{
+						ConnectedRealmResponse: connectedRealmsOutJob.ConnectedRealmResponse,
+						ModificationDates: sotah.ConnectedRealmTimestamps{
+							Downloaded:           0,
+							LiveAuctionsReceived: 0,
+							ItemPricesReceived:   0,
+							RecipePricesReceived: 0,
+							StatsReceived:        0,
+						},
+					}
+
+					data, err := connectedRealmComposite.EncodeForStorage()
+					if err != nil {
+						logging.WithFields(logrus.Fields{
+							"err":             err.Error(),
+							"connected-realm": connectedRealmComposite.ConnectedRealmResponse.Id,
+						}).Error("failed to encode connected-realm for storage")
+
+						continue
+					}
+
+					persistConnectedRealmsIn <- RegionsDatabase.PersistConnectedRealmsInJob{
+						Id:   connectedRealmsOutJob.ConnectedRealmResponse.Id,
+						Data: data,
+					}
+				}
+
+				close(persistConnectedRealmsIn)
+			}()
+
+			if err := regionsDatabase.PersistConnectedRealms(
+				version,
+				region.Name,
+				persistConnectedRealmsIn,
+			); err != nil {
+				return RegionsState{}, err
+			}
 		}
 	}
 

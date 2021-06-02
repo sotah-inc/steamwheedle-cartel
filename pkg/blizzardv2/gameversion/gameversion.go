@@ -9,7 +9,9 @@ const (
 	Retail  GameVersion = "retail"
 )
 
-var GameVersions = []GameVersion{Classic, Retail}
+type List []GameVersion
+
+var GameVersions = List{Classic, Retail}
 
 type VersionNamespaceMap map[GameVersion]string
 
