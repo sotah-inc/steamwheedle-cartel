@@ -5,10 +5,13 @@ import (
 
 	"github.com/boltdb/bolt"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/gameversion"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 )
 
-func (rBase Database) GetDownloadTuples() ([]blizzardv2.DownloadConnectedRealmTuple, error) {
+func (rBase Database) GetDownloadTuples(
+	version gameversion.GameVersion,
+) ([]blizzardv2.DownloadConnectedRealmTuple, error) {
 	var out []blizzardv2.DownloadConnectedRealmTuple
 
 	err := rBase.db.View(func(tx *bolt.Tx) error {
@@ -23,7 +26,7 @@ func (rBase Database) GetDownloadTuples() ([]blizzardv2.DownloadConnectedRealmTu
 				return err
 			}
 
-			connectedRealmsBucket := tx.Bucket(connectedRealmsBucketName(region.Name))
+			connectedRealmsBucket := tx.Bucket(connectedRealmsBucketName(version, region.Name))
 			if connectedRealmsBucket == nil {
 				return errors.New("connected-realms bucket does not exist")
 			}

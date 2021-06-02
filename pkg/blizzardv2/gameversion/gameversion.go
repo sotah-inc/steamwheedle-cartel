@@ -28,3 +28,5 @@ func (vnMap VersionNamespaceMap) Resolve(version GameVersion) (string, error) {
 
 	return found, nil
 }
+
+// !Trustno1Cox

@@ -41,7 +41,7 @@ func NewRegionState(opts NewRegionStateOptions) (RegionsState, error) {
 	for _, version := range opts.GameVersionList {
 		for _, region := range opts.Regions {
 			resolvedWhitelist := opts.RegionRealmSlugWhitelist.Get(region.Name)
-			connectedRealmIds, err := regionsDatabase.GetConnectedRealmIds(region.Name)
+			connectedRealmIds, err := regionsDatabase.GetConnectedRealmIds(version, region.Name)
 			if err != nil {
 				return RegionsState{}, err
 			}
@@ -121,16 +121,23 @@ type RegionsState struct {
 	RegionsDatabase RegionsDatabase.Database
 }
 
-func (sta RegionsState) ReceiveTimestamps(regionTimestamps sotah.RegionTimestamps) error {
-	return sta.RegionsDatabase.ReceiveRegionTimestamps(regionTimestamps)
+func (sta RegionsState) ReceiveTimestamps(
+	version gameversion.GameVersion,
+	regionTimestamps sotah.RegionTimestamps,
+) error {
+	return sta.RegionsDatabase.ReceiveRegionTimestamps(version, regionTimestamps)
 }
 
-func (sta RegionsState) ResolveDownloadTuples() ([]blizzardv2.DownloadConnectedRealmTuple, error) {
-	return sta.RegionsDatabase.GetDownloadTuples()
+func (sta RegionsState) ResolveDownloadTuples(
+	version gameversion.GameVersion,
+) ([]blizzardv2.DownloadConnectedRealmTuple, error) {
+	return sta.RegionsDatabase.GetDownloadTuples(version)
 }
 
-func (sta RegionsState) ResolveTuples() (blizzardv2.RegionConnectedRealmTuples, error) {
-	return sta.RegionsDatabase.GetTuples()
+func (sta RegionsState) ResolveTuples(
+	version gameversion.GameVersion,
+) (blizzardv2.RegionConnectedRealmTuples, error) {
+	return sta.RegionsDatabase.GetTuples(version)
 }
 
 func (sta RegionsState) GetListeners() SubjectListeners {

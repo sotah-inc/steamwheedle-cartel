@@ -3,15 +3,17 @@ package regions
 import (
 	"github.com/boltdb/bolt"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/gameversion"
 )
 
 func (rBase Database) GetConnectedRealmIds(
+	version gameversion.GameVersion,
 	name blizzardv2.RegionName,
 ) ([]blizzardv2.ConnectedRealmId, error) {
 	var out []blizzardv2.ConnectedRealmId
 
 	err := rBase.db.View(func(tx *bolt.Tx) error {
-		bkt := tx.Bucket(connectedRealmsBucketName(name))
+		bkt := tx.Bucket(connectedRealmsBucketName(version, name))
 		if bkt == nil {
 			return nil
 		}
