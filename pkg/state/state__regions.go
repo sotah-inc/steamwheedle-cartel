@@ -112,6 +112,7 @@ func NewRegionState(opts NewRegionStateOptions) (RegionsState, error) {
 		BlizzardState:   opts.BlizzardState,
 		Messenger:       opts.Messenger,
 		RegionsDatabase: regionsDatabase,
+		GameVersionList: opts.GameVersionList,
 	}, nil
 }
 
@@ -119,6 +120,8 @@ type RegionsState struct {
 	BlizzardState   BlizzardState
 	Messenger       messenger.Messenger
 	RegionsDatabase RegionsDatabase.Database
+
+	GameVersionList gameversion.List
 }
 
 func (sta RegionsState) ReceiveTimestamps(

@@ -16,7 +16,7 @@ func (sta RegionsState) ListenForValidateRegionRealm(stop ListenStopChan) error 
 	err := sta.Messenger.Subscribe(string(subjects.ValidateRegionRealm), stop, func(natsMsg nats.Msg) {
 		m := messenger.NewMessage()
 
-		req, err := blizzardv2.NewRegionRealmTuple(natsMsg.Data)
+		req, err := blizzardv2.NewVersionRegionRealmTuple(natsMsg.Data)
 		if err != nil {
 			m.Err = err.Error()
 			m.Code = codes.MsgJSONParseError
@@ -25,7 +25,15 @@ func (sta RegionsState) ListenForValidateRegionRealm(stop ListenStopChan) error 
 			return
 		}
 
-		exists, err := sta.RegionsDatabase.RealmExists(req.RegionName, req.RealmSlug)
+		if !sta.GameVersionList.Includes(req.Version) {
+			m.Err = "invalid game-version"
+			m.Code = codes.UserError
+			sta.Messenger.ReplyTo(natsMsg, m)
+
+			return
+		}
+
+		exists, err := sta.RegionsDatabase.RealmExists(req.Version, req.RegionName, req.RealmSlug)
 		if err != nil {
 			m.Err = err.Error()
 			m.Code = codes.GenericError

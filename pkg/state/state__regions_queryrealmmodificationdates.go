@@ -3,12 +3,10 @@ package state
 import (
 	"encoding/json"
 
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
-
-	"github.com/sirupsen/logrus"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
-
 	nats "github.com/nats-io/nats.go"
+	"github.com/sirupsen/logrus"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
 	mCodes "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger/codes"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
@@ -30,7 +28,7 @@ func (sta RegionsState) ListenForQueryRealmModificationDates(stop ListenStopChan
 		func(natsMsg nats.Msg) {
 			m := messenger.NewMessage()
 
-			req, err := blizzardv2.NewRegionConnectedRealmTuple(natsMsg.Data)
+			req, err := blizzardv2.NewVersionRegionConnectedRealmTuple(natsMsg.Data)
 			if err != nil {
 				m.Err = err.Error()
 				m.Code = mCodes.GenericError
@@ -39,7 +37,16 @@ func (sta RegionsState) ListenForQueryRealmModificationDates(stop ListenStopChan
 				return
 			}
 
+			if !sta.GameVersionList.Includes(req.Version) {
+				m.Err = "invalid game-version"
+				m.Code = mCodes.UserError
+				sta.Messenger.ReplyTo(natsMsg, m)
+
+				return
+			}
+
 			connectedRealmTimestamps, err := sta.RegionsDatabase.GetConnectedRealmsTimestamps(
+				req.Version,
 				req.RegionName,
 				req.ConnectedRealmId,
 			)

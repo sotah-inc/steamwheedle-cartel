@@ -3,6 +3,8 @@ package blizzardv2
 import (
 	"encoding/json"
 	"time"
+
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/gameversion"
 )
 
 type LinksBase struct {
@@ -28,6 +30,20 @@ func NewRegionTuple(data []byte) (RegionTuple, error) {
 
 type RegionTuple struct {
 	RegionName RegionName `json:"region_name"`
+}
+
+func NewVersionRegionTuple(data []byte) (VersionRegionTuple, error) {
+	out := VersionRegionTuple{}
+	if err := json.Unmarshal(data, &out); err != nil {
+		return VersionRegionTuple{}, err
+	}
+
+	return out, nil
+}
+
+type VersionRegionTuple struct {
+	Version    gameversion.GameVersion `json:"game_version"`
+	RegionName RegionName              `json:"region_name"`
 }
 
 func NewRegionConnectedRealmTuples(data []byte) (RegionConnectedRealmTuples, error) {
@@ -106,6 +122,21 @@ type RegionConnectedRealmTuple struct {
 	ConnectedRealmId ConnectedRealmId `json:"connected_realm_id"`
 }
 
+func NewVersionRegionConnectedRealmTuple(data []byte) (VersionRegionConnectedRealmTuple, error) {
+	out := VersionRegionConnectedRealmTuple{}
+	if err := json.Unmarshal(data, &out); err != nil {
+		return VersionRegionConnectedRealmTuple{}, err
+	}
+
+	return out, nil
+}
+
+type VersionRegionConnectedRealmTuple struct {
+	Version          gameversion.GameVersion `json:"game_version"`
+	RegionName       RegionName              `json:"region_name"`
+	ConnectedRealmId ConnectedRealmId        `json:"connected_realm_id"`
+}
+
 func NewRegionRealmTuple(data []byte) (RegionRealmTuple, error) {
 	out := RegionRealmTuple{}
 	if err := json.Unmarshal(data, &out); err != nil {
@@ -118,6 +149,21 @@ func NewRegionRealmTuple(data []byte) (RegionRealmTuple, error) {
 type RegionRealmTuple struct {
 	RegionName RegionName `json:"region_name"`
 	RealmSlug  RealmSlug  `json:"realm_slug"`
+}
+
+func NewVersionRegionRealmTuple(data []byte) (VersionRegionRealmTuple, error) {
+	out := VersionRegionRealmTuple{}
+	if err := json.Unmarshal(data, &out); err != nil {
+		return VersionRegionRealmTuple{}, err
+	}
+
+	return out, nil
+}
+
+type VersionRegionRealmTuple struct {
+	Version    gameversion.GameVersion `json:"game_version"`
+	RegionName RegionName              `json:"region_name"`
+	RealmSlug  RealmSlug               `json:"realm_slug"`
 }
 
 type DownloadConnectedRealmTuple struct {

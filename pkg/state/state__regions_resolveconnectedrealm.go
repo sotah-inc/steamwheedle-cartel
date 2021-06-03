@@ -3,12 +3,11 @@ package state
 import (
 	"encoding/json"
 
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
-
 	nats "github.com/nats-io/nats.go"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger/codes"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state/subjects"
 )
 
@@ -32,7 +31,7 @@ func (sta RegionsState) ListenForResolveConnectedRealm(stop ListenStopChan) erro
 		func(natsMsg nats.Msg) {
 			m := messenger.NewMessage()
 
-			req, err := blizzardv2.NewRegionRealmTuple(natsMsg.Data)
+			req, err := blizzardv2.NewVersionRegionRealmTuple(natsMsg.Data)
 			if err != nil {
 				m.Err = err.Error()
 				m.Code = codes.MsgJSONParseError
@@ -41,7 +40,16 @@ func (sta RegionsState) ListenForResolveConnectedRealm(stop ListenStopChan) erro
 				return
 			}
 
+			if !sta.GameVersionList.Includes(req.Version) {
+				m.Err = "invalid game-version"
+				m.Code = codes.UserError
+				sta.Messenger.ReplyTo(natsMsg, m)
+
+				return
+			}
+
 			connectedRealm, err := sta.RegionsDatabase.GetConnectedRealmByRealmSlug(
+				req.Version,
 				req.RegionName,
 				req.RealmSlug,
 			)

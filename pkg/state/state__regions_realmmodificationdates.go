@@ -24,7 +24,7 @@ func (sta RegionsState) ListenForConnectedRealmModificationDates(stop ListenStop
 		func(natsMsg nats.Msg) {
 			m := messenger.NewMessage()
 
-			req, err := blizzardv2.NewRegionTuple(natsMsg.Data)
+			req, err := blizzardv2.NewVersionRegionTuple(natsMsg.Data)
 			if err != nil {
 				m.Err = err.Error()
 				m.Code = mCodes.GenericError
@@ -33,7 +33,18 @@ func (sta RegionsState) ListenForConnectedRealmModificationDates(stop ListenStop
 				return
 			}
 
-			foundTimestamps, err := sta.RegionsDatabase.GetRealmTimestamps(req.RegionName)
+			if !sta.GameVersionList.Includes(req.Version) {
+				m.Err = "invalid game-version"
+				m.Code = mCodes.UserError
+				sta.Messenger.ReplyTo(natsMsg, m)
+
+				return
+			}
+
+			foundTimestamps, err := sta.RegionsDatabase.GetRealmTimestamps(
+				req.Version,
+				req.RegionName,
+			)
 			if err != nil {
 				m.Err = err.Error()
 				m.Code = mCodes.UserError

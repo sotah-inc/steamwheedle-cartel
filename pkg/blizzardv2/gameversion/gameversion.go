@@ -11,6 +11,16 @@ const (
 
 type List []GameVersion
 
+func (l List) Includes(providedVersion GameVersion) bool {
+	for _, version := range l {
+		if version == providedVersion {
+			return true
+		}
+	}
+
+	return false
+}
+
 var GameVersions = List{Classic, Retail}
 
 type VersionNamespaceMap map[GameVersion]string
