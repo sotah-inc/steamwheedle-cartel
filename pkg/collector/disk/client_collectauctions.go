@@ -5,6 +5,7 @@ import (
 
 	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/gameversion"
 	BaseLake "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/lake/base"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
@@ -21,7 +22,7 @@ type collectAuctionsResults struct {
 	tuples           blizzardv2.LoadConnectedRealmTuples
 }
 
-func (c Client) collectAuctions() (collectAuctionsResults, error) {
+func (c Client) collectAuctions(version gameversion.GameVersion) (collectAuctionsResults, error) {
 	startTime := time.Now()
 	logging.Info("calling DiskCollector.collectAuctions()")
 
@@ -114,7 +115,7 @@ func (c Client) collectAuctions() (collectAuctionsResults, error) {
 
 	// optionally updating region state
 	if !results.regionTimestamps.IsZero() {
-		if err := c.receiveRegionTimestamps(results.regionTimestamps); err != nil {
+		if err := c.receiveRegionTimestamps(version, results.regionTimestamps); err != nil {
 			logging.WithField("error", err.Error()).Error("failed to receive timestamps")
 
 			return collectAuctionsResults{}, err

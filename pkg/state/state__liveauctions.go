@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/gameversion"
 	LiveAuctionsDatabase "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database/liveauctions" // nolint:lll
 	BaseLake "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/lake/base"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
@@ -19,7 +20,10 @@ type NewLiveAuctionsStateOptions struct {
 
 	LiveAuctionsDatabasesDir string
 	Tuples                   blizzardv2.RegionConnectedRealmTuples
-	ReceiveRegionTimestamps  func(timestamps sotah.RegionTimestamps) error
+	ReceiveRegionTimestamps  func(
+		version gameversion.GameVersion,
+		timestamps sotah.RegionTimestamps,
+	) error
 }
 
 func NewLiveAuctionsState(opts NewLiveAuctionsStateOptions) (LiveAuctionsState, error) {
@@ -64,7 +68,10 @@ type LiveAuctionsState struct {
 	Messenger               messenger.Messenger
 	LakeClient              BaseLake.Client
 	Tuples                  blizzardv2.RegionConnectedRealmTuples
-	ReceiveRegionTimestamps func(timestamps sotah.RegionTimestamps) error
+	ReceiveRegionTimestamps func(
+		version gameversion.GameVersion,
+		timestamps sotah.RegionTimestamps,
+	) error
 }
 
 func (sta LiveAuctionsState) GetListeners() SubjectListeners {
