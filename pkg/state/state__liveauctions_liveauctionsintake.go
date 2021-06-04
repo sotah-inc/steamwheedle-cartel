@@ -1,11 +1,13 @@
 package state
 
 import (
+	"encoding/json"
 	"time"
 
 	"github.com/nats-io/nats.go"
 	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/gameversion"
 	LiveAuctionsDatabase "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database/liveauctions" // nolint:lll
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
@@ -14,11 +16,29 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state/subjects"
 )
 
+func NewLiveAuctionsIntakeRequest(data []byte) (LiveAuctionsIntakeRequest, error) {
+	out := LiveAuctionsIntakeRequest{}
+	if err := json.Unmarshal(data, &out); err != nil {
+		return LiveAuctionsIntakeRequest{}, err
+	}
+
+	return out, nil
+}
+
+type LiveAuctionsIntakeRequest struct {
+	Version gameversion.GameVersion               `json:"version"`
+	Tuples  blizzardv2.RegionConnectedRealmTuples `json:"tuples"`
+}
+
+func (req LiveAuctionsIntakeRequest) EncodeForDelivery() ([]byte, error) {
+	return json.Marshal(req)
+}
+
 func (sta LiveAuctionsState) ListenForLiveAuctionsIntake(stop ListenStopChan) error {
 	err := sta.Messenger.Subscribe(string(subjects.LiveAuctionsIntake), stop, func(natsMsg nats.Msg) {
 		m := messenger.NewMessage()
 
-		tuples, err := blizzardv2.NewLoadConnectedRealmTuples(natsMsg.Data)
+		req, err := NewLiveAuctionsIntakeRequest(natsMsg.Data)
 		if err != nil {
 			m.Err = err.Error()
 			m.Code = codes.MsgJSONParseError
@@ -27,8 +47,11 @@ func (sta LiveAuctionsState) ListenForLiveAuctionsIntake(stop ListenStopChan) er
 			return
 		}
 
-		logging.WithField("tuples", len(tuples)).Info("received")
-		if err := sta.LiveAuctionsIntake(tuples); err != nil {
+		logging.WithFields(logrus.Fields{
+			"version": req.Version,
+			"tuples":  len(req.Tuples),
+		}).Info("received")
+		if err := sta.LiveAuctionsIntake(req); err != nil {
 			m.Err = err.Error()
 			m.Code = codes.GenericError
 			sta.Messenger.ReplyTo(natsMsg, m)
@@ -45,13 +68,11 @@ func (sta LiveAuctionsState) ListenForLiveAuctionsIntake(stop ListenStopChan) er
 	return nil
 }
 
-func (sta LiveAuctionsState) LiveAuctionsIntake(tuples blizzardv2.LoadConnectedRealmTuples) error {
+func (sta LiveAuctionsState) LiveAuctionsIntake(req LiveAuctionsIntakeRequest) error {
 	startTime := time.Now()
 
 	// spinning up workers
-	getAuctionsByTuplesOut := sta.LakeClient.GetEncodedAuctionsByTuples(
-		tuples.RegionConnectedRealmTuples(),
-	)
+	getAuctionsByTuplesOut := sta.LakeClient.GetEncodedAuctionsByTuples(req.Tuples)
 	loadEncodedDataIn := make(chan LiveAuctionsDatabase.LoadEncodedDataInJob)
 	loadEncodedDataOut := sta.LiveAuctionsDatabases.LoadEncodedData(loadEncodedDataIn)
 
@@ -94,7 +115,7 @@ func (sta LiveAuctionsState) LiveAuctionsIntake(tuples blizzardv2.LoadConnectedR
 
 	// optionally updating region state
 	if !regionTimestamps.IsZero() {
-		if err := sta.ReceiveRegionTimestamps(regionTimestamps); err != nil {
+		if err := sta.ReceiveRegionTimestamps(req.Version, regionTimestamps); err != nil {
 			logging.WithField("error", err.Error()).Error("failed to receive region-timestamps")
 
 			return err

@@ -19,6 +19,7 @@ type collectAuctionsResult struct {
 type collectAuctionsResults struct {
 	itemIds          blizzardv2.ItemIds
 	regionTimestamps sotah.RegionTimestamps
+	version          gameversion.GameVersion
 	tuples           blizzardv2.LoadConnectedRealmTuples
 }
 
@@ -78,6 +79,7 @@ func (c Client) collectAuctions(version gameversion.GameVersion) (collectAuction
 		results := collectAuctionsResults{
 			itemIds:          blizzardv2.ItemIds{},
 			regionTimestamps: sotah.RegionTimestamps{},
+			version:          version,
 			tuples:           blizzardv2.LoadConnectedRealmTuples{},
 		}
 		for job := range resultsInJob {

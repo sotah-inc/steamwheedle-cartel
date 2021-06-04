@@ -3,6 +3,8 @@ package disk
 import (
 	"time"
 
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state"
+
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/gameversion"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
@@ -17,9 +19,10 @@ func (c Client) Collect(version gameversion.GameVersion) error {
 		return err
 	}
 
-	if err := c.CallLiveAuctionsIntake(
-		collectAuctionsResults.tuples.RegionConnectedRealmTuples(),
-	); err != nil {
+	if err := c.CallLiveAuctionsIntake(state.LiveAuctionsIntakeRequest{
+		Version: collectAuctionsResults.version,
+		Tuples:  collectAuctionsResults.tuples.RegionConnectedRealmTuples(),
+	}); err != nil {
 		return err
 	}
 
