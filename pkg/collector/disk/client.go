@@ -12,7 +12,9 @@ type ClientOptions struct {
 	LakeClient      BaseLake.Client
 	MessengerClient messenger.Messenger
 
-	ResolveAuctions         func() (chan blizzardv2.GetAuctionsJob, error)
+	ResolveAuctions func(
+		version gameversion.GameVersion,
+	) (chan blizzardv2.GetAuctionsJob, error)
 	ReceiveRegionTimestamps func(
 		version gameversion.GameVersion,
 		timestamps sotah.RegionTimestamps,
@@ -32,7 +34,9 @@ type Client struct {
 	lakeClient      BaseLake.Client
 	messengerClient messenger.Messenger
 
-	resolveAuctions         func() (chan blizzardv2.GetAuctionsJob, error)
+	resolveAuctions func(
+		version gameversion.GameVersion,
+	) (chan blizzardv2.GetAuctionsJob, error)
 	receiveRegionTimestamps func(
 		version gameversion.GameVersion,
 		timestamps sotah.RegionTimestamps,

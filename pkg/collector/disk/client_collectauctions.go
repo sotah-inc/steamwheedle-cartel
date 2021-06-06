@@ -28,7 +28,7 @@ func (c Client) collectAuctions(version gameversion.GameVersion) (collectAuction
 	logging.Info("calling DiskCollector.collectAuctions()")
 
 	// spinning up workers
-	aucsOutJobs, err := c.resolveAuctions()
+	aucsOutJobs, err := c.resolveAuctions(version)
 	if err != nil {
 		logging.WithField(
 			"error",

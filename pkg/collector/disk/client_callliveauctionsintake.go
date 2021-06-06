@@ -11,7 +11,7 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state/subjects"
 )
 
-func (c Client) CallLiveAuctionsIntake(req state.LiveAuctionsIntakeRequest) error {
+func (c Client) CallLiveAuctionsIntake(req state.IntakeRequest) error {
 	// forwarding the received request to live-auctions intake
 	encodedRequest, err := req.EncodeForDelivery()
 	if err != nil {

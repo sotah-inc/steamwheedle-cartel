@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/gameversion"
 	StatsDatabase "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database/stats" // nolint:lll
 	BaseLake "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/lake/base"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
@@ -19,7 +20,10 @@ type NewStatsStateOptions struct {
 
 	StatsDatabasesDir       string
 	Tuples                  blizzardv2.RegionConnectedRealmTuples
-	ReceiveRegionTimestamps func(timestamps sotah.RegionTimestamps) error
+	ReceiveRegionTimestamps func(
+		version gameversion.GameVersion,
+		timestamps sotah.RegionTimestamps,
+	) error
 }
 
 func NewStatsState(opts NewStatsStateOptions) (StatsState, error) {
@@ -56,7 +60,6 @@ func NewStatsState(opts NewStatsStateOptions) (StatsState, error) {
 		StatsRegionDatabases:    rBases,
 		Messenger:               opts.Messenger,
 		LakeClient:              opts.LakeClient,
-		Tuples:                  opts.Tuples,
 		ReceiveRegionTimestamps: opts.ReceiveRegionTimestamps,
 	}, nil
 }
@@ -68,7 +71,10 @@ type StatsState struct {
 	Messenger               messenger.Messenger
 	LakeClient              BaseLake.Client
 	Tuples                  blizzardv2.RegionConnectedRealmTuples
-	ReceiveRegionTimestamps func(timestamps sotah.RegionTimestamps) error
+	ReceiveRegionTimestamps func(
+		version gameversion.GameVersion,
+		timestamps sotah.RegionTimestamps,
+	) error
 }
 
 func (sta StatsState) GetListeners() SubjectListeners {

@@ -57,7 +57,6 @@ func NewLiveAuctionsState(opts NewLiveAuctionsStateOptions) (LiveAuctionsState, 
 		LiveAuctionsDatabases:   ladBases,
 		Messenger:               opts.Messenger,
 		LakeClient:              opts.LakeClient,
-		Tuples:                  opts.Tuples,
 		ReceiveRegionTimestamps: opts.ReceiveRegionTimestamps,
 	}, nil
 }
@@ -67,7 +66,6 @@ type LiveAuctionsState struct {
 
 	Messenger               messenger.Messenger
 	LakeClient              BaseLake.Client
-	Tuples                  blizzardv2.RegionConnectedRealmTuples
 	ReceiveRegionTimestamps func(
 		version gameversion.GameVersion,
 		timestamps sotah.RegionTimestamps,

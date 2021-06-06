@@ -19,7 +19,7 @@ func (sta StatsState) ListenForStatsIntake(stop ListenStopChan) error {
 	err := sta.Messenger.Subscribe(string(subjects.StatsIntake), stop, func(natsMsg nats.Msg) {
 		m := messenger.NewMessage()
 
-		tuples, err := blizzardv2.NewLoadConnectedRealmTuples(natsMsg.Data)
+		req, err := NewLoadIntakeRequest(natsMsg.Data)
 		if err != nil {
 			m.Err = err.Error()
 			m.Code = codes.MsgJSONParseError
@@ -28,8 +28,11 @@ func (sta StatsState) ListenForStatsIntake(stop ListenStopChan) error {
 			return
 		}
 
-		logging.WithField("tuples", len(tuples)).Info("received")
-		if err := sta.StatsIntake(tuples); err != nil {
+		logging.WithFields(logrus.Fields{
+			"version": req.Version,
+			"tuples":  len(req.Tuples),
+		}).Info("received")
+		if err := sta.StatsIntake(req); err != nil {
 			m.Err = err.Error()
 			m.Code = codes.GenericError
 			sta.Messenger.ReplyTo(natsMsg, m)
@@ -46,8 +49,8 @@ func (sta StatsState) ListenForStatsIntake(stop ListenStopChan) error {
 	return nil
 }
 
-func (sta StatsState) StatsIntake(tuples blizzardv2.LoadConnectedRealmTuples) error {
-	if err := sta.TuplesIntake(tuples); err != nil {
+func (sta StatsState) StatsIntake(req LoadIntakeRequest) error {
+	if err := sta.TuplesIntake(req); err != nil {
 		return err
 	}
 
@@ -104,11 +107,11 @@ func (sta StatsState) RegionRealmsIntake(
 	return nil
 }
 
-func (sta StatsState) TuplesIntake(tuples blizzardv2.LoadConnectedRealmTuples) error {
+func (sta StatsState) TuplesIntake(req LoadIntakeRequest) error {
 	startTime := time.Now()
 
 	// spinning up workers
-	getEncodedStatsByTuplesOut := sta.LakeClient.GetEncodedStatsByTuples(tuples)
+	getEncodedStatsByTuplesOut := sta.LakeClient.GetEncodedStatsByTuples(req.Tuples)
 	persistEncodedStatsIn := make(chan StatsDatabase.PersistRealmStatsInJob)
 	persistEncodedStatsOut := sta.StatsTupleDatabases.PersistEncodedRealmStats(persistEncodedStatsIn)
 
@@ -154,7 +157,7 @@ func (sta StatsState) TuplesIntake(tuples blizzardv2.LoadConnectedRealmTuples) e
 
 	// optionally updating region state
 	if !regionTimestamps.IsZero() {
-		if err := sta.ReceiveRegionTimestamps(regionTimestamps); err != nil {
+		if err := sta.ReceiveRegionTimestamps(req.Version, regionTimestamps); err != nil {
 			logging.WithField("error", err.Error()).Error("failed to receive region-timestamps")
 
 			return err
@@ -163,7 +166,7 @@ func (sta StatsState) TuplesIntake(tuples blizzardv2.LoadConnectedRealmTuples) e
 
 	// pruning stats
 	if err := sta.StatsTupleDatabases.PruneRealmStats(
-		tuples.RegionConnectedRealmTuples(),
+		req.Tuples.RegionConnectedRealmTuples(),
 		sotah.UnixTimestamp(BaseDatabase.RetentionLimit().Unix()),
 	); err != nil {
 		logging.WithField("error", err.Error()).Error("failed to prune stats")

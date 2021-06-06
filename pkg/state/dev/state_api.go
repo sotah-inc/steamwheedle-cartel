@@ -3,6 +3,7 @@ package dev
 import (
 	"github.com/twinj/uuid"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/gameversion"
 	BaseCollector "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/collector/base" // nolint:lll
 	DiskCollector "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/collector/disk" // nolint:lll
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/lake"
@@ -31,6 +32,7 @@ type ApiStateConfig struct {
 	BlizzardConfig    blizzardv2.ClientConfig
 	DatabaseConfig    ApiStateDatabaseConfig
 	UseGCloud         bool
+	GameVersions      gameversion.List
 }
 
 func NewAPIState(config ApiStateConfig) (ApiState, error) {
@@ -202,8 +204,10 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 	// resolving disk-collector-auctions state
 	logging.Info("producing new disk-collector client")
 	sta.Collector = DiskCollector.NewClient(DiskCollector.ClientOptions{
-		ResolveAuctions: func() (chan blizzardv2.GetAuctionsJob, error) {
-			downloadTuples, err := sta.RegionState.ResolveDownloadTuples()
+		ResolveAuctions: func(
+			version gameversion.GameVersion,
+		) (chan blizzardv2.GetAuctionsJob, error) {
+			downloadTuples, err := sta.RegionState.ResolveDownloadTuples(version)
 			if err != nil {
 				return nil, err
 			}
@@ -229,7 +233,6 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 		Messenger:                mess,
 		LakeClient:               lakeClient,
 		LiveAuctionsDatabasesDir: config.DatabaseConfig.LiveAuctionsDir,
-		Tuples:                   tuples,
 		ReceiveRegionTimestamps:  sta.RegionState.ReceiveTimestamps,
 	})
 	if err != nil {
@@ -261,7 +264,6 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 		Messenger:               mess,
 		LakeClient:              lakeClient,
 		StatsDatabasesDir:       config.DatabaseConfig.StatsDir,
-		Tuples:                  tuples,
 		ReceiveRegionTimestamps: sta.RegionState.ReceiveTimestamps,
 	})
 	if err != nil {

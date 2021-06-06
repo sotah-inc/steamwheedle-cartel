@@ -19,7 +19,7 @@ func (c Client) Collect(version gameversion.GameVersion) error {
 		return err
 	}
 
-	if err := c.CallLiveAuctionsIntake(state.LiveAuctionsIntakeRequest{
+	if err := c.CallLiveAuctionsIntake(state.IntakeRequest{
 		Version: collectAuctionsResults.version,
 		Tuples:  collectAuctionsResults.tuples.RegionConnectedRealmTuples(),
 	}); err != nil {

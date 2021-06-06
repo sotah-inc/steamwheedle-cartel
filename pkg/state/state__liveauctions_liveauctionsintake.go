@@ -1,13 +1,10 @@
 package state
 
 import (
-	"encoding/json"
 	"time"
 
 	"github.com/nats-io/nats.go"
 	"github.com/sirupsen/logrus"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/gameversion"
 	LiveAuctionsDatabase "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database/liveauctions" // nolint:lll
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
@@ -16,29 +13,11 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state/subjects"
 )
 
-func NewLiveAuctionsIntakeRequest(data []byte) (LiveAuctionsIntakeRequest, error) {
-	out := LiveAuctionsIntakeRequest{}
-	if err := json.Unmarshal(data, &out); err != nil {
-		return LiveAuctionsIntakeRequest{}, err
-	}
-
-	return out, nil
-}
-
-type LiveAuctionsIntakeRequest struct {
-	Version gameversion.GameVersion               `json:"version"`
-	Tuples  blizzardv2.RegionConnectedRealmTuples `json:"tuples"`
-}
-
-func (req LiveAuctionsIntakeRequest) EncodeForDelivery() ([]byte, error) {
-	return json.Marshal(req)
-}
-
 func (sta LiveAuctionsState) ListenForLiveAuctionsIntake(stop ListenStopChan) error {
 	err := sta.Messenger.Subscribe(string(subjects.LiveAuctionsIntake), stop, func(natsMsg nats.Msg) {
 		m := messenger.NewMessage()
 
-		req, err := NewLiveAuctionsIntakeRequest(natsMsg.Data)
+		req, err := NewIntakeRequest(natsMsg.Data)
 		if err != nil {
 			m.Err = err.Error()
 			m.Code = codes.MsgJSONParseError
@@ -68,7 +47,7 @@ func (sta LiveAuctionsState) ListenForLiveAuctionsIntake(stop ListenStopChan) er
 	return nil
 }
 
-func (sta LiveAuctionsState) LiveAuctionsIntake(req LiveAuctionsIntakeRequest) error {
+func (sta LiveAuctionsState) LiveAuctionsIntake(req IntakeRequest) error {
 	startTime := time.Now()
 
 	// spinning up workers
