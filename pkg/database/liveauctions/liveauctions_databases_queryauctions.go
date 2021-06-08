@@ -25,13 +25,13 @@ func NewQueryRequest(data []byte) (QueryRequest, error) {
 }
 
 type QueryRequest struct {
-	Tuple         blizzardv2.RegionConnectedRealmTuple `json:"tuple"`
-	Page          int                                  `json:"page"`
-	Count         int                                  `json:"count"`
-	SortDirection sortdirections.SortDirection         `json:"sort_direction"`
-	SortKind      sortkinds.SortKind                   `json:"sort_kind"`
-	ItemFilters   blizzardv2.ItemIds                   `json:"item_filters"`
-	PetFilters    []blizzardv2.PetId                   `json:"pet_filters"`
+	Tuple         blizzardv2.VersionRegionConnectedRealmTuple `json:"tuple"`
+	Page          int                                         `json:"page"`
+	Count         int                                         `json:"count"`
+	SortDirection sortdirections.SortDirection                `json:"sort_direction"`
+	SortKind      sortkinds.SortKind                          `json:"sort_kind"`
+	ItemFilters   blizzardv2.ItemIds                          `json:"item_filters"`
+	PetFilters    []blizzardv2.PetId                          `json:"pet_filters"`
 }
 
 type QueryResponse struct {
