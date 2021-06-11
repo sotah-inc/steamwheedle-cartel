@@ -3,37 +3,38 @@ package sotah
 import (
 	"encoding/base64"
 	"encoding/json"
-	"errors"
 	"time"
 
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
-
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/gameversion"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 )
 
-func NewRegionTimestamps(base64Encoded string) (RegionTimestamps, error) {
+func NewRegionVersionTimestamps(base64Encoded string) (RegionVersionTimestamps, error) {
 	gzipEncoded, err := base64.StdEncoding.DecodeString(base64Encoded)
 	if err != nil {
-		return RegionTimestamps{}, err
+		return RegionVersionTimestamps{}, err
 	}
 
 	jsonEncoded, err := util.GzipDecode(gzipEncoded)
 	if err != nil {
-		return RegionTimestamps{}, err
+		return RegionVersionTimestamps{}, err
 	}
 
-	out := RegionTimestamps{}
+	out := RegionVersionTimestamps{}
 	if err := json.Unmarshal(jsonEncoded, &out); err != nil {
-		return RegionTimestamps{}, err
+		return RegionVersionTimestamps{}, err
 	}
 
 	return out, nil
 }
 
-type RegionTimestamps map[blizzardv2.RegionName]RealmTimestamps
+// region timestamps
 
-func (regionTimestamps RegionTimestamps) EncodeForDelivery() (string, error) {
-	jsonEncoded, err := json.Marshal(regionTimestamps)
+type RegionVersionTimestamps map[blizzardv2.RegionName]VersionRealmTimestamps
+
+func (rvStamps RegionVersionTimestamps) EncodeForDelivery() (string, error) {
+	jsonEncoded, err := json.Marshal(rvStamps)
 	if err != nil {
 		return "", err
 	}
@@ -48,22 +49,13 @@ func (regionTimestamps RegionTimestamps) EncodeForDelivery() (string, error) {
 	return base64Encoded, nil
 }
 
-func (regionTimestamps RegionTimestamps) FindByRegionName(
-	name blizzardv2.RegionName,
-) (map[blizzardv2.ConnectedRealmId]ConnectedRealmTimestamps, error) {
-	found, ok := regionTimestamps[name]
-	if !ok {
-		return nil, errors.New("failed to find region connected-realm timestamps")
-	}
-
-	return found, nil
-}
-
-func (regionTimestamps RegionTimestamps) IsZero() bool {
-	for _, connectedRealmTimestamps := range regionTimestamps {
-		for _, timestamps := range connectedRealmTimestamps {
-			if !timestamps.IsZero() {
-				return false
+func (rvStamps RegionVersionTimestamps) IsZero() bool {
+	for _, vrStamps := range rvStamps {
+		for _, rStamps := range vrStamps {
+			for _, timestamps := range rStamps {
+				if !timestamps.IsZero() {
+					return false
+				}
 			}
 		}
 	}
@@ -71,41 +63,53 @@ func (regionTimestamps RegionTimestamps) IsZero() bool {
 	return true
 }
 
-func (regionTimestamps RegionTimestamps) Exists(tuple blizzardv2.RegionConnectedRealmTuple) bool {
-	if _, ok := regionTimestamps[tuple.RegionName]; !ok {
+func (rvStamps RegionVersionTimestamps) Exists(
+	tuple blizzardv2.RegionVersionConnectedRealmTuple,
+) bool {
+	vrStamps, ok := rvStamps[tuple.RegionName]
+	if !ok {
 		return false
 	}
 
-	_, ok := regionTimestamps[tuple.RegionName][tuple.ConnectedRealmId]
+	rStamps, ok := vrStamps[tuple.Version]
+	if !ok {
+		return false
+	}
+
+	_, ok = rStamps[tuple.ConnectedRealmId]
 
 	return ok
 }
 
-func (regionTimestamps RegionTimestamps) resolve(
-	tuple blizzardv2.RegionConnectedRealmTuple,
-) RegionTimestamps {
-	if _, ok := regionTimestamps[tuple.RegionName]; !ok {
-		regionTimestamps[tuple.RegionName] = map[blizzardv2.ConnectedRealmId]ConnectedRealmTimestamps{}
+func (rvStamps RegionVersionTimestamps) resolve(
+	tuple blizzardv2.RegionVersionConnectedRealmTuple,
+) RegionVersionTimestamps {
+	if _, ok := rvStamps[tuple.RegionName]; !ok {
+		rvStamps[tuple.RegionName] = VersionRealmTimestamps{}
 	}
 
-	if _, ok := regionTimestamps[tuple.RegionName][tuple.ConnectedRealmId]; !ok {
-		regionTimestamps[tuple.RegionName][tuple.ConnectedRealmId] = ConnectedRealmTimestamps{}
+	if _, ok := rvStamps[tuple.RegionName][tuple.Version]; !ok {
+		rvStamps[tuple.RegionName][tuple.Version] = RealmStatusTimestamps{}
 	}
 
-	return regionTimestamps
+	if _, ok := rvStamps[tuple.RegionName][tuple.Version][tuple.ConnectedRealmId]; !ok {
+		rvStamps[tuple.RegionName][tuple.Version][tuple.ConnectedRealmId] = RealmStatusTimestamps{}
+	}
+
+	return rvStamps
 }
 
-func (regionTimestamps RegionTimestamps) SetDownloaded(
-	tuple blizzardv2.RegionConnectedRealmTuple,
+func (rvStamps RegionVersionTimestamps) SetDownloaded(
+	tuple blizzardv2.RegionVersionConnectedRealmTuple,
 	downloaded time.Time,
-) RegionTimestamps {
+) RegionVersionTimestamps {
 	// resolving due to missing members
-	out := regionTimestamps.resolve(tuple)
+	out := rvStamps.resolve(tuple)
 
 	// pushing the new time into the found member
-	result := out[tuple.RegionName][tuple.ConnectedRealmId]
+	result := out[tuple.RegionName][tuple.Version][tuple.ConnectedRealmId]
 	result.Downloaded = UnixTimestamp(downloaded.Unix())
-	out[tuple.RegionName][tuple.ConnectedRealmId] = result
+	out[tuple.RegionName][tuple.Version][tuple.ConnectedRealmId] = result
 
 	return out
 }
@@ -170,4 +174,6 @@ func (regionTimestamps RegionTimestamps) SetStatsReceived(
 	return out
 }
 
-type RealmTimestamps map[blizzardv2.ConnectedRealmId]ConnectedRealmTimestamps
+type VersionRealmTimestamps map[gameversion.GameVersion]RealmStatusTimestamps
+
+type RealmStatusTimestamps map[blizzardv2.ConnectedRealmId]StatusTimestamps
