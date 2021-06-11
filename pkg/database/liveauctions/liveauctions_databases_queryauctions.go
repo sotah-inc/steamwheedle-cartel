@@ -25,7 +25,7 @@ func NewQueryRequest(data []byte) (QueryRequest, error) {
 }
 
 type QueryRequest struct {
-	Tuple         blizzardv2.VersionRegionConnectedRealmTuple `json:"tuple"`
+	Tuple         blizzardv2.RegionVersionConnectedRealmTuple `json:"tuple"`
 	Page          int                                         `json:"page"`
 	Count         int                                         `json:"count"`
 	SortDirection sortdirections.SortDirection                `json:"sort_direction"`

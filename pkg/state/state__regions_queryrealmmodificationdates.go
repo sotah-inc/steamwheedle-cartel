@@ -28,7 +28,7 @@ func (sta RegionsState) ListenForQueryRealmModificationDates(stop ListenStopChan
 		func(natsMsg nats.Msg) {
 			m := messenger.NewMessage()
 
-			req, err := blizzardv2.NewVersionRegionConnectedRealmTuple(natsMsg.Data)
+			req, err := blizzardv2.NewRegionVersionConnectedRealmTuple(natsMsg.Data)
 			if err != nil {
 				m.Err = err.Error()
 				m.Code = mCodes.GenericError

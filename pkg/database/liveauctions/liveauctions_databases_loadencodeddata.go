@@ -10,13 +10,13 @@ import (
 )
 
 type LoadEncodedDataInJob struct {
-	Tuple       blizzardv2.VersionRegionConnectedRealmTuple
+	Tuple       blizzardv2.RegionVersionConnectedRealmTuple
 	EncodedData []byte
 }
 
 type LoadEncodedDataOutJob struct {
 	Err        error
-	Tuple      blizzardv2.VersionRegionConnectedRealmTuple
+	Tuple      blizzardv2.RegionVersionConnectedRealmTuple
 	ReceivedAt time.Time
 }
 

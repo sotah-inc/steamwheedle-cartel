@@ -5,15 +5,10 @@ import (
 
 	"github.com/boltdb/bolt"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/gameversion"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 )
 
-func (rBase Database) RealmExists(
-	name blizzardv2.RegionName,
-	version gameversion.GameVersion,
-	slug blizzardv2.RealmSlug,
-) (bool, error) {
+func (rBase Database) RealmExists(tuple blizzardv2.RegionVersionRealmTuple) (bool, error) {
 	out := false
 
 	err := rBase.db.View(func(tx *bolt.Tx) error {

@@ -21,7 +21,7 @@ func NewGetPricelistRequest(data []byte) (GetPricelistRequest, error) {
 }
 
 type GetPricelistRequest struct {
-	Tuple   blizzardv2.VersionRegionConnectedRealmTuple `json:"tuple"`
+	Tuple   blizzardv2.RegionVersionConnectedRealmTuple `json:"tuple"`
 	ItemIds blizzardv2.ItemIds                          `json:"item_ids"`
 }
 

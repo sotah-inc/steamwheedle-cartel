@@ -16,7 +16,7 @@ func (sta RegionsState) ListenForValidateRegionRealm(stop ListenStopChan) error 
 	err := sta.Messenger.Subscribe(string(subjects.ValidateRegionRealm), stop, func(natsMsg nats.Msg) {
 		m := messenger.NewMessage()
 
-		req, err := blizzardv2.NewVersionRegionRealmTuple(natsMsg.Data)
+		req, err := blizzardv2.NewRegionVersionRealmTuple(natsMsg.Data)
 		if err != nil {
 			m.Err = err.Error()
 			m.Code = codes.MsgJSONParseError

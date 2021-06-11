@@ -8,7 +8,7 @@ import (
 
 func newDatabase(
 	dirPath string,
-	tuple blizzardv2.VersionRegionConnectedRealmTuple,
+	tuple blizzardv2.RegionVersionConnectedRealmTuple,
 ) (Database, error) {
 	dbFilepath := databasePath(dirPath, tuple)
 	db, err := bolt.Open(dbFilepath, 0600, nil)

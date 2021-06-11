@@ -10,22 +10,22 @@ import (
 
 func NewDatabases(
 	dirPath string,
-	tuples []blizzardv2.VersionRegionConnectedRealmTuple,
+	tuples []blizzardv2.RegionVersionConnectedRealmTuple,
 ) (Databases, error) {
 	ladBases := Databases{}
 
 	for _, tuple := range tuples {
-		regionDatabases := func() RegionDatabases {
-			out, ok := ladBases[tuple.Version]
+		versionDatabases := func() VersionDatabases {
+			out, ok := ladBases[tuple.RegionName]
 			if !ok {
-				return RegionDatabases{}
+				return VersionDatabases{}
 			}
 
 			return out
 		}()
 
 		connectedRealmDatabases := func() ConnectedRealmDatabases {
-			out, ok := regionDatabases[tuple.RegionName]
+			out, ok := versionDatabases[tuple.Version]
 			if !ok {
 				return ConnectedRealmDatabases{}
 			}
@@ -39,8 +39,8 @@ func NewDatabases(
 		}
 
 		connectedRealmDatabases[tuple.ConnectedRealmId] = connectedRealmDatabase
-		regionDatabases[tuple.RegionName] = connectedRealmDatabases
-		ladBases[tuple.Version] = regionDatabases
+		versionDatabases[tuple.Version] = connectedRealmDatabases
+		ladBases[tuple.RegionName] = versionDatabases
 	}
 
 	return ladBases, nil
@@ -48,21 +48,21 @@ func NewDatabases(
 
 type ConnectedRealmDatabases map[blizzardv2.ConnectedRealmId]Database
 
-type RegionDatabases map[blizzardv2.RegionName]ConnectedRealmDatabases
+type VersionDatabases map[gameversion.GameVersion]ConnectedRealmDatabases
 
-type Databases map[gameversion.GameVersion]RegionDatabases
+type Databases map[blizzardv2.RegionName]VersionDatabases
 
 func (ladBases Databases) GetDatabase(
-	tuple blizzardv2.VersionRegionConnectedRealmTuple,
+	tuple blizzardv2.RegionVersionConnectedRealmTuple,
 ) (Database, error) {
-	regionDatabases, ok := ladBases[tuple.Version]
+	regionDatabases, ok := ladBases[tuple.RegionName]
 	if !ok {
-		return Database{}, fmt.Errorf("shard not found for version %s", tuple.Version)
+		return Database{}, fmt.Errorf("shard not found for region %s", tuple.Version)
 	}
 
-	connectedRealmDatabases, ok := regionDatabases[tuple.RegionName]
+	connectedRealmDatabases, ok := regionDatabases[tuple.Version]
 	if !ok {
-		return Database{}, fmt.Errorf("shard not found for region %s", tuple.RegionName)
+		return Database{}, fmt.Errorf("shard not found for version %s", tuple.RegionName)
 	}
 
 	connectedRealmDatabase, ok := connectedRealmDatabases[tuple.ConnectedRealmId]

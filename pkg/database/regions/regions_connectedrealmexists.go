@@ -3,26 +3,21 @@ package regions
 import (
 	"errors"
 
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/gameversion"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 
 	"github.com/boltdb/bolt"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 )
 
-func (rBase Database) ConnectedRealmExists(
-	name blizzardv2.RegionName,
-	version gameversion.GameVersion,
-	id blizzardv2.ConnectedRealmId,
-) (bool, error) {
+func (rBase Database) ConnectedRealmExists(tuple blizzardv2.RegionVersionConnectedRealmTuple) (bool, error) {
 	out := false
 
 	err := rBase.db.View(func(tx *bolt.Tx) error {
-		bkt := tx.Bucket(connectedRealmsBucketName(name, version))
+		bkt := tx.Bucket(connectedRealmsBucketName(tuple.RegionVersionTuple))
 		if bkt == nil {
 			return errors.New("connected-realms-bucket does not exist in regions database")
 		}
 
-		v := bkt.Get(connectedRealmsKeyName(id))
+		v := bkt.Get(connectedRealmsKeyName(tuple.ConnectedRealmId))
 		if v == nil {
 			return nil
 		}

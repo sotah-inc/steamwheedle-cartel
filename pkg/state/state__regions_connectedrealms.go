@@ -12,7 +12,7 @@ func (sta RegionsState) ListenForConnectedRealms(stop ListenStopChan) error {
 	err := sta.Messenger.Subscribe(string(subjects.ConnectedRealms), stop, func(natsMsg nats.Msg) {
 		m := messenger.NewMessage()
 
-		sRequest, err := blizzardv2.NewVersionRegionTuple(natsMsg.Data)
+		sRequest, err := blizzardv2.NewRegionVersionTuple(natsMsg.Data)
 		if err != nil {
 			m.Err = err.Error()
 			m.Code = codes.MsgJSONParseError

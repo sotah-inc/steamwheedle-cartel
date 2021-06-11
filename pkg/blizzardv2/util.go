@@ -19,6 +19,8 @@ type HrefReference struct {
 	Href string `json:"href"`
 }
 
+// region tuple
+
 func NewRegionTuple(data []byte) (RegionTuple, error) {
 	out := RegionTuple{}
 	if err := json.Unmarshal(data, &out); err != nil {
@@ -32,19 +34,23 @@ type RegionTuple struct {
 	RegionName RegionName `json:"region_name"`
 }
 
-func NewVersionRegionTuple(data []byte) (VersionRegionTuple, error) {
-	out := VersionRegionTuple{}
+// region/version tuple
+
+func NewRegionVersionTuple(data []byte) (RegionVersionTuple, error) {
+	out := RegionVersionTuple{}
 	if err := json.Unmarshal(data, &out); err != nil {
-		return VersionRegionTuple{}, err
+		return RegionVersionTuple{}, err
 	}
 
 	return out, nil
 }
 
-type VersionRegionTuple struct {
-	Version    gameversion.GameVersion `json:"game_version"`
+type RegionVersionTuple struct {
 	RegionName RegionName              `json:"region_name"`
+	Version    gameversion.GameVersion `json:"game_version"`
 }
+
+// region/connected-realm tuples
 
 func NewRegionConnectedRealmTuples(data []byte) (RegionConnectedRealmTuples, error) {
 	out := RegionConnectedRealmTuples{}
@@ -108,6 +114,8 @@ func (tuples RegionConnectedRealmTuples) ToMap() map[RegionName][]ConnectedRealm
 	return out
 }
 
+// region/connected-realm tuple
+
 func NewRegionConnectedRealmTuple(data []byte) (RegionConnectedRealmTuple, error) {
 	out := RegionConnectedRealmTuple{}
 	if err := json.Unmarshal(data, &out); err != nil {
@@ -122,20 +130,23 @@ type RegionConnectedRealmTuple struct {
 	ConnectedRealmId ConnectedRealmId `json:"connected_realm_id"`
 }
 
-func NewVersionRegionConnectedRealmTuple(data []byte) (VersionRegionConnectedRealmTuple, error) {
-	out := VersionRegionConnectedRealmTuple{}
+// region/version/connected-realm tuple
+
+func NewRegionVersionConnectedRealmTuple(data []byte) (RegionVersionConnectedRealmTuple, error) {
+	out := RegionVersionConnectedRealmTuple{}
 	if err := json.Unmarshal(data, &out); err != nil {
-		return VersionRegionConnectedRealmTuple{}, err
+		return RegionVersionConnectedRealmTuple{}, err
 	}
 
 	return out, nil
 }
 
-type VersionRegionConnectedRealmTuple struct {
-	Version          gameversion.GameVersion `json:"game_version"`
-	RegionName       RegionName              `json:"region_name"`
-	ConnectedRealmId ConnectedRealmId        `json:"connected_realm_id"`
+type RegionVersionConnectedRealmTuple struct {
+	RegionVersionTuple
+	ConnectedRealmId ConnectedRealmId `json:"connected_realm_id"`
 }
+
+// region/realm tuple
 
 func NewRegionRealmTuple(data []byte) (RegionRealmTuple, error) {
 	out := RegionRealmTuple{}
@@ -151,25 +162,30 @@ type RegionRealmTuple struct {
 	RealmSlug  RealmSlug  `json:"realm_slug"`
 }
 
-func NewVersionRegionRealmTuple(data []byte) (VersionRegionRealmTuple, error) {
-	out := VersionRegionRealmTuple{}
+// region/version/realm tuple
+
+func NewRegionVersionRealmTuple(data []byte) (RegionVersionRealmTuple, error) {
+	out := RegionVersionRealmTuple{}
 	if err := json.Unmarshal(data, &out); err != nil {
-		return VersionRegionRealmTuple{}, err
+		return RegionVersionRealmTuple{}, err
 	}
 
 	return out, nil
 }
 
-type VersionRegionRealmTuple struct {
-	Version    gameversion.GameVersion `json:"game_version"`
-	RegionName RegionName              `json:"region_name"`
-	RealmSlug  RealmSlug               `json:"realm_slug"`
+type RegionVersionRealmTuple struct {
+	RegionRealmTuple
+	Version gameversion.GameVersion `json:"game_version"`
 }
+
+// download-connected-realm tuple
 
 type DownloadConnectedRealmTuple struct {
 	LoadConnectedRealmTuple
 	RegionHostname string
 }
+
+// load-connected-realm tuples
 
 func NewLoadConnectedRealmTuples(data []byte) (LoadConnectedRealmTuples, error) {
 	out := LoadConnectedRealmTuples{}
@@ -212,14 +228,20 @@ func (tuples LoadConnectedRealmTuples) RegionNames() []RegionName {
 	return out
 }
 
+// load-connected-realm tuple
+
 type LoadConnectedRealmTuple struct {
 	RegionConnectedRealmTuple
 	LastModified time.Time
 }
 
+// region-hostname tuple
+
 type RegionHostnameTuple struct {
 	RegionName     RegionName
 	RegionHostname string
 }
+
+// misc
 
 type PriceValue int64
