@@ -42,8 +42,8 @@ func GetAuctions(opts GetAuctionsOptions) chan GetAuctionsJob {
 				out <- GetAuctionsJob{
 					Err: err,
 					Tuple: LoadConnectedRealmTuple{
-						RegionConnectedRealmTuple: tuple.RegionConnectedRealmTuple,
-						LastModified:              time.Time{},
+						RegionVersionConnectedRealmTuple: tuple.RegionVersionConnectedRealmTuple,
+						LastModified:                     time.Time{},
 					},
 					AuctionsResponse: AuctionsResponse{},
 				}
@@ -56,8 +56,8 @@ func GetAuctions(opts GetAuctionsOptions) chan GetAuctionsJob {
 				out <- GetAuctionsJob{
 					Err: err,
 					Tuple: LoadConnectedRealmTuple{
-						RegionConnectedRealmTuple: tuple.RegionConnectedRealmTuple,
-						LastModified:              time.Time{},
+						RegionVersionConnectedRealmTuple: tuple.RegionVersionConnectedRealmTuple,
+						LastModified:                     time.Time{},
 					},
 					AuctionsResponse: AuctionsResponse{},
 				}
@@ -69,8 +69,8 @@ func GetAuctions(opts GetAuctionsOptions) chan GetAuctionsJob {
 				out <- GetAuctionsJob{
 					Err: nil,
 					Tuple: LoadConnectedRealmTuple{
-						RegionConnectedRealmTuple: tuple.RegionConnectedRealmTuple,
-						LastModified:              time.Time{},
+						RegionVersionConnectedRealmTuple: tuple.RegionVersionConnectedRealmTuple,
+						LastModified:                     time.Time{},
 					},
 					AuctionsResponse: AuctionsResponse{},
 				}
@@ -81,8 +81,8 @@ func GetAuctions(opts GetAuctionsOptions) chan GetAuctionsJob {
 			out <- GetAuctionsJob{
 				Err: nil,
 				Tuple: LoadConnectedRealmTuple{
-					RegionConnectedRealmTuple: tuple.RegionConnectedRealmTuple,
-					LastModified:              responseMeta.LastModified,
+					RegionVersionConnectedRealmTuple: tuple.RegionVersionConnectedRealmTuple,
+					LastModified:                     responseMeta.LastModified,
 				},
 				AuctionsResponse: auctionsResponse,
 			}
