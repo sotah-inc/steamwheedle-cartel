@@ -117,7 +117,7 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 		BlizzardState:            sta.BlizzardState,
 		Regions:                  regions,
 		Messenger:                mess,
-		RegionRealmSlugWhitelist: config.SotahConfig.Whitelist,
+		RealmSlugWhitelist: config.SotahConfig.Whitelist,
 		RegionsDatabaseDir:       config.DatabaseConfig.RegionsDir,
 	})
 	if err != nil {

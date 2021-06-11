@@ -2,6 +2,7 @@ package base
 
 import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/gameversion"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 )
 
@@ -22,7 +23,10 @@ type Client interface {
 		tuple blizzardv2.RegionConnectedRealmTuple,
 		auctions sotah.MiniAuctionList,
 	) WriteAuctionsWithTuplesInJob
-	GetEncodedItems(ids blizzardv2.ItemIds) (chan GetEncodedItemJob, chan []blizzardv2.ItemId)
+	GetEncodedItems(
+		version gameversion.GameVersion,
+		ids blizzardv2.ItemIds,
+	) (chan GetEncodedItemJob, chan []blizzardv2.ItemId)
 	GetEncodedPets(blacklist []blizzardv2.PetId) (chan GetEncodedPetJob, error)
 	GetEncodedProfessions(blacklist []blizzardv2.ProfessionId) (chan GetEncodedProfessionJob, error)
 	GetEncodedSkillTiers(

@@ -6,6 +6,8 @@ import (
 	"strings"
 	"time"
 
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/gameversion"
+
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/itemclass"
 
 	"github.com/sirupsen/logrus"
@@ -46,12 +48,13 @@ type erroneousItemJob struct {
 }
 
 func (client Client) GetEncodedItems(
+	version gameversion.GameVersion,
 	ids blizzardv2.ItemIds,
 ) (chan BaseLake.GetEncodedItemJob, chan []blizzardv2.ItemId) {
 	out := make(chan BaseLake.GetEncodedItemJob)
 
 	// starting up workers for resolving items
-	itemsOut := client.resolveItems(ids)
+	itemsOut := client.resolveItems(version, ids)
 
 	// starting up workers for resolving item-medias
 	itemMediasIn := make(chan blizzardv2.GetItemMediasInJob)
