@@ -114,11 +114,11 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 	// gathering region state
 	logging.Info("producing new region-state")
 	sta.RegionState, err = state.NewRegionState(state.NewRegionStateOptions{
-		BlizzardState:            sta.BlizzardState,
-		Regions:                  regions,
-		Messenger:                mess,
+		BlizzardState:      sta.BlizzardState,
+		Regions:            regions,
+		Messenger:          mess,
 		RealmSlugWhitelist: config.SotahConfig.Whitelist,
-		RegionsDatabaseDir:       config.DatabaseConfig.RegionsDir,
+		RegionsDatabaseDir: config.DatabaseConfig.RegionsDir,
 	})
 	if err != nil {
 		logging.WithField("error", err.Error()).Error("failed to establish region state")
