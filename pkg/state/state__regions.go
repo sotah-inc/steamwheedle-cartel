@@ -12,12 +12,12 @@ import (
 )
 
 type NewRegionStateOptions struct {
-	BlizzardState            BlizzardState
-	Regions                  sotah.RegionList
-	GameVersionList          gameversion.List
-	Messenger                messenger.Messenger
-	RegionRealmSlugWhitelist sotah.RegionRealmSlugWhitelist
-	RegionsDatabaseDir       string
+	BlizzardState      BlizzardState
+	Regions            sotah.RegionList
+	GameVersionList    gameversion.List
+	Messenger          messenger.Messenger
+	RealmSlugWhitelist sotah.RealmSlugWhitelist
+	RegionsDatabaseDir string
 }
 
 func NewRegionState(opts NewRegionStateOptions) (RegionsState, error) {
@@ -38,9 +38,9 @@ func NewRegionState(opts NewRegionStateOptions) (RegionsState, error) {
 		}
 	}
 
-	for _, version := range opts.GameVersionList {
-		for _, region := range opts.Regions {
-			resolvedWhitelist := opts.RegionRealmSlugWhitelist.Get(region.Name)
+	for _, region := range opts.Regions {
+		for _, version := range opts.GameVersionList {
+			resolvedWhitelist := opts.RealmSlugWhitelist.Get(region.Name, version)
 			connectedRealmIds, err := regionsDatabase.GetConnectedRealmIds(version, region.Name)
 			if err != nil {
 				return RegionsState{}, err
@@ -56,8 +56,8 @@ func NewRegionState(opts NewRegionStateOptions) (RegionsState, error) {
 			}
 
 			connectedRealmsOut, err := opts.BlizzardState.ResolveConnectedRealms(
-				version,
 				region,
+				version,
 				connectedRealmIds,
 				resolvedWhitelist,
 			)

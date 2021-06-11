@@ -7,13 +7,13 @@ import (
 )
 
 func (rBase Database) GetConnectedRealmIds(
-	version gameversion.GameVersion,
 	name blizzardv2.RegionName,
+	version gameversion.GameVersion,
 ) ([]blizzardv2.ConnectedRealmId, error) {
 	var out []blizzardv2.ConnectedRealmId
 
 	err := rBase.db.View(func(tx *bolt.Tx) error {
-		bkt := tx.Bucket(connectedRealmsBucketName(version, name))
+		bkt := tx.Bucket(connectedRealmsBucketName(name, version))
 		if bkt == nil {
 			return nil
 		}

@@ -26,7 +26,7 @@ func (rBase Database) GetDownloadTuples(
 				return err
 			}
 
-			connectedRealmsBucket := tx.Bucket(connectedRealmsBucketName(version, region.Name))
+			connectedRealmsBucket := tx.Bucket(connectedRealmsBucketName(region.Name, version))
 			if connectedRealmsBucket == nil {
 				return errors.New("connected-realms bucket does not exist")
 			}

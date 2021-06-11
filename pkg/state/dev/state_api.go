@@ -74,8 +74,11 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 		UseGCloud:   config.UseGCloud,
 		CacheDir:    config.DiskStoreCacheDir,
 		RegionNames: regions.Names(),
-		ResolveItems: func(ids blizzardv2.ItemIds) chan blizzardv2.GetItemsOutJob {
-			return sta.BlizzardState.ResolveItems(primaryRegion, ids)
+		ResolveItems: func(
+			version gameversion.GameVersion,
+			ids blizzardv2.ItemIds,
+		) chan blizzardv2.GetItemsOutJob {
+			return sta.BlizzardState.ResolveItems(primaryRegion, version, ids)
 		},
 		ResolveItemMedias: sta.BlizzardState.ResolveItemMedias,
 		ResolvePets: func(blacklist []blizzardv2.PetId) (chan blizzardv2.GetAllPetsJob, error) {

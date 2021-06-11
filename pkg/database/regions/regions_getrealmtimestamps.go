@@ -10,13 +10,13 @@ import (
 )
 
 func (rBase Database) GetRealmTimestamps(
-	version gameversion.GameVersion,
 	name blizzardv2.RegionName,
+	version gameversion.GameVersion,
 ) (sotah.RealmTimestamps, error) {
 	var out sotah.RealmTimestamps
 
 	err := rBase.db.View(func(tx *bolt.Tx) error {
-		connectedRealmsBucket := tx.Bucket(connectedRealmsBucketName(version, name))
+		connectedRealmsBucket := tx.Bucket(connectedRealmsBucketName(name, version))
 		if connectedRealmsBucket == nil {
 			return errors.New("connected-realms bucket does not exist")
 		}

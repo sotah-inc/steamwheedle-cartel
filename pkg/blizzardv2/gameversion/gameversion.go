@@ -30,6 +30,11 @@ var DynamicNamespaceMap = VersionNamespaceMap{
 	Retail:  "dynamic-us",
 }
 
+var StaticNamespaceMap = VersionNamespaceMap{
+	Classic: "static-classic-us",
+	Retail:  "static-us",
+}
+
 func (vnMap VersionNamespaceMap) Resolve(version GameVersion) (string, error) {
 	found, ok := vnMap[version]
 	if !ok {

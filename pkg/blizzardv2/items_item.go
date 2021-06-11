@@ -7,19 +7,27 @@ import (
 	"net/http"
 
 	"github.com/sirupsen/logrus"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/gameversion"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/inventorytype"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/itemquality"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/locale"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 )
 
-const itemURLFormat = "https://%s/data/wow/item/%d?namespace=static-%s"
+const itemURLFormat = "https://%s/data/wow/item/%d?namespace=%s"
 
-func DefaultGetItemURL(regionHostname string, id ItemId, regionName RegionName) string {
-	return fmt.Sprintf(itemURLFormat, regionHostname, id, regionName)
+func DefaultGetItemURL(
+	regionHostname string,
+	id ItemId,
+	version gameversion.GameVersion,
+) (string, error) {
+	namespace, err := gameversion.StaticNamespaceMap.Resolve(version)
+	if err != nil {
+		return "", err
+	}
+
+	return fmt.Sprintf(itemURLFormat, regionHostname, id, namespace), nil
 }
-
-type GetItemURLFunc func(string, ItemId, RegionName) string
 
 type ItemId int
 

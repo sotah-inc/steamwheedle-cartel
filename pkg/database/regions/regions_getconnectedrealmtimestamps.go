@@ -10,14 +10,14 @@ import (
 )
 
 func (rBase Database) GetConnectedRealmsTimestamps(
-	version gameversion.GameVersion,
 	name blizzardv2.RegionName,
+	version gameversion.GameVersion,
 	id blizzardv2.ConnectedRealmId,
 ) (sotah.ConnectedRealmTimestamps, error) {
 	out := sotah.ConnectedRealmTimestamps{}
 
 	err := rBase.db.View(func(tx *bolt.Tx) error {
-		bkt := tx.Bucket(connectedRealmsBucketName(version, name))
+		bkt := tx.Bucket(connectedRealmsBucketName(name, version))
 		if bkt == nil {
 			return nil
 		}

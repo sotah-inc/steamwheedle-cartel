@@ -14,8 +14,8 @@ func baseBucketName() []byte {
 	return []byte("regions")
 }
 
-func connectedRealmsBucketName(version gameversion.GameVersion, name blizzardv2.RegionName) []byte {
-	return []byte(fmt.Sprintf("connected-realms-%s-%s", version, name))
+func connectedRealmsBucketName(name blizzardv2.RegionName, version gameversion.GameVersion) []byte {
+	return []byte(fmt.Sprintf("connected-realms-%s-%s", name, version))
 }
 
 // base keying

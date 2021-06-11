@@ -8,14 +8,14 @@ import (
 )
 
 func (rBase Database) GetConnectedRealmByRealmSlug(
-	version gameversion.GameVersion,
 	name blizzardv2.RegionName,
+	version gameversion.GameVersion,
 	slug blizzardv2.RealmSlug,
 ) (sotah.RealmComposite, error) {
 	out := sotah.RealmComposite{}
 
 	err := rBase.db.View(func(tx *bolt.Tx) error {
-		bkt := tx.Bucket(connectedRealmsBucketName(version, name))
+		bkt := tx.Bucket(connectedRealmsBucketName(name, version))
 		if bkt == nil {
 			return nil
 		}

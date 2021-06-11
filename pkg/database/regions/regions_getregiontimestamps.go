@@ -22,7 +22,7 @@ func (rBase Database) GetRegionTimestamps(
 
 		return baseBucket.ForEach(func(baseBucketKey []byte, v []byte) error {
 			name := regionNameFromKeyName(baseBucketKey)
-			connectedRealmsBucket := tx.Bucket(connectedRealmsBucketName(version, name))
+			connectedRealmsBucket := tx.Bucket(connectedRealmsBucketName(name, version))
 			if connectedRealmsBucket == nil {
 				return errors.New("connected-realms bucket does not exist")
 			}

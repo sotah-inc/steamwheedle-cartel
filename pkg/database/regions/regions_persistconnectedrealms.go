@@ -12,12 +12,12 @@ type PersistConnectedRealmsInJob struct {
 }
 
 func (rBase Database) PersistConnectedRealms(
-	version gameversion.GameVersion,
 	regionName blizzardv2.RegionName,
+	version gameversion.GameVersion,
 	in chan PersistConnectedRealmsInJob,
 ) error {
 	return rBase.db.Batch(func(tx *bolt.Tx) error {
-		bkt, err := tx.CreateBucketIfNotExists(connectedRealmsBucketName(version, regionName))
+		bkt, err := tx.CreateBucketIfNotExists(connectedRealmsBucketName(regionName, version))
 		if err != nil {
 			return err
 		}

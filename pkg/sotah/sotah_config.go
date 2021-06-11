@@ -3,6 +3,8 @@ package sotah
 import (
 	"encoding/json"
 
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/gameversion"
+
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
@@ -28,10 +30,18 @@ func NewConfig(body []byte) (Config, error) {
 	return *c, nil
 }
 
-type RegionRealmSlugWhitelist map[blizzardv2.RegionName]blizzardv2.RealmSlugs
+type RealmSlugWhitelist map[blizzardv2.RegionName]map[gameversion.GameVersion]blizzardv2.RealmSlugs
 
-func (wl RegionRealmSlugWhitelist) Get(name blizzardv2.RegionName) blizzardv2.RealmSlugs {
-	realmSlugs, ok := wl[name]
+func (wl RealmSlugWhitelist) Get(
+	regionName blizzardv2.RegionName,
+	gameVersion gameversion.GameVersion,
+) blizzardv2.RealmSlugs {
+	versionRealmSlugs, ok := wl[regionName]
+	if !ok {
+		return blizzardv2.RealmSlugs{}
+	}
+
+	realmSlugs, ok := versionRealmSlugs[gameVersion]
 	if !ok {
 		return blizzardv2.RealmSlugs{}
 	}
@@ -45,7 +55,7 @@ type FirebaseConfig struct {
 
 type Config struct {
 	Regions              RegionList                          `json:"regions"`
-	Whitelist            RegionRealmSlugWhitelist            `json:"whitelist"`
+	Whitelist            RealmSlugWhitelist                  `json:"whitelist"`
 	UseGCloud            bool                                `json:"use_gcloud"`
 	Expansions           []Expansion                         `json:"expansions"`
 	PrimarySkillTiers    map[string][]blizzardv2.SkillTierId `json:"primary_skilltiers"`

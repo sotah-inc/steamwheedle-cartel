@@ -2,15 +2,19 @@ package lake
 
 import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/gameversion"
 	BaseLake "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/lake/base"
 	DiskLake "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/lake/disk"
 )
 
 type NewClientOptions struct {
-	UseGCloud          bool
-	CacheDir           string
-	RegionNames        []blizzardv2.RegionName
-	ResolveItems       func(ids blizzardv2.ItemIds) chan blizzardv2.GetItemsOutJob
+	UseGCloud    bool
+	CacheDir     string
+	RegionNames  []blizzardv2.RegionName
+	ResolveItems func(
+		version gameversion.GameVersion,
+		ids blizzardv2.ItemIds,
+	) chan blizzardv2.GetItemsOutJob
 	ResolveItemMedias  func(in chan blizzardv2.GetItemMediasInJob) chan blizzardv2.GetItemMediasOutJob
 	ResolvePets        func(blacklist []blizzardv2.PetId) (chan blizzardv2.GetAllPetsJob, error)
 	ResolveProfessions func(

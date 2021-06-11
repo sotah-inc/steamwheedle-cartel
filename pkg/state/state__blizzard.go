@@ -35,8 +35,8 @@ type BlizzardState struct {
 }
 
 func (sta BlizzardState) ResolveConnectedRealms(
-	version gameversion.GameVersion,
 	region sotah.Region,
+	version gameversion.GameVersion,
 	blacklist []blizzardv2.ConnectedRealmId,
 	whitelist blizzardv2.RealmSlugs,
 ) (chan blizzardv2.GetAllConnectedRealmsJob, error) {
@@ -118,15 +118,19 @@ func (sta BlizzardState) ResolveAuctions(
 
 func (sta BlizzardState) ResolveItems(
 	primaryRegion sotah.Region,
+	version gameversion.GameVersion,
 	ids blizzardv2.ItemIds,
 ) chan blizzardv2.GetItemsOutJob {
 	logging.WithField("item-ids", len(ids)).Info("resolving item-ids")
 
 	return blizzardv2.GetItems(blizzardv2.GetItemsOptions{
 		GetItemURL: func(id blizzardv2.ItemId) (string, error) {
-			return sta.BlizzardClient.AppendAccessToken(
-				blizzardv2.DefaultGetItemURL(primaryRegion.Hostname, id, primaryRegion.Name),
-			)
+			dst, err := blizzardv2.DefaultGetItemURL(primaryRegion.Hostname, id, version)
+			if err != nil {
+				return "", err
+			}
+
+			return sta.BlizzardClient.AppendAccessToken(dst)
 		},
 		ItemIds: ids,
 		Limit:   250,

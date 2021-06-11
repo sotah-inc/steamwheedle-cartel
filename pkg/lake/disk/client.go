@@ -4,13 +4,17 @@ import (
 	"fmt"
 
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/gameversion"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 )
 
 type NewClientOptions struct {
-	CacheDir           string
-	RegionNames        []blizzardv2.RegionName
-	ResolveItems       func(ids blizzardv2.ItemIds) chan blizzardv2.GetItemsOutJob
+	CacheDir     string
+	RegionNames  []blizzardv2.RegionName
+	ResolveItems func(
+		version gameversion.GameVersion,
+		ids blizzardv2.ItemIds,
+	) chan blizzardv2.GetItemsOutJob
 	ResolveItemMedias  func(in chan blizzardv2.GetItemMediasInJob) chan blizzardv2.GetItemMediasOutJob
 	ResolvePets        func(blacklist []blizzardv2.PetId) (chan blizzardv2.GetAllPetsJob, error)
 	ResolveProfessions func(
@@ -60,8 +64,11 @@ func NewClient(opts NewClientOptions) (Client, error) {
 }
 
 type Client struct {
-	cacheDir           string
-	resolveItems       func(ids blizzardv2.ItemIds) chan blizzardv2.GetItemsOutJob
+	cacheDir     string
+	resolveItems func(
+		version gameversion.GameVersion,
+		ids blizzardv2.ItemIds,
+	) chan blizzardv2.GetItemsOutJob
 	resolveItemMedias  func(in chan blizzardv2.GetItemMediasInJob) chan blizzardv2.GetItemMediasOutJob
 	resolvePets        func(blacklist []blizzardv2.PetId) (chan blizzardv2.GetAllPetsJob, error)
 	resolveProfessions func(

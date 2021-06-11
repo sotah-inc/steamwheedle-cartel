@@ -10,14 +10,14 @@ import (
 )
 
 func (rBase Database) ConnectedRealmExists(
-	version gameversion.GameVersion,
 	name blizzardv2.RegionName,
+	version gameversion.GameVersion,
 	id blizzardv2.ConnectedRealmId,
 ) (bool, error) {
 	out := false
 
 	err := rBase.db.View(func(tx *bolt.Tx) error {
-		bkt := tx.Bucket(connectedRealmsBucketName(version, name))
+		bkt := tx.Bucket(connectedRealmsBucketName(name, version))
 		if bkt == nil {
 			return errors.New("connected-realms-bucket does not exist in regions database")
 		}

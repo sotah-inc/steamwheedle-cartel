@@ -14,7 +14,7 @@ func (rBase Database) ReceiveRegionTimestamps(
 ) error {
 	return rBase.db.Batch(func(tx *bolt.Tx) error {
 		for regionName, connectedRealmTimestamps := range regionTimestamps {
-			bkt, err := tx.CreateBucketIfNotExists(connectedRealmsBucketName(version, regionName))
+			bkt, err := tx.CreateBucketIfNotExists(connectedRealmsBucketName(regionName, version))
 			if err != nil {
 				return err
 			}
