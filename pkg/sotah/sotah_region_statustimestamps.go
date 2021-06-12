@@ -1,6 +1,8 @@
 package sotah
 
-type StatusTimestamps map[string]UnixTimestamp
+import "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah/statuskinds"
+
+type StatusTimestamps map[statuskinds.StatusKind]UnixTimestamp
 
 func (timestamps StatusTimestamps) ToList() UnixTimestamps {
 	out := make(UnixTimestamps, len(timestamps))

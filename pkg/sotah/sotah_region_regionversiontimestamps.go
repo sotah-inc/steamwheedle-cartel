@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"time"
 
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah/statuskinds"
+
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/gameversion"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
@@ -93,83 +95,24 @@ func (rvStamps RegionVersionTimestamps) resolve(
 	}
 
 	if _, ok := rvStamps[tuple.RegionName][tuple.Version][tuple.ConnectedRealmId]; !ok {
-		rvStamps[tuple.RegionName][tuple.Version][tuple.ConnectedRealmId] = RealmStatusTimestamps{}
+		rvStamps[tuple.RegionName][tuple.Version][tuple.ConnectedRealmId] = StatusTimestamps{}
 	}
 
 	return rvStamps
 }
 
-func (rvStamps RegionVersionTimestamps) SetDownloaded(
+func (rvStamps RegionVersionTimestamps) SetTimestamp(
 	tuple blizzardv2.RegionVersionConnectedRealmTuple,
-	downloaded time.Time,
+	kind statuskinds.StatusKind,
+	timestamp time.Time,
 ) RegionVersionTimestamps {
 	// resolving due to missing members
 	out := rvStamps.resolve(tuple)
 
 	// pushing the new time into the found member
 	result := out[tuple.RegionName][tuple.Version][tuple.ConnectedRealmId]
-	result.Downloaded = UnixTimestamp(downloaded.Unix())
+	result[kind] = UnixTimestamp(timestamp.Unix())
 	out[tuple.RegionName][tuple.Version][tuple.ConnectedRealmId] = result
-
-	return out
-}
-
-func (regionTimestamps RegionTimestamps) SetLiveAuctionsReceived(
-	tuple blizzardv2.RegionConnectedRealmTuple,
-	liveAuctionsReceived time.Time,
-) RegionTimestamps {
-	// resolving due to missing members
-	out := regionTimestamps.resolve(tuple)
-
-	// pushing the new time into the found member
-	result := out[tuple.RegionName][tuple.ConnectedRealmId]
-	result.LiveAuctionsReceived = UnixTimestamp(liveAuctionsReceived.Unix())
-	out[tuple.RegionName][tuple.ConnectedRealmId] = result
-
-	return out
-}
-
-func (regionTimestamps RegionTimestamps) SetItemPricesReceived(
-	tuple blizzardv2.RegionConnectedRealmTuple,
-	itemPricesReceived time.Time,
-) RegionTimestamps {
-	// resolving due to missing members
-	out := regionTimestamps.resolve(tuple)
-
-	// pushing the new time into the found member
-	result := out[tuple.RegionName][tuple.ConnectedRealmId]
-	result.ItemPricesReceived = UnixTimestamp(itemPricesReceived.Unix())
-	out[tuple.RegionName][tuple.ConnectedRealmId] = result
-
-	return out
-}
-
-func (regionTimestamps RegionTimestamps) SetRecipePricesReceived(
-	tuple blizzardv2.RegionConnectedRealmTuple,
-	recipePricesReceived time.Time,
-) RegionTimestamps {
-	// resolving due to missing members
-	out := regionTimestamps.resolve(tuple)
-
-	// pushing the new time into the found member
-	result := out[tuple.RegionName][tuple.ConnectedRealmId]
-	result.RecipePricesReceived = UnixTimestamp(recipePricesReceived.Unix())
-	out[tuple.RegionName][tuple.ConnectedRealmId] = result
-
-	return out
-}
-
-func (regionTimestamps RegionTimestamps) SetStatsReceived(
-	tuple blizzardv2.RegionConnectedRealmTuple,
-	statsReceived time.Time,
-) RegionTimestamps {
-	// resolving due to missing members
-	out := regionTimestamps.resolve(tuple)
-
-	// pushing the new time into the found member
-	result := out[tuple.RegionName][tuple.ConnectedRealmId]
-	result.StatsReceived = UnixTimestamp(statsReceived.Unix())
-	out[tuple.RegionName][tuple.ConnectedRealmId] = result
 
 	return out
 }
