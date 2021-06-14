@@ -81,7 +81,7 @@ func (client Client) GetEncodedItems(
 	go func() {
 		for job := range itemsOut {
 			if job.Err != nil {
-				logging.WithFields(job.ToLogrusFields()).Error("failed to resolve item")
+				logging.WithFields(job.ToLogrusFields(version)).Error("failed to resolve item")
 				erroneousItemsIn <- erroneousItemJob{
 					statusCode: job.Status,
 					id:         job.Id,
@@ -90,7 +90,10 @@ func (client Client) GetEncodedItems(
 				continue
 			}
 
-			logging.WithField("item-id", job.Id).Info("enqueueing item for item-media resolution")
+			logging.WithFields(logrus.Fields{
+				"game-version": version,
+				"item-id":      job.Id,
+			}).Info("enqueueing item for item-media resolution")
 
 			itemMediasIn <- blizzardv2.GetItemMediasInJob{Item: job.ItemResponse}
 		}
@@ -101,7 +104,7 @@ func (client Client) GetEncodedItems(
 	go func() {
 		for job := range itemMediasOut {
 			if job.Err != nil {
-				logging.WithFields(job.ToLogrusFields()).Error("failed to resolve item-media")
+				logging.WithFields(job.ToLogrusFields(version)).Error("failed to resolve item-media")
 				out <- getEncodedItemJob{
 					err:                   job.Err,
 					id:                    job.Item.Id,
@@ -118,8 +121,9 @@ func (client Client) GetEncodedItems(
 			itemIcon, err := job.ItemMediaResponse.GetIcon()
 			if err != nil {
 				logging.WithFields(logrus.Fields{
-					"error":    err.Error(),
-					"response": job.ItemMediaResponse,
+					"error":        err.Error(),
+					"game-version": version,
+					"response":     job.ItemMediaResponse,
 				}).Error("failed to resolve item-icon from item-media")
 				out <- getEncodedItemJob{
 					err:                   err,
@@ -149,8 +153,9 @@ func (client Client) GetEncodedItems(
 			}()
 			if err != nil {
 				logging.WithFields(logrus.Fields{
-					"error":    err.Error(),
-					"response": job.ItemMediaResponse,
+					"error":        err.Error(),
+					"game-version": version,
+					"response":     job.ItemMediaResponse,
 				}).Error("failed to normalize name")
 				out <- getEncodedItemJob{
 					err:                   err,
@@ -181,8 +186,9 @@ func (client Client) GetEncodedItems(
 			encodedItem, err := item.EncodeForStorage()
 			if err != nil {
 				logging.WithFields(logrus.Fields{
-					"error": err.Error(),
-					"item":  item.BlizzardMeta.Id,
+					"error":        err.Error(),
+					"game-version": version,
+					"item":         item.BlizzardMeta.Id,
 				}).Error("failed to encode item for storage")
 				out <- getEncodedItemJob{
 					err:                   err,
@@ -200,8 +206,9 @@ func (client Client) GetEncodedItems(
 			encodedNormalizedName, err := normalizedName.EncodeForStorage()
 			if err != nil {
 				logging.WithFields(logrus.Fields{
-					"error": err.Error(),
-					"item":  item.BlizzardMeta.Id,
+					"error":        err.Error(),
+					"game-version": version,
+					"item":         item.BlizzardMeta.Id,
 				}).Error("failed to encode normalized-name for storage")
 				out <- getEncodedItemJob{
 					err:                   err,
@@ -221,6 +228,7 @@ func (client Client) GetEncodedItems(
 			if isVendorItem {
 				logging.WithFields(logrus.Fields{
 					"item":         job.Item.Id,
+					"game-version": version,
 					"name":         job.Item.Name.ResolveDefaultName(),
 					"description":  job.Item.Description.ResolveDefaultName(),
 					"vendor-price": job.Item.PurchasePrice,

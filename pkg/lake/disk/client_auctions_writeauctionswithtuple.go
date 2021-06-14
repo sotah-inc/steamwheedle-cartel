@@ -10,7 +10,7 @@ import (
 )
 
 func (client Client) WriteAuctionsWithTuple(
-	tuple blizzardv2.RegionConnectedRealmTuple,
+	tuple blizzardv2.RegionVersionConnectedRealmTuple,
 	auctions sotah.MiniAuctionList,
 ) error {
 	dest, err := client.resolveAuctionsFilepath(tuple)
@@ -27,7 +27,7 @@ func (client Client) WriteAuctionsWithTuple(
 }
 
 func (client Client) NewWriteAuctionsWithTuplesInJob(
-	tuple blizzardv2.RegionConnectedRealmTuple,
+	tuple blizzardv2.RegionVersionConnectedRealmTuple,
 	auctions sotah.MiniAuctionList,
 ) BaseLake.WriteAuctionsWithTuplesInJob {
 	return WriteAuctionsWithTuplesInJob{
@@ -37,28 +37,29 @@ func (client Client) NewWriteAuctionsWithTuplesInJob(
 }
 
 type WriteAuctionsWithTuplesInJob struct {
-	tuple    blizzardv2.RegionConnectedRealmTuple
+	tuple    blizzardv2.RegionVersionConnectedRealmTuple
 	auctions sotah.MiniAuctionList
 }
 
-func (w WriteAuctionsWithTuplesInJob) Tuple() blizzardv2.RegionConnectedRealmTuple {
+func (w WriteAuctionsWithTuplesInJob) Tuple() blizzardv2.RegionVersionConnectedRealmTuple {
 	return w.tuple
 }
 func (w WriteAuctionsWithTuplesInJob) Auctions() sotah.MiniAuctionList { return w.auctions }
 
 type WriteAuctionsWithTuplesOutJob struct {
 	err   error
-	tuple blizzardv2.RegionConnectedRealmTuple
+	tuple blizzardv2.RegionVersionConnectedRealmTuple
 }
 
 func (job WriteAuctionsWithTuplesOutJob) Err() error { return job.err }
-func (job WriteAuctionsWithTuplesOutJob) Tuple() blizzardv2.RegionConnectedRealmTuple {
+func (job WriteAuctionsWithTuplesOutJob) Tuple() blizzardv2.RegionVersionConnectedRealmTuple {
 	return job.tuple
 }
 func (job WriteAuctionsWithTuplesOutJob) ToLogrusFields() logrus.Fields {
 	return logrus.Fields{
 		"error":           job.Err().Error(),
 		"region":          job.Tuple().RegionName,
+		"game-version":    job.tuple.Version,
 		"connected-realm": job.Tuple().ConnectedRealmId,
 	}
 }
@@ -91,6 +92,7 @@ func (client Client) WriteAuctionsWithTuples(
 		for job := range in {
 			logging.WithFields(logrus.Fields{
 				"region":          job.Tuple().RegionName,
+				"game-version":    job.Tuple().Version,
 				"connected-realm": job.Tuple().ConnectedRealmId,
 			}).Debug("queueing up job for writing auctions")
 

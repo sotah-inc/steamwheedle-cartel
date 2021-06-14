@@ -10,7 +10,7 @@ import (
 )
 
 func (client Client) GetEncodedPricelistHistoryByTuple(
-	tuple blizzardv2.RegionConnectedRealmTuple,
+	tuple blizzardv2.RegionVersionConnectedRealmTuple,
 ) (map[blizzardv2.ItemId][]byte, error) {
 	cachedAuctionsFilepath, err := client.resolveAuctionsFilepath(tuple)
 	if err != nil {
@@ -57,6 +57,7 @@ func (job getEncodedPricelistHistoryByTuplesJob) ToLogrusFields() logrus.Fields 
 	return logrus.Fields{
 		"error":           job.err.Error(),
 		"region":          job.tuple.RegionName,
+		"game-version":    job.tuple.Version,
 		"connected-realm": job.tuple.ConnectedRealmId,
 	}
 }
@@ -71,7 +72,9 @@ func (client Client) GetEncodedItemPricesByTuples(
 	// spinning up the workers for fetching auctions
 	worker := func() {
 		for tuple := range in {
-			gzipEncoded, err := client.GetEncodedPricelistHistoryByTuple(tuple.RegionConnectedRealmTuple)
+			gzipEncoded, err := client.GetEncodedPricelistHistoryByTuple(
+				tuple.RegionVersionConnectedRealmTuple,
+			)
 			if err != nil {
 				out <- getEncodedPricelistHistoryByTuplesJob{
 					err:                     err,
@@ -95,6 +98,7 @@ func (client Client) GetEncodedItemPricesByTuples(
 		for _, tuple := range tuples {
 			logging.WithFields(logrus.Fields{
 				"region":          tuple.RegionName,
+				"game-version":    tuple.Version,
 				"connected-realm": tuple.ConnectedRealmId,
 			}).Debug("queueing up tuple for fetching")
 

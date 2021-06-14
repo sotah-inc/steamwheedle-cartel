@@ -2,6 +2,7 @@ package blizzardv2
 
 import (
 	"github.com/sirupsen/logrus"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/gameversion"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 )
@@ -15,11 +16,12 @@ type GetItemsOutJob struct {
 	ItemResponse ItemResponse
 }
 
-func (job GetItemsOutJob) ToLogrusFields() logrus.Fields {
+func (job GetItemsOutJob) ToLogrusFields(version gameversion.GameVersion) logrus.Fields {
 	return logrus.Fields{
-		"error":  job.Err.Error(),
-		"status": job.Status,
-		"id":     job.Id,
+		"error":        job.Err.Error(),
+		"status":       job.Status,
+		"id":           job.Id,
+		"game-version": version,
 	}
 }
 

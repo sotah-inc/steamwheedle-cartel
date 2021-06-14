@@ -2,6 +2,7 @@ package blizzardv2
 
 import (
 	"github.com/sirupsen/logrus"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/gameversion"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 )
 
@@ -15,10 +16,11 @@ type GetItemMediasOutJob struct {
 	ItemMediaResponse ItemMediaResponse
 }
 
-func (job GetItemMediasOutJob) ToLogrusFields() logrus.Fields {
+func (job GetItemMediasOutJob) ToLogrusFields(version gameversion.GameVersion) logrus.Fields {
 	return logrus.Fields{
-		"error": job.Err.Error(),
-		"item":  job.Item.Id,
+		"error":        job.Err.Error(),
+		"item":         job.Item.Id,
+		"game-version": version,
 	}
 }
 

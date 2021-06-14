@@ -34,6 +34,7 @@ func (job getEncodedAuctionsByTuplesJob) ToLogrusFields() logrus.Fields {
 	return logrus.Fields{
 		"error":           job.err.Error(),
 		"region":          job.tuple.RegionName,
+		"game-version":    job.tuple.Version,
 		"connected-realm": job.tuple.ConnectedRealmId,
 	}
 }
@@ -72,6 +73,7 @@ func (client Client) GetEncodedAuctionsByTuples(
 		for _, tuple := range tuples {
 			logging.WithFields(logrus.Fields{
 				"region":          tuple.RegionName,
+				"game-version":    tuple.Version,
 				"connected-realm": tuple.ConnectedRealmId,
 			}).Debug("queueing up tuple for fetching")
 

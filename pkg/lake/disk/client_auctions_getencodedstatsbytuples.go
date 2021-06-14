@@ -10,7 +10,7 @@ import (
 )
 
 func (client Client) GetEncodedStatsByTuple(
-	tuple blizzardv2.RegionConnectedRealmTuple,
+	tuple blizzardv2.RegionVersionConnectedRealmTuple,
 ) ([]byte, error) {
 	cachedAuctionsFilepath, err := client.resolveAuctionsFilepath(tuple)
 	if err != nil {
@@ -50,6 +50,7 @@ func (job getEncodedStatsByTuplesJob) ToLogrusFields() logrus.Fields {
 	return logrus.Fields{
 		"error":           job.err.Error(),
 		"region":          job.tuple.RegionName,
+		"game-version":    job.tuple.Version,
 		"connected-realm": job.tuple.ConnectedRealmId,
 	}
 }
@@ -64,7 +65,7 @@ func (client Client) GetEncodedStatsByTuples(
 	// spinning up the workers for fetching auctions
 	worker := func() {
 		for tuple := range in {
-			jsonEncoded, err := client.GetEncodedStatsByTuple(tuple.RegionConnectedRealmTuple)
+			jsonEncoded, err := client.GetEncodedStatsByTuple(tuple.RegionVersionConnectedRealmTuple)
 			if err != nil {
 				out <- getEncodedStatsByTuplesJob{
 					err:          err,
@@ -92,6 +93,7 @@ func (client Client) GetEncodedStatsByTuples(
 		for _, tuple := range tuples {
 			logging.WithFields(logrus.Fields{
 				"region":          tuple.RegionName,
+				"game-version":    tuple.Version,
 				"connected-realm": tuple.ConnectedRealmId,
 			}).Debug("queueing up tuple for fetching")
 

@@ -40,17 +40,17 @@ func (client Client) getTupleStats(
 }
 
 type getEncodedRegionStatsJob struct {
-	err              error
-	name             blizzardv2.RegionName
-	connectedRealmId blizzardv2.ConnectedRealmId
-	stats            sotah.MiniAuctionListGeneralStats
+	err   error
+	tuple blizzardv2.RegionVersionConnectedRealmTuple
+	stats sotah.MiniAuctionListGeneralStats
 }
 
 func (job getEncodedRegionStatsJob) ToLogrusFields() logrus.Fields {
 	return logrus.Fields{
 		"error":           job.err.Error(),
-		"region":          job.name,
-		"connected-realm": job.connectedRealmId,
+		"region":          job.tuple.RegionName,
+		"game-version":    job.tuple.Version,
+		"connected-realm": job.tuple.ConnectedRealmId,
 	}
 }
 
@@ -65,18 +65,17 @@ func (client Client) GetEncodedRegionStats(
 	worker := func() {
 		for id := range in {
 			stats, err := client.getTupleStats(blizzardv2.RegionVersionConnectedRealmTuple{
-				RegionVersionTuple: blizzardv2.RegionVersionTuple{
-					RegionTuple: tuple,
-					Version:     "",
-				},
-				ConnectedRealmId: id,
+				RegionVersionTuple: tuple,
+				ConnectedRealmId:   id,
 			})
 			if err != nil {
 				out <- getEncodedRegionStatsJob{
-					err:              err,
-					name:             name,
-					connectedRealmId: id,
-					stats:            sotah.MiniAuctionListGeneralStats{},
+					err: err,
+					tuple: blizzardv2.RegionVersionConnectedRealmTuple{
+						RegionVersionTuple: tuple,
+						ConnectedRealmId:   id,
+					},
+					stats: sotah.MiniAuctionListGeneralStats{},
 				}
 
 				continue
@@ -84,7 +83,8 @@ func (client Client) GetEncodedRegionStats(
 
 			if stats.TotalAuctions == 0 {
 				logging.WithFields(logrus.Fields{
-					"region":          name,
+					"region":          tuple.RegionName,
+					"game-version":    tuple.Version,
 					"connected-realm": id,
 				}).Info("no stats were found for region/connected-realm")
 
@@ -92,10 +92,12 @@ func (client Client) GetEncodedRegionStats(
 			}
 
 			out <- getEncodedRegionStatsJob{
-				err:              nil,
-				name:             name,
-				connectedRealmId: id,
-				stats:            stats,
+				err: nil,
+				tuple: blizzardv2.RegionVersionConnectedRealmTuple{
+					RegionVersionTuple: tuple,
+					ConnectedRealmId:   id,
+				},
+				stats: stats,
 			}
 		}
 	}
@@ -108,7 +110,8 @@ func (client Client) GetEncodedRegionStats(
 	go func() {
 		for _, id := range ids {
 			logging.WithFields(logrus.Fields{
-				"region":          name,
+				"region":          tuple.RegionName,
+				"game-version":    tuple.Version,
 				"connected-realm": id,
 			}).Debug("queueing up tuple for fetching")
 
