@@ -5,24 +5,21 @@ import (
 
 	"github.com/boltdb/bolt"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/gameversion"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 )
 
-func (rBase Database) GetConnectedRealmsTimestamps(
-	name blizzardv2.RegionName,
-	version gameversion.GameVersion,
-	id blizzardv2.ConnectedRealmId,
-) (sotah.ConnectedRealmTimestamps, error) {
-	out := sotah.ConnectedRealmTimestamps{}
+func (rBase Database) GetStatusTimestamps(
+	tuple blizzardv2.RegionVersionConnectedRealmTuple,
+) (sotah.StatusTimestamps, error) {
+	out := sotah.StatusTimestamps{}
 
 	err := rBase.db.View(func(tx *bolt.Tx) error {
-		bkt := tx.Bucket(connectedRealmsBucketName(name, version))
+		bkt := tx.Bucket(connectedRealmsBucketName(tuple.RegionVersionTuple))
 		if bkt == nil {
 			return nil
 		}
 
-		v := bkt.Get(connectedRealmsKeyName(id))
+		v := bkt.Get(connectedRealmsKeyName(tuple.ConnectedRealmId))
 		if v == nil {
 			return errors.New("could not resolve connected-realm")
 		}
@@ -32,12 +29,12 @@ func (rBase Database) GetConnectedRealmsTimestamps(
 			return err
 		}
 
-		out = realm.ModificationDates
+		out = realm.StatusTimestamps
 
 		return nil
 	})
 	if err != nil {
-		return sotah.ConnectedRealmTimestamps{}, err
+		return sotah.StatusTimestamps{}, err
 	}
 
 	return out, nil
