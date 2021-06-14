@@ -8,7 +8,7 @@ import (
 
 type Client interface {
 	GetEncodedAuctionsByTuples(
-		tuples blizzardv2.RegionConnectedRealmTuples,
+		tuples blizzardv2.RegionVersionConnectedRealmTuples,
 	) chan GetEncodedAuctionsByTuplesJob
 	GetEncodedStatsByTuples(tuples blizzardv2.LoadConnectedRealmTuples) chan GetEncodedStatsByTuplesJob
 	GetEncodedItemPricesByTuples(
@@ -20,7 +20,7 @@ type Client interface {
 	) chan GetEncodedRecipePricesByTuplesJob
 	WriteAuctionsWithTuples(in chan WriteAuctionsWithTuplesInJob) chan WriteAuctionsWithTuplesOutJob
 	NewWriteAuctionsWithTuplesInJob(
-		tuple blizzardv2.RegionConnectedRealmTuple,
+		tuple blizzardv2.RegionVersionConnectedRealmTuple,
 		auctions sotah.MiniAuctionList,
 	) WriteAuctionsWithTuplesInJob
 	GetEncodedItems(
@@ -35,7 +35,7 @@ type Client interface {
 	) chan GetEncodedSkillTierJob
 	GetEncodedRecipes(group blizzardv2.RecipesGroup) chan GetEncodedRecipeJob
 	GetEncodedRegionStats(
-		name blizzardv2.RegionName,
+		tuple blizzardv2.RegionVersionTuple,
 		ids []blizzardv2.ConnectedRealmId,
 	) ([]byte, error)
 	GetEncodedItemClasses() ([]byte, error)

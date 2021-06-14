@@ -11,7 +11,7 @@ import (
 )
 
 func (client Client) getTupleStats(
-	tuple blizzardv2.RegionConnectedRealmTuple,
+	tuple blizzardv2.RegionVersionConnectedRealmTuple,
 ) (sotah.MiniAuctionListGeneralStats, error) {
 	cachedAuctionsFilepath, err := client.resolveAuctionsFilepath(tuple)
 	if err != nil {
@@ -55,7 +55,7 @@ func (job getEncodedRegionStatsJob) ToLogrusFields() logrus.Fields {
 }
 
 func (client Client) GetEncodedRegionStats(
-	name blizzardv2.RegionName,
+	tuple blizzardv2.RegionVersionTuple,
 	ids []blizzardv2.ConnectedRealmId,
 ) ([]byte, error) {
 	in := make(chan blizzardv2.ConnectedRealmId)
@@ -64,8 +64,11 @@ func (client Client) GetEncodedRegionStats(
 	// spinning up the workers for fetching auctions
 	worker := func() {
 		for id := range in {
-			stats, err := client.getTupleStats(blizzardv2.RegionConnectedRealmTuple{
-				RegionName:       name,
+			stats, err := client.getTupleStats(blizzardv2.RegionVersionConnectedRealmTuple{
+				RegionVersionTuple: blizzardv2.RegionVersionTuple{
+					RegionTuple: tuple,
+					Version:     "",
+				},
 				ConnectedRealmId: id,
 			})
 			if err != nil {

@@ -7,7 +7,7 @@ import (
 
 type GetEncodedAuctionsByTuplesJob interface {
 	Err() error
-	Tuple() blizzardv2.RegionConnectedRealmTuple
+	Tuple() blizzardv2.RegionVersionConnectedRealmTuple
 	EncodedAuctions() []byte
 
 	ToLogrusFields() logrus.Fields

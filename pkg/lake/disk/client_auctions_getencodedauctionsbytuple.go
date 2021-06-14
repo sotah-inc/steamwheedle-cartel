@@ -9,7 +9,7 @@ import (
 )
 
 func (client Client) GetEncodedAuctionsByTuple(
-	tuple blizzardv2.RegionConnectedRealmTuple,
+	tuple blizzardv2.RegionVersionConnectedRealmTuple,
 ) ([]byte, error) {
 	cachedAuctionsFilepath, err := client.resolveAuctionsFilepath(tuple)
 	if err != nil {
@@ -21,11 +21,11 @@ func (client Client) GetEncodedAuctionsByTuple(
 
 type getEncodedAuctionsByTuplesJob struct {
 	err             error
-	tuple           blizzardv2.RegionConnectedRealmTuple
+	tuple           blizzardv2.RegionVersionConnectedRealmTuple
 	encodedAuctions []byte
 }
 
-func (job getEncodedAuctionsByTuplesJob) Tuple() blizzardv2.RegionConnectedRealmTuple {
+func (job getEncodedAuctionsByTuplesJob) Tuple() blizzardv2.RegionVersionConnectedRealmTuple {
 	return job.tuple
 }
 func (job getEncodedAuctionsByTuplesJob) EncodedAuctions() []byte { return job.encodedAuctions }
@@ -39,11 +39,11 @@ func (job getEncodedAuctionsByTuplesJob) ToLogrusFields() logrus.Fields {
 }
 
 func (client Client) GetEncodedAuctionsByTuples(
-	tuples blizzardv2.RegionConnectedRealmTuples,
+	tuples blizzardv2.RegionVersionConnectedRealmTuples,
 ) chan BaseLake.GetEncodedAuctionsByTuplesJob {
 	// establishing channels
 	out := make(chan BaseLake.GetEncodedAuctionsByTuplesJob)
-	in := make(chan blizzardv2.RegionConnectedRealmTuple)
+	in := make(chan blizzardv2.RegionVersionConnectedRealmTuple)
 
 	// spinning up the workers for fetching auctions
 	worker := func() {

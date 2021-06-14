@@ -11,7 +11,7 @@ import (
 
 func (client Client) GetEncodedRecipePricesByTuple(
 	mRecipes sotah.MiniRecipes,
-	tuple blizzardv2.RegionConnectedRealmTuple,
+	tuple blizzardv2.RegionVersionConnectedRealmTuple,
 ) (map[blizzardv2.RecipeId][]byte, error) {
 	cachedAuctionsFilepath, err := client.resolveAuctionsFilepath(tuple)
 	if err != nil {
@@ -76,7 +76,7 @@ func (client Client) GetEncodedRecipePricesByTuples(
 		for tuple := range in {
 			gzipEncoded, err := client.GetEncodedRecipePricesByTuple(
 				mRecipes,
-				tuple.RegionConnectedRealmTuple,
+				tuple.RegionVersionConnectedRealmTuple,
 			)
 			if err != nil {
 				out <- getEncodedRecipePricesByTuplesJob{

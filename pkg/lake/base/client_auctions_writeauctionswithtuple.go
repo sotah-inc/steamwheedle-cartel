@@ -7,13 +7,13 @@ import (
 )
 
 type WriteAuctionsWithTuplesInJob interface {
-	Tuple() blizzardv2.RegionConnectedRealmTuple
+	Tuple() blizzardv2.RegionVersionConnectedRealmTuple
 	Auctions() sotah.MiniAuctionList
 }
 
 type WriteAuctionsWithTuplesOutJob interface {
 	Err() error
-	Tuple() blizzardv2.RegionConnectedRealmTuple
+	Tuple() blizzardv2.RegionVersionConnectedRealmTuple
 
 	ToLogrusFields() logrus.Fields
 }
