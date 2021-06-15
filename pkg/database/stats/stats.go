@@ -9,8 +9,11 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 )
 
-func tupleDatabasePath(dirPath string, tuple blizzardv2.RegionConnectedRealmTuple) string {
-	return databasePath(dirPath, fmt.Sprintf("%s/%d", tuple.RegionName, tuple.ConnectedRealmId))
+func tupleDatabasePath(dirPath string, tuple blizzardv2.RegionVersionConnectedRealmTuple) string {
+	return databasePath(
+		dirPath,
+		fmt.Sprintf("%s/%s/%d", tuple.RegionName, tuple.Version, tuple.ConnectedRealmId),
+	)
 }
 
 func regionDatabasePath(dirPath string, name blizzardv2.RegionName) string {
