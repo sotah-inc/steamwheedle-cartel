@@ -12,7 +12,7 @@ func (rBase Database) RealmExists(tuple blizzardv2.RegionVersionRealmTuple) (boo
 	out := false
 
 	err := rBase.db.View(func(tx *bolt.Tx) error {
-		bkt := tx.Bucket(connectedRealmsBucketName(name, version))
+		bkt := tx.Bucket(connectedRealmsBucketName(tuple.RegionVersionTuple))
 		if bkt == nil {
 			return errors.New("connected-realms-bucket does not exist in regions database")
 		}
@@ -24,7 +24,7 @@ func (rBase Database) RealmExists(tuple blizzardv2.RegionVersionRealmTuple) (boo
 			}
 
 			for _, realm := range connectedRealm.ConnectedRealmResponse.Realms {
-				if realm.Slug == slug {
+				if realm.Slug == tuple.RealmSlug {
 					out = true
 
 					return nil

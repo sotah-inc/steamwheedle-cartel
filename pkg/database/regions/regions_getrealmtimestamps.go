@@ -5,18 +5,16 @@ import (
 
 	"github.com/boltdb/bolt"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/gameversion"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 )
 
 func (rBase Database) GetRealmTimestamps(
-	name blizzardv2.RegionName,
-	version gameversion.GameVersion,
-) (sotah.RealmTimestamps, error) {
-	var out sotah.RealmTimestamps
+	tuple blizzardv2.RegionVersionTuple,
+) (sotah.RealmStatusTimestamps, error) {
+	var out sotah.RealmStatusTimestamps
 
 	err := rBase.db.View(func(tx *bolt.Tx) error {
-		connectedRealmsBucket := tx.Bucket(connectedRealmsBucketName(name, version))
+		connectedRealmsBucket := tx.Bucket(connectedRealmsBucketName(tuple))
 		if connectedRealmsBucket == nil {
 			return errors.New("connected-realms bucket does not exist")
 		}
@@ -28,14 +26,14 @@ func (rBase Database) GetRealmTimestamps(
 					return err
 				}
 
-				out[realmComposite.ConnectedRealmResponse.Id] = realmComposite.ModificationDates
+				out[realmComposite.ConnectedRealmResponse.Id] = realmComposite.StatusTimestamps
 
 				return nil
 			},
 		)
 	})
 	if err != nil {
-		return sotah.RealmTimestamps{}, err
+		return sotah.RealmStatusTimestamps{}, err
 	}
 
 	return out, nil

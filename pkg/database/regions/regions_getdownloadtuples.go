@@ -26,7 +26,10 @@ func (rBase Database) GetDownloadTuples(
 				return err
 			}
 
-			connectedRealmsBucket := tx.Bucket(connectedRealmsBucketName(region.Name, version))
+			connectedRealmsBucket := tx.Bucket(connectedRealmsBucketName(blizzardv2.RegionVersionTuple{
+				RegionTuple: blizzardv2.RegionTuple{RegionName: region.Name},
+				Version:     version,
+			}))
 			if connectedRealmsBucket == nil {
 				return errors.New("connected-realms bucket does not exist")
 			}
@@ -40,11 +43,14 @@ func (rBase Database) GetDownloadTuples(
 
 					out = append(out, blizzardv2.DownloadConnectedRealmTuple{
 						LoadConnectedRealmTuple: blizzardv2.LoadConnectedRealmTuple{
-							RegionConnectedRealmTuple: blizzardv2.RegionConnectedRealmTuple{
-								RegionName:       region.Name,
+							RegionVersionConnectedRealmTuple: blizzardv2.RegionVersionConnectedRealmTuple{
+								RegionVersionTuple: blizzardv2.RegionVersionTuple{
+									RegionTuple: blizzardv2.RegionTuple{RegionName: region.Name},
+									Version:     version,
+								},
 								ConnectedRealmId: realmComposite.ConnectedRealmResponse.Id,
 							},
-							LastModified: realmComposite.ModificationDates.Downloaded.Time(),
+							LastModified: realmComposite.StatusTimestamps["downloaded"].Time(),
 						},
 						RegionHostname: region.Hostname,
 					})

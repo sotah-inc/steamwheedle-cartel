@@ -11,8 +11,8 @@ import (
 
 func (rBase Database) GetRegionTimestamps(
 	version gameversion.GameVersion,
-) (sotah.RegionTimestamps, error) {
-	var out sotah.RegionTimestamps
+) (sotah.RegionVersionTimestamps, error) {
+	var out sotah.RegionVersionTimestamps
 
 	err := rBase.db.View(func(tx *bolt.Tx) error {
 		baseBucket := tx.Bucket(baseBucketName())
@@ -22,12 +22,15 @@ func (rBase Database) GetRegionTimestamps(
 
 		return baseBucket.ForEach(func(baseBucketKey []byte, v []byte) error {
 			name := regionNameFromKeyName(baseBucketKey)
-			connectedRealmsBucket := tx.Bucket(connectedRealmsBucketName(name, version))
+			connectedRealmsBucket := tx.Bucket(connectedRealmsBucketName(blizzardv2.RegionVersionTuple{
+				RegionTuple: blizzardv2.RegionTuple{RegionName: name},
+				Version:     version,
+			}))
 			if connectedRealmsBucket == nil {
 				return errors.New("connected-realms bucket does not exist")
 			}
 
-			out[name] = map[blizzardv2.ConnectedRealmId]sotah.ConnectedRealmTimestamps{}
+			out[name] = sotah.VersionRealmTimestamps{version: sotah.RealmStatusTimestamps{}}
 
 			return connectedRealmsBucket.ForEach(
 				func(connectedRealmKey []byte, connectedRealmValue []byte) error {
@@ -36,7 +39,7 @@ func (rBase Database) GetRegionTimestamps(
 						return err
 					}
 
-					out[name][realmComposite.ConnectedRealmResponse.Id] = realmComposite.ModificationDates
+					out[name][version][realmComposite.ConnectedRealmResponse.Id] = realmComposite.StatusTimestamps
 
 					return nil
 				},
@@ -44,7 +47,7 @@ func (rBase Database) GetRegionTimestamps(
 		})
 	})
 	if err != nil {
-		return sotah.RegionTimestamps{}, err
+		return sotah.RegionVersionTimestamps{}, err
 	}
 
 	return out, nil

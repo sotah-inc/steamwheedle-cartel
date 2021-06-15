@@ -7,15 +7,21 @@ import (
 
 func (rBase Database) GetTuples(
 	version gameversion.GameVersion,
-) ([]blizzardv2.RegionConnectedRealmTuple, error) {
+) (blizzardv2.RegionVersionConnectedRealmTuples, error) {
 	downloadTuples, err := rBase.GetDownloadTuples(version)
 	if err != nil {
-		return []blizzardv2.RegionConnectedRealmTuple{}, err
+		return blizzardv2.RegionVersionConnectedRealmTuples{}, err
 	}
 
-	out := make([]blizzardv2.RegionConnectedRealmTuple, len(downloadTuples))
+	out := make(blizzardv2.RegionVersionConnectedRealmTuples, len(downloadTuples))
 	for i, tuple := range downloadTuples {
-		out[i] = tuple.RegionConnectedRealmTuple
+		out[i] = blizzardv2.RegionVersionConnectedRealmTuple{
+			RegionVersionTuple: blizzardv2.RegionVersionTuple{
+				RegionTuple: blizzardv2.RegionTuple{RegionName: tuple.RegionName},
+				Version:     tuple.Version,
+			},
+			ConnectedRealmId: tuple.ConnectedRealmId,
+		}
 	}
 
 	return out, nil

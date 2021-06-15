@@ -3,7 +3,6 @@ package regions
 import (
 	"github.com/boltdb/bolt"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/gameversion"
 )
 
 type PersistConnectedRealmsInJob struct {
@@ -12,12 +11,11 @@ type PersistConnectedRealmsInJob struct {
 }
 
 func (rBase Database) PersistConnectedRealms(
-	regionName blizzardv2.RegionName,
-	version gameversion.GameVersion,
+	tuple blizzardv2.RegionVersionTuple,
 	in chan PersistConnectedRealmsInJob,
 ) error {
 	return rBase.db.Batch(func(tx *bolt.Tx) error {
-		bkt, err := tx.CreateBucketIfNotExists(connectedRealmsBucketName(regionName, version))
+		bkt, err := tx.CreateBucketIfNotExists(connectedRealmsBucketName(tuple))
 		if err != nil {
 			return err
 		}
