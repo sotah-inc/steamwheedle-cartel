@@ -37,7 +37,7 @@ func (rBase Database) ReceiveRegionTimestamps(
 						return err
 					}
 
-					realmComposite.ModificationDates = realmComposite.ModificationDates.Merge(timestamps)
+					realmComposite.StatusTimestamps = realmComposite.StatusTimestamps.Merge(timestamps)
 					encoded, err := realmComposite.EncodeForStorage()
 					if err != nil {
 						return err
