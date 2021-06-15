@@ -10,22 +10,23 @@ import (
 
 type PruneRealmStatsJob struct {
 	Err   error
-	Tuple blizzardv2.RegionConnectedRealmTuple
+	Tuple blizzardv2.RegionVersionConnectedRealmTuple
 }
 
 func (job PruneRealmStatsJob) ToLogrusFields() logrus.Fields {
 	return logrus.Fields{
 		"error":           job.Err.Error(),
 		"region":          job.Tuple.RegionName,
+		"game-version":    job.Tuple.Version,
 		"connected-realm": job.Tuple.ConnectedRealmId,
 	}
 }
 
 func (tBases TupleDatabases) PruneRealmStats(
-	tuples blizzardv2.RegionConnectedRealmTuples,
+	tuples blizzardv2.RegionVersionConnectedRealmTuples,
 	retentionLimit sotah.UnixTimestamp,
 ) error {
-	in := make(chan blizzardv2.RegionConnectedRealmTuple)
+	in := make(chan blizzardv2.RegionVersionConnectedRealmTuple)
 	out := make(chan PruneRealmStatsJob)
 
 	worker := func() {

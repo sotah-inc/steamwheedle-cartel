@@ -8,59 +8,60 @@ import (
 
 func NewTupleDatabases(
 	dirPath string,
-	tuples []blizzardv2.RegionConnectedRealmTuple,
+	tuples blizzardv2.RegionVersionConnectedRealmTuples,
 ) (TupleDatabases, error) {
-	tBases := TupleDatabases{}
+	tBases := make(TupleDatabases, len(tuples))
 
-	for _, tuple := range tuples {
-		connectedRealmDatabases := func() map[blizzardv2.ConnectedRealmId]TupleDatabase {
-			out, ok := tBases[tuple.RegionName]
-			if !ok {
-				return map[blizzardv2.ConnectedRealmId]TupleDatabase{}
-			}
-
-			return out
-		}()
-
+	for i, tuple := range tuples {
 		var err error
-		connectedRealmDatabases[tuple.ConnectedRealmId], err = newTupleDatabase(dirPath, tuple)
+		tBases[i], err = newTupleDatabase(dirPath, tuple)
 		if err != nil {
 			return TupleDatabases{}, err
 		}
-
-		tBases[tuple.RegionName] = connectedRealmDatabases
 	}
 
 	return tBases, nil
 }
 
-type TupleDatabaseShards map[blizzardv2.ConnectedRealmId]TupleDatabase
-
-type TupleDatabases map[blizzardv2.RegionName]TupleDatabaseShards
+type TupleDatabases []TupleDatabase
 
 func (tBases TupleDatabases) GetTupleDatabase(
-	tuple blizzardv2.RegionConnectedRealmTuple,
+	tuple blizzardv2.RegionVersionConnectedRealmTuple,
 ) (TupleDatabase, error) {
-	shard, err := tBases.GetRegionShard(tuple.RegionName)
-	if err != nil {
-		return TupleDatabase{}, err
+	for _, db := range tBases {
+		if db.tuple.RegionName != tuple.RegionName {
+			continue
+		}
+
+		if db.tuple.Version != tuple.Version {
+			continue
+		}
+
+		if db.tuple.ConnectedRealmId != tuple.ConnectedRealmId {
+			continue
+		}
+
+		return db, nil
 	}
 
-	db, ok := shard[tuple.ConnectedRealmId]
-	if !ok {
-		return TupleDatabase{}, fmt.Errorf("db not found for connected-realm %d", tuple.ConnectedRealmId)
-	}
-
-	return db, nil
+	return TupleDatabase{}, fmt.Errorf(
+		"failed to resolve tuple database with tuple: %s",
+		tuple.String(),
+	)
 }
 
-func (tBases TupleDatabases) GetRegionShard(
-	regionName blizzardv2.RegionName,
-) (TupleDatabaseShards, error) {
-	shards, ok := tBases[regionName]
-	if !ok {
-		return TupleDatabaseShards{}, fmt.Errorf("shard not found for region %s", regionName)
+func (tBases TupleDatabases) GetTupleDatabasesByRegionName(
+	name blizzardv2.RegionName,
+) TupleDatabases {
+	out := TupleDatabases{}
+
+	for _, db := range tBases {
+		if db.tuple.RegionName != name {
+			continue
+		}
+
+		out = append(out, db)
 	}
 
-	return shards, nil
+	return out
 }

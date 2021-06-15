@@ -2,6 +2,7 @@ package blizzardv2
 
 import (
 	"encoding/json"
+	"fmt"
 	"time"
 
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/gameversion"
@@ -45,6 +46,10 @@ func (tuples RegionVersionConnectedRealmTuples) EncodeForDelivery() ([]byte, err
 type RegionVersionConnectedRealmTuple struct {
 	RegionVersionTuple
 	ConnectedRealmId ConnectedRealmId `json:"connected_realm_id"`
+}
+
+func (tuple RegionVersionConnectedRealmTuple) String() string {
+	return fmt.Sprintf("%s-%s-%d", tuple.RegionName, tuple.Version, tuple.ConnectedRealmId)
 }
 
 // region/version/realm tuple

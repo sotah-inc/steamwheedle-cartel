@@ -6,7 +6,7 @@ import (
 
 func newTupleDatabase(
 	dirPath string,
-	tuple blizzardv2.RegionConnectedRealmTuple,
+	tuple blizzardv2.RegionVersionConnectedRealmTuple,
 ) (TupleDatabase, error) {
 	db, err := newDatabase(tupleDatabasePath(dirPath, tuple))
 	if err != nil {
@@ -18,5 +18,5 @@ func newTupleDatabase(
 
 type TupleDatabase struct {
 	Database
-	tuple blizzardv2.RegionConnectedRealmTuple
+	tuple blizzardv2.RegionVersionConnectedRealmTuple
 }

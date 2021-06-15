@@ -21,6 +21,7 @@ func (job PersistRealmStatsOutJob) ToLogrusFields() logrus.Fields {
 	return logrus.Fields{
 		"error":           job.Err.Error(),
 		"region":          job.Tuple.RegionName,
+		"game-version":    job.Tuple.Version,
 		"connected-realm": job.Tuple.ConnectedRealmId,
 	}
 }
@@ -32,7 +33,7 @@ func (tBases TupleDatabases) PersistEncodedRealmStats(
 
 	worker := func() {
 		for job := range in {
-			tBase, err := tBases.GetTupleDatabase(job.Tuple.RegionConnectedRealmTuple)
+			tBase, err := tBases.GetTupleDatabase(job.Tuple.RegionVersionConnectedRealmTuple)
 			if err != nil {
 				out <- PersistRealmStatsOutJob{
 					Err:   err,

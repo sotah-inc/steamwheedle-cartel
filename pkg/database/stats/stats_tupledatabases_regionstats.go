@@ -1,6 +1,8 @@
 package stats
 
 import (
+	"errors"
+
 	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
@@ -10,7 +12,7 @@ import (
 
 type RegionStatsOutJob struct {
 	Err          error
-	Tuple        blizzardv2.RegionConnectedRealmTuple
+	Tuple        blizzardv2.RegionVersionConnectedRealmTuple
 	AuctionStats sotah.AuctionStats
 }
 
@@ -18,6 +20,7 @@ func (job RegionStatsOutJob) ToLogrusFields() logrus.Fields {
 	return logrus.Fields{
 		"error":           job.Err.Error(),
 		"region":          job.Tuple.RegionName,
+		"game-version":    job.Tuple.Version,
 		"connected-realm": job.Tuple.ConnectedRealmId,
 	}
 }
@@ -25,10 +28,10 @@ func (job RegionStatsOutJob) ToLogrusFields() logrus.Fields {
 func (tBases TupleDatabases) RegionStats(
 	regionName blizzardv2.RegionName,
 ) (sotah.AuctionStats, error) {
-	// resolving shard
-	shard, err := tBases.GetRegionShard(regionName)
-	if err != nil {
-		return sotah.AuctionStats{}, err
+	// resolving databases
+	regionTupleDatabases := tBases.GetTupleDatabasesByRegionName(regionName)
+	if len(regionTupleDatabases) == 0 {
+		return sotah.AuctionStats{}, errors.New("no stats databases for region")
 	}
 
 	in := make(chan TupleDatabase)
@@ -68,7 +71,7 @@ func (tBases TupleDatabases) RegionStats(
 
 	// queueing it up
 	go func() {
-		for _, db := range shard {
+		for _, db := range regionTupleDatabases {
 			in <- db
 		}
 
