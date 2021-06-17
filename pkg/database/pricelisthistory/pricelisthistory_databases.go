@@ -2,7 +2,8 @@ package pricelisthistory
 
 import (
 	"errors"
-	"fmt"
+
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/gameversion"
 
 	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
@@ -14,7 +15,7 @@ import (
 
 func NewDatabases(
 	dirPath string,
-	tuples blizzardv2.RegionConnectedRealmTuples,
+	tuples blizzardv2.RegionVersionConnectedRealmTuples,
 ) (*Databases, error) {
 	if dirPath == "" {
 		return nil, errors.New("dir-path cannot be blank")
@@ -23,12 +24,7 @@ func NewDatabases(
 	dirPaths := func() []string {
 		out := make([]string, len(tuples))
 		for i, tuple := range tuples {
-			out[i] = fmt.Sprintf(
-				"%s/pricelist-history/%s/%d",
-				dirPath,
-				tuple.RegionName,
-				tuple.ConnectedRealmId,
-			)
+			out[i] = databaseDirPath(dirPath, tuple)
 		}
 
 		return out
@@ -39,23 +35,21 @@ func NewDatabases(
 
 	phdBases := Databases{
 		databaseDir: dirPath,
-		Databases:   map[blizzardv2.RegionName]map[blizzardv2.ConnectedRealmId]DatabaseShards{},
+		Databases:   RegionGameVersionDatabases{},
 	}
 
 	for _, tuple := range tuples {
 		if _, ok := phdBases.Databases[tuple.RegionName]; !ok {
-			phdBases.Databases[tuple.RegionName] = map[blizzardv2.ConnectedRealmId]DatabaseShards{}
+			phdBases.Databases[tuple.RegionName] = GameVersionRealmDatabases{}
 		}
-		if _, ok := phdBases.Databases[tuple.RegionName][tuple.ConnectedRealmId]; !ok {
-			phdBases.Databases[tuple.RegionName][tuple.ConnectedRealmId] = DatabaseShards{}
+		if _, ok := phdBases.Databases[tuple.RegionName][tuple.Version]; !ok {
+			phdBases.Databases[tuple.RegionName][tuple.Version] = RealmShardDatabases{}
+		}
+		if _, ok := phdBases.Databases[tuple.RegionName][tuple.Version][tuple.ConnectedRealmId]; !ok {
+			phdBases.Databases[tuple.RegionName][tuple.Version][tuple.ConnectedRealmId] = DatabaseShards{}
 		}
 
-		dbPathPairs, err := BaseDatabase.Paths(fmt.Sprintf(
-			"%s/pricelist-history/%s/%d",
-			dirPath,
-			tuple.RegionName,
-			tuple.ConnectedRealmId,
-		))
+		dbPathPairs, err := BaseDatabase.Paths(databaseDirPath(dirPath, tuple))
 		if err != nil {
 			return nil, err
 		}
@@ -66,16 +60,23 @@ func NewDatabases(
 				return nil, err
 			}
 
-			phdBases.Databases[tuple.RegionName][tuple.ConnectedRealmId][dbPathPair.Timestamp] = phdBase
+			// nolint:lll
+			phdBases.Databases[tuple.RegionName][tuple.Version][tuple.ConnectedRealmId][dbPathPair.Timestamp] = phdBase
 		}
 	}
 
 	return &phdBases, nil
 }
 
+type RegionGameVersionDatabases map[blizzardv2.RegionName]GameVersionRealmDatabases
+
+type GameVersionRealmDatabases map[gameversion.GameVersion]RealmShardDatabases
+
+type RealmShardDatabases map[blizzardv2.ConnectedRealmId]DatabaseShards
+
 type Databases struct {
 	databaseDir string
-	Databases   map[blizzardv2.RegionName]map[blizzardv2.ConnectedRealmId]DatabaseShards
+	Databases   RegionGameVersionDatabases
 }
 
 func (phdBases *Databases) Total() int {
@@ -92,7 +93,8 @@ func (phdBases *Databases) Total() int {
 func (phdBases *Databases) GetDatabase(
 	tuple blizzardv2.LoadConnectedRealmTuple,
 ) (Database, error) {
-	phdBase, ok := phdBases.Databases[tuple.RegionName][tuple.ConnectedRealmId][sotah.UnixTimestamp(
+	// nolint:lll
+	phdBase, ok := phdBases.Databases[tuple.RegionName][tuple.Version][tuple.ConnectedRealmId][sotah.UnixTimestamp(
 		tuple.LastModified.Unix(),
 	)]
 	if !ok {
@@ -114,29 +116,30 @@ func (phdBases *Databases) resolveDatabase(
 	normalizedTargetTimestamp := sotah.NormalizeToDay(sotah.UnixTimestamp(tuple.LastModified.Unix()))
 
 	// nolint:lll
-	phdBase, ok := phdBases.Databases[tuple.RegionName][tuple.ConnectedRealmId][normalizedTargetTimestamp]
+	phdBase, ok := phdBases.Databases[tuple.RegionName][tuple.Version][tuple.ConnectedRealmId][normalizedTargetTimestamp]
 	if ok {
 		return phdBase, nil
 	}
 
 	dbPath := databaseFilePath(
 		phdBases.databaseDir,
-		tuple.RegionConnectedRealmTuple,
+		tuple.RegionVersionConnectedRealmTuple,
 		normalizedTargetTimestamp,
 	)
 	phdBase, err := newDatabase(dbPath, normalizedTargetTimestamp)
 	if err != nil {
 		return Database{}, err
 	}
-	phdBases.Databases[tuple.RegionName][tuple.ConnectedRealmId][normalizedTargetTimestamp] = phdBase
+	// nolint:lll
+	phdBases.Databases[tuple.RegionName][tuple.Version][tuple.ConnectedRealmId][normalizedTargetTimestamp] = phdBase
 
 	return phdBase, nil
 }
 
 func (phdBases *Databases) GetShards(
-	tuple blizzardv2.RegionConnectedRealmTuple,
+	tuple blizzardv2.RegionVersionConnectedRealmTuple,
 ) (DatabaseShards, error) {
-	shards, ok := phdBases.Databases[tuple.RegionName][tuple.ConnectedRealmId]
+	shards, ok := phdBases.Databases[tuple.RegionName][tuple.Version][tuple.ConnectedRealmId]
 	if !ok {
 		return DatabaseShards{}, errors.New("failed to resolve shards with tuple")
 	}

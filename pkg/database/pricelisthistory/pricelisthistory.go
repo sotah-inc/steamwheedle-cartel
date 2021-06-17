@@ -28,14 +28,21 @@ func recipeKeyName() []byte {
 // db
 func databaseFilePath(
 	dirPath string,
-	tuple blizzardv2.RegionConnectedRealmTuple,
+	tuple blizzardv2.RegionVersionConnectedRealmTuple,
 	targetTimestamp sotah.UnixTimestamp,
 ) string {
+	return fmt.Sprintf("%s/%d.db", databaseDirPath(dirPath, tuple), targetTimestamp)
+}
+
+func databaseDirPath(
+	dirPath string,
+	tuple blizzardv2.RegionVersionConnectedRealmTuple,
+) string {
 	return fmt.Sprintf(
-		"%s/pricelist-history/%s/%d/%d.db",
+		"%s/pricelist-history/%s/%s/%d",
 		dirPath,
 		tuple.RegionName,
+		tuple.Version,
 		tuple.ConnectedRealmId,
-		targetTimestamp,
 	)
 }
