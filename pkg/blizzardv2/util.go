@@ -70,6 +70,17 @@ type DownloadConnectedRealmTuple struct {
 
 type LoadConnectedRealmTuples []LoadConnectedRealmTuple
 
+func (
+	tuples LoadConnectedRealmTuples,
+) RegionVersionConnectedRealmTuples() RegionVersionConnectedRealmTuples {
+	out := make(RegionVersionConnectedRealmTuples, len(tuples))
+	for i, tuple := range tuples {
+		out[i] = tuple.RegionVersionConnectedRealmTuple
+	}
+
+	return out
+}
+
 // load-connected-realm tuple
 
 type LoadConnectedRealmTuple struct {

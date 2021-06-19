@@ -46,8 +46,7 @@ func NewIntakeRequest(data []byte) (IntakeRequest, error) {
 }
 
 type IntakeRequest struct {
-	Version gameversion.GameVersion               `json:"version"`
-	Tuples  blizzardv2.RegionConnectedRealmTuples `json:"tuples"`
+	Tuples blizzardv2.RegionVersionConnectedRealmTuples `json:"tuples"`
 }
 
 func (req IntakeRequest) EncodeForDelivery() ([]byte, error) {

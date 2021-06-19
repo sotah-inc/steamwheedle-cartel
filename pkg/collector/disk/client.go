@@ -2,7 +2,6 @@ package disk
 
 import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/gameversion"
 	BaseLake "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/lake/base"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
@@ -12,13 +11,8 @@ type ClientOptions struct {
 	LakeClient      BaseLake.Client
 	MessengerClient messenger.Messenger
 
-	ResolveAuctions func(
-		version gameversion.GameVersion,
-	) (chan blizzardv2.GetAuctionsJob, error)
-	ReceiveRegionTimestamps func(
-		version gameversion.GameVersion,
-		timestamps sotah.RegionTimestamps,
-	) error
+	ResolveAuctions         func() (chan blizzardv2.GetAuctionsJob, error)
+	ReceiveRegionTimestamps func(timestamps sotah.RegionVersionTimestamps) error
 }
 
 func NewClient(opts ClientOptions) Client {
@@ -34,11 +28,6 @@ type Client struct {
 	lakeClient      BaseLake.Client
 	messengerClient messenger.Messenger
 
-	resolveAuctions func(
-		version gameversion.GameVersion,
-	) (chan blizzardv2.GetAuctionsJob, error)
-	receiveRegionTimestamps func(
-		version gameversion.GameVersion,
-		timestamps sotah.RegionTimestamps,
-	) error
+	resolveAuctions         func() (chan blizzardv2.GetAuctionsJob, error)
+	receiveRegionTimestamps func(timestamps sotah.RegionVersionTimestamps) error
 }

@@ -3,9 +3,10 @@ package disk
 import (
 	"time"
 
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah/statuskinds"
+
 	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/gameversion"
 	BaseLake "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/lake/base"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
@@ -17,18 +18,17 @@ type collectAuctionsResult struct {
 }
 
 type collectAuctionsResults struct {
-	itemIds          blizzardv2.ItemIds
-	regionTimestamps sotah.RegionTimestamps
-	version          gameversion.GameVersion
-	tuples           blizzardv2.LoadConnectedRealmTuples
+	itemIds                 blizzardv2.ItemIds
+	regionVersionTimestamps sotah.RegionVersionTimestamps
+	tuples                  blizzardv2.LoadConnectedRealmTuples
 }
 
-func (c Client) collectAuctions(version gameversion.GameVersion) (collectAuctionsResults, error) {
+func (c Client) collectAuctions() (collectAuctionsResults, error) {
 	startTime := time.Now()
 	logging.Info("calling DiskCollector.collectAuctions()")
 
 	// spinning up workers
-	aucsOutJobs, err := c.resolveAuctions(version)
+	aucsOutJobs, err := c.resolveAuctions()
 	if err != nil {
 		logging.WithField(
 			"error",
@@ -61,7 +61,7 @@ func (c Client) collectAuctions(version gameversion.GameVersion) (collectAuction
 			}
 
 			storeAucsInJobs <- c.lakeClient.NewWriteAuctionsWithTuplesInJob(
-				aucsOutJob.Tuple.RegionConnectedRealmTuple,
+				aucsOutJob.Tuple.RegionVersionConnectedRealmTuple,
 				sotah.NewMiniAuctionList(aucsOutJob.AuctionsResponse.Auctions),
 			)
 			resultsInJob <- collectAuctionsResult{
@@ -77,15 +77,15 @@ func (c Client) collectAuctions(version gameversion.GameVersion) (collectAuction
 	// spinning up a worker for receiving results from auctions-out worker
 	go func() {
 		results := collectAuctionsResults{
-			itemIds:          blizzardv2.ItemIds{},
-			regionTimestamps: sotah.RegionTimestamps{},
-			version:          version,
-			tuples:           blizzardv2.LoadConnectedRealmTuples{},
+			itemIds:                 blizzardv2.ItemIds{},
+			regionVersionTimestamps: sotah.RegionVersionTimestamps{},
+			tuples:                  blizzardv2.LoadConnectedRealmTuples{},
 		}
 		for job := range resultsInJob {
 			// loading last-modified in
-			results.regionTimestamps = results.regionTimestamps.SetDownloaded(
-				job.tuple.RegionConnectedRealmTuple,
+			results.regionVersionTimestamps = results.regionVersionTimestamps.SetTimestamp(
+				job.tuple.RegionVersionConnectedRealmTuple,
+				statuskinds.Downloaded,
 				job.tuple.LastModified,
 			)
 
@@ -116,8 +116,8 @@ func (c Client) collectAuctions(version gameversion.GameVersion) (collectAuction
 	results := <-resultsOutJob
 
 	// optionally updating region state
-	if !results.regionTimestamps.IsZero() {
-		if err := c.receiveRegionTimestamps(version, results.regionTimestamps); err != nil {
+	if !results.regionVersionTimestamps.IsZero() {
+		if err := c.receiveRegionTimestamps(results.regionVersionTimestamps); err != nil {
 			logging.WithField("error", err.Error()).Error("failed to receive timestamps")
 
 			return collectAuctionsResults{}, err
