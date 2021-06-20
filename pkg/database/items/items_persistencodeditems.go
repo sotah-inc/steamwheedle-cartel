@@ -3,6 +3,7 @@ package items
 import (
 	"github.com/boltdb/bolt"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/gameversion"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 )
 
@@ -13,6 +14,7 @@ type PersistEncodedItemsInJob struct {
 }
 
 func (idBase Database) PersistEncodedItems(
+	version gameversion.GameVersion,
 	in chan PersistEncodedItemsInJob,
 ) (int, error) {
 	logging.Info("persisting encoded items")
@@ -20,12 +22,12 @@ func (idBase Database) PersistEncodedItems(
 	totalPersisted := 0
 
 	err := idBase.db.Batch(func(tx *bolt.Tx) error {
-		itemsBucket, err := tx.CreateBucketIfNotExists(baseBucketName())
+		itemsBucket, err := tx.CreateBucketIfNotExists(baseBucketName(version))
 		if err != nil {
 			return err
 		}
 
-		itemNamesBucket, err := tx.CreateBucketIfNotExists(namesBucketName())
+		itemNamesBucket, err := tx.CreateBucketIfNotExists(namesBucketName(version))
 		if err != nil {
 			return err
 		}

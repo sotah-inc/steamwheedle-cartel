@@ -2,6 +2,7 @@ package items
 
 import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/gameversion"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 )
 
@@ -12,10 +13,11 @@ type FindMatchingItemsFromRecipesJob struct {
 }
 
 func (idBase Database) FindMatchingItemsFromRecipes(
+	version gameversion.GameVersion,
 	rsMap blizzardv2.RecipeSubjectMap,
 ) (blizzardv2.ItemRecipesMap, error) {
 	// resolving all item-ids
-	ids, err := idBase.GetItemIds()
+	ids, err := idBase.GetItemIds(version)
 	if err != nil {
 		return blizzardv2.ItemRecipesMap{}, err
 	}
@@ -27,7 +29,7 @@ func (idBase Database) FindMatchingItemsFromRecipes(
 	// spinning up workers
 	worker := func() {
 		for id := range in {
-			recipeIds, err := idBase.FindMatchingItemFromRecipes(id, rsMap)
+			recipeIds, err := idBase.FindMatchingItemFromRecipes(version, id, rsMap)
 			if err != nil {
 				out <- FindMatchingItemsFromRecipesJob{
 					Err:       err,

@@ -6,6 +6,7 @@ import (
 
 	"github.com/boltdb/bolt"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/gameversion"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 )
@@ -49,10 +50,11 @@ func (p SyncPayload) EncodeForDelivery() (string, error) {
 }
 
 func (idBase Database) FilterInItemsToSync(
+	version gameversion.GameVersion,
 	providedIds blizzardv2.ItemIds,
 ) (blizzardv2.ItemIds, error) {
 	// gathering blacklisted ids
-	blacklistedIds, err := idBase.GetBlacklistedIds()
+	blacklistedIds, err := idBase.GetBlacklistedIds(version)
 	if err != nil {
 		return blizzardv2.ItemIds{}, err
 	}
@@ -67,14 +69,14 @@ func (idBase Database) FilterInItemsToSync(
 
 	// peeking into the items database
 	err = idBase.db.View(func(tx *bolt.Tx) error {
-		itemsBucket := tx.Bucket(baseBucketName())
+		itemsBucket := tx.Bucket(baseBucketName(version))
 		if itemsBucket == nil {
 			syncWhitelist = syncWhitelist.ActivateAll()
 
 			return nil
 		}
 
-		itemNamesBucket := tx.Bucket(namesBucketName())
+		itemNamesBucket := tx.Bucket(namesBucketName(version))
 		if itemNamesBucket == nil {
 			syncWhitelist = syncWhitelist.ActivateAll()
 

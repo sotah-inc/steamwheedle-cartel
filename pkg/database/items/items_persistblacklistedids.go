@@ -4,16 +4,18 @@ import (
 	"github.com/boltdb/bolt"
 	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/gameversion"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 )
 
 func (idBase Database) PersistBlacklistedIds(
+	version gameversion.GameVersion,
 	ids []blizzardv2.ItemId,
 ) error {
 	logging.WithField("erroneous-ids", ids).Info("persisting blacklisted item-ids")
 
 	return idBase.db.Batch(func(tx *bolt.Tx) error {
-		bkt, err := tx.CreateBucketIfNotExists(blacklistBucketName())
+		bkt, err := tx.CreateBucketIfNotExists(blacklistBucketName(version))
 		if err != nil {
 			return err
 		}

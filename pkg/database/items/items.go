@@ -5,22 +5,23 @@ import (
 	"fmt"
 	"strconv"
 
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/itemclass"
-
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/gameversion"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/itemclass"
 )
 
 // bucketing
-func baseBucketName() []byte {
-	return []byte("items")
+
+func baseBucketName(version gameversion.GameVersion) []byte {
+	return []byte(fmt.Sprintf("items-%s", version))
 }
 
-func namesBucketName() []byte {
-	return []byte("item-names")
+func namesBucketName(version gameversion.GameVersion) []byte {
+	return []byte(fmt.Sprintf("item-names-%s", version))
 }
 
-func blacklistBucketName() []byte {
-	return []byte("item-blacklist")
+func blacklistBucketName(version gameversion.GameVersion) []byte {
+	return []byte(fmt.Sprintf("item-blacklist-%s", version))
 }
 
 func itemClassesBucket() []byte {
@@ -36,16 +37,9 @@ func itemVendorPricesBucket() []byte {
 }
 
 // keying
+
 func baseKeyName(id blizzardv2.ItemId) []byte {
 	return []byte(fmt.Sprintf("item-%d", id))
-}
-
-func nameKeyName(id blizzardv2.ItemId) []byte {
-	return []byte(fmt.Sprintf("item-name-%d", id))
-}
-
-func blacklistKeyName(id blizzardv2.ItemId) []byte {
-	return []byte(fmt.Sprintf("item-blacklist-%d", id))
 }
 
 func itemIdFromKeyName(key []byte) (blizzardv2.ItemId, error) {
@@ -57,6 +51,10 @@ func itemIdFromKeyName(key []byte) (blizzardv2.ItemId, error) {
 	return blizzardv2.ItemId(unparsedItemId), nil
 }
 
+func nameKeyName(id blizzardv2.ItemId) []byte {
+	return []byte(fmt.Sprintf("item-name-%d", id))
+}
+
 func itemIdFromNameKeyName(key []byte) (blizzardv2.ItemId, error) {
 	unparsedItemId, err := strconv.Atoi(string(key)[len("item-name-"):])
 	if err != nil {
@@ -64,6 +62,10 @@ func itemIdFromNameKeyName(key []byte) (blizzardv2.ItemId, error) {
 	}
 
 	return blizzardv2.ItemId(unparsedItemId), nil
+}
+
+func blacklistKeyName(id blizzardv2.ItemId) []byte {
+	return []byte(fmt.Sprintf("item-blacklist-%d", id))
 }
 
 func itemIdFromBlacklistKeyName(key []byte) (blizzardv2.ItemId, error) {
@@ -99,6 +101,7 @@ func itemVendorPriceFromValue(v []byte) blizzardv2.PriceValue {
 }
 
 // db
+
 func DatabasePath(dbDir string) (string, error) {
 	return fmt.Sprintf("%s/items.db", dbDir), nil
 }

@@ -3,13 +3,16 @@ package items
 import (
 	"github.com/boltdb/bolt"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/gameversion"
 )
 
-func (idBase Database) GetBlacklistedIds() (blizzardv2.ItemIds, error) {
+func (idBase Database) GetBlacklistedIds(
+	version gameversion.GameVersion,
+) (blizzardv2.ItemIds, error) {
 	var out blizzardv2.ItemIds
 
 	err := idBase.db.View(func(tx *bolt.Tx) error {
-		bkt := tx.Bucket(blacklistBucketName())
+		bkt := tx.Bucket(blacklistBucketName(version))
 		if bkt == nil {
 			return nil
 		}

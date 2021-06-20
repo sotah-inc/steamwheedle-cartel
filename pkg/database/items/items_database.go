@@ -1,15 +1,14 @@
 package items
 
 import (
-	"github.com/sirupsen/logrus"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/locale"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
-
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
-
 	"github.com/boltdb/bolt"
+	"github.com/sirupsen/logrus"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/gameversion"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/locale"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 )
 
 func NewDatabase(dbDir string) (Database, error) {
@@ -33,11 +32,12 @@ type Database struct {
 }
 
 // gathering items
-func (idBase Database) GetItemIds() (blizzardv2.ItemIds, error) {
+
+func (idBase Database) GetItemIds(version gameversion.GameVersion) (blizzardv2.ItemIds, error) {
 	out := blizzardv2.ItemIds{}
 
 	err := idBase.db.View(func(tx *bolt.Tx) error {
-		bkt := tx.Bucket(baseBucketName())
+		bkt := tx.Bucket(baseBucketName(version))
 		if bkt == nil {
 			return nil
 		}
@@ -65,11 +65,13 @@ func (idBase Database) GetItemIds() (blizzardv2.ItemIds, error) {
 	return out, nil
 }
 
-func (idBase Database) GetIdNormalizedNameMap() (sotah.ItemIdNameMap, error) {
+func (idBase Database) GetIdNormalizedNameMap(
+	version gameversion.GameVersion,
+) (sotah.ItemIdNameMap, error) {
 	out := sotah.ItemIdNameMap{}
 
 	err := idBase.db.View(func(tx *bolt.Tx) error {
-		bkt := tx.Bucket(namesBucketName())
+		bkt := tx.Bucket(namesBucketName(version))
 		if bkt == nil {
 			return nil
 		}
@@ -114,13 +116,16 @@ func (job FindItemsJob) ToLogrusFields() logrus.Fields {
 	}
 }
 
-func (idBase Database) FindItems(ids blizzardv2.ItemIds) chan FindItemsJob {
+func (idBase Database) FindItems(
+	version gameversion.GameVersion,
+	ids blizzardv2.ItemIds,
+) chan FindItemsJob {
 	// starting up workers for gathering items
 	in := make(chan blizzardv2.ItemId)
 	out := make(chan FindItemsJob)
 	worker := func() {
 		for id := range in {
-			item, exists, err := idBase.GetItem(id)
+			item, exists, err := idBase.GetItem(version, id)
 			if err != nil {
 				out <- FindItemsJob{
 					Err:    err,
@@ -157,12 +162,15 @@ func (idBase Database) FindItems(ids blizzardv2.ItemIds) chan FindItemsJob {
 	return out
 }
 
-func (idBase Database) GetItem(id blizzardv2.ItemId) (sotah.Item, bool, error) {
+func (idBase Database) GetItem(
+	version gameversion.GameVersion,
+	id blizzardv2.ItemId,
+) (sotah.Item, bool, error) {
 	out := sotah.Item{}
 	exists := false
 
 	err := idBase.db.View(func(tx *bolt.Tx) error {
-		bkt := tx.Bucket(baseBucketName())
+		bkt := tx.Bucket(baseBucketName(version))
 		if bkt == nil {
 			return nil
 		}
@@ -190,11 +198,11 @@ func (idBase Database) GetItem(id blizzardv2.ItemId) (sotah.Item, bool, error) {
 	return out, exists, nil
 }
 
-func (idBase Database) ResetItems() error {
+func (idBase Database) ResetItems(version gameversion.GameVersion) error {
 	bucketNames := [][]byte{
-		baseBucketName(),
-		namesBucketName(),
-		blacklistBucketName(),
+		baseBucketName(version),
+		namesBucketName(version),
+		blacklistBucketName(version),
 		itemClassItemsBucket(),
 	}
 

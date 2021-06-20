@@ -5,11 +5,10 @@ import (
 	"fmt"
 	"sort"
 
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/locale"
-
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
-
 	"github.com/lithammer/fuzzysearch/fuzzy"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/gameversion"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/locale"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database/codes"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 )
@@ -24,8 +23,9 @@ func NewQueryRequest(data []byte) (QueryRequest, error) {
 }
 
 type QueryRequest struct {
-	Query  string        `json:"query"`
-	Locale locale.Locale `json:"locale"`
+	Query       string                  `json:"query"`
+	GameVersion gameversion.GameVersion `json:"game_version"`
+	Locale      locale.Locale           `json:"locale"`
 }
 
 type QueryItem struct {
@@ -107,7 +107,7 @@ func (r QueryResponse) EncodeForDelivery() ([]byte, error) {
 
 func (idBase Database) QueryItems(req QueryRequest) (QueryResponse, codes.Code, error) {
 	// gathering items
-	idNormalizedNameMap, err := idBase.GetIdNormalizedNameMap()
+	idNormalizedNameMap, err := idBase.GetIdNormalizedNameMap(req.GameVersion)
 	if err != nil {
 		return QueryResponse{}, codes.GenericError, err
 	}
