@@ -32,8 +32,8 @@ func itemClassItemsBucket() []byte {
 	return []byte("item-class-items")
 }
 
-func itemVendorPricesBucket() []byte {
-	return []byte("item-vendor-prices")
+func itemVendorPricesBucket(version gameversion.GameVersion) []byte {
+	return []byte(fmt.Sprintf("item-vendor-prices-%s", version))
 }
 
 // keying

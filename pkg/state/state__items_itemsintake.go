@@ -178,7 +178,7 @@ func (sta ItemsState) itemsIntake(req ItemsIntakeRequest) (ItemsIntakeResponse, 
 
 	itemVendorPrices := <-itemVendorPricesOut
 	if len(itemVendorPrices) > 0 {
-		if err := sta.ItemsDatabase.PersistVendorPrices(itemVendorPrices); err != nil {
+		if err := sta.ItemsDatabase.PersistVendorPrices(req.GameVersion, itemVendorPrices); err != nil {
 			logging.WithField("error", err.Error()).Error("failed to persist item-vendor-prices")
 
 			return ItemsIntakeResponse{}, err

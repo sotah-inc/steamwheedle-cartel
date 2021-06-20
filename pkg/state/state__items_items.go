@@ -4,11 +4,11 @@ import (
 	"encoding/base64"
 	"encoding/json"
 
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
-
 	nats "github.com/nats-io/nats.go"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/gameversion"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/locale"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger/codes"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
@@ -27,8 +27,9 @@ func NewItemsRequest(payload []byte) (ItemsRequest, error) {
 }
 
 type ItemsRequest struct {
-	Locale  locale.Locale      `json:"locale"`
-	ItemIds blizzardv2.ItemIds `json:"itemIds"`
+	Locale  locale.Locale           `json:"locale"`
+	Version gameversion.GameVersion `json:"game_version"`
+	ItemIds blizzardv2.ItemIds      `json:"itemIds"`
 }
 
 type ItemsResponse struct {
@@ -73,7 +74,7 @@ func (sta ItemsState) ListenForItems(stop ListenStopChan) error {
 
 		logging.WithField("request", iRequest).Info("received items request")
 
-		itemsOut := sta.ItemsDatabase.FindItems(iRequest.ItemIds)
+		itemsOut := sta.ItemsDatabase.FindItems(iRequest.Version, iRequest.ItemIds)
 		var foundItems []sotah.Item
 		for itemsOutJob := range itemsOut {
 			if itemsOutJob.Err != nil {

@@ -1,15 +1,31 @@
 package state
 
 import (
-	"strconv"
+	"encoding/json"
 
 	nats "github.com/nats-io/nats.go"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/gameversion"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/itemclass"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
 	mCodes "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger/codes"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state/subjects"
 )
+
+func NewItemSubjectsByItemClassRequest(data []byte) (ItemSubjectsByItemClassRequest, error) {
+	out := ItemSubjectsByItemClassRequest{}
+
+	if err := json.Unmarshal(data, &out); err != nil {
+		return ItemSubjectsByItemClassRequest{}, err
+	}
+
+	return out, nil
+}
+
+type ItemSubjectsByItemClassRequest struct {
+	ItemClassId itemclass.Id            `json:"item_class_id"`
+	Version     gameversion.GameVersion `json:"game_version"`
+}
 
 func (sta ItemsState) ListenForItemSubjectsByItemClass(stop ListenStopChan) error {
 	return sta.Messenger.Subscribe(
@@ -20,7 +36,7 @@ func (sta ItemsState) ListenForItemSubjectsByItemClass(stop ListenStopChan) erro
 
 			logging.Info("handling request for items item-subjects-by-item-class")
 
-			itemClassId, err := strconv.Atoi(string(natsMsg.Data))
+			req, err := NewItemSubjectsByItemClassRequest(natsMsg.Data)
 			if err != nil {
 				m.Err = err.Error()
 				m.Code = mCodes.GenericError
@@ -29,7 +45,7 @@ func (sta ItemsState) ListenForItemSubjectsByItemClass(stop ListenStopChan) erro
 				return
 			}
 
-			itemIds, err := sta.ItemsDatabase.GetItemClassItemIds(itemclass.Id(itemClassId))
+			itemIds, err := sta.ItemsDatabase.GetItemClassItemIds(req.ItemClassId)
 			if err != nil {
 				m.Err = err.Error()
 				m.Code = mCodes.GenericError
@@ -38,7 +54,7 @@ func (sta ItemsState) ListenForItemSubjectsByItemClass(stop ListenStopChan) erro
 				return
 			}
 
-			itemSubjects, err := sta.ItemsDatabase.GetItemSubjects(itemIds)
+			itemSubjects, err := sta.ItemsDatabase.GetItemSubjects(req.Version, itemIds)
 			if err != nil {
 				m.Err = err.Error()
 				m.Code = mCodes.GenericError

@@ -3,6 +3,8 @@ package state
 import (
 	"encoding/json"
 
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/gameversion"
+
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 
 	nats "github.com/nats-io/nats.go"
@@ -22,7 +24,8 @@ func NewItemsVendorPricesRequest(data []byte) (ItemsVendorPricesRequest, error) 
 }
 
 type ItemsVendorPricesRequest struct {
-	ItemIds blizzardv2.ItemIds `json:"item_ids"`
+	Version gameversion.GameVersion `json:"game_version"`
+	ItemIds blizzardv2.ItemIds      `json:"item_ids"`
 }
 
 type ItemsVendorPricesResponse struct {
@@ -56,7 +59,7 @@ func (sta ItemsState) ListenForItemsVendorPrices(stop ListenStopChan) error {
 				return
 			}
 
-			ivMap, err := sta.ItemsDatabase.VendorPrices(req.ItemIds)
+			ivMap, err := sta.ItemsDatabase.VendorPrices(req.Version, req.ItemIds)
 			if err != nil {
 				m.Err = err.Error()
 				m.Code = mCodes.GenericError
