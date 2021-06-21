@@ -3,6 +3,8 @@ package state
 import (
 	"time"
 
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah/statuskinds"
+
 	"github.com/nats-io/nats.go"
 	"github.com/sirupsen/logrus"
 	LiveAuctionsDatabase "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database/liveauctions" // nolint:lll
@@ -27,8 +29,7 @@ func (sta LiveAuctionsState) ListenForLiveAuctionsIntake(stop ListenStopChan) er
 		}
 
 		logging.WithFields(logrus.Fields{
-			"version": req.Version,
-			"tuples":  len(req.Tuples),
+			"tuples": len(req.Tuples),
 		}).Info("received")
 		if err := sta.LiveAuctionsIntake(req); err != nil {
 			m.Err = err.Error()
@@ -75,7 +76,7 @@ func (sta LiveAuctionsState) LiveAuctionsIntake(req IntakeRequest) error {
 
 	// waiting for it to drain out
 	totalLoaded := 0
-	regionTimestamps := sotah.RegionTimestamps{}
+	regionVersionTimestamps := sotah.RegionVersionTimestamps{}
 	for job := range loadEncodedDataOut {
 		if job.Err != nil {
 			logging.WithFields(job.ToLogrusFields()).Error("failed to load encoded auctions in")
@@ -88,14 +89,18 @@ func (sta LiveAuctionsState) LiveAuctionsIntake(req IntakeRequest) error {
 			"connected-realm": job.Tuple.ConnectedRealmId,
 		}).Info("loaded auctions in")
 
-		regionTimestamps = regionTimestamps.SetLiveAuctionsReceived(job.Tuple, job.ReceivedAt)
+		regionVersionTimestamps = regionVersionTimestamps.SetTimestamp(
+			job.Tuple,
+			statuskinds.LiveAuctionsReceived,
+			job.ReceivedAt,
+		)
 		totalLoaded += 1
 	}
 
 	// optionally updating region state
-	if !regionTimestamps.IsZero() {
-		if err := sta.ReceiveRegionTimestamps(req.Version, regionTimestamps); err != nil {
-			logging.WithField("error", err.Error()).Error("failed to receive region-timestamps")
+	if !regionVersionTimestamps.IsZero() {
+		if err := sta.ReceiveRegionTimestamps(regionVersionTimestamps); err != nil {
+			logging.WithField("error", err.Error()).Error("failed to receive region-version-timestamps")
 
 			return err
 		}

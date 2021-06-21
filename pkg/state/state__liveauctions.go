@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/gameversion"
 	LiveAuctionsDatabase "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database/liveauctions" // nolint:lll
 	BaseLake "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/lake/base"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
@@ -19,11 +18,8 @@ type NewLiveAuctionsStateOptions struct {
 	LakeClient BaseLake.Client
 
 	LiveAuctionsDatabasesDir string
-	Tuples                   blizzardv2.RegionConnectedRealmTuples
-	ReceiveRegionTimestamps  func(
-		version gameversion.GameVersion,
-		timestamps sotah.RegionTimestamps,
-	) error
+	Tuples                   blizzardv2.RegionVersionConnectedRealmTuples
+	ReceiveRegionTimestamps  func(timestamps sotah.RegionVersionTimestamps) error
 }
 
 func NewLiveAuctionsState(opts NewLiveAuctionsStateOptions) (LiveAuctionsState, error) {
@@ -34,7 +30,12 @@ func NewLiveAuctionsState(opts NewLiveAuctionsStateOptions) (LiveAuctionsState, 
 	for _, tuple := range opts.Tuples {
 		dirList = append(
 			dirList,
-			fmt.Sprintf("%s/live-auctions/%s", opts.LiveAuctionsDatabasesDir, tuple.RegionName),
+			fmt.Sprintf(
+				"%s/live-auctions/%s/%s",
+				opts.LiveAuctionsDatabasesDir,
+				tuple.RegionName,
+				tuple.Version,
+			),
 		)
 	}
 
@@ -66,10 +67,7 @@ type LiveAuctionsState struct {
 
 	Messenger               messenger.Messenger
 	LakeClient              BaseLake.Client
-	ReceiveRegionTimestamps func(
-		version gameversion.GameVersion,
-		timestamps sotah.RegionTimestamps,
-	) error
+	ReceiveRegionTimestamps func(timestamps sotah.RegionVersionTimestamps) error
 }
 
 func (sta LiveAuctionsState) GetListeners() SubjectListeners {
