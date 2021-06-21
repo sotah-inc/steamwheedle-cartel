@@ -8,6 +8,7 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah/statuskinds"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state/subjects"
 )
 
@@ -41,7 +42,10 @@ func NewRegionState(opts NewRegionStateOptions) (RegionsState, error) {
 	for _, region := range opts.Regions {
 		for _, version := range opts.GameVersionList {
 			resolvedWhitelist := opts.RealmSlugWhitelist.Get(region.Name, version)
-			connectedRealmIds, err := regionsDatabase.GetConnectedRealmIds(version, region.Name)
+			connectedRealmIds, err := regionsDatabase.GetConnectedRealmIds(blizzardv2.RegionVersionTuple{
+				RegionTuple: blizzardv2.RegionTuple{RegionName: region.Name},
+				Version:     version,
+			})
 			if err != nil {
 				return RegionsState{}, err
 			}
@@ -70,12 +74,12 @@ func NewRegionState(opts NewRegionStateOptions) (RegionsState, error) {
 				for connectedRealmsOutJob := range connectedRealmsOut {
 					connectedRealmComposite := sotah.RealmComposite{
 						ConnectedRealmResponse: connectedRealmsOutJob.ConnectedRealmResponse,
-						ModificationDates: sotah.ConnectedRealmTimestamps{
-							Downloaded:           0,
-							LiveAuctionsReceived: 0,
-							ItemPricesReceived:   0,
-							RecipePricesReceived: 0,
-							StatsReceived:        0,
+						StatusTimestamps: sotah.StatusTimestamps{
+							statuskinds.Downloaded:           0,
+							statuskinds.LiveAuctionsReceived: 0,
+							statuskinds.ItemPricesReceived:   0,
+							statuskinds.RecipePricesReceived: 0,
+							statuskinds.StatsReceived:        0,
 						},
 					}
 
@@ -99,8 +103,10 @@ func NewRegionState(opts NewRegionStateOptions) (RegionsState, error) {
 			}()
 
 			if err := regionsDatabase.PersistConnectedRealms(
-				version,
-				region.Name,
+				blizzardv2.RegionVersionTuple{
+					RegionTuple: blizzardv2.RegionTuple{RegionName: region.Name},
+					Version:     version,
+				},
 				persistConnectedRealmsIn,
 			); err != nil {
 				return RegionsState{}, err
@@ -125,10 +131,9 @@ type RegionsState struct {
 }
 
 func (sta RegionsState) ReceiveTimestamps(
-	version gameversion.GameVersion,
-	regionTimestamps sotah.RegionTimestamps,
+	regionTimestamps sotah.RegionVersionTimestamps,
 ) error {
-	return sta.RegionsDatabase.ReceiveRegionTimestamps(version, regionTimestamps)
+	return sta.RegionsDatabase.ReceiveRegionTimestamps(regionTimestamps)
 }
 
 func (sta RegionsState) ResolveDownloadTuples(
@@ -139,7 +144,7 @@ func (sta RegionsState) ResolveDownloadTuples(
 
 func (sta RegionsState) ResolveTuples(
 	version gameversion.GameVersion,
-) (blizzardv2.RegionConnectedRealmTuples, error) {
+) (blizzardv2.RegionVersionConnectedRealmTuples, error) {
 	return sta.RegionsDatabase.GetTuples(version)
 }
 

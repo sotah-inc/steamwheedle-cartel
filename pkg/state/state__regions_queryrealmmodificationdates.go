@@ -14,7 +14,7 @@ import (
 )
 
 type QueryRealmModificationDatesResponse struct {
-	sotah.ConnectedRealmTimestamps
+	sotah.StatusTimestamps
 }
 
 func (r QueryRealmModificationDatesResponse) EncodeForDelivery() ([]byte, error) {
@@ -28,7 +28,7 @@ func (sta RegionsState) ListenForQueryRealmModificationDates(stop ListenStopChan
 		func(natsMsg nats.Msg) {
 			m := messenger.NewMessage()
 
-			req, err := blizzardv2.NewRegionVersionConnectedRealmTuple(natsMsg.Data)
+			tuple, err := blizzardv2.NewRegionVersionConnectedRealmTuple(natsMsg.Data)
 			if err != nil {
 				m.Err = err.Error()
 				m.Code = mCodes.GenericError
@@ -37,7 +37,7 @@ func (sta RegionsState) ListenForQueryRealmModificationDates(stop ListenStopChan
 				return
 			}
 
-			if !sta.GameVersionList.Includes(req.Version) {
+			if !sta.GameVersionList.Includes(tuple.Version) {
 				m.Err = "invalid game-version"
 				m.Code = mCodes.UserError
 				sta.Messenger.ReplyTo(natsMsg, m)
@@ -45,15 +45,12 @@ func (sta RegionsState) ListenForQueryRealmModificationDates(stop ListenStopChan
 				return
 			}
 
-			connectedRealmTimestamps, err := sta.RegionsDatabase.GetConnectedRealmsTimestamps(
-				req.Version,
-				req.RegionName,
-				req.ConnectedRealmId,
-			)
+			connectedRealmTimestamps, err := sta.RegionsDatabase.GetStatusTimestamps(tuple)
 			if err != nil {
 				logging.WithFields(logrus.Fields{
-					"region":          req.RegionName,
-					"connected-realm": req.ConnectedRealmId,
+					"region":          tuple.RegionName,
+					"game-version":    tuple.Version,
+					"connected-realm": tuple.ConnectedRealmId,
 				}).Error("failed to resolve connected-realm timestamps")
 
 				m.Err = err.Error()

@@ -8,7 +8,9 @@ import (
 	"github.com/boltdb/bolt"
 )
 
-func (rBase Database) ConnectedRealmExists(tuple blizzardv2.RegionVersionConnectedRealmTuple) (bool, error) {
+func (rBase Database) ConnectedRealmExists(
+	tuple blizzardv2.RegionVersionConnectedRealmTuple,
+) (bool, error) {
 	out := false
 
 	err := rBase.db.View(func(tx *bolt.Tx) error {

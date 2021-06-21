@@ -28,6 +28,16 @@ type RegionTuple struct {
 
 // region/version tuple
 
+func NewRegionVersionTuple(data []byte) (RegionVersionTuple, error) {
+	out := RegionVersionTuple{}
+
+	if err := json.Unmarshal(data, &out); err != nil {
+		return RegionVersionTuple{}, err
+	}
+
+	return out, nil
+}
+
 type RegionVersionTuple struct {
 	RegionTuple
 	Version gameversion.GameVersion `json:"game_version"`
@@ -42,6 +52,16 @@ func (tuples RegionVersionConnectedRealmTuples) EncodeForDelivery() ([]byte, err
 }
 
 // region/version/connected-realm tuple
+
+func NewRegionVersionConnectedRealmTuple(data []byte) (RegionVersionConnectedRealmTuple, error) {
+	out := RegionVersionConnectedRealmTuple{}
+
+	if err := json.Unmarshal(data, &out); err != nil {
+		return RegionVersionConnectedRealmTuple{}, err
+	}
+
+	return out, nil
+}
 
 type RegionVersionConnectedRealmTuple struct {
 	RegionVersionTuple
