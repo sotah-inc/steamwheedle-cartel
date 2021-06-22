@@ -8,7 +8,7 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state/subjects"
 )
-ß
+
 type NewPricelistHistoryStateOptions struct {
 	Messenger  messenger.Messenger
 	LakeClient BaseLake.Client
