@@ -21,8 +21,8 @@ func NewItemsMarketPriceRequest(data []byte) (ItemsMarketPriceRequest, error) {
 }
 
 type ItemsMarketPriceRequest struct {
-	Tuple   blizzardv2.RegionConnectedRealmTuple `json:"tuple"`
-	ItemIds blizzardv2.ItemIds                   `json:"item_ids"`
+	Tuple   blizzardv2.RegionVersionConnectedRealmTuple `json:"tuple"`
+	ItemIds blizzardv2.ItemIds                          `json:"item_ids"`
 }
 
 type ItemsMarketPriceResponse struct {

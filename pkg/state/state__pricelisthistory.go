@@ -2,24 +2,20 @@ package state
 
 import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/gameversion"
 	PricelistHistoryDatabase "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database/pricelisthistory" // nolint:lll
 	BaseLake "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/lake/base"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state/subjects"
 )
-
+ß
 type NewPricelistHistoryStateOptions struct {
 	Messenger  messenger.Messenger
 	LakeClient BaseLake.Client
 
 	PricelistHistoryDatabasesDir string
-	Tuples                       blizzardv2.RegionConnectedRealmTuples
-	ReceiveRegionTimestamps      func(
-		version gameversion.GameVersion,
-		timestamps sotah.RegionTimestamps,
-	) error
+	Tuples                       blizzardv2.RegionVersionConnectedRealmTuples
+	ReceiveRegionTimestamps      func(timestamps sotah.RegionVersionTimestamps) error
 }
 
 func NewPricelistHistoryState(opts NewPricelistHistoryStateOptions) (PricelistHistoryState, error) {
@@ -44,10 +40,7 @@ type PricelistHistoryState struct {
 
 	Messenger               messenger.Messenger
 	LakeClient              BaseLake.Client
-	ReceiveRegionTimestamps func(
-		version gameversion.GameVersion,
-		timestamps sotah.RegionTimestamps,
-	) error
+	ReceiveRegionTimestamps func(timestamps sotah.RegionVersionTimestamps) error
 }
 
 func (sta PricelistHistoryState) GetListeners() SubjectListeners {

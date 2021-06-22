@@ -12,6 +12,7 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger/codes"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah/statuskinds"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state/subjects"
 )
 
@@ -102,7 +103,7 @@ func (sta PricelistHistoryState) recipePricesIntake(
 
 	// waiting for it to drain out
 	totalLoaded := 0
-	regionTimestamps := sotah.RegionTimestamps{}
+	regionTimestamps := sotah.RegionVersionTimestamps{}
 	for job := range loadEncodedRecipePricesOut {
 		if job.Err != nil {
 			logging.WithFields(job.ToLogrusFields()).Error("failed to load encoded recipe-prices in")
@@ -115,8 +116,9 @@ func (sta PricelistHistoryState) recipePricesIntake(
 			"connected-realm": job.Tuple.ConnectedRealmId,
 		}).Info("loaded encoded recipe-prices in")
 
-		regionTimestamps = regionTimestamps.SetRecipePricesReceived(
-			job.Tuple.RegionConnectedRealmTuple,
+		regionTimestamps = regionTimestamps.SetTimestamp(
+			job.Tuple.RegionVersionConnectedRealmTuple,
+			statuskinds.RecipePricesReceived,
 			job.ReceivedAt,
 		)
 

@@ -24,10 +24,10 @@ func NewItemPricesHistoryRequest(data []byte) (ItemPricesHistoryRequest, error) 
 }
 
 type ItemPricesHistoryRequest struct {
-	Tuple       blizzardv2.RegionConnectedRealmTuple `json:"tuple"`
-	ItemIds     blizzardv2.ItemIds                   `json:"item_ids"`
-	LowerBounds sotah.UnixTimestamp                  `json:"lower_bounds"`
-	UpperBounds sotah.UnixTimestamp                  `json:"upper_bounds"`
+	Tuple       blizzardv2.RegionVersionConnectedRealmTuple `json:"tuple"`
+	ItemIds     blizzardv2.ItemIds                          `json:"item_ids"`
+	LowerBounds sotah.UnixTimestamp                         `json:"lower_bounds"`
+	UpperBounds sotah.UnixTimestamp                         `json:"upper_bounds"`
 }
 
 type ItemPricesHistoryResponse struct {

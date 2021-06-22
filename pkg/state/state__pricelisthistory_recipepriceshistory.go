@@ -24,10 +24,10 @@ func NewRecipePricesHistoryRequest(data []byte) (RecipePricesHistoryRequest, err
 }
 
 type RecipePricesHistoryRequest struct {
-	Tuple       blizzardv2.RegionConnectedRealmTuple `json:"tuple"`
-	RecipeIds   blizzardv2.RecipeIds                 `json:"recipe_ids"`
-	LowerBounds sotah.UnixTimestamp                  `json:"lower_bounds"`
-	UpperBounds sotah.UnixTimestamp                  `json:"upper_bounds"`
+	Tuple       blizzardv2.RegionVersionConnectedRealmTuple `json:"tuple"`
+	RecipeIds   blizzardv2.RecipeIds                        `json:"recipe_ids"`
+	LowerBounds sotah.UnixTimestamp                         `json:"lower_bounds"`
+	UpperBounds sotah.UnixTimestamp                         `json:"upper_bounds"`
 }
 
 type RecipePricesHistoryResponse struct {
