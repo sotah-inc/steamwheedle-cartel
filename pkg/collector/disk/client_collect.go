@@ -3,17 +3,19 @@ package disk
 import (
 	"time"
 
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/gameversion"
+
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state"
 
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 )
 
-func (c Client) Collect() error {
+func (c Client) Collect(version gameversion.GameVersion) error {
 	startTime := time.Now()
 	logging.Info("calling DiskCollector.Collect()")
 
-	collectAuctionsResults, err := c.collectAuctions()
+	collectAuctionsResults, err := c.collectAuctions(version)
 	if err != nil {
 		return err
 	}

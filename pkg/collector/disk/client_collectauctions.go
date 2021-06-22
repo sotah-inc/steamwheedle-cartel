@@ -3,6 +3,8 @@ package disk
 import (
 	"time"
 
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/gameversion"
+
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah/statuskinds"
 
 	"github.com/sirupsen/logrus"
@@ -23,12 +25,12 @@ type collectAuctionsResults struct {
 	tuples                  blizzardv2.LoadConnectedRealmTuples
 }
 
-func (c Client) collectAuctions() (collectAuctionsResults, error) {
+func (c Client) collectAuctions(version gameversion.GameVersion) (collectAuctionsResults, error) {
 	startTime := time.Now()
 	logging.Info("calling DiskCollector.collectAuctions()")
 
 	// spinning up workers
-	aucsOutJobs, err := c.resolveAuctions()
+	aucsOutJobs, err := c.resolveAuctions(version)
 	if err != nil {
 		logging.WithField(
 			"error",
