@@ -1,6 +1,8 @@
 package regions
 
 import (
+	"errors"
+
 	"github.com/boltdb/bolt"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
@@ -12,12 +14,21 @@ func (rBase Database) GetConnectedRealmBySlugTuple(
 	out := sotah.RealmComposite{}
 
 	err := rBase.db.View(func(tx *bolt.Tx) error {
-		bkt := tx.Bucket(connectedRealmsBucketName(tuple.RegionVersionTuple))
+		bkt := tx.Bucket(connectedRealmsBucketName())
 		if bkt == nil {
 			return nil
 		}
 
 		return bkt.ForEach(func(k []byte, v []byte) error {
+			keyTuple, err := tupleFromConnectedRealmKeyName(k)
+			if err != nil {
+				return err
+			}
+
+			if keyTuple.RegionName != tuple.RegionName || keyTuple.Version != tuple.Version {
+				return nil
+			}
+
 			realmComposite, err := sotah.NewRealmCompositeFromStorage(v)
 			if err != nil {
 				return err
@@ -29,9 +40,11 @@ func (rBase Database) GetConnectedRealmBySlugTuple(
 				}
 
 				out = realmComposite
+
+				return nil
 			}
 
-			return nil
+			return errors.New("could not resolve connected-realm with slug")
 		})
 	})
 	if err != nil {

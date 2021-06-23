@@ -12,12 +12,21 @@ func (rBase Database) GetConnectedRealms(
 	out := sotah.RealmComposites{}
 
 	err := rBase.db.View(func(tx *bolt.Tx) error {
-		bkt := tx.Bucket(connectedRealmsBucketName(tuple))
+		bkt := tx.Bucket(connectedRealmsBucketName())
 		if bkt == nil {
 			return nil
 		}
 
 		return bkt.ForEach(func(k []byte, v []byte) error {
+			keyTuple, err := tupleFromConnectedRealmKeyName(k)
+			if err != nil {
+				return err
+			}
+
+			if keyTuple.RegionName != tuple.RegionName || keyTuple.Version != tuple.Version {
+				return nil
+			}
+
 			realm, err := sotah.NewRealmCompositeFromStorage(v)
 			if err != nil {
 				return err

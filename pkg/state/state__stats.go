@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/gameversion"
 	StatsDatabase "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database/stats" // nolint:lll
 	BaseLake "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/lake/base"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
@@ -19,11 +18,8 @@ type NewStatsStateOptions struct {
 	LakeClient BaseLake.Client
 
 	StatsDatabasesDir       string
-	Tuples                  blizzardv2.RegionConnectedRealmTuples
-	ReceiveRegionTimestamps func(
-		version gameversion.GameVersion,
-		timestamps sotah.RegionTimestamps,
-	) error
+	Tuples                  blizzardv2.RegionVersionConnectedRealmTuples
+	ReceiveRegionTimestamps func(timestamps sotah.RegionVersionTimestamps) error
 }
 
 func NewStatsState(opts NewStatsStateOptions) (StatsState, error) {
@@ -34,7 +30,10 @@ func NewStatsState(opts NewStatsStateOptions) (StatsState, error) {
 	for _, tuple := range opts.Tuples {
 		dirList = append(
 			dirList,
-			fmt.Sprintf("%s/stats/%s", opts.StatsDatabasesDir, tuple.RegionName),
+			StatsDatabase.TupleDatabaseDirPath(
+				fmt.Sprintf("%s/stats", opts.StatsDatabasesDir),
+				tuple,
+			),
 		)
 	}
 
@@ -70,10 +69,9 @@ type StatsState struct {
 
 	Messenger               messenger.Messenger
 	LakeClient              BaseLake.Client
-	Tuples                  blizzardv2.RegionConnectedRealmTuples
+	Tuples                  blizzardv2.RegionVersionConnectedRealmTuples
 	ReceiveRegionTimestamps func(
-		version gameversion.GameVersion,
-		timestamps sotah.RegionTimestamps,
+		timestamps sotah.RegionVersionTimestamps,
 	) error
 }
 

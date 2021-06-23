@@ -223,7 +223,21 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 	})
 
 	// resolving all tuples
-	tuples, err := sta.RegionState.ResolveTuples()
+	tuples, err := func() (blizzardv2.RegionVersionConnectedRealmTuples, error) {
+		foundTuples := blizzardv2.RegionVersionConnectedRealmTuples{}
+		for _, version := range config.GameVersions {
+			versionTuples, err := sta.RegionState.ResolveTuples(version)
+			if err != nil {
+				return blizzardv2.RegionVersionConnectedRealmTuples{}, err
+			}
+
+			for _, tuple := range versionTuples {
+				foundTuples = append(foundTuples, tuple)
+			}
+		}
+
+		return foundTuples, nil
+	}()
 	if err != nil {
 		logging.WithField("error", err.Error()).Error("failed to resolve all tuples")
 
@@ -268,6 +282,7 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 		LakeClient:              lakeClient,
 		StatsDatabasesDir:       config.DatabaseConfig.StatsDir,
 		ReceiveRegionTimestamps: sta.RegionState.ReceiveTimestamps,
+		Tuples:                  tuples,
 	})
 	if err != nil {
 		logging.WithField("error", err.Error()).Error("failed to initialise stats state")

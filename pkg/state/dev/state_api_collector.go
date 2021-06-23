@@ -3,16 +3,18 @@ package dev
 import (
 	"time"
 
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/gameversion"
+
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 )
 
-func (sta ApiState) Collect() error {
+func (sta ApiState) Collect(version gameversion.GameVersion) error {
 	startTime := time.Now()
 	logging.Info("calling ApiState.Collect()")
 
-	if err := sta.Collector.Collect(); err != nil {
+	if err := sta.Collector.Collect(version); err != nil {
 		logging.WithField("error", err.Error()).Error("failed to collect auctions")
 
 		return err

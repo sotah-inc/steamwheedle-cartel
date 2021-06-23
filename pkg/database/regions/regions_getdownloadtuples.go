@@ -5,13 +5,10 @@ import (
 
 	"github.com/boltdb/bolt"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/gameversion"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 )
 
-func (rBase Database) GetDownloadTuples(
-	version gameversion.GameVersion,
-) ([]blizzardv2.DownloadConnectedRealmTuple, error) {
+func (rBase Database) GetDownloadTuples() ([]blizzardv2.DownloadConnectedRealmTuple, error) {
 	var out []blizzardv2.DownloadConnectedRealmTuple
 
 	err := rBase.db.View(func(tx *bolt.Tx) error {
@@ -26,16 +23,18 @@ func (rBase Database) GetDownloadTuples(
 				return err
 			}
 
-			connectedRealmsBucket := tx.Bucket(connectedRealmsBucketName(blizzardv2.RegionVersionTuple{
-				RegionTuple: blizzardv2.RegionTuple{RegionName: region.Name},
-				Version:     version,
-			}))
+			connectedRealmsBucket := tx.Bucket(connectedRealmsBucketName())
 			if connectedRealmsBucket == nil {
 				return errors.New("connected-realms bucket does not exist")
 			}
 
 			return connectedRealmsBucket.ForEach(
 				func(connectedRealmKey []byte, connectedRealmValue []byte) error {
+					keyTuple, err := tupleFromConnectedRealmKeyName(connectedRealmKey)
+					if err != nil {
+						return err
+					}
+
 					realmComposite, err := sotah.NewRealmCompositeFromStorage(connectedRealmValue)
 					if err != nil {
 						return err
@@ -43,14 +42,8 @@ func (rBase Database) GetDownloadTuples(
 
 					out = append(out, blizzardv2.DownloadConnectedRealmTuple{
 						LoadConnectedRealmTuple: blizzardv2.LoadConnectedRealmTuple{
-							RegionVersionConnectedRealmTuple: blizzardv2.RegionVersionConnectedRealmTuple{
-								RegionVersionTuple: blizzardv2.RegionVersionTuple{
-									RegionTuple: blizzardv2.RegionTuple{RegionName: region.Name},
-									Version:     version,
-								},
-								ConnectedRealmId: realmComposite.ConnectedRealmResponse.Id,
-							},
-							LastModified: realmComposite.StatusTimestamps["downloaded"].Time(),
+							RegionVersionConnectedRealmTuple: keyTuple,
+							LastModified:                     realmComposite.StatusTimestamps["downloaded"].Time(),
 						},
 						RegionHostname: region.Hostname,
 					})

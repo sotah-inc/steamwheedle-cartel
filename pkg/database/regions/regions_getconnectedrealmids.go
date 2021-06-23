@@ -11,18 +11,22 @@ func (rBase Database) GetConnectedRealmIds(
 	var out []blizzardv2.ConnectedRealmId
 
 	err := rBase.db.View(func(tx *bolt.Tx) error {
-		bkt := tx.Bucket(connectedRealmsBucketName(tuple))
+		bkt := tx.Bucket(connectedRealmsBucketName())
 		if bkt == nil {
 			return nil
 		}
 
 		return bkt.ForEach(func(k []byte, v []byte) error {
-			id, err := connectedRealmIdFromKeyName(k)
+			keyTuple, err := tupleFromConnectedRealmKeyName(k)
 			if err != nil {
 				return err
 			}
 
-			out = append(out, id)
+			if keyTuple.RegionName != tuple.RegionName || keyTuple.Version != tuple.Version {
+				return nil
+			}
+
+			out = append(out, keyTuple.ConnectedRealmId)
 
 			return nil
 		})

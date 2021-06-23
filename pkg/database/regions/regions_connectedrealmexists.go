@@ -14,12 +14,12 @@ func (rBase Database) ConnectedRealmExists(
 	out := false
 
 	err := rBase.db.View(func(tx *bolt.Tx) error {
-		bkt := tx.Bucket(connectedRealmsBucketName(tuple.RegionVersionTuple))
+		bkt := tx.Bucket(connectedRealmsBucketName())
 		if bkt == nil {
 			return errors.New("connected-realms-bucket does not exist in regions database")
 		}
 
-		v := bkt.Get(connectedRealmsKeyName(tuple.ConnectedRealmId))
+		v := bkt.Get(connectedRealmsKeyName(tuple))
 		if v == nil {
 			return nil
 		}
