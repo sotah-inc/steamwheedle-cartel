@@ -15,18 +15,19 @@ func (rBase Database) ReceiveRegionTimestamps(
 	return rBase.db.Batch(func(tx *bolt.Tx) error {
 		for regionName, vrStamps := range rvtStamps {
 			for gameVersion, csStamps := range vrStamps {
-				bkt, err := tx.CreateBucketIfNotExists(connectedRealmsBucketName(blizzardv2.RegionVersionTuple{
-					RegionTuple: blizzardv2.RegionTuple{
-						RegionName: regionName,
-					},
-					Version: gameVersion,
-				}))
+				bkt, err := tx.CreateBucketIfNotExists(connectedRealmsBucketName())
 				if err != nil {
 					return err
 				}
 
 				for id, timestamps := range csStamps {
-					k := connectedRealmsKeyName(id)
+					k := connectedRealmsKeyName(blizzardv2.RegionVersionConnectedRealmTuple{
+						RegionVersionTuple: blizzardv2.RegionVersionTuple{
+							RegionTuple: blizzardv2.RegionTuple{RegionName: regionName},
+							Version:     gameVersion,
+						},
+						ConnectedRealmId: id,
+					})
 					data := bkt.Get(k)
 					if data == nil {
 						return errors.New("could not find connected-realm by id")

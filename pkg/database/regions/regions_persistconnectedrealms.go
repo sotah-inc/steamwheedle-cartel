@@ -15,13 +15,17 @@ func (rBase Database) PersistConnectedRealms(
 	in chan PersistConnectedRealmsInJob,
 ) error {
 	return rBase.db.Batch(func(tx *bolt.Tx) error {
-		bkt, err := tx.CreateBucketIfNotExists(connectedRealmsBucketName(tuple))
+		bkt, err := tx.CreateBucketIfNotExists(connectedRealmsBucketName())
 		if err != nil {
 			return err
 		}
 
 		for job := range in {
-			if err := bkt.Put(connectedRealmsKeyName(job.Id), job.Data); err != nil {
+			k := connectedRealmsKeyName(blizzardv2.RegionVersionConnectedRealmTuple{
+				RegionVersionTuple: tuple,
+				ConnectedRealmId:   job.Id,
+			})
+			if err := bkt.Put(k, job.Data); err != nil {
 				return err
 			}
 		}

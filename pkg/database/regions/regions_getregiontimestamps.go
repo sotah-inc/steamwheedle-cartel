@@ -4,7 +4,6 @@ import (
 	"errors"
 
 	"github.com/boltdb/bolt"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/gameversion"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 )
@@ -22,10 +21,7 @@ func (rBase Database) GetRegionTimestamps(
 
 		return baseBucket.ForEach(func(baseBucketKey []byte, v []byte) error {
 			name := regionNameFromKeyName(baseBucketKey)
-			connectedRealmsBucket := tx.Bucket(connectedRealmsBucketName(blizzardv2.RegionVersionTuple{
-				RegionTuple: blizzardv2.RegionTuple{RegionName: name},
-				Version:     version,
-			}))
+			connectedRealmsBucket := tx.Bucket(connectedRealmsBucketName())
 			if connectedRealmsBucket == nil {
 				return errors.New("connected-realms bucket does not exist")
 			}
@@ -34,6 +30,15 @@ func (rBase Database) GetRegionTimestamps(
 
 			return connectedRealmsBucket.ForEach(
 				func(connectedRealmKey []byte, connectedRealmValue []byte) error {
+					keyTuple, err := tupleFromConnectedRealmKeyName(connectedRealmKey)
+					if err != nil {
+						return err
+					}
+
+					if keyTuple.RegionName != name || keyTuple.Version != version {
+						return nil
+					}
+
 					realmComposite, err := sotah.NewRealmCompositeFromStorage(connectedRealmValue)
 					if err != nil {
 						return err

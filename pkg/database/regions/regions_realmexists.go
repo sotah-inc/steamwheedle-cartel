@@ -12,12 +12,21 @@ func (rBase Database) RealmExists(tuple blizzardv2.RegionVersionRealmTuple) (boo
 	out := false
 
 	err := rBase.db.View(func(tx *bolt.Tx) error {
-		bkt := tx.Bucket(connectedRealmsBucketName(tuple.RegionVersionTuple))
+		bkt := tx.Bucket(connectedRealmsBucketName())
 		if bkt == nil {
 			return errors.New("connected-realms-bucket does not exist in regions database")
 		}
 
 		return bkt.ForEach(func(k []byte, v []byte) error {
+			keyTuple, err := tupleFromConnectedRealmKeyName(k)
+			if err != nil {
+				return err
+			}
+
+			if keyTuple.RegionName != tuple.RegionName || keyTuple.Version != tuple.Version {
+				return nil
+			}
+
 			connectedRealm, err := sotah.NewRealmCompositeFromStorage(v)
 			if err != nil {
 				return err

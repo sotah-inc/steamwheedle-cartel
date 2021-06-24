@@ -14,12 +14,12 @@ func (rBase Database) GetStatusTimestamps(
 	out := sotah.StatusTimestamps{}
 
 	err := rBase.db.View(func(tx *bolt.Tx) error {
-		bkt := tx.Bucket(connectedRealmsBucketName(tuple.RegionVersionTuple))
+		bkt := tx.Bucket(connectedRealmsBucketName())
 		if bkt == nil {
 			return nil
 		}
 
-		v := bkt.Get(connectedRealmsKeyName(tuple.ConnectedRealmId))
+		v := bkt.Get(connectedRealmsKeyName(tuple))
 		if v == nil {
 			return errors.New("could not resolve connected-realm")
 		}

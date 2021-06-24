@@ -14,13 +14,22 @@ func (rBase Database) GetRealmTimestamps(
 	var out sotah.RealmStatusTimestamps
 
 	err := rBase.db.View(func(tx *bolt.Tx) error {
-		connectedRealmsBucket := tx.Bucket(connectedRealmsBucketName(tuple))
+		connectedRealmsBucket := tx.Bucket(connectedRealmsBucketName())
 		if connectedRealmsBucket == nil {
 			return errors.New("connected-realms bucket does not exist")
 		}
 
 		return connectedRealmsBucket.ForEach(
 			func(connectedRealmKey []byte, connectedRealmValue []byte) error {
+				keyTuple, err := tupleFromConnectedRealmKeyName(connectedRealmKey)
+				if err != nil {
+					return err
+				}
+
+				if keyTuple.RegionName != tuple.RegionName || keyTuple.Version != tuple.Version {
+					return nil
+				}
+
 				realmComposite, err := sotah.NewRealmCompositeFromStorage(connectedRealmValue)
 				if err != nil {
 					return err

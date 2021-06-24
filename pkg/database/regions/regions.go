@@ -35,7 +35,9 @@ func connectedRealmsKeyName(tuple blizzardv2.RegionVersionConnectedRealmTuple) [
 	)
 }
 
-func tupleFromConnectedRealmKeyName(key []byte) (blizzardv2.RegionVersionConnectedRealmTuple, error) {
+func tupleFromConnectedRealmKeyName(
+	key []byte,
+) (blizzardv2.RegionVersionConnectedRealmTuple, error) {
 	parts := strings.Split(string(key), "/")
 
 	connectedRealmId, err := strconv.Atoi(parts[2])
