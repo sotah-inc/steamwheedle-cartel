@@ -136,16 +136,12 @@ func (sta RegionsState) ReceiveTimestamps(
 	return sta.RegionsDatabase.ReceiveRegionTimestamps(regionTimestamps)
 }
 
-func (sta RegionsState) ResolveDownloadTuples(
-	version gameversion.GameVersion,
-) ([]blizzardv2.DownloadConnectedRealmTuple, error) {
-	return sta.RegionsDatabase.GetDownloadTuples(version)
+func (sta RegionsState) ResolveDownloadTuples() ([]blizzardv2.DownloadConnectedRealmTuple, error) {
+	return sta.RegionsDatabase.GetDownloadTuples()
 }
 
-func (sta RegionsState) ResolveTuples(
-	version gameversion.GameVersion,
-) (blizzardv2.RegionVersionConnectedRealmTuples, error) {
-	return sta.RegionsDatabase.GetTuples(version)
+func (sta RegionsState) ResolveTuples() (blizzardv2.RegionVersionConnectedRealmTuples, error) {
+	return sta.RegionsDatabase.GetTuples()
 }
 
 func (sta RegionsState) GetListeners() SubjectListeners {

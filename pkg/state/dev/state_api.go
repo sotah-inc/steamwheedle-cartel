@@ -207,10 +207,8 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 	// resolving disk-collector-auctions state
 	logging.Info("producing new disk-collector client")
 	sta.Collector = DiskCollector.NewClient(DiskCollector.ClientOptions{
-		ResolveAuctions: func(
-			version gameversion.GameVersion,
-		) (chan blizzardv2.GetAuctionsJob, error) {
-			downloadTuples, err := sta.RegionState.ResolveDownloadTuples(version)
+		ResolveAuctions: func() (chan blizzardv2.GetAuctionsJob, error) {
+			downloadTuples, err := sta.RegionState.ResolveDownloadTuples()
 			if err != nil {
 				return nil, err
 			}
@@ -223,21 +221,7 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 	})
 
 	// resolving all tuples
-	tuples, err := func() (blizzardv2.RegionVersionConnectedRealmTuples, error) {
-		foundTuples := blizzardv2.RegionVersionConnectedRealmTuples{}
-		for _, version := range config.GameVersions {
-			versionTuples, err := sta.RegionState.ResolveTuples(version)
-			if err != nil {
-				return blizzardv2.RegionVersionConnectedRealmTuples{}, err
-			}
-
-			for _, tuple := range versionTuples {
-				foundTuples = append(foundTuples, tuple)
-			}
-		}
-
-		return foundTuples, nil
-	}()
+	tuples, err := sta.RegionState.ResolveTuples()
 	if err != nil {
 		logging.WithField("error", err.Error()).Error("failed to resolve all tuples")
 
