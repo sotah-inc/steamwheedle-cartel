@@ -4,10 +4,9 @@ import (
 	"fmt"
 	"time"
 
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
-
 	"cloud.google.com/go/storage"
 	"github.com/sirupsen/logrus"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah/gameversions"
@@ -42,20 +41,22 @@ func (b PricelistHistoriesBaseV2) GetFirmBucket() (*storage.BucketHandle, error)
 	return b.base.getFirmBucket(b.getBucketName())
 }
 
-func (b PricelistHistoriesBaseV2) GetObjectPrefix(tuple blizzardv2.RegionConnectedRealmTuple) string {
+func (b PricelistHistoriesBaseV2) GetObjectPrefix(
+	tuple blizzardv2.RegionVersionConnectedRealmTuple,
+) string {
 	return fmt.Sprintf("%s/%s/%d", b.GameVersion, tuple.RegionName, tuple.ConnectedRealmId)
 }
 
 func (b PricelistHistoriesBaseV2) getObjectName(
 	timestamp sotah.UnixTimestamp,
-	tuple blizzardv2.RegionConnectedRealmTuple,
+	tuple blizzardv2.RegionVersionConnectedRealmTuple,
 ) string {
 	return fmt.Sprintf("%s/%d.txt.gz", b.GetObjectPrefix(tuple), timestamp)
 }
 
 func (b PricelistHistoriesBaseV2) GetObject(
 	timestamp sotah.UnixTimestamp,
-	tuple blizzardv2.RegionConnectedRealmTuple,
+	tuple blizzardv2.RegionVersionConnectedRealmTuple,
 	bkt *storage.BucketHandle,
 ) *storage.ObjectHandle {
 	return b.base.getObject(b.getObjectName(timestamp, tuple), bkt)
@@ -63,7 +64,7 @@ func (b PricelistHistoriesBaseV2) GetObject(
 
 func (b PricelistHistoriesBaseV2) GetFirmObject(
 	timestamp sotah.UnixTimestamp,
-	tuple blizzardv2.RegionConnectedRealmTuple,
+	tuple blizzardv2.RegionVersionConnectedRealmTuple,
 	bkt *storage.BucketHandle,
 ) (*storage.ObjectHandle, error) {
 	return b.base.getFirmObject(b.getObjectName(timestamp, tuple), bkt)
@@ -72,7 +73,7 @@ func (b PricelistHistoriesBaseV2) GetFirmObject(
 func (b PricelistHistoriesBaseV2) Handle(
 	aucs blizzardv2.Auctions,
 	targetTimestamp sotah.UnixTimestamp,
-	tuple blizzardv2.RegionConnectedRealmTuple,
+	tuple blizzardv2.RegionVersionConnectedRealmTuple,
 	bkt *storage.BucketHandle,
 ) (sotah.UnixTimestamp, error) {
 	normalizedTargetDate := time.Unix(int64(sotah.NormalizeToDay(targetTimestamp)), 0)

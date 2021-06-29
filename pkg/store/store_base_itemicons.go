@@ -10,7 +10,11 @@ import (
 
 const ItemIconURLFormat = "https://storage.googleapis.com/%s/%s"
 
-func NewItemIconsBase(c Client, location regions.Region, version gameversions.GameVersion) ItemIconsBase {
+func NewItemIconsBase(
+	c Client,
+	location regions.Region,
+	version gameversions.GameVersion,
+) ItemIconsBase {
 	return ItemIconsBase{
 		base{client: c, location: location},
 		version,
@@ -42,6 +46,9 @@ func (b ItemIconsBase) GetObject(name string, bkt *storage.BucketHandle) *storag
 	return b.base.getObject(b.GetObjectName(name), bkt)
 }
 
-func (b ItemIconsBase) GetFirmObject(name string, bkt *storage.BucketHandle) (*storage.ObjectHandle, error) {
+func (b ItemIconsBase) GetFirmObject(
+	name string,
+	bkt *storage.BucketHandle,
+) (*storage.ObjectHandle, error) {
 	return b.base.getFirmObject(b.GetObjectName(name), bkt)
 }

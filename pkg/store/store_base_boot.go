@@ -7,12 +7,10 @@ import (
 	"io/ioutil"
 	"strconv"
 
-	sotahState "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah/state"
-
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
-
 	"cloud.google.com/go/storage"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah/state"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/store/regions"
 )
 
@@ -40,7 +38,10 @@ func (b BootBase) GetObject(name string, bkt *storage.BucketHandle) *storage.Obj
 	return b.base.getObject(name, bkt)
 }
 
-func (b BootBase) GetFirmObject(name string, bkt *storage.BucketHandle) (*storage.ObjectHandle, error) {
+func (b BootBase) GetFirmObject(
+	name string,
+	bkt *storage.BucketHandle,
+) (*storage.ObjectHandle, error) {
 	return b.base.getFirmObject(name, bkt)
 }
 
@@ -68,7 +69,9 @@ func (b BootBase) GetRegions(bkt *storage.BucketHandle) (sotah.RegionList, error
 	return out, nil
 }
 
-func (b BootBase) GetBlizzardCredentials(bkt *storage.BucketHandle) (sotah.BlizzardCredentials, error) {
+func (b BootBase) GetBlizzardCredentials(
+	bkt *storage.BucketHandle,
+) (sotah.BlizzardCredentials, error) {
 	credentialsObj, err := b.getFirmObject("blizzard-credentials.json", bkt)
 	if err != nil {
 		return sotah.BlizzardCredentials{}, err
@@ -158,7 +161,7 @@ func (b BootBase) GetParentAreaMaps() (sotah.AreaMapMap, error) {
 		// writing it out to the result
 		result[sotah.AreaMapId(foundZoneId)] = sotah.AreaMap{
 			Id:             sotah.AreaMapId(foundZoneId),
-			State:          sotahState.None,
+			State:          state.None,
 			Name:           areaName,
 			NormalizedName: normalizedAreaName,
 		}

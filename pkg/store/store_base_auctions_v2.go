@@ -3,16 +3,19 @@ package store
 import (
 	"fmt"
 
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
-
 	"cloud.google.com/go/storage"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah/gameversions"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/store/regions"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 )
 
-func NewAuctionsBaseV2(c Client, location regions.Region, version gameversions.GameVersion) AuctionsBaseV2 {
+func NewAuctionsBaseV2(
+	c Client,
+	location regions.Region,
+	version gameversions.GameVersion,
+) AuctionsBaseV2 {
 	return AuctionsBaseV2{
 		base{client: c, location: location},
 		version,
@@ -40,19 +43,19 @@ func (b AuctionsBaseV2) ResolveBucket() (*storage.BucketHandle, error) {
 	return b.base.resolveBucket(b.getBucketName())
 }
 
-func (b AuctionsBaseV2) GetObjectPrefix(tuple blizzardv2.RegionConnectedRealmTuple) string {
+func (b AuctionsBaseV2) GetObjectPrefix(tuple blizzardv2.RegionVersionConnectedRealmTuple) string {
 	return fmt.Sprintf("%s/%s/%d", b.GameVersion, tuple.RegionName, tuple.ConnectedRealmId)
 }
 
 func (b AuctionsBaseV2) getObjectName(
-	tuple blizzardv2.RegionConnectedRealmTuple,
+	tuple blizzardv2.RegionVersionConnectedRealmTuple,
 	timestamp sotah.UnixTimestamp,
 ) string {
 	return fmt.Sprintf("%s/%d.json.gz", b.GetObjectPrefix(tuple), timestamp)
 }
 
 func (b AuctionsBaseV2) GetObject(
-	tuple blizzardv2.RegionConnectedRealmTuple,
+	tuple blizzardv2.RegionVersionConnectedRealmTuple,
 	timestamp sotah.UnixTimestamp,
 	bkt *storage.BucketHandle,
 ) *storage.ObjectHandle {
@@ -60,7 +63,7 @@ func (b AuctionsBaseV2) GetObject(
 }
 
 func (b AuctionsBaseV2) GetFirmObject(
-	tuple blizzardv2.RegionConnectedRealmTuple,
+	tuple blizzardv2.RegionVersionConnectedRealmTuple,
 	timestamp sotah.UnixTimestamp,
 	bkt *storage.BucketHandle,
 ) (*storage.ObjectHandle, error) {
@@ -70,7 +73,7 @@ func (b AuctionsBaseV2) GetFirmObject(
 func (b AuctionsBaseV2) Handle(
 	jsonEncodedBody []byte,
 	timestamp sotah.UnixTimestamp,
-	tuple blizzardv2.RegionConnectedRealmTuple,
+	tuple blizzardv2.RegionVersionConnectedRealmTuple,
 	bkt *storage.BucketHandle,
 ) error {
 	gzipEncodedBody, err := util.GzipEncode(jsonEncodedBody)
