@@ -3,6 +3,8 @@ package main
 import (
 	"os"
 
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/gameversion"
+
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
@@ -94,6 +96,8 @@ func main() {
 					TokensDir:   *cacheDir,
 					AreaMapsDir: *cacheDir,
 				},
+				UseGCloud:    false,
+				GameVersions: []gameversion.GameVersion{gameversion.Retail, gameversion.Classic},
 			})
 		},
 	}

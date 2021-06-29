@@ -183,6 +183,10 @@ func (
 	return out
 }
 
+func (tuples LoadConnectedRealmTuples) EncodeForDelivery() ([]byte, error) {
+	return json.Marshal(tuples)
+}
+
 // load-connected-realm tuple
 
 type LoadConnectedRealmTuple struct {
