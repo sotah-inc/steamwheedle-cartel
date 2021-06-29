@@ -12,11 +12,11 @@ func (sta ApiState) Collect() error {
 	startTime := time.Now()
 	logging.Info("calling ApiState.Collect()")
 
-	if err := sta.Collector.Collect(); err != nil {
-		logging.WithField("error", err.Error()).Error("failed to collect auctions")
-
-		return err
-	}
+	//if err := sta.Collector.Collect(); err != nil {
+	//	logging.WithField("error", err.Error()).Error("failed to collect auctions")
+	//
+	//	return err
+	//}
 
 	logging.WithField(
 		"duration-in-ms",
