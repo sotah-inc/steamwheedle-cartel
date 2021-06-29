@@ -1,25 +1,14 @@
 package state
 
 import (
-	"encoding/json"
-
 	nats "github.com/nats-io/nats.go"
 	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
 	mCodes "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger/codes"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state/subjects"
 )
-
-type QueryRealmModificationDatesResponse struct {
-	sotah.StatusTimestamps
-}
-
-func (r QueryRealmModificationDatesResponse) EncodeForDelivery() ([]byte, error) {
-	return json.Marshal(r)
-}
 
 func (sta RegionsState) ListenForQueryRealmModificationDates(stop ListenStopChan) error {
 	err := sta.Messenger.Subscribe(
@@ -60,9 +49,7 @@ func (sta RegionsState) ListenForQueryRealmModificationDates(stop ListenStopChan
 				return
 			}
 
-			res := QueryRealmModificationDatesResponse{connectedRealmTimestamps}
-
-			encodedData, err := res.EncodeForDelivery()
+			encodedData, err := connectedRealmTimestamps.EncodeForDelivery()
 			if err != nil {
 				m.Err = err.Error()
 				m.Code = mCodes.GenericError

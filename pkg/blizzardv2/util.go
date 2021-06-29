@@ -43,6 +43,14 @@ type RegionVersionTuple struct {
 	Version gameversion.GameVersion `json:"game_version"`
 }
 
+func (tuple RegionVersionTuple) Equals(target RegionVersionTuple) bool {
+	if tuple.RegionName != target.RegionName {
+		return false
+	}
+
+	return tuple.Version == target.Version
+}
+
 // region/version/connected-realm tuples
 
 type RegionVersionConnectedRealmTuples []RegionVersionConnectedRealmTuple
@@ -66,6 +74,43 @@ func (tuples RegionVersionConnectedRealmTuples) RegionNames() []RegionName {
 	}
 
 	return out
+}
+
+func (tuples RegionVersionConnectedRealmTuples) Flatten() FlatRegionVersionConnectedRealmTuples {
+	out := FlatRegionVersionConnectedRealmTuples{}
+	for _, tuple := range tuples {
+		flatTuple := out.Resolve(tuple.RegionVersionTuple)
+		flatTuple.Ids = append(flatTuple.Ids, tuple.ConnectedRealmId)
+		out = append(out, flatTuple)
+	}
+
+	return out
+}
+
+// flattened
+
+type FlatRegionVersionConnectedRealmTuples []FlatRegionVersionConnectedRealmTuple
+
+func (tuples FlatRegionVersionConnectedRealmTuples) Resolve(
+	tuple RegionVersionTuple,
+) FlatRegionVersionConnectedRealmTuple {
+	for _, flatTuple := range tuples {
+		if !flatTuple.Tuple.Equals(tuple) {
+			continue
+		}
+
+		return flatTuple
+	}
+
+	return FlatRegionVersionConnectedRealmTuple{
+		Tuple: tuple,
+		Ids:   []ConnectedRealmId{},
+	}
+}
+
+type FlatRegionVersionConnectedRealmTuple struct {
+	Tuple RegionVersionTuple
+	Ids   []ConnectedRealmId
 }
 
 // region/version/connected-realm tuple

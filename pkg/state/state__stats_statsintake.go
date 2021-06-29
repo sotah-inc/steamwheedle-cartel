@@ -12,6 +12,7 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger/codes"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah/statuskinds"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state/subjects"
 )
 
@@ -54,7 +55,7 @@ func (sta StatsState) StatsIntake(req LoadIntakeRequest) error {
 		return err
 	}
 
-	if err := sta.RegionRealmsIntake(sta.Tuples.ToMap()); err != nil {
+	if err := sta.RegionRealmsIntake(sta.Tuples.Flatten()); err != nil {
 		return err
 	}
 
@@ -62,26 +63,26 @@ func (sta StatsState) StatsIntake(req LoadIntakeRequest) error {
 }
 
 func (sta StatsState) RegionRealmsIntake(
-	regionRealmMap map[blizzardv2.RegionName][]blizzardv2.ConnectedRealmId,
+	tuples blizzardv2.FlatRegionVersionConnectedRealmTuples,
 ) error {
 	startTime := time.Now()
 	currentTimestamp := sotah.UnixTimestamp(time.Now().Unix())
 	retentionLimit := sotah.UnixTimestamp(BaseDatabase.RetentionLimit().Unix())
 
-	for name, ids := range regionRealmMap {
-		encodedStats, err := sta.LakeClient.GetEncodedRegionStats(name, ids)
+	for _, flatTuple := range tuples {
+		encodedStats, err := sta.LakeClient.GetEncodedRegionStats(flatTuple.Tuple, flatTuple.Ids)
 		if err != nil {
 			return err
 		}
 
-		rBase, err := sta.StatsRegionDatabases.GetRegionDatabase(name)
+		rBase, err := sta.StatsRegionDatabases.GetRegionDatabase(flatTuple.Tuple.RegionName)
 		if err != nil {
 			return err
 		}
 
 		logging.WithFields(logrus.Fields{
-			"region":           name,
-			"connected-realms": len(ids),
+			"region":           flatTuple.Tuple.RegionName,
+			"connected-realms": len(flatTuple.Ids),
 			"stats":            len(encodedStats),
 			"timestamp":        currentTimestamp,
 		}).Info("persisting stats")
@@ -91,7 +92,7 @@ func (sta StatsState) RegionRealmsIntake(
 		}
 
 		logging.WithFields(logrus.Fields{
-			"region":          name,
+			"region":          flatTuple.Tuple.RegionName,
 			"retention-limit": retentionLimit,
 		}).Info("pruning stats")
 		if err := rBase.PruneStats(retentionLimit); err != nil {
@@ -100,7 +101,7 @@ func (sta StatsState) RegionRealmsIntake(
 	}
 
 	logging.WithFields(logrus.Fields{
-		"total":          len(regionRealmMap),
+		"total":          len(tuples),
 		"duration-in-ms": time.Since(startTime).Milliseconds(),
 	}).Info("total loaded in region-stats")
 
@@ -135,7 +136,7 @@ func (sta StatsState) TuplesIntake(req LoadIntakeRequest) error {
 
 	// waiting for it to drain out
 	totalLoaded := 0
-	regionTimestamps := sotah.RegionTimestamps{}
+	regionTimestamps := sotah.RegionVersionTimestamps{}
 	for job := range persistEncodedStatsOut {
 		if job.Err != nil {
 			logging.WithFields(job.ToLogrusFields()).Error("failed to load encoded stats in")
@@ -148,8 +149,9 @@ func (sta StatsState) TuplesIntake(req LoadIntakeRequest) error {
 			"connected-realm": job.Tuple.ConnectedRealmId,
 		}).Info("loaded stats in")
 
-		regionTimestamps = regionTimestamps.SetStatsReceived(
-			job.Tuple.RegionConnectedRealmTuple,
+		regionTimestamps = regionTimestamps.SetTimestamp(
+			job.Tuple.RegionVersionConnectedRealmTuple,
+			statuskinds.StatsReceived,
 			job.Tuple.LastModified,
 		)
 		totalLoaded += 1
@@ -157,7 +159,7 @@ func (sta StatsState) TuplesIntake(req LoadIntakeRequest) error {
 
 	// optionally updating region state
 	if !regionTimestamps.IsZero() {
-		if err := sta.ReceiveRegionTimestamps(req.Version, regionTimestamps); err != nil {
+		if err := sta.ReceiveRegionTimestamps(regionTimestamps); err != nil {
 			logging.WithField("error", err.Error()).Error("failed to receive region-timestamps")
 
 			return err
@@ -166,7 +168,7 @@ func (sta StatsState) TuplesIntake(req LoadIntakeRequest) error {
 
 	// pruning stats
 	if err := sta.StatsTupleDatabases.PruneRealmStats(
-		req.Tuples.RegionConnectedRealmTuples(),
+		req.Tuples.RegionVersionConnectedRealmTuples(),
 		sotah.UnixTimestamp(BaseDatabase.RetentionLimit().Unix()),
 	); err != nil {
 		logging.WithField("error", err.Error()).Error("failed to prune stats")

@@ -1,6 +1,10 @@
 package sotah
 
-import "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah/statuskinds"
+import (
+	"encoding/json"
+
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah/statuskinds"
+)
 
 type StatusTimestamps map[statuskinds.StatusKind]UnixTimestamp
 
@@ -32,4 +36,8 @@ func (timestamps StatusTimestamps) Merge(
 	}
 
 	return timestamps
+}
+
+func (timestamps StatusTimestamps) EncodeForDelivery() ([]byte, error) {
+	return json.Marshal(timestamps)
 }
