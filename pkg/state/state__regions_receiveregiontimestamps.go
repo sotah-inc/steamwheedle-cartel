@@ -35,8 +35,8 @@ func NewReceiveRegionTimestampsRequest(
 }
 
 type ReceiveRegionTimestampsRequest struct {
-	Version          gameversion.GameVersion `json:"game_version"`
-	RegionTimestamps sotah.RegionTimestamps  `json:"region_timestamps"`
+	Version          gameversion.GameVersion       `json:"game_version"`
+	RegionTimestamps sotah.RegionVersionTimestamps `json:"region_timestamps"`
 }
 
 func (sta RegionsState) ListenForReceiveRegionTimestamps(stop ListenStopChan) error {
@@ -63,10 +63,7 @@ func (sta RegionsState) ListenForReceiveRegionTimestamps(stop ListenStopChan) er
 				return
 			}
 
-			if err := sta.RegionsDatabase.ReceiveRegionTimestamps(
-				req.Version,
-				req.RegionTimestamps,
-			); err != nil {
+			if err := sta.RegionsDatabase.ReceiveRegionTimestamps(req.RegionTimestamps); err != nil {
 				m.Err = err.Error()
 				m.Code = mCodes.GenericError
 				sta.Messenger.ReplyTo(natsMsg, m)

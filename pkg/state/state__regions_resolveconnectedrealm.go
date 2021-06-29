@@ -31,7 +31,7 @@ func (sta RegionsState) ListenForResolveConnectedRealm(stop ListenStopChan) erro
 		func(natsMsg nats.Msg) {
 			m := messenger.NewMessage()
 
-			req, err := blizzardv2.NewRegionVersionRealmTuple(natsMsg.Data)
+			tuple, err := blizzardv2.NewRegionVersionRealmTuple(natsMsg.Data)
 			if err != nil {
 				m.Err = err.Error()
 				m.Code = codes.MsgJSONParseError
@@ -40,7 +40,7 @@ func (sta RegionsState) ListenForResolveConnectedRealm(stop ListenStopChan) erro
 				return
 			}
 
-			if !sta.GameVersionList.Includes(req.Version) {
+			if !sta.GameVersionList.Includes(tuple.Version) {
 				m.Err = "invalid game-version"
 				m.Code = codes.UserError
 				sta.Messenger.ReplyTo(natsMsg, m)
@@ -48,11 +48,7 @@ func (sta RegionsState) ListenForResolveConnectedRealm(stop ListenStopChan) erro
 				return
 			}
 
-			connectedRealm, err := sta.RegionsDatabase.GetConnectedRealmByRealmSlug(
-				req.Version,
-				req.RegionName,
-				req.RealmSlug,
-			)
+			connectedRealm, err := sta.RegionsDatabase.GetConnectedRealmBySlugTuple(tuple)
 			if err != nil {
 				m.Err = err.Error()
 				m.Code = codes.NotFound

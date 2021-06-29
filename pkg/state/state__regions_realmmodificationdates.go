@@ -11,7 +11,7 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state/subjects"
 )
 
-type ConnectedRealmModificationDatesResponse sotah.RealmTimestamps
+type ConnectedRealmModificationDatesResponse sotah.StatusTimestamps
 
 func (r ConnectedRealmModificationDatesResponse) EncodeForDelivery() ([]byte, error) {
 	return json.Marshal(r)
@@ -24,7 +24,7 @@ func (sta RegionsState) ListenForConnectedRealmModificationDates(stop ListenStop
 		func(natsMsg nats.Msg) {
 			m := messenger.NewMessage()
 
-			req, err := blizzardv2.NewRegionVersionTuple(natsMsg.Data)
+			tuple, err := blizzardv2.NewRegionVersionConnectedRealmTuple(natsMsg.Data)
 			if err != nil {
 				m.Err = err.Error()
 				m.Code = mCodes.GenericError
@@ -33,7 +33,7 @@ func (sta RegionsState) ListenForConnectedRealmModificationDates(stop ListenStop
 				return
 			}
 
-			if !sta.GameVersionList.Includes(req.Version) {
+			if !sta.GameVersionList.Includes(tuple.Version) {
 				m.Err = "invalid game-version"
 				m.Code = mCodes.UserError
 				sta.Messenger.ReplyTo(natsMsg, m)
@@ -41,10 +41,7 @@ func (sta RegionsState) ListenForConnectedRealmModificationDates(stop ListenStop
 				return
 			}
 
-			foundTimestamps, err := sta.RegionsDatabase.GetRealmTimestamps(
-				req.Version,
-				req.RegionName,
-			)
+			foundTimestamps, err := sta.RegionsDatabase.GetStatusTimestamps(tuple)
 			if err != nil {
 				m.Err = err.Error()
 				m.Code = mCodes.UserError

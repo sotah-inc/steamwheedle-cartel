@@ -91,6 +91,16 @@ func (tuple RegionVersionConnectedRealmTuple) String() string {
 
 // region/version/realm tuple
 
+func NewRegionVersionRealmTuple(data []byte) (RegionVersionRealmTuple, error) {
+	out := RegionVersionRealmTuple{}
+
+	if err := json.Unmarshal(data, &out); err != nil {
+		return RegionVersionRealmTuple{}, err
+	}
+
+	return out, nil
+}
+
 type RegionVersionRealmTuple struct {
 	RegionVersionTuple
 	RealmSlug RealmSlug `json:"realm_slug"`

@@ -5,6 +5,7 @@ import (
 
 	nats "github.com/nats-io/nats.go"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/gameversion"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger/codes"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
@@ -15,7 +16,7 @@ func (sta RegionsState) ListenForStatus(stop ListenStopChan) error {
 	err := sta.Messenger.Subscribe(string(subjects.Status), stop, func(natsMsg nats.Msg) {
 		m := messenger.NewMessage()
 
-		sRequest, err := blizzardv2.NewRegionVersionTuple(natsMsg.Data)
+		tuple, err := blizzardv2.NewRegionVersionTuple(natsMsg.Data)
 		if err != nil {
 			m.Err = err.Error()
 			m.Code = codes.MsgJSONParseError
@@ -24,7 +25,7 @@ func (sta RegionsState) ListenForStatus(stop ListenStopChan) error {
 			return
 		}
 
-		if !sta.GameVersionList.Includes(sRequest.Version) {
+		if !sta.GameVersionList.Includes(tuple.Version) {
 			m.Err = "invalid game-version"
 			m.Code = codes.UserError
 			sta.Messenger.ReplyTo(natsMsg, m)
@@ -32,19 +33,16 @@ func (sta RegionsState) ListenForStatus(stop ListenStopChan) error {
 			return
 		}
 
-		region, err := sta.RegionsDatabase.GetRegion(sRequest.RegionName)
+		region, err := sta.RegionsDatabase.GetRegion(tuple.RegionName)
 		if err != nil {
-			m.Err = fmt.Sprintf("invalid region name: %s", sRequest.RegionName)
+			m.Err = fmt.Sprintf("invalid region name: %s", tuple.RegionName)
 			m.Code = codes.UserError
 			sta.Messenger.ReplyTo(natsMsg, m)
 
 			return
 		}
 
-		realmComposites, err := sta.RegionsDatabase.GetConnectedRealms(
-			sRequest.Version,
-			sRequest.RegionName,
-		)
+		connectedRealms, err := sta.RegionsDatabase.GetConnectedRealms(tuple)
 		if err != nil {
 			m.Err = err.Error()
 			m.Code = codes.GenericError
@@ -54,8 +52,10 @@ func (sta RegionsState) ListenForStatus(stop ListenStopChan) error {
 		}
 
 		regionComposite := sotah.RegionComposite{
-			ConfigRegion:             region,
-			ConnectedRealmComposites: realmComposites,
+			ConfigRegion: region,
+			ConnectedRealmComposites: map[gameversion.GameVersion]sotah.RealmComposites{
+				tuple.Version: connectedRealms,
+			},
 		}
 
 		encodedStatus, err := regionComposite.EncodeForDelivery()
