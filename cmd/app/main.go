@@ -24,15 +24,31 @@ type commandMap map[string]func() error
 func main() {
 	// parsing the command flags
 	var (
-		app            = kingpin.New("sotah-server", "A command-line Blizzard AH client.")
-		natsHost       = app.Flag("nats-host", "NATS hostname").Default("localhost").Envar("NATS_HOST").Short('h').String()
-		natsPort       = app.Flag("nats-port", "NATS port").Default("4222").Envar("NATS_PORT").Short('p').Int()
-		configFilepath = app.Flag("config", "Relative path to config json").Required().Short('c').String()
-		clientID       = app.Flag("client-id", "Blizzard API Client ID").Envar("CLIENT_ID").String()
-		clientSecret   = app.Flag("client-secret", "Blizzard API Client Secret").Envar("CLIENT_SECRET").String()
-		verbosity      = app.Flag("verbosity", "Log verbosity").Default("info").Short('v').String()
-		cacheDir       = app.Flag("cache-dir", "Directory to cache data files to").Required().String()
-		projectID      = app.Flag("project-id", "GCloud Storage Project ID").Default("").Envar("PROJECT_ID").String()
+		app      = kingpin.New("sotah-server", "A command-line Blizzard AH client.")
+		natsHost = app.Flag(""+
+			"nats-host", "NATS hostname",
+		).Default("localhost").Envar("NATS_HOST").Short('h').String()
+		natsPort = app.Flag(
+			"nats-port", "NATS port",
+		).Default("4222").Envar("NATS_PORT").Short('p').Int()
+		configFilepath = app.Flag(
+			"config", "Relative path to config json",
+		).Required().Short('c').String()
+		clientID = app.Flag(
+			"client-id", "Blizzard API Client ID",
+		).Envar("CLIENT_ID").String()
+		clientSecret = app.Flag(
+			"client-secret", "Blizzard API Client Secret",
+		).Envar("CLIENT_SECRET").String()
+		verbosity = app.Flag(
+			"verbosity", "Log verbosity",
+		).Default("info").Short('v').String()
+		cacheDir = app.Flag(
+			"cache-dir", "Directory to cache data files to",
+		).Required().String()
+		projectID = app.Flag(
+			"project-id", "GCloud Storage Project ID",
+		).Default("").Envar("PROJECT_ID").String()
 
 		apiCommand = app.Command(string(commands.API), "For running sotah-server.")
 	)
