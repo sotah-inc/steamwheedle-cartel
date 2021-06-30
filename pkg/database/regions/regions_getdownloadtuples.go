@@ -3,6 +3,8 @@ package regions
 import (
 	"errors"
 
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah/statuskinds"
+
 	"github.com/boltdb/bolt"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
@@ -25,7 +27,7 @@ func (rBase Database) GetDownloadTuples() ([]blizzardv2.DownloadConnectedRealmTu
 
 			connectedRealmsBucket := tx.Bucket(connectedRealmsBucketName())
 			if connectedRealmsBucket == nil {
-				return errors.New("connected-realms bucket does not exist")
+				return nil
 			}
 
 			return connectedRealmsBucket.ForEach(
@@ -40,10 +42,11 @@ func (rBase Database) GetDownloadTuples() ([]blizzardv2.DownloadConnectedRealmTu
 						return err
 					}
 
+					lastModified := realmComposite.StatusTimestamps[statuskinds.Downloaded].Time()
 					out = append(out, blizzardv2.DownloadConnectedRealmTuple{
 						LoadConnectedRealmTuple: blizzardv2.LoadConnectedRealmTuple{
 							RegionVersionConnectedRealmTuple: keyTuple,
-							LastModified:                     realmComposite.StatusTimestamps["downloaded"].Time(),
+							LastModified:                     lastModified,
 						},
 						RegionHostname: region.Hostname,
 					})
