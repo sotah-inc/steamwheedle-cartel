@@ -26,14 +26,6 @@ func (sta RegionsState) ListenForQueryRealmModificationDates(stop ListenStopChan
 				return
 			}
 
-			if !sta.GameVersionList.Includes(tuple.Version) {
-				m.Err = "invalid game-version"
-				m.Code = mCodes.UserError
-				sta.Messenger.ReplyTo(natsMsg, m)
-
-				return
-			}
-
 			connectedRealmTimestamps, err := sta.RegionsDatabase.GetStatusTimestamps(tuple)
 			if err != nil {
 				logging.WithFields(logrus.Fields{

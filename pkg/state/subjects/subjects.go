@@ -48,6 +48,7 @@ const (
 	ValidateRegionConnectedRealm    Subject = "validateRegionConnectedRealm"
 	ResolveConnectedRealm           Subject = "resolveConnectedRealm"
 	ValidateRegionRealm             Subject = "validateRegionRealm"
+	ValidateGameVersion             Subject = "validateGameVersion"
 	QueryRealmModificationDates     Subject = "queryRealmModificationDates"
 	ConnectedRealmModificationDates Subject = "connectedRealmModificationDates"
 	ReceiveRegionTimestamps         Subject = "receiveRegionTimestamps"

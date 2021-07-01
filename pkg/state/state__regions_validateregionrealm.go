@@ -25,14 +25,6 @@ func (sta RegionsState) ListenForValidateRegionRealm(stop ListenStopChan) error 
 			return
 		}
 
-		if !sta.GameVersionList.Includes(tuple.Version) {
-			m.Err = "invalid game-version"
-			m.Code = codes.UserError
-			sta.Messenger.ReplyTo(natsMsg, m)
-
-			return
-		}
-
 		exists, err := sta.RegionsDatabase.RealmExists(tuple)
 		if err != nil {
 			m.Err = err.Error()

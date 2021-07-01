@@ -55,14 +55,6 @@ func (sta RegionsState) ListenForReceiveRegionTimestamps(stop ListenStopChan) er
 				return
 			}
 
-			if !sta.GameVersionList.Includes(req.Version) {
-				m.Err = "invalid game-version"
-				m.Code = mCodes.UserError
-				sta.Messenger.ReplyTo(natsMsg, m)
-
-				return
-			}
-
 			if err := sta.RegionsDatabase.ReceiveRegionTimestamps(req.RegionTimestamps); err != nil {
 				m.Err = err.Error()
 				m.Code = mCodes.GenericError

@@ -25,14 +25,6 @@ func (sta RegionsState) ListenForStatus(stop ListenStopChan) error {
 			return
 		}
 
-		if !sta.GameVersionList.Includes(tuple.Version) {
-			m.Err = "invalid game-version"
-			m.Code = codes.UserError
-			sta.Messenger.ReplyTo(natsMsg, m)
-
-			return
-		}
-
 		region, err := sta.RegionsDatabase.GetRegion(tuple.RegionName)
 		if err != nil {
 			m.Err = fmt.Sprintf("invalid region name: %s", tuple.RegionName)
