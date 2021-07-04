@@ -34,14 +34,14 @@ type RealmSlugWhitelist map[blizzardv2.RegionName]map[gameversion.GameVersion]bl
 
 func (wl RealmSlugWhitelist) Get(
 	regionName blizzardv2.RegionName,
-	gameVersion gameversion.GameVersion,
+	version gameversion.GameVersion,
 ) blizzardv2.RealmSlugs {
 	versionRealmSlugs, ok := wl[regionName]
 	if !ok {
 		return blizzardv2.RealmSlugs{}
 	}
 
-	realmSlugs, ok := versionRealmSlugs[gameVersion]
+	realmSlugs, ok := versionRealmSlugs[version]
 	if !ok {
 		return blizzardv2.RealmSlugs{}
 	}

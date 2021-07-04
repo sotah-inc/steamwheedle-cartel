@@ -12,9 +12,9 @@ import (
 func NewAreaMapsBase(
 	c Client,
 	location regions.Region,
-	gameVersion gameversions.GameVersion,
+	version gameversions.GameVersion,
 ) AreaMapsBase {
-	return AreaMapsBase{base{client: c, location: location}, gameVersion}
+	return AreaMapsBase{base{client: c, location: location}, version}
 }
 
 type AreaMapsBase struct {
