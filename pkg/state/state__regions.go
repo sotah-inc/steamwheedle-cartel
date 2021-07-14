@@ -146,14 +146,14 @@ func (sta RegionsState) ResolveTuples() (blizzardv2.RegionVersionConnectedRealmT
 
 func (sta RegionsState) GetListeners() SubjectListeners {
 	return SubjectListeners{
-		subjects.Status:                          sta.ListenForStatus,
-		subjects.ConnectedRealms:                 sta.ListenForConnectedRealms,
-		subjects.ValidateRegionConnectedRealm:    sta.ListenForValidateRegionConnectedRealm,
-		subjects.ResolveConnectedRealm:           sta.ListenForResolveConnectedRealm,
-		subjects.ValidateRegionRealm:             sta.ListenForValidateRegionRealm,
-		subjects.ValidateGameVersion:             sta.ListenForValidateGameVersion,
-		subjects.QueryRealmModificationDates:     sta.ListenForQueryRealmModificationDates,
 		subjects.ConnectedRealmModificationDates: sta.ListenForConnectedRealmModificationDates,
+		subjects.ConnectedRealms:                 sta.ListenForConnectedRealms,
+		subjects.QueryRealmModificationDates:     sta.ListenForQueryRealmModificationDates,
 		subjects.ReceiveRegionTimestamps:         sta.ListenForReceiveRegionTimestamps,
+		subjects.ResolveConnectedRealm:           sta.ListenForResolveConnectedRealm,
+		subjects.Status:                          sta.ListenForStatus,
+		subjects.ValidateGameVersion:             sta.ListenForValidateGameVersion,
+		subjects.ValidateRegionConnectedRealm:    sta.ListenForValidateRegionConnectedRealm,
+		subjects.ValidateRegionRealm:             sta.ListenForValidateRegionRealm,
 	}
 }
