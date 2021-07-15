@@ -5,11 +5,11 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 )
 
-func (tBase Database) GetRegionHistory(regionName blizzardv2.RegionName) (TokenHistory, error) {
+func (tBase Database) GetRegionHistory(tuple blizzardv2.RegionTuple) (TokenHistory, error) {
 	out := TokenHistory{}
 
 	err := tBase.db.View(func(tx *bolt.Tx) error {
-		bkt := tx.Bucket(baseBucketName(regionName))
+		bkt := tx.Bucket(baseBucketName(tuple.RegionName))
 		if bkt == nil {
 			return nil
 		}

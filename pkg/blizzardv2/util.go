@@ -22,6 +22,15 @@ type HrefReference struct {
 
 // region tuple
 
+func NewRegionTuple(data []byte) (RegionTuple, error) {
+	out := RegionTuple{}
+	if err := json.Unmarshal(data, &out); err != nil {
+		return RegionTuple{}, err
+	}
+
+	return out, nil
+}
+
 type RegionTuple struct {
 	RegionName RegionName `json:"region_name"`
 }
