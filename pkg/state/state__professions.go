@@ -55,21 +55,21 @@ type ProfessionsState struct {
 
 func (sta ProfessionsState) GetListeners() SubjectListeners {
 	return SubjectListeners{
-		subjects.ProfessionsIntake:            sta.ListenForProfessionsIntake,
-		subjects.SkillTiersIntake:             sta.ListenForSkillTiersIntake,
-		subjects.Professions:                  sta.ListenForProfessions,
-		subjects.ProfessionsFromIds:           sta.ListenForProfessionsFromIds,
-		subjects.RecipesIntake:                sta.ListenForRecipesIntake,
-		subjects.SkillTier:                    sta.ListenForSkillTier,
-		subjects.SkillTiers:                   sta.ListenForSkillTiers,
-		subjects.Recipe:                       sta.ListenForRecipe,
-		subjects.Recipes:                      sta.ListenForRecipes,
-		subjects.MiniRecipes:                  sta.ListenForMiniRecipes,
-		subjects.RecipesQuery:                 sta.ListenForRecipesQuery,
-		subjects.ItemsRecipes:                 sta.ListenForItemsRecipes,
 		subjects.CraftedItemRecipesIntake:     sta.ListenForCraftedItemRecipesIntake,
 		subjects.ItemRecipesIntake:            sta.ListenForItemRecipesIntake,
+		subjects.ItemsRecipes:                 sta.ListenForItemsRecipes,
+		subjects.MiniRecipes:                  sta.ListenForMiniRecipes,
 		subjects.ProfessionRecipeSubjects:     sta.ListenForProfessionRecipeSubjects,
+		subjects.Professions:                  sta.ListenForProfessions,
 		subjects.ProfessionsFindMatchingItems: sta.ListenForProfessionsFindMatchingItems,
+		subjects.ProfessionsFromIds:           sta.ListenForProfessionsFromIds,
+		subjects.ProfessionsIntake:            sta.ListenForProfessionsIntake,
+		subjects.Recipe:                       sta.ListenForRecipe,
+		subjects.Recipes:                      sta.ListenForRecipes,
+		subjects.RecipesIntake:                sta.ListenForRecipesIntake,
+		subjects.RecipesQuery:                 sta.ListenForRecipesQuery,
+		subjects.SkillTier:                    sta.ListenForSkillTier,
+		subjects.SkillTiers:                   sta.ListenForSkillTiers,
+		subjects.SkillTiersIntake:             sta.ListenForSkillTiersIntake,
 	}
 }
