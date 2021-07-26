@@ -8,15 +8,15 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state/subjects"
 )
 
-type ValidateRegionVersionResponse struct {
+type ValidateRegionResponse struct {
 	ValidateRegionConnectedRealmResponse
 }
 
-func (sta RegionsState) ListenForValidateRegionVersion(stop ListenStopChan) error {
-	err := sta.Messenger.Subscribe(string(subjects.ValidateRegionVersion), stop, func(natsMsg nats.Msg) {
+func (sta RegionsState) ListenForValidateRegion(stop ListenStopChan) error {
+	err := sta.Messenger.Subscribe(string(subjects.ValidateRegion), stop, func(natsMsg nats.Msg) {
 		m := messenger.NewMessage()
 
-		tuple, err := blizzardv2.NewRegionVersionTuple(natsMsg.Data)
+		tuple, err := blizzardv2.NewRegionTuple(natsMsg.Data)
 		if err != nil {
 			m.Err = err.Error()
 			m.Code = codes.MsgJSONParseError
@@ -34,7 +34,7 @@ func (sta RegionsState) ListenForValidateRegionVersion(stop ListenStopChan) erro
 			return
 		}
 
-		res := ValidateRegionVersionResponse{ValidateRegionConnectedRealmResponse{IsValid: exists}}
+		res := ValidateRegionResponse{ValidateRegionConnectedRealmResponse{IsValid: exists}}
 		encoded, err := res.EncodeForDelivery()
 		if err != nil {
 			m.Err = err.Error()
