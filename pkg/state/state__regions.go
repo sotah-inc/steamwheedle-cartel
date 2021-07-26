@@ -153,8 +153,8 @@ func (sta RegionsState) GetListeners() SubjectListeners {
 		subjects.ResolveConnectedRealm:           sta.ListenForResolveConnectedRealm,
 		subjects.Status:                          sta.ListenForStatus,
 		subjects.ValidateGameVersion:             sta.ListenForValidateGameVersion,
+		subjects.ValidateRegion:                  sta.ListenForValidateRegion,
 		subjects.ValidateRegionConnectedRealm:    sta.ListenForValidateRegionConnectedRealm,
 		subjects.ValidateRegionRealm:             sta.ListenForValidateRegionRealm,
-		subjects.ValidateRegion:                  sta.ListenForValidateRegion,
 	}
 }
