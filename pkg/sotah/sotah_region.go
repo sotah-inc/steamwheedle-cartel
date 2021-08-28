@@ -3,6 +3,7 @@ package sotah
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 )
@@ -73,4 +74,13 @@ type Region struct {
 
 func (region Region) EncodeForStorage() ([]byte, error) {
 	return json.Marshal(region)
+}
+
+func (region Region) String() string {
+	return fmt.Sprintf(
+		"name: %s, hostname: %s, primary: %t",
+		region.Name,
+		region.Hostname,
+		region.Primary,
+	)
 }

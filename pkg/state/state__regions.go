@@ -29,13 +29,13 @@ func NewRegionState(opts NewRegionStateOptions) (RegionsState, error) {
 		"game_versions": opts.GameVersionList,
 	}).Info("received config")
 
-	if true {
-		return RegionsState{}, errors.New("test")
-	}
-
 	regionsDatabase, err := RegionsDatabase.NewDatabase(opts.RegionsDatabaseDir)
 	if err != nil {
 		return RegionsState{}, err
+	}
+
+	if true {
+		return RegionsState{}, errors.New("test")
 	}
 
 	names, err := regionsDatabase.GetRegionNames()
