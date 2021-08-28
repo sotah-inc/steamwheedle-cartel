@@ -1,6 +1,7 @@
 package disk
 
 import (
+	"errors"
 	"time"
 
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
@@ -11,6 +12,10 @@ import (
 func (c Client) Collect() error {
 	startTime := time.Now()
 	logging.Info("calling DiskCollector.Collect()")
+
+	if true {
+		return errors.New("test")
+	}
 
 	collectAuctionsResults, err := c.collectAuctions()
 	if err != nil {
