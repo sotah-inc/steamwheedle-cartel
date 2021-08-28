@@ -78,7 +78,7 @@ func (region Region) EncodeForStorage() ([]byte, error) {
 
 func (region Region) String() string {
 	return fmt.Sprintf(
-		"name: %s, hostname: %s, primary: %t",
+		"[name: %s, hostname: %s, primary: %t]",
 		region.Name,
 		region.Hostname,
 		region.Primary,
