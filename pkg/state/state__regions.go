@@ -1,6 +1,8 @@
 package state
 
 import (
+	"errors"
+
 	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/gameversion"
@@ -22,6 +24,15 @@ type NewRegionStateOptions struct {
 }
 
 func NewRegionState(opts NewRegionStateOptions) (RegionsState, error) {
+	logging.WithFields(logrus.Fields{
+		"regions":       opts.Regions,
+		"game_versions": opts.GameVersionList,
+	}).Info("received config")
+
+	if true {
+		return RegionsState{}, errors.New("test")
+	}
+
 	regionsDatabase, err := RegionsDatabase.NewDatabase(opts.RegionsDatabaseDir)
 	if err != nil {
 		return RegionsState{}, err
@@ -32,11 +43,32 @@ func NewRegionState(opts NewRegionStateOptions) (RegionsState, error) {
 		return RegionsState{}, err
 	}
 
+	logging.WithFields(logrus.Fields{
+		"regions":       opts.Regions,
+		"game_versions": opts.GameVersionList,
+		"region-names":  names,
+	}).Info("have existing region-names")
+
+	if true {
+		return RegionsState{}, errors.New("test")
+	}
+
 	regionsToPersist := opts.Regions.FilterOut(names)
 	if len(regionsToPersist) > 0 {
 		if err := regionsDatabase.PersistRegions(regionsToPersist); err != nil {
 			return RegionsState{}, err
 		}
+	}
+
+	logging.WithFields(logrus.Fields{
+		"regions":            opts.Regions,
+		"game_versions":      opts.GameVersionList,
+		"region-names":       names,
+		"regions-to-persist": regionsToPersist,
+	}).Info("resolved regions-to-persist")
+
+	if true {
+		return RegionsState{}, errors.New("test")
 	}
 
 	for _, region := range opts.Regions {
