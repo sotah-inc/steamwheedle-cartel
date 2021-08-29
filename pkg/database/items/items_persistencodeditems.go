@@ -22,7 +22,7 @@ func (idBase Database) PersistEncodedItems(
 	totalPersisted := 0
 
 	err := idBase.db.Batch(func(tx *bolt.Tx) error {
-		itemsBucket, err := tx.CreateBucketIfNotExists(baseBucketName(version))
+		itemsBucket, err := tx.CreateBucketIfNotExists(baseBucketName())
 		if err != nil {
 			return err
 		}
@@ -33,7 +33,11 @@ func (idBase Database) PersistEncodedItems(
 		}
 
 		for job := range in {
-			if err := itemsBucket.Put(baseKeyName(job.Id), job.EncodedItem); err != nil {
+			tuple := blizzardv2.VersionItemTuple{
+				GameVersion: version,
+				Id:          job.Id,
+			}
+			if err := itemsBucket.Put(baseKeyName(tuple), job.EncodedItem); err != nil {
 				return err
 			}
 

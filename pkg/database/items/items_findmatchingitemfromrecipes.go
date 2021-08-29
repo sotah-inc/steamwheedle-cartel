@@ -5,24 +5,22 @@ import (
 
 	"github.com/boltdb/bolt"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/gameversion"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 )
 
 func (idBase Database) FindMatchingItemFromRecipes(
-	version gameversion.GameVersion,
-	id blizzardv2.ItemId,
+	tuple blizzardv2.VersionItemTuple,
 	rsMap blizzardv2.RecipeSubjectMap,
 ) (blizzardv2.RecipeIds, error) {
 	out := blizzardv2.RecipeIds{}
 
 	err := idBase.db.View(func(tx *bolt.Tx) error {
-		bkt := tx.Bucket(baseBucketName(version))
+		bkt := tx.Bucket(baseBucketName())
 		if bkt == nil {
 			return nil
 		}
 
-		v := bkt.Get(baseKeyName(id))
+		v := bkt.Get(baseKeyName(tuple))
 		if v == nil {
 			return nil
 		}

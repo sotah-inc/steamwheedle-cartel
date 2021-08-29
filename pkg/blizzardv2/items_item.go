@@ -29,6 +29,11 @@ func DefaultGetItemURL(
 	return fmt.Sprintf(itemURLFormat, regionHostname, id, namespace), nil
 }
 
+type VersionItemTuple struct {
+	GameVersion gameversion.GameVersion `json:"game_version"`
+	Id          ItemId                  `json:"id"`
+}
+
 type ItemId int
 
 type ItemQuality struct {

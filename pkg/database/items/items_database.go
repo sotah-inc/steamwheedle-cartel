@@ -37,18 +37,22 @@ func (idBase Database) GetItemIds(version gameversion.GameVersion) (blizzardv2.I
 	out := blizzardv2.ItemIds{}
 
 	err := idBase.db.View(func(tx *bolt.Tx) error {
-		bkt := tx.Bucket(baseBucketName(version))
+		bkt := tx.Bucket(baseBucketName())
 		if bkt == nil {
 			return nil
 		}
 
 		err := bkt.ForEach(func(k, v []byte) error {
-			id, err := itemIdFromKeyName(k)
+			tuple, err := tupleFromBaseKeyName(k)
 			if err != nil {
 				return err
 			}
 
-			out = append(out, id)
+			if tuple.GameVersion != version {
+				return nil
+			}
+
+			out = append(out, tuple.Id)
 
 			return nil
 		})
@@ -125,7 +129,10 @@ func (idBase Database) FindItems(
 	out := make(chan FindItemsJob)
 	worker := func() {
 		for id := range in {
-			item, exists, err := idBase.GetItem(version, id)
+			item, exists, err := idBase.GetItem(blizzardv2.VersionItemTuple{
+				GameVersion: version,
+				Id:          id,
+			})
 			if err != nil {
 				out <- FindItemsJob{
 					Err:    err,
@@ -163,19 +170,18 @@ func (idBase Database) FindItems(
 }
 
 func (idBase Database) GetItem(
-	version gameversion.GameVersion,
-	id blizzardv2.ItemId,
+	tuple blizzardv2.VersionItemTuple,
 ) (sotah.Item, bool, error) {
 	out := sotah.Item{}
 	exists := false
 
 	err := idBase.db.View(func(tx *bolt.Tx) error {
-		bkt := tx.Bucket(baseBucketName(version))
+		bkt := tx.Bucket(baseBucketName())
 		if bkt == nil {
 			return nil
 		}
 
-		v := bkt.Get(baseKeyName(id))
+		v := bkt.Get(baseKeyName(tuple))
 		if v == nil {
 			return nil
 		}
@@ -200,7 +206,7 @@ func (idBase Database) GetItem(
 
 func (idBase Database) ResetItems(version gameversion.GameVersion) error {
 	bucketNames := [][]byte{
-		baseBucketName(version),
+		baseBucketName(),
 		namesBucketName(version),
 		blacklistBucketName(version),
 		itemClassItemsBucket(),

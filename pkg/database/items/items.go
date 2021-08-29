@@ -2,8 +2,10 @@ package items
 
 import (
 	"encoding/binary"
+	"errors"
 	"fmt"
 	"strconv"
+	"strings"
 
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/gameversion"
@@ -12,8 +14,8 @@ import (
 
 // bucketing
 
-func baseBucketName(version gameversion.GameVersion) []byte {
-	return []byte(fmt.Sprintf("items-%s", version))
+func baseBucketName() []byte {
+	return []byte("items")
 }
 
 func namesBucketName(version gameversion.GameVersion) []byte {
@@ -38,17 +40,25 @@ func itemVendorPricesBucket(version gameversion.GameVersion) []byte {
 
 // keying
 
-func baseKeyName(id blizzardv2.ItemId) []byte {
-	return []byte(fmt.Sprintf("item-%d", id))
+func baseKeyName(tuple blizzardv2.VersionItemTuple) []byte {
+	return []byte(fmt.Sprintf("item-%s-%d", tuple.GameVersion, tuple.Id))
 }
 
-func itemIdFromKeyName(key []byte) (blizzardv2.ItemId, error) {
-	unparsedItemId, err := strconv.Atoi(string(key)[len("item-"):])
-	if err != nil {
-		return blizzardv2.ItemId(0), err
+func tupleFromBaseKeyName(key []byte) (blizzardv2.VersionItemTuple, error) {
+	parts := strings.Split(string(key), "-")
+	if len(parts) != 3 {
+		return blizzardv2.VersionItemTuple{}, errors.New("base key name had incorrect length")
 	}
 
-	return blizzardv2.ItemId(unparsedItemId), nil
+	parsedItemId, err := strconv.Atoi(parts[2])
+	if err != nil {
+		return blizzardv2.VersionItemTuple{}, err
+	}
+
+	return blizzardv2.VersionItemTuple{
+		GameVersion: gameversion.GameVersion(parts[1]),
+		Id:          blizzardv2.ItemId(parsedItemId),
+	}, nil
 }
 
 func nameKeyName(id blizzardv2.ItemId) []byte {

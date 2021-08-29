@@ -69,7 +69,7 @@ func (idBase Database) FilterInItemsToSync(
 
 	// peeking into the items database
 	err = idBase.db.View(func(tx *bolt.Tx) error {
-		itemsBucket := tx.Bucket(baseBucketName(version))
+		itemsBucket := tx.Bucket(baseBucketName())
 		if itemsBucket == nil {
 			syncWhitelist = syncWhitelist.ActivateAll()
 
@@ -84,7 +84,10 @@ func (idBase Database) FilterInItemsToSync(
 		}
 
 		for _, id := range nextItemIds {
-			value := itemsBucket.Get(baseKeyName(id))
+			value := itemsBucket.Get(baseKeyName(blizzardv2.VersionItemTuple{
+				GameVersion: version,
+				Id:          id,
+			}))
 			if value != nil {
 				continue
 			}

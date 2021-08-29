@@ -29,7 +29,10 @@ func (idBase Database) FindMatchingItemsFromRecipes(
 	// spinning up workers
 	worker := func() {
 		for id := range in {
-			recipeIds, err := idBase.FindMatchingItemFromRecipes(version, id, rsMap)
+			recipeIds, err := idBase.FindMatchingItemFromRecipes(blizzardv2.VersionItemTuple{
+				GameVersion: version,
+				Id:          id,
+			}, rsMap)
 			if err != nil {
 				out <- FindMatchingItemsFromRecipesJob{
 					Err:       err,
