@@ -21,12 +21,10 @@ func Api(config devState.ApiStateConfig) error {
 	}
 
 	// pruning item-blacklist
-	for _, version := range config.GameVersions {
-		if err := apiState.ItemsState.ItemsDatabase.PruneItemBlacklist(version); err != nil {
-			logging.WithField("error", err.Error()).Error("failed to prune items-database on start-up")
+	if err := apiState.ItemsState.ItemsDatabase.PruneItemBlacklist(); err != nil {
+		logging.WithField("error", err.Error()).Error("failed to prune items-database on start-up")
 
-			return err
-		}
+		return err
 	}
 
 	// opening all listeners
