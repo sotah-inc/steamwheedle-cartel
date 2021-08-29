@@ -34,10 +34,6 @@ func NewRegionState(opts NewRegionStateOptions) (RegionsState, error) {
 		return RegionsState{}, err
 	}
 
-	if true {
-		return RegionsState{}, errors.New("test")
-	}
-
 	names, err := regionsDatabase.GetRegionNames()
 	if err != nil {
 		return RegionsState{}, err
