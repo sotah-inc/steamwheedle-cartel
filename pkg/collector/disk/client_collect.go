@@ -3,7 +3,8 @@ package disk
 import (
 	"time"
 
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
+	"github.com/sirupsen/logrus"
+
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state"
 )
@@ -57,12 +58,10 @@ func (c Client) Collect() error {
 	}
 
 	// resolving next item-ids from auctions and recipes intake
-	nextItemIds := blizzardv2.ItemIds{}.Merge(
-		collectAuctionsResults.itemIds,
-	).Merge(
-		recipesIntakeResponse.RecipeItemIds,
-	)
-	itemIntakeResponse, err := c.CallItemsIntake(nextItemIds)
+	logging.WithFields(logrus.Fields{
+		"recipe-item-ids": len(recipesIntakeResponse.RecipeItemIds),
+	}).Info("DID NOT COMBINE RECIPE ITEM-IDS IN INTAKE RESPONSE")
+	itemIntakeResponse, err := c.CallItemsIntake(collectAuctionsResults.versionItems)
 	if err != nil {
 		return err
 	}

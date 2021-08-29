@@ -17,7 +17,7 @@ type collectAuctionsResult struct {
 }
 
 type collectAuctionsResults struct {
-	itemIds                 blizzardv2.ItemIds
+	versionItems            blizzardv2.VersionItemsMap
 	regionVersionTimestamps sotah.RegionVersionTimestamps
 	tuples                  blizzardv2.LoadConnectedRealmTuples
 }
@@ -76,7 +76,7 @@ func (c Client) collectAuctions() (collectAuctionsResults, error) {
 	// spinning up a worker for receiving results from auctions-out worker
 	go func() {
 		results := collectAuctionsResults{
-			itemIds:                 blizzardv2.ItemIds{},
+			versionItems:            blizzardv2.VersionItemsMap{},
 			regionVersionTimestamps: sotah.RegionVersionTimestamps{},
 			tuples:                  blizzardv2.LoadConnectedRealmTuples{},
 		}
@@ -89,7 +89,7 @@ func (c Client) collectAuctions() (collectAuctionsResults, error) {
 			)
 
 			// loading item-ids in
-			results.itemIds = results.itemIds.Merge(job.itemIds)
+			results.versionItems = results.versionItems.Insert(job.tuple.Version, job.itemIds)
 
 			// loading tuple in
 			results.tuples = append(results.tuples, job.tuple)

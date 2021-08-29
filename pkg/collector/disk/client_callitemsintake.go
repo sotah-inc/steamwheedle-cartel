@@ -12,22 +12,27 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state/subjects"
 )
 
-func (c Client) CallItemsIntake(ids blizzardv2.ItemIds) (state.ItemsIntakeResponse, error) {
-	if len(ids) == 0 {
+func (c Client) CallItemsIntake(
+	viMap blizzardv2.VersionItemsMap,
+) (state.ItemsIntakeResponse, error) {
+	if viMap.IsZero() {
 		return state.ItemsIntakeResponse{}, nil
 	}
 
-	// forwarding the received item-ids to items-history intake
-	encodedTuples, err := ids.EncodeForDelivery()
+	// forwarding the received version-items map to items-intake
+	encodedMap, err := viMap.EncodeForDelivery()
 	if err != nil {
-		logging.WithField("error", err.Error()).Error("failed to encode item-ids for delivery")
+		logging.WithField(
+			"error",
+			err.Error(),
+		).Error("failed to encode version-items map for delivery")
 
 		return state.ItemsIntakeResponse{}, err
 	}
 
 	response, err := c.messengerClient.Request(messenger.RequestOptions{
 		Subject: string(subjects.ItemsIntake),
-		Data:    encodedTuples,
+		Data:    encodedMap,
 		Timeout: 10 * time.Minute,
 	})
 	if err != nil {

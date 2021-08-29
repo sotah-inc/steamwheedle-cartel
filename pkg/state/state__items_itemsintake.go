@@ -4,11 +4,10 @@ import (
 	"encoding/json"
 	"time"
 
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/gameversion"
-
 	"github.com/nats-io/nats.go"
 	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/gameversion"
 	ItemsDatabase "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database/items" // nolint:lll
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
@@ -33,30 +32,11 @@ func (resp ItemsIntakeResponse) EncodeForDelivery() ([]byte, error) {
 	return json.Marshal(resp)
 }
 
-func NewItemsIntakeRequest(data []byte) (ItemsIntakeRequest, error) {
-	out := ItemsIntakeRequest{}
-
-	if err := json.Unmarshal(data, &out); err != nil {
-		return ItemsIntakeRequest{}, err
-	}
-
-	return out, nil
-}
-
-type ItemsIntakeRequest struct {
-	ItemIds     blizzardv2.ItemIds      `json:"item_ids"`
-	GameVersion gameversion.GameVersion `json:"game_version"`
-}
-
-func (req ItemsIntakeRequest) EncodeForDelivery() ([]byte, error) {
-	return json.Marshal(req)
-}
-
 func (sta ItemsState) ListenForItemsIntake(stop ListenStopChan) error {
 	err := sta.Messenger.Subscribe(string(subjects.ItemsIntake), stop, func(natsMsg nats.Msg) {
 		m := messenger.NewMessage()
 
-		req, err := NewItemsIntakeRequest(natsMsg.Data)
+		viMap, err := blizzardv2.NewVersionItemsMap(natsMsg.Data)
 		if err != nil {
 			m.Err = err.Error()
 			m.Code = codes.MsgJSONParseError
@@ -65,17 +45,22 @@ func (sta ItemsState) ListenForItemsIntake(stop ListenStopChan) error {
 			return
 		}
 
-		logging.WithField("items", len(req.ItemIds)).Info("received item-ids")
-		resp, err := sta.itemsIntake(req)
-		if err != nil {
-			m.Err = err.Error()
-			m.Code = codes.GenericError
-			sta.Messenger.ReplyTo(natsMsg, m)
+		totalPersisted := 0
+		for version, ids := range viMap {
+			logging.WithField("items", len(ids)).Info("received item-ids")
+			resp, err := sta.itemsIntake(version, ids)
+			if err != nil {
+				m.Err = err.Error()
+				m.Code = codes.GenericError
+				sta.Messenger.ReplyTo(natsMsg, m)
 
-			return
+				return
+			}
+
+			totalPersisted += resp.TotalPersisted
 		}
 
-		encodedResponse, err := resp.EncodeForDelivery()
+		encodedResponse, err := ItemsIntakeResponse{TotalPersisted: totalPersisted}.EncodeForDelivery()
 		if err != nil {
 			m.Err = err.Error()
 			m.Code = codes.GenericError
@@ -95,27 +80,30 @@ func (sta ItemsState) ListenForItemsIntake(stop ListenStopChan) error {
 	return nil
 }
 
-func (sta ItemsState) itemsIntake(req ItemsIntakeRequest) (ItemsIntakeResponse, error) {
+func (sta ItemsState) itemsIntake(
+	version gameversion.GameVersion,
+	ids blizzardv2.ItemIds,
+) (ItemsIntakeResponse, error) {
 	startTime := time.Now()
 
 	// resolving items to sync
-	itemIds, err := sta.ItemsDatabase.FilterInItemsToSync(req.GameVersion, req.ItemIds)
+	itemIdsToSync, err := sta.ItemsDatabase.FilterInItemsToSync(version, ids)
 	if err != nil {
 		logging.WithField("error", err.Error()).Error("failed to filter in items to sync")
 
 		return ItemsIntakeResponse{}, err
 	}
 
-	if len(itemIds) == 0 {
+	if len(itemIdsToSync) == 0 {
 		logging.Info("skipping items-intake as none were filtered in")
 
 		return ItemsIntakeResponse{TotalPersisted: 0}, nil
 	}
 
-	logging.WithField("items", len(itemIds)).Info("collecting items")
+	logging.WithField("items", len(itemIdsToSync)).Info("collecting items")
 
 	// starting up an intake queue
-	getEncodedItemsOut, erroneousItemIdsOut := sta.LakeClient.GetEncodedItems(req.GameVersion, itemIds)
+	getEncodedItemsOut, erroneousItemIdsOut := sta.LakeClient.GetEncodedItems(version, itemIdsToSync)
 	persistItemsIn := make(chan ItemsDatabase.PersistEncodedItemsInJob)
 	itemClassItemsOut := make(chan blizzardv2.ItemClassItemsMap)
 	itemVendorPricesOut := make(chan map[blizzardv2.ItemId]blizzardv2.PriceValue)
@@ -155,7 +143,7 @@ func (sta ItemsState) itemsIntake(req ItemsIntakeRequest) (ItemsIntakeResponse, 
 		close(itemVendorPricesOut)
 	}()
 
-	totalPersisted, err := sta.ItemsDatabase.PersistEncodedItems(req.GameVersion, persistItemsIn)
+	totalPersisted, err := sta.ItemsDatabase.PersistEncodedItems(version, persistItemsIn)
 	if err != nil {
 		logging.WithField("error", err.Error()).Error("failed to persist items")
 
@@ -163,7 +151,7 @@ func (sta ItemsState) itemsIntake(req ItemsIntakeRequest) (ItemsIntakeResponse, 
 	}
 
 	erroneousItemIds := <-erroneousItemIdsOut
-	if err := sta.ItemsDatabase.PersistBlacklistedIds(req.GameVersion, erroneousItemIds); err != nil {
+	if err := sta.ItemsDatabase.PersistBlacklistedIds(version, erroneousItemIds); err != nil {
 		logging.WithField("error", err.Error()).Error("failed to persist blacklisted item-ids")
 
 		return ItemsIntakeResponse{}, err
@@ -178,7 +166,7 @@ func (sta ItemsState) itemsIntake(req ItemsIntakeRequest) (ItemsIntakeResponse, 
 
 	itemVendorPrices := <-itemVendorPricesOut
 	if len(itemVendorPrices) > 0 {
-		if err := sta.ItemsDatabase.PersistVendorPrices(req.GameVersion, itemVendorPrices); err != nil {
+		if err := sta.ItemsDatabase.PersistVendorPrices(version, itemVendorPrices); err != nil {
 			logging.WithField("error", err.Error()).Error("failed to persist item-vendor-prices")
 
 			return ItemsIntakeResponse{}, err
