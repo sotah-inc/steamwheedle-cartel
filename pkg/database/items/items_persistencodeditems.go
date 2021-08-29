@@ -27,7 +27,7 @@ func (idBase Database) PersistEncodedItems(
 			return err
 		}
 
-		itemNamesBucket, err := tx.CreateBucketIfNotExists(namesBucketName(version))
+		itemNamesBucket, err := tx.CreateBucketIfNotExists(namesBucketName())
 		if err != nil {
 			return err
 		}
@@ -41,7 +41,7 @@ func (idBase Database) PersistEncodedItems(
 				return err
 			}
 
-			if err := itemNamesBucket.Put(nameKeyName(job.Id), job.EncodedNormalizedName); err != nil {
+			if err := itemNamesBucket.Put(nameKeyName(tuple), job.EncodedNormalizedName); err != nil {
 				return err
 			}
 

@@ -75,18 +75,22 @@ func (idBase Database) GetIdNormalizedNameMap(
 	out := sotah.ItemIdNameMap{}
 
 	err := idBase.db.View(func(tx *bolt.Tx) error {
-		bkt := tx.Bucket(namesBucketName(version))
+		bkt := tx.Bucket(namesBucketName())
 		if bkt == nil {
 			return nil
 		}
 
 		err := bkt.ForEach(func(k, v []byte) error {
-			itemId, err := itemIdFromNameKeyName(k)
+			tuple, err := tupleFromNameKeyName(k)
 			if err != nil {
 				return err
 			}
 
-			out[itemId], err = locale.NewMapping(v)
+			if tuple.GameVersion != version {
+				return nil
+			}
+
+			out[tuple.Id], err = locale.NewMapping(v)
 			if err != nil {
 				return err
 			}
@@ -207,7 +211,7 @@ func (idBase Database) GetItem(
 func (idBase Database) ResetItems(version gameversion.GameVersion) error {
 	bucketNames := [][]byte{
 		baseBucketName(),
-		namesBucketName(version),
+		namesBucketName(),
 		blacklistBucketName(version),
 		itemClassItemsBucket(),
 	}

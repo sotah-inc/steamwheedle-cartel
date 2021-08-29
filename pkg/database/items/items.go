@@ -18,8 +18,8 @@ func baseBucketName() []byte {
 	return []byte("items")
 }
 
-func namesBucketName(version gameversion.GameVersion) []byte {
-	return []byte(fmt.Sprintf("item-names-%s", version))
+func namesBucketName() []byte {
+	return []byte("item-names")
 }
 
 func blacklistBucketName(version gameversion.GameVersion) []byte {
@@ -66,17 +66,12 @@ func tupleFromBaseKeyName(key []byte) (blizzardv2.VersionItemTuple, error) {
 	}, nil
 }
 
-func nameKeyName(id blizzardv2.ItemId) []byte {
-	return []byte(fmt.Sprintf("item-name-%d", id))
+func nameKeyName(tuple blizzardv2.VersionItemTuple) []byte {
+	return []byte(fmt.Sprintf("item-name/%s-%d", tuple.GameVersion, tuple.Id))
 }
 
-func itemIdFromNameKeyName(key []byte) (blizzardv2.ItemId, error) {
-	unparsedItemId, err := strconv.Atoi(string(key)[len("item-name-"):])
-	if err != nil {
-		return blizzardv2.ItemId(0), err
-	}
-
-	return blizzardv2.ItemId(unparsedItemId), nil
+func tupleFromNameKeyName(key []byte) (blizzardv2.VersionItemTuple, error) {
+	return tupleFromBaseKeyName(key)
 }
 
 func blacklistKeyName(id blizzardv2.ItemId) []byte {

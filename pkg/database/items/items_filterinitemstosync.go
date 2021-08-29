@@ -76,7 +76,7 @@ func (idBase Database) FilterInItemsToSync(
 			return nil
 		}
 
-		itemNamesBucket := tx.Bucket(namesBucketName(version))
+		itemNamesBucket := tx.Bucket(namesBucketName())
 		if itemNamesBucket == nil {
 			syncWhitelist = syncWhitelist.ActivateAll()
 
