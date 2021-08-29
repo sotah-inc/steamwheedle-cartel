@@ -22,11 +22,6 @@ type NewRegionStateOptions struct {
 }
 
 func NewRegionState(opts NewRegionStateOptions) (RegionsState, error) {
-	logging.WithFields(logrus.Fields{
-		"regions":       opts.Regions,
-		"game_versions": opts.GameVersionList,
-	}).Info("received config")
-
 	regionsDatabase, err := RegionsDatabase.NewDatabase(opts.RegionsDatabaseDir)
 	if err != nil {
 		return RegionsState{}, err
@@ -36,12 +31,6 @@ func NewRegionState(opts NewRegionStateOptions) (RegionsState, error) {
 	if err != nil {
 		return RegionsState{}, err
 	}
-
-	logging.WithFields(logrus.Fields{
-		"regions":       opts.Regions,
-		"game_versions": opts.GameVersionList,
-		"region-names":  names,
-	}).Info("have existing region-names")
 
 	regionsToPersist := opts.Regions.FilterOut(names)
 	if len(regionsToPersist) > 0 {
