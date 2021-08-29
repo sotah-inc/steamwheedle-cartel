@@ -49,10 +49,6 @@ func NewRegionState(opts NewRegionStateOptions) (RegionsState, error) {
 		"region-names":  names,
 	}).Info("have existing region-names")
 
-	if true {
-		return RegionsState{}, errors.New("test")
-	}
-
 	regionsToPersist := opts.Regions.FilterOut(names)
 	if len(regionsToPersist) > 0 {
 		if err := regionsDatabase.PersistRegions(regionsToPersist); err != nil {
