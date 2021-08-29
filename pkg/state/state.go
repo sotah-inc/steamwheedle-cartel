@@ -5,7 +5,6 @@ import (
 
 	"github.com/twinj/uuid"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/gameversion"
 	dCodes "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/database/codes"
 	mCodes "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger/codes"
 )
@@ -51,23 +50,5 @@ type IntakeRequest struct {
 }
 
 func (req IntakeRequest) EncodeForDelivery() ([]byte, error) {
-	return json.Marshal(req)
-}
-
-func NewLoadIntakeRequest(data []byte) (LoadIntakeRequest, error) {
-	out := LoadIntakeRequest{}
-	if err := json.Unmarshal(data, &out); err != nil {
-		return LoadIntakeRequest{}, err
-	}
-
-	return out, nil
-}
-
-type LoadIntakeRequest struct {
-	Version gameversion.GameVersion             `json:"version"`
-	Tuples  blizzardv2.LoadConnectedRealmTuples `json:"tuples"`
-}
-
-func (req LoadIntakeRequest) EncodeForDelivery() ([]byte, error) {
 	return json.Marshal(req)
 }

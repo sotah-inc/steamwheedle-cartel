@@ -20,7 +20,7 @@ func (sta StatsState) ListenForStatsIntake(stop ListenStopChan) error {
 	err := sta.Messenger.Subscribe(string(subjects.StatsIntake), stop, func(natsMsg nats.Msg) {
 		m := messenger.NewMessage()
 
-		req, err := NewLoadIntakeRequest(natsMsg.Data)
+		tuples, err := blizzardv2.NewLoadConnectedRealmTuples(natsMsg.Data)
 		if err != nil {
 			m.Err = err.Error()
 			m.Code = codes.MsgJSONParseError
@@ -30,10 +30,9 @@ func (sta StatsState) ListenForStatsIntake(stop ListenStopChan) error {
 		}
 
 		logging.WithFields(logrus.Fields{
-			"version": req.Version,
-			"tuples":  len(req.Tuples),
+			"tuples": len(tuples),
 		}).Info("received")
-		if err := sta.StatsIntake(req); err != nil {
+		if err := sta.StatsIntake(tuples); err != nil {
 			m.Err = err.Error()
 			m.Code = codes.GenericError
 			sta.Messenger.ReplyTo(natsMsg, m)
@@ -50,8 +49,8 @@ func (sta StatsState) ListenForStatsIntake(stop ListenStopChan) error {
 	return nil
 }
 
-func (sta StatsState) StatsIntake(req LoadIntakeRequest) error {
-	if err := sta.TuplesIntake(req); err != nil {
+func (sta StatsState) StatsIntake(tuples blizzardv2.LoadConnectedRealmTuples) error {
+	if err := sta.TuplesIntake(tuples); err != nil {
 		return err
 	}
 
@@ -108,11 +107,11 @@ func (sta StatsState) RegionRealmsIntake(
 	return nil
 }
 
-func (sta StatsState) TuplesIntake(req LoadIntakeRequest) error {
+func (sta StatsState) TuplesIntake(tuples blizzardv2.LoadConnectedRealmTuples) error {
 	startTime := time.Now()
 
 	// spinning up workers
-	getEncodedStatsByTuplesOut := sta.LakeClient.GetEncodedStatsByTuples(req.Tuples)
+	getEncodedStatsByTuplesOut := sta.LakeClient.GetEncodedStatsByTuples(tuples)
 	persistEncodedStatsIn := make(chan StatsDatabase.PersistRealmStatsInJob)
 	persistEncodedStatsOut := sta.StatsTupleDatabases.PersistEncodedRealmStats(persistEncodedStatsIn)
 
@@ -168,7 +167,7 @@ func (sta StatsState) TuplesIntake(req LoadIntakeRequest) error {
 
 	// pruning stats
 	if err := sta.StatsTupleDatabases.PruneRealmStats(
-		req.Tuples.RegionVersionConnectedRealmTuples(),
+		tuples.RegionVersionConnectedRealmTuples(),
 		sotah.UnixTimestamp(BaseDatabase.RetentionLimit().Unix()),
 	); err != nil {
 		logging.WithField("error", err.Error()).Error("failed to prune stats")
