@@ -208,11 +208,11 @@ func (idBase Database) GetItem(
 	return out, exists, nil
 }
 
-func (idBase Database) ResetItems(version gameversion.GameVersion) error {
+func (idBase Database) ResetItems() error {
 	bucketNames := [][]byte{
 		baseBucketName(),
 		namesBucketName(),
-		blacklistBucketName(version),
+		blacklistBucketName(),
 		itemClassItemsBucket(),
 	}
 

@@ -12,18 +12,22 @@ func (idBase Database) GetBlacklistedIds(
 	var out blizzardv2.ItemIds
 
 	err := idBase.db.View(func(tx *bolt.Tx) error {
-		bkt := tx.Bucket(blacklistBucketName(version))
+		bkt := tx.Bucket(blacklistBucketName())
 		if bkt == nil {
 			return nil
 		}
 
 		return bkt.ForEach(func(k []byte, v []byte) error {
-			id, err := itemIdFromBlacklistKeyName(k)
+			tuple, err := tupleFromBlacklistKeyName(k)
 			if err != nil {
 				return err
 			}
 
-			out = append(out, id)
+			if tuple.GameVersion != version {
+				return nil
+			}
+
+			out = append(out, tuple.Id)
 
 			return nil
 		})

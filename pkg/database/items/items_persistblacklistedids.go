@@ -15,17 +15,22 @@ func (idBase Database) PersistBlacklistedIds(
 	logging.WithField("erroneous-ids", ids).Info("persisting blacklisted item-ids")
 
 	return idBase.db.Batch(func(tx *bolt.Tx) error {
-		bkt, err := tx.CreateBucketIfNotExists(blacklistBucketName(version))
+		bkt, err := tx.CreateBucketIfNotExists(blacklistBucketName())
 		if err != nil {
 			return err
 		}
 
 		for _, id := range ids {
+			tuple := blizzardv2.VersionItemTuple{
+				GameVersion: version,
+				Id:          id,
+			}
+
 			logging.WithFields(logrus.Fields{
-				"id": id,
+				"tuple": tuple,
 			}).Info("persisting blacklisted item-id")
 
-			if err := bkt.Put(blacklistKeyName(id), blacklistKeyName(id)); err != nil {
+			if err := bkt.Put(blacklistKeyName(tuple), blacklistKeyName(tuple)); err != nil {
 				return err
 			}
 		}
