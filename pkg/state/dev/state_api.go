@@ -1,6 +1,8 @@
 package dev
 
 import (
+	"errors"
+
 	"github.com/twinj/uuid"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/gameversion"
@@ -124,6 +126,10 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 		logging.WithField("error", err.Error()).Error("failed to establish region state")
 
 		return ApiState{}, err
+	}
+
+	if true {
+		return ApiState{}, errors.New("test")
 	}
 
 	// gathering boot state

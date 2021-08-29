@@ -22,7 +22,7 @@ func (rBase Database) GetConnectedRealmIds(
 				return err
 			}
 
-			if keyTuple.RegionName != tuple.RegionName || keyTuple.Version != tuple.Version {
+			if !keyTuple.Equals(tuple) {
 				return nil
 			}
 
