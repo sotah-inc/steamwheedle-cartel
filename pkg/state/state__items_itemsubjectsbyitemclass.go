@@ -27,6 +27,10 @@ type ItemSubjectsByItemClassRequest struct {
 	Version     gameversion.GameVersion `json:"game_version"`
 }
 
+func (req ItemSubjectsByItemClassRequest) EncodeForDelivery() ([]byte, error) {
+	return json.Marshal(req)
+}
+
 func (sta ItemsState) ListenForItemSubjectsByItemClass(stop ListenStopChan) error {
 	return sta.Messenger.Subscribe(
 		string(subjects.ItemSubjectsByItemClass),

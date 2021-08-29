@@ -2,7 +2,6 @@ package disk
 
 import (
 	"errors"
-	"strconv"
 	"time"
 
 	"github.com/sirupsen/logrus"
@@ -21,10 +20,19 @@ const RecipeItemClassId = itemclass.Recipe
 func (c Client) CallRecipeItemCorrelation() error {
 	startTime := time.Now()
 
+	itemSubjectsByItemClassRequest := state.ItemSubjectsByItemClassRequest{
+		ItemClassId: RecipeItemClassId,
+		Version:     "",
+	}
+	encodedRequest, err := itemSubjectsByItemClassRequest.EncodeForDelivery()
+	if err != nil {
+		return err
+	}
+
 	// resolving item-subjects
 	itemSubjectsMessage, err := c.messengerClient.Request(messenger.RequestOptions{
 		Subject: string(subjects.ItemSubjectsByItemClass),
-		Data:    []byte(strconv.Itoa(int(RecipeItemClassId))),
+		Data:    encodedRequest,
 		Timeout: 10 * time.Minute,
 	})
 	if err != nil {
