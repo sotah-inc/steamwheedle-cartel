@@ -65,8 +65,13 @@ func (sta ProfessionsState) ListenForProfessionRecipeSubjects(stop ListenStopCha
 				"recipe-subjects": len(rsMap),
 			}).Info("resolved recipe-subjects for profession and recipe-ids")
 
+			req := ItemsFindMatchingRecipesRequest{
+				Version:    "",
+				RecipesMap: rsMap,
+			}
+
 			// marshalling for messenger
-			encodedMessage, err := rsMap.EncodeForDelivery()
+			encodedMessage, err := req.EncodeForDelivery()
 			if err != nil {
 				m.Err = err.Error()
 				m.Code = mCodes.GenericError
