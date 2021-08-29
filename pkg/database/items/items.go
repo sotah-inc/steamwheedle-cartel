@@ -41,22 +41,27 @@ func itemVendorPricesBucket(version gameversion.GameVersion) []byte {
 // keying
 
 func baseKeyName(tuple blizzardv2.VersionItemTuple) []byte {
-	return []byte(fmt.Sprintf("item-%s-%d", tuple.GameVersion, tuple.Id))
+	return []byte(fmt.Sprintf("item/%s-%d", tuple.GameVersion, tuple.Id))
 }
 
 func tupleFromBaseKeyName(key []byte) (blizzardv2.VersionItemTuple, error) {
-	parts := strings.Split(string(key), "-")
-	if len(parts) != 3 {
+	slashParts := strings.Split(string(key), "/")
+	if len(slashParts) != 2 {
 		return blizzardv2.VersionItemTuple{}, errors.New("base key name had incorrect length")
 	}
 
-	parsedItemId, err := strconv.Atoi(parts[2])
+	dashParts := strings.Split(slashParts[1], "-")
+	if len(dashParts) != 2 {
+		return blizzardv2.VersionItemTuple{}, errors.New("base key name had incorrect length")
+	}
+
+	parsedItemId, err := strconv.Atoi(dashParts[2])
 	if err != nil {
 		return blizzardv2.VersionItemTuple{}, err
 	}
 
 	return blizzardv2.VersionItemTuple{
-		GameVersion: gameversion.GameVersion(parts[1]),
+		GameVersion: gameversion.GameVersion(dashParts[1]),
 		Id:          blizzardv2.ItemId(parsedItemId),
 	}, nil
 }
