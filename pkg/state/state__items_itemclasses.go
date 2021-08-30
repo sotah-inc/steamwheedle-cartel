@@ -42,7 +42,7 @@ func (sta ItemsState) ListenForItemClasses(stop ListenStopChan) error {
 
 		logging.WithFields(logrus.Fields{
 			"subject": subjects.ItemClasses,
-			"message": jsonEncoded,
+			"message": string(jsonEncoded),
 		}).Info("sending on subject")
 
 		m.Data = string(jsonEncoded)
