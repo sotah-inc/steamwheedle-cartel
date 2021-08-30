@@ -3,10 +3,6 @@ package state
 import (
 	"encoding/json"
 
-	"github.com/sirupsen/logrus"
-
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
-
 	nats "github.com/nats-io/nats.go"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
@@ -39,11 +35,6 @@ func (sta ItemsState) ListenForItemClasses(stop ListenStopChan) error {
 
 			return
 		}
-
-		logging.WithFields(logrus.Fields{
-			"subject": subjects.ItemClasses,
-			"message": string(jsonEncoded),
-		}).Info("sending on subject")
 
 		m.Data = string(jsonEncoded)
 		sta.Messenger.ReplyTo(natsMsg, m)
