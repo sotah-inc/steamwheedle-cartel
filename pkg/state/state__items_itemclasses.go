@@ -3,6 +3,8 @@ package state
 import (
 	"encoding/json"
 
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
+
 	nats "github.com/nats-io/nats.go"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
@@ -37,6 +39,9 @@ func (sta ItemsState) ListenForItemClasses(stop ListenStopChan) error {
 		}
 
 		m.Data = string(jsonEncoded)
+
+		logging.WithField("response", m.Data).Info("sending response")
+
 		sta.Messenger.ReplyTo(natsMsg, m)
 	})
 	if err != nil {
