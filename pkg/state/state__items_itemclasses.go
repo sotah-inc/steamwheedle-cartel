@@ -1,19 +1,33 @@
 package state
 
 import (
+	"encoding/base64"
 	"encoding/json"
-
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 
 	nats "github.com/nats-io/nats.go"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger/codes"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state/subjects"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/util"
 )
 
 type ItemsClassesResponse struct {
 	ItemClasses []blizzardv2.ItemClassResponse `json:"item_classes"`
+}
+
+func (res ItemsClassesResponse) EncodeForDelivery() (string, error) {
+	jsonEncoded, err := json.Marshal(res)
+	if err != nil {
+		return "", err
+	}
+
+	gzipEncoded, err := util.GzipEncode(jsonEncoded)
+	if err != nil {
+		return "", err
+	}
+
+	return base64.StdEncoding.EncodeToString(gzipEncoded), nil
 }
 
 func (sta ItemsState) ListenForItemClasses(stop ListenStopChan) error {
@@ -29,18 +43,16 @@ func (sta ItemsState) ListenForItemClasses(stop ListenStopChan) error {
 			return
 		}
 
-		jsonEncoded, err := json.Marshal(ItemsClassesResponse{ItemClasses: itemClasses})
+		data, err := ItemsClassesResponse{ItemClasses: itemClasses}.EncodeForDelivery()
 		if err != nil {
 			m.Err = err.Error()
-			m.Code = codes.MsgJSONParseError
+			m.Code = codes.GenericError
 			sta.Messenger.ReplyTo(natsMsg, m)
 
 			return
 		}
 
-		m.Data = string(jsonEncoded)
-
-		logging.WithField("response", m.Data).Info("sending response")
+		m.Data = data
 
 		sta.Messenger.ReplyTo(natsMsg, m)
 	})
