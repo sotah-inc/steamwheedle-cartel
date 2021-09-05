@@ -1,6 +1,7 @@
 package blizzardv2
 
 import (
+	"errors"
 	"regexp"
 	"strconv"
 
@@ -65,6 +66,19 @@ func GetAllConnectedRealms(
 			if err != nil {
 				out <- GetAllConnectedRealmsJob{
 					Err:                    err,
+					HrefReference:          hrefRef,
+					ConnectedRealmResponse: ConnectedRealmResponse{},
+				}
+
+				continue
+			}
+
+			logging.WithFields(logrus.Fields{
+				"connected-realm": cRealm.Id,
+			}).Info("received connected-realm")
+			if true {
+				out <- GetAllConnectedRealmsJob{
+					Err:                    errors.New("test"),
 					HrefReference:          hrefRef,
 					ConnectedRealmResponse: ConnectedRealmResponse{},
 				}

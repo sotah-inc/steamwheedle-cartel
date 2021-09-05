@@ -72,6 +72,12 @@ func NewRegionState(opts NewRegionStateOptions) (RegionsState, error) {
 			persistConnectedRealmsIn := make(chan RegionsDatabase.PersistConnectedRealmsInJob)
 			go func() {
 				for connectedRealmsOutJob := range connectedRealmsOut {
+					if connectedRealmsOutJob.Err != nil {
+						logging.WithField("error", err.Error()).Error("failed to resolve connected-realm")
+
+						continue
+					}
+
 					connectedRealmComposite := sotah.RealmComposite{
 						ConnectedRealmResponse: connectedRealmsOutJob.ConnectedRealmResponse,
 						StatusTimestamps: sotah.StatusTimestamps{
