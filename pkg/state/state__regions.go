@@ -123,10 +123,12 @@ func NewRegionState(opts NewRegionStateOptions) (RegionsState, error) {
 				close(persistConnectedRealmsErrOut)
 			}()
 
+			logging.Info("waiting for persistConnectedRealmsErrOut")
 			if err := <-persistConnectedRealmsErrOut; err != nil {
 				return RegionsState{}, err
 			}
 
+			logging.Info("calling regionsDatabase.PersistConnectedRealms()")
 			if err := regionsDatabase.PersistConnectedRealms(
 				blizzardv2.RegionVersionTuple{
 					RegionTuple: blizzardv2.RegionTuple{RegionName: region.Name},
