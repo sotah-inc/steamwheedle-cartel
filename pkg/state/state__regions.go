@@ -39,7 +39,10 @@ func NewRegionState(opts NewRegionStateOptions) (RegionsState, error) {
 		}
 	}
 
+	logging.WithField("regions", opts.Regions).Info("going over regions")
 	for _, region := range opts.Regions {
+		logging.WithField("game-versions", opts.GameVersionList).Info("going over game-versions")
+
 		for _, version := range opts.GameVersionList {
 			resolvedWhitelist := opts.RealmSlugWhitelist.Get(region.Name, version)
 			connectedRealmIds, err := regionsDatabase.GetConnectedRealmIds(blizzardv2.RegionVersionTuple{
