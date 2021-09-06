@@ -27,7 +27,7 @@ func (rBase Database) PersistConnectedRealms(
 			if job.Id == 3683 {
 				logging.Info("FAILING HARD")
 
-				return errors.New("test")
+				return errors.New("POOOOOOOOOP")
 			}
 
 			k := connectedRealmsKeyName(blizzardv2.RegionVersionConnectedRealmTuple{
