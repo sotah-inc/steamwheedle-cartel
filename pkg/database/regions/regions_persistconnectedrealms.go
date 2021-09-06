@@ -24,7 +24,7 @@ func (rBase Database) PersistConnectedRealms(
 		}
 
 		for job := range in {
-			logging.WithField("id", job.Id).Info("persisting")
+			logging.WithField("id", job.Id).Info("persisting connected-realm")
 
 			if true {
 				return errors.New("POOOOOOOOOP")
