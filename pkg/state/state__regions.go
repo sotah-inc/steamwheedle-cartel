@@ -1,6 +1,8 @@
 package state
 
 import (
+	"errors"
+
 	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/gameversion"
@@ -147,6 +149,10 @@ func NewRegionState(opts NewRegionStateOptions) (RegionsState, error) {
 			logging.Info("waiting for persistConnectedRealmsErrOut")
 			if err := <-persistConnectedRealmsErrOut; err != nil {
 				return RegionsState{}, err
+			}
+
+			if true {
+				return RegionsState{}, errors.New("FINISHED ERROR CONDITION")
 			}
 		}
 	}
