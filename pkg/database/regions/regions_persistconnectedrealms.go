@@ -5,6 +5,7 @@ import (
 
 	"github.com/boltdb/bolt"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 )
 
 type PersistConnectedRealmsInJob struct {
@@ -24,6 +25,8 @@ func (rBase Database) PersistConnectedRealms(
 
 		for job := range in {
 			if job.Id == 3683 {
+				logging.Info("FAILING HARD")
+
 				return errors.New("test")
 			}
 

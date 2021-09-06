@@ -130,6 +130,8 @@ func NewRegionState(opts NewRegionStateOptions) (RegionsState, error) {
 					},
 					persistConnectedRealmsIn,
 				); err != nil {
+					logging.WithField("error", err.Error()).Error("failed to persist connected-realm")
+
 					persistConnectedRealmsErrOut <- err
 
 					return
