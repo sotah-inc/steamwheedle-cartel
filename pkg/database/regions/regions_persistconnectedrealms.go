@@ -30,6 +30,7 @@ func (rBase Database) PersistConnectedRealms(
 				logging.WithField("id", job.Id).Info("sending error back")
 
 				return errors.New("POOOOOOOOOP")
+				return errors.New("POOOOOOOOOP")
 			}
 
 			logging.WithField("id", job.Id).Info("persisting connected-realm in PersistConnectedRealms()")
