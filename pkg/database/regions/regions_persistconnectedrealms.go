@@ -24,11 +24,15 @@ func (rBase Database) PersistConnectedRealms(
 		}
 
 		for job := range in {
-			logging.WithField("id", job.Id).Info("persisting connected-realm")
+			logging.WithField("id", job.Id).Info("received connected-realm in PersistConnectedRealms()")
 
 			if true {
+				logging.WithField("id", job.Id).Info("sending error back")
+
 				return errors.New("POOOOOOOOOP")
 			}
+
+			logging.WithField("id", job.Id).Info("persisting connected-realm in PersistConnectedRealms()")
 
 			k := connectedRealmsKeyName(blizzardv2.RegionVersionConnectedRealmTuple{
 				RegionVersionTuple: tuple,

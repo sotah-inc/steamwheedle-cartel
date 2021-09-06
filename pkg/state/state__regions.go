@@ -151,6 +151,8 @@ func NewRegionState(opts NewRegionStateOptions) (RegionsState, error) {
 		}
 	}
 
+	logging.Info("finish instantiating regions-state")
+
 	return RegionsState{
 		BlizzardState:   opts.BlizzardState,
 		Messenger:       opts.Messenger,
