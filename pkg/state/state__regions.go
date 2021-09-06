@@ -118,15 +118,11 @@ func NewRegionState(opts NewRegionStateOptions) (RegionsState, error) {
 						Data: data,
 					}
 				}
-
-				persistConnectedRealmsErrOut <- nil
 				close(persistConnectedRealmsIn)
-			}()
 
-			logging.Info("waiting for persistConnectedRealmsErrOut")
-			if err := <-persistConnectedRealmsErrOut; err != nil {
-				return RegionsState{}, err
-			}
+				logging.Info("closing out persistConnectedRealmsErrOut")
+				persistConnectedRealmsErrOut <- nil
+			}()
 
 			logging.Info("calling regionsDatabase.PersistConnectedRealms()")
 			if err := regionsDatabase.PersistConnectedRealms(
@@ -136,6 +132,11 @@ func NewRegionState(opts NewRegionStateOptions) (RegionsState, error) {
 				},
 				persistConnectedRealmsIn,
 			); err != nil {
+				return RegionsState{}, err
+			}
+
+			logging.Info("waiting for persistConnectedRealmsErrOut")
+			if err := <-persistConnectedRealmsErrOut; err != nil {
 				return RegionsState{}, err
 			}
 		}
