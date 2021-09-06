@@ -1,8 +1,6 @@
 package state
 
 import (
-	"errors"
-
 	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/gameversion"
@@ -128,15 +126,13 @@ func NewRegionState(opts NewRegionStateOptions) (RegionsState, error) {
 			}()
 
 			go func() {
-				logging.Info("calling regionsDatabase.PersistConnectedRealms()")
-				err := regionsDatabase.PersistConnectedRealms(
+				if err := regionsDatabase.PersistConnectedRealms(
 					blizzardv2.RegionVersionTuple{
 						RegionTuple: blizzardv2.RegionTuple{RegionName: region.Name},
 						Version:     version,
 					},
 					persistConnectedRealmsIn,
-				)
-				if err != nil {
+				); err != nil {
 					logging.WithField("error", err.Error()).Error("failed to persist connected-realm")
 
 					persistConnectedRealmsErrOut <- err
@@ -147,19 +143,8 @@ func NewRegionState(opts NewRegionStateOptions) (RegionsState, error) {
 				persistConnectedRealmsErrOut <- nil
 			}()
 
-			logging.Info("waiting for persistConnectedRealmsErrOut")
-			err = <-persistConnectedRealmsErrOut
-			if err != nil {
-				logging.WithField(
-					"error",
-					err.Error(),
-				).Error("persistConnectedRealmsErrOut ERROR CONDITION")
-
+			if err := <-persistConnectedRealmsErrOut; err != nil {
 				return RegionsState{}, err
-			}
-
-			if true {
-				return RegionsState{}, errors.New("FINISHED ERROR CONDITION")
 			}
 		}
 	}
