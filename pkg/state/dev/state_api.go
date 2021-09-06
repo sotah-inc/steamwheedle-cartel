@@ -121,6 +121,7 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 		Messenger:          mess,
 		RealmSlugWhitelist: config.SotahConfig.Whitelist,
 		RegionsDatabaseDir: config.DatabaseConfig.RegionsDir,
+		GameVersionList:    config.GameVersions,
 	})
 	if err != nil {
 		logging.WithField("error", err.Error()).Error("failed to establish region state")
