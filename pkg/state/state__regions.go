@@ -129,13 +129,14 @@ func NewRegionState(opts NewRegionStateOptions) (RegionsState, error) {
 
 			go func() {
 				logging.Info("calling regionsDatabase.PersistConnectedRealms()")
-				if err := regionsDatabase.PersistConnectedRealms(
+				err := regionsDatabase.PersistConnectedRealms(
 					blizzardv2.RegionVersionTuple{
 						RegionTuple: blizzardv2.RegionTuple{RegionName: region.Name},
 						Version:     version,
 					},
 					persistConnectedRealmsIn,
-				); err != nil {
+				)
+				if err != nil {
 					logging.WithField("error", err.Error()).Error("failed to persist connected-realm")
 
 					persistConnectedRealmsErrOut <- err
@@ -147,7 +148,13 @@ func NewRegionState(opts NewRegionStateOptions) (RegionsState, error) {
 			}()
 
 			logging.Info("waiting for persistConnectedRealmsErrOut")
-			if err := <-persistConnectedRealmsErrOut; err != nil {
+			err = <-persistConnectedRealmsErrOut
+			if err != nil {
+				logging.WithField(
+					"error",
+					err.Error(),
+				).Error("persistConnectedRealmsErrOut ERROR CONDITION")
+
 				return RegionsState{}, err
 			}
 
