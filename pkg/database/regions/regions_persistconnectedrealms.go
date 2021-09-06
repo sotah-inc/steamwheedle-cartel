@@ -1,6 +1,8 @@
 package regions
 
 import (
+	"errors"
+
 	"github.com/boltdb/bolt"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 )
@@ -21,6 +23,10 @@ func (rBase Database) PersistConnectedRealms(
 		}
 
 		for job := range in {
+			if job.Id == 3683 {
+				return errors.New("test")
+			}
+
 			k := connectedRealmsKeyName(blizzardv2.RegionVersionConnectedRealmTuple{
 				RegionVersionTuple: tuple,
 				ConnectedRealmId:   job.Id,
