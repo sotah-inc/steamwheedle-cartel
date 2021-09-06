@@ -48,6 +48,10 @@ func NewRegionState(opts NewRegionStateOptions) (RegionsState, error) {
 
 		for _, version := range opts.GameVersionList {
 			resolvedWhitelist := opts.RealmSlugWhitelist.Get(region.Name, version)
+			if len(resolvedWhitelist) == 0 {
+				continue
+			}
+
 			connectedRealmIds, err := regionsDatabase.GetConnectedRealmIds(blizzardv2.RegionVersionTuple{
 				RegionTuple: blizzardv2.RegionTuple{RegionName: region.Name},
 				Version:     version,
