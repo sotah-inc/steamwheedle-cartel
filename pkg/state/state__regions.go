@@ -80,7 +80,10 @@ func NewRegionState(opts NewRegionStateOptions) (RegionsState, error) {
 			go func() {
 				for connectedRealmsOutJob := range connectedRealmsOut {
 					if connectedRealmsOutJob.Err != nil {
-						logging.WithField("error", err.Error()).Error("failed to resolve connected-realm")
+						logging.WithField(
+							"error",
+							connectedRealmsOutJob.Err.Error(),
+						).Error("failed to resolve connected-realm")
 
 						persistConnectedRealmsErrOut <- connectedRealmsOutJob.Err
 
