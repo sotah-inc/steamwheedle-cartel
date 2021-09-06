@@ -72,10 +72,6 @@ func GetAllConnectedRealms(
 				continue
 			}
 
-			logging.WithFields(logrus.Fields{
-				"connected-realm": cRealm.Id,
-			}).Info("received connected-realm")
-
 			cRealm.Realms = func() RealmResponses {
 				foundRealms := RealmResponses{}
 				for _, realm := range cRealm.Realms {
@@ -145,8 +141,6 @@ func GetAllConnectedRealms(
 
 				continue
 			}
-
-			logging.WithField("href", hrefRef).Info("fetching connected-realm")
 
 			in <- hrefRef
 		}
