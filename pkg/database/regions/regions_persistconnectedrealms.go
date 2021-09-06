@@ -43,6 +43,8 @@ func (rBase Database) PersistConnectedRealms(
 			}
 		}
 
+		logging.Info("sending nil back")
+
 		return nil
 	})
 	if err != nil {
