@@ -34,7 +34,6 @@ type ApiStateConfig struct {
 	BlizzardConfig    blizzardv2.ClientConfig
 	DatabaseConfig    ApiStateDatabaseConfig
 	UseGCloud         bool
-	GameVersions      gameversion.List
 }
 
 func NewAPIState(config ApiStateConfig) (ApiState, error) {
@@ -121,7 +120,7 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 		Messenger:          mess,
 		RealmSlugWhitelist: config.SotahConfig.Whitelist,
 		RegionsDatabaseDir: config.DatabaseConfig.RegionsDir,
-		GameVersionList:    config.GameVersions,
+		GameVersionList:    config.SotahConfig.GameVersions,
 	})
 	if err != nil {
 		logging.WithField("error", err.Error()).Error("failed to establish region state")

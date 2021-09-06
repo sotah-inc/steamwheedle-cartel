@@ -55,6 +55,7 @@ type FirebaseConfig struct {
 
 type Config struct {
 	Regions              RegionList                          `json:"regions"`
+	GameVersions         gameversion.List                    `json:"game_versions"`
 	Whitelist            RealmSlugWhitelist                  `json:"whitelist"`
 	UseGCloud            bool                                `json:"use_gcloud"`
 	Expansions           []Expansion                         `json:"expansions"`

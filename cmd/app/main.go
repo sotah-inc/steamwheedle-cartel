@@ -3,18 +3,14 @@ package main
 import (
 	"os"
 
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/gameversion"
-
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
-
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
-
 	"github.com/sirupsen/logrus"
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/cmd/app/commands"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	devCommand "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/command/dev"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging/stackdriver"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 	devState "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state/dev"
 )
@@ -112,8 +108,7 @@ func main() {
 					TokensDir:   *cacheDir,
 					AreaMapsDir: *cacheDir,
 				},
-				UseGCloud:    false,
-				GameVersions: []gameversion.GameVersion{gameversion.Retail, gameversion.Classic},
+				UseGCloud: false,
 			})
 		},
 	}
