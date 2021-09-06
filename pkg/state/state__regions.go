@@ -119,7 +119,7 @@ func NewRegionState(opts NewRegionStateOptions) (RegionsState, error) {
 					}
 				}
 
-				close(persistConnectedRealmsErrOut)
+				persistConnectedRealmsErrOut <- nil
 				close(persistConnectedRealmsIn)
 			}()
 
