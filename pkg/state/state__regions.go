@@ -119,8 +119,8 @@ func NewRegionState(opts NewRegionStateOptions) (RegionsState, error) {
 					}
 				}
 
-				close(persistConnectedRealmsIn)
 				close(persistConnectedRealmsErrOut)
+				close(persistConnectedRealmsIn)
 			}()
 
 			logging.Info("waiting for persistConnectedRealmsErrOut")
