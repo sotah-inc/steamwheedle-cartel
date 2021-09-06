@@ -17,7 +17,7 @@ func (rBase Database) PersistConnectedRealms(
 	tuple blizzardv2.RegionVersionTuple,
 	in chan PersistConnectedRealmsInJob,
 ) error {
-	err := rBase.db.Batch(func(tx *bolt.Tx) error {
+	err := rBase.db.Update(func(tx *bolt.Tx) error {
 		bkt, err := tx.CreateBucketIfNotExists(connectedRealmsBucketName())
 		if err != nil {
 			return err
@@ -29,7 +29,6 @@ func (rBase Database) PersistConnectedRealms(
 			if true {
 				logging.WithField("id", job.Id).Info("sending error back")
 
-				return errors.New("POOOOOOOOOP")
 				return errors.New("POOOOOOOOOP")
 			}
 
