@@ -119,21 +119,24 @@ func NewRegionState(opts NewRegionStateOptions) (RegionsState, error) {
 					}
 				}
 				close(persistConnectedRealmsIn)
-
-				logging.Info("closing out persistConnectedRealmsErrOut")
-				persistConnectedRealmsErrOut <- nil
 			}()
 
-			logging.Info("calling regionsDatabase.PersistConnectedRealms()")
-			if err := regionsDatabase.PersistConnectedRealms(
-				blizzardv2.RegionVersionTuple{
-					RegionTuple: blizzardv2.RegionTuple{RegionName: region.Name},
-					Version:     version,
-				},
-				persistConnectedRealmsIn,
-			); err != nil {
-				return RegionsState{}, err
-			}
+			go func() {
+				logging.Info("calling regionsDatabase.PersistConnectedRealms()")
+				if err := regionsDatabase.PersistConnectedRealms(
+					blizzardv2.RegionVersionTuple{
+						RegionTuple: blizzardv2.RegionTuple{RegionName: region.Name},
+						Version:     version,
+					},
+					persistConnectedRealmsIn,
+				); err != nil {
+					persistConnectedRealmsErrOut <- err
+
+					return
+				}
+
+				persistConnectedRealmsErrOut <- nil
+			}()
 
 			logging.Info("waiting for persistConnectedRealmsErrOut")
 			if err := <-persistConnectedRealmsErrOut; err != nil {
