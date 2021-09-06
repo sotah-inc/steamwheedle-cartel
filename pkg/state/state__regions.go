@@ -70,10 +70,13 @@ func NewRegionState(opts NewRegionStateOptions) (RegionsState, error) {
 			}
 
 			persistConnectedRealmsIn := make(chan RegionsDatabase.PersistConnectedRealmsInJob)
+			persistConnectedRealmsErrOut := make(chan error)
 			go func() {
 				for connectedRealmsOutJob := range connectedRealmsOut {
 					if connectedRealmsOutJob.Err != nil {
 						logging.WithField("error", err.Error()).Error("failed to resolve connected-realm")
+
+						persistConnectedRealmsErrOut <- connectedRealmsOutJob.Err
 
 						continue
 					}
@@ -96,6 +99,8 @@ func NewRegionState(opts NewRegionStateOptions) (RegionsState, error) {
 							"connected-realm": connectedRealmComposite.ConnectedRealmResponse.Id,
 						}).Error("failed to encode connected-realm for storage")
 
+						persistConnectedRealmsErrOut <- err
+
 						continue
 					}
 
@@ -106,7 +111,12 @@ func NewRegionState(opts NewRegionStateOptions) (RegionsState, error) {
 				}
 
 				close(persistConnectedRealmsIn)
+				close(persistConnectedRealmsErrOut)
 			}()
+
+			if err := <-persistConnectedRealmsErrOut; err != nil {
+				return RegionsState{}, err
+			}
 
 			if err := regionsDatabase.PersistConnectedRealms(
 				blizzardv2.RegionVersionTuple{
