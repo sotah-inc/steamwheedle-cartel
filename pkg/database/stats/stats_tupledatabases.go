@@ -3,9 +3,7 @@ package stats
 import (
 	"fmt"
 
-	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 )
 
 func NewTupleDatabases(
@@ -15,12 +13,6 @@ func NewTupleDatabases(
 	tBases := make(TupleDatabases, len(tuples))
 
 	for i, tuple := range tuples {
-		logging.WithFields(logrus.Fields{
-			"version": tuple.Version,
-			"region":  tuple.RegionName,
-			"realm":   tuple.ConnectedRealmId,
-		}).Info("acquiring new database")
-
 		var err error
 		tBases[i], err = newTupleDatabase(dirPath, tuple)
 		if err != nil {

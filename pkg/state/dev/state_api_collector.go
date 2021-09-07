@@ -1,7 +1,6 @@
 package dev
 
 import (
-	"errors"
 	"time"
 
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
@@ -12,10 +11,6 @@ import (
 func (sta ApiState) Collect() error {
 	startTime := time.Now()
 	logging.Info("calling ApiState.Collect()")
-
-	if true {
-		return errors.New("test")
-	}
 
 	if err := sta.Collector.Collect(); err != nil {
 		logging.WithField("error", err.Error()).Error("failed to collect")
