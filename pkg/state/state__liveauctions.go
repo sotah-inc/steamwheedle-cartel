@@ -39,6 +39,10 @@ func NewLiveAuctionsState(opts NewLiveAuctionsStateOptions) (LiveAuctionsState, 
 		)
 	}
 
+	for _, dirName := range dirList {
+		logging.WithField("dir-name", dirName).Info("dir for ensuring")
+	}
+
 	// ensuring related dirs exist
 	if err := util.EnsureDirsExist(dirList); err != nil {
 		logging.WithField(
