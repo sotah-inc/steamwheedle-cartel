@@ -60,6 +60,10 @@ func (tuple RegionVersionTuple) Equals(target RegionVersionTuple) bool {
 	return tuple.Version == target.Version
 }
 
+func (tuple RegionVersionTuple) String() string {
+	return fmt.Sprintf("%s-%s", tuple.Version, tuple.RegionName)
+}
+
 // region/version/connected-realm tuples
 
 type RegionVersionConnectedRealmTuples []RegionVersionConnectedRealmTuple

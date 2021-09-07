@@ -2,7 +2,9 @@ package regions
 
 import (
 	"github.com/boltdb/bolt"
+	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 )
 
 type PersistConnectedRealmsInJob struct {
@@ -21,6 +23,11 @@ func (rBase Database) PersistConnectedRealms(
 		}
 
 		for job := range in {
+			logging.WithFields(logrus.Fields{
+				"tuple": tuple.String(),
+				"realm": job.Id,
+			}).Info("persisting")
+
 			k := connectedRealmsKeyName(blizzardv2.RegionVersionConnectedRealmTuple{
 				RegionVersionTuple: tuple,
 				ConnectedRealmId:   job.Id,
