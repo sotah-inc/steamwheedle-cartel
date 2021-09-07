@@ -23,6 +23,10 @@ type NewStatsStateOptions struct {
 }
 
 func NewStatsState(opts NewStatsStateOptions) (StatsState, error) {
+	for _, tuple := range opts.Tuples {
+		logging.WithField("tuple", tuple.String()).Info("received tuple in NewStatsState()")
+	}
+
 	dirList := []string{
 		opts.StatsDatabasesDir,
 		fmt.Sprintf("%s/stats", opts.StatsDatabasesDir),
