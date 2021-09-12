@@ -12,6 +12,7 @@ git add . \
   && git add . && git commit -m 'Update to latest.' && git push origin HEAD \
   && cd $ORIGINAL_DIR && git add extern/ && git commit -m 'Misc.' && git push origin HEAD \
   && cd ~/sites/venture-co/extern/infra \
+  && export $(cat ~/bin/battlenet-creds.env | xargs) \
   && docker-compose stop sotah-server-api \
   && docker-compose rm -fv sotah-server-api \
   && cd $ORIGINAL_DIR
