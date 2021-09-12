@@ -213,7 +213,16 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 				return nil, err
 			}
 
-			return sta.BlizzardState.ResolveAuctions(downloadTuples), nil
+			var nextTuples []blizzardv2.DownloadConnectedRealmTuple
+			for _, tuple := range downloadTuples {
+				if tuple.Version != gameversion.Retail {
+					continue
+				}
+
+				nextTuples = append(nextTuples, tuple)
+			}
+
+			return sta.BlizzardState.ResolveAuctions(nextTuples), nil
 		},
 		ReceiveRegionTimestamps: sta.RegionState.ReceiveTimestamps,
 		LakeClient:              lakeClient,
