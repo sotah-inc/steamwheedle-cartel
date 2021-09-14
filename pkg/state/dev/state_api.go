@@ -244,6 +244,7 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 		LakeClient:               lakeClient,
 		LiveAuctionsDatabasesDir: config.DatabaseConfig.LiveAuctionsDir,
 		ReceiveRegionTimestamps:  sta.RegionState.ReceiveTimestamps,
+		Tuples:                   tuples,
 	})
 	if err != nil {
 		logging.WithField("error", err.Error()).Error("failed to initialise live-auctions state")
