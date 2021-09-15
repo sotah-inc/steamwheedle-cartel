@@ -55,13 +55,13 @@ func tupleFromBaseKeyName(key []byte) (blizzardv2.VersionItemTuple, error) {
 		return blizzardv2.VersionItemTuple{}, errors.New("base key name had incorrect length")
 	}
 
-	parsedItemId, err := strconv.Atoi(dashParts[2])
+	parsedItemId, err := strconv.Atoi(dashParts[1])
 	if err != nil {
 		return blizzardv2.VersionItemTuple{}, err
 	}
 
 	return blizzardv2.VersionItemTuple{
-		GameVersion: gameversion.GameVersion(dashParts[1]),
+		GameVersion: gameversion.GameVersion(dashParts[0]),
 		Id:          blizzardv2.ItemId(parsedItemId),
 	}, nil
 }
