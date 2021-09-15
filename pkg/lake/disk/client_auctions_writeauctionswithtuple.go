@@ -73,6 +73,12 @@ func (client Client) WriteAuctionsWithTuples(
 	// spinning up the workers for writing
 	worker := func() {
 		for job := range in {
+			logging.WithFields(logrus.Fields{
+				"region":          job.Tuple().RegionName,
+				"game-version":    job.Tuple().Version,
+				"connected-realm": job.Tuple().ConnectedRealmId,
+			}).Debug("received job for writing auctions")
+
 			if err := client.WriteAuctionsWithTuple(job.Tuple(), job.Auctions()); err != nil {
 				out <- WriteAuctionsWithTuplesOutJob{err, job.Tuple()}
 
@@ -86,19 +92,6 @@ func (client Client) WriteAuctionsWithTuples(
 		close(out)
 	}
 	util.Work(8, worker, postWork)
-
-	// queueing up the jobs
-	go func() {
-		for job := range in {
-			logging.WithFields(logrus.Fields{
-				"region":          job.Tuple().RegionName,
-				"game-version":    job.Tuple().Version,
-				"connected-realm": job.Tuple().ConnectedRealmId,
-			}).Debug("queueing up job for writing auctions")
-
-			in <- job
-		}
-	}()
 
 	return out
 }
