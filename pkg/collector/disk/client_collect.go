@@ -24,38 +24,38 @@ func (c Client) Collect() error {
 		return err
 	}
 
-	if err := c.CallItemPricesIntake(collectAuctionsResults.tuples); err != nil {
-		return err
-	}
+	//if err := c.CallItemPricesIntake(collectAuctionsResults.tuples); err != nil {
+	//	return err
+	//}
 
-	if err := c.CallPetsIntake(); err != nil {
-		return err
-	}
+	//if err := c.CallPetsIntake(); err != nil {
+	//	return err
+	//}
 
-	if err := c.CallProfessionsIntake(); err != nil {
-		return err
-	}
+	//if err := c.CallProfessionsIntake(); err != nil {
+	//	return err
+	//}
 
-	if err := c.CallSkillTiersIntake(); err != nil {
-		return err
-	}
+	//if err := c.CallSkillTiersIntake(); err != nil {
+	//	return err
+	//}
 
 	recipesIntakeResponse, err := c.CallRecipesIntake()
 	if err != nil {
 		return err
 	}
 
-	if err := c.CallRecipePricesIntake(collectAuctionsResults.tuples); err != nil {
-		return err
-	}
+	//if err := c.CallRecipePricesIntake(collectAuctionsResults.tuples); err != nil {
+	//	return err
+	//}
 
-	if err := c.CallStatsIntake(collectAuctionsResults.tuples); err != nil {
-		return err
-	}
+	//if err := c.CallStatsIntake(collectAuctionsResults.tuples); err != nil {
+	//	return err
+	//}
 
-	if err := c.CallPrunePricelistHistories(); err != nil {
-		return err
-	}
+	//if err := c.CallPrunePricelistHistories(); err != nil {
+	//	return err
+	//}
 
 	// resolving next item-ids from auctions and recipes intake
 	logging.WithFields(logrus.Fields{
