@@ -43,6 +43,14 @@ func (c Client) CallRecipeItemCorrelation() error {
 		return err
 	}
 
+	if itemSubjectsMessage.Code != codes.Ok {
+		logging.WithFields(
+			itemSubjectsMessage.ToLogrusFields(),
+		).Error("item-subjects request failed")
+
+		return errors.New(itemSubjectsMessage.Err)
+	}
+
 	isMap, err := blizzardv2.NewItemSubjectsMap(itemSubjectsMessage.Data)
 	if err != nil {
 		logging.WithField("error", err.Error()).Error("failed to decode item-subjects map")
@@ -51,14 +59,6 @@ func (c Client) CallRecipeItemCorrelation() error {
 	}
 
 	logging.WithField("item-subjects", len(isMap)).Info("received item-subjects")
-
-	if itemSubjectsMessage.Code != codes.Ok {
-		logging.WithFields(
-			itemSubjectsMessage.ToLogrusFields(),
-		).Error("item-subjects request failed")
-
-		return errors.New(itemSubjectsMessage.Err)
-	}
 
 	// resolving item-recipes from professions
 	professionsMatchingItemsMessage, err := c.messengerClient.Request(messenger.RequestOptions{
