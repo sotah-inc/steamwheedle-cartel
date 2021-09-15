@@ -11,6 +11,7 @@ type NewClientOptions struct {
 	UseGCloud    bool
 	CacheDir     string
 	RegionNames  []blizzardv2.RegionName
+	GameVersions []gameversion.GameVersion
 	ResolveItems func(
 		version gameversion.GameVersion,
 		ids blizzardv2.ItemIds,
@@ -40,6 +41,7 @@ func NewClient(opts NewClientOptions) (BaseLake.Client, error) {
 		return DiskLake.NewClient(DiskLake.NewClientOptions{
 			CacheDir:                opts.CacheDir,
 			RegionNames:             opts.RegionNames,
+			GameVersions:            opts.GameVersions,
 			ResolveItems:            opts.ResolveItems,
 			ResolveItemMedias:       opts.ResolveItemMedias,
 			ResolvePets:             opts.ResolvePets,
@@ -58,6 +60,7 @@ func NewClient(opts NewClientOptions) (BaseLake.Client, error) {
 		ResolveItems:            opts.ResolveItems,
 		ResolveItemMedias:       opts.ResolveItemMedias,
 		RegionNames:             opts.RegionNames,
+		GameVersions:            opts.GameVersions,
 		ResolvePets:             opts.ResolvePets,
 		ResolveProfessions:      opts.ResolveProfessions,
 		ResolveProfessionMedias: opts.ResolveProfessionMedias,

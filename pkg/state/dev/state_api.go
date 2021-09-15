@@ -70,9 +70,10 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 	// deriving lake-client
 	logging.Info("producing new lake-client")
 	lakeClient, err := lake.NewClient(lake.NewClientOptions{
-		UseGCloud:   config.UseGCloud,
-		CacheDir:    config.DiskStoreCacheDir,
-		RegionNames: regions.Names(),
+		UseGCloud:    config.UseGCloud,
+		CacheDir:     config.DiskStoreCacheDir,
+		RegionNames:  regions.Names(),
+		GameVersions: config.SotahConfig.GameVersions,
 		ResolveItems: func(
 			version gameversion.GameVersion,
 			ids blizzardv2.ItemIds,

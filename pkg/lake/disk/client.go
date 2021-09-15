@@ -11,6 +11,7 @@ import (
 type NewClientOptions struct {
 	CacheDir     string
 	RegionNames  []blizzardv2.RegionName
+	GameVersions []gameversion.GameVersion
 	ResolveItems func(
 		version gameversion.GameVersion,
 		ids blizzardv2.ItemIds,
@@ -31,15 +32,21 @@ type NewClientOptions struct {
 	ResolveRecipeMedias func(
 		in chan blizzardv2.GetRecipeMediasInJob,
 	) chan blizzardv2.GetRecipeMediasOutJob
-	PrimarySkillTiers    map[string][]blizzardv2.SkillTierId
-	ProfessionsBlacklist []blizzardv2.ProfessionId
-	ResolveItemClasses   func() ([]blizzardv2.ItemClassResponse, error)
+	PrimarySkillTiers  map[string][]blizzardv2.SkillTierId
+	ResolveItemClasses func() ([]blizzardv2.ItemClassResponse, error)
 }
 
 func NewClient(opts NewClientOptions) (Client, error) {
 	dirList := []string{opts.CacheDir, fmt.Sprintf("%s/auctions", opts.CacheDir)}
 	for _, name := range opts.RegionNames {
 		dirList = append(dirList, fmt.Sprintf("%s/auctions/%s", opts.CacheDir, name))
+
+		for _, version := range opts.GameVersions {
+			dirList = append(
+				dirList,
+				fmt.Sprintf("%s/auctions/%s/%s", opts.CacheDir, name, version),
+			)
+		}
 	}
 
 	// ensuring related dirs exist
@@ -58,7 +65,6 @@ func NewClient(opts NewClientOptions) (Client, error) {
 		resolveRecipes:          opts.ResolveRecipes,
 		resolveRecipeMedias:     opts.ResolveRecipeMedias,
 		primarySkillTiers:       opts.PrimarySkillTiers,
-		professionsBlacklist:    opts.ProfessionsBlacklist,
 		resolveItemClasses:      opts.ResolveItemClasses,
 	}, nil
 }
@@ -85,7 +91,6 @@ type Client struct {
 	resolveRecipeMedias func(
 		in chan blizzardv2.GetRecipeMediasInJob,
 	) chan blizzardv2.GetRecipeMediasOutJob
-	primarySkillTiers    map[string][]blizzardv2.SkillTierId
-	professionsBlacklist []blizzardv2.ProfessionId
-	resolveItemClasses   func() ([]blizzardv2.ItemClassResponse, error)
+	primarySkillTiers  map[string][]blizzardv2.SkillTierId
+	resolveItemClasses func() ([]blizzardv2.ItemClassResponse, error)
 }
