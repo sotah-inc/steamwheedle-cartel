@@ -15,11 +15,13 @@ func (idBase Database) GetItemSubjects(
 	out := blizzardv2.ItemSubjectsMap{}
 	for job := range idBase.FindItems(version, ids) {
 		if job.Err != nil {
+			logging.WithFields(job.ToLogrusFields()).Error("failed to find item")
+
 			return blizzardv2.ItemSubjectsMap{}, job.Err
 		}
 
 		if !job.Exists {
-			logging.WithFields(job.ToLogrusFields()).Error("attempted to fetch item not found")
+			logging.WithField("id", job.Id).Error("attempted to fetch item not found")
 
 			return blizzardv2.ItemSubjectsMap{}, errors.New("item not found")
 		}
