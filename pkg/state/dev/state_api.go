@@ -130,11 +130,12 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 	// gathering boot state
 	logging.Info("producing new boot-state")
 	sta.BootState, err = state.NewBootState(state.NewBootStateOptions{
-		BlizzardState:  sta.BlizzardState,
-		Messenger:      mess,
-		Regions:        regions,
-		Expansions:     config.SotahConfig.Expansions,
-		FirebaseConfig: config.SotahConfig.FirebaseConfig,
+		BlizzardState:   sta.BlizzardState,
+		Messenger:       mess,
+		GameVersionList: config.SotahConfig.GameVersions,
+		Regions:         regions,
+		Expansions:      config.SotahConfig.Expansions,
+		FirebaseConfig:  config.SotahConfig.FirebaseConfig,
 	})
 	if err != nil {
 		logging.WithField("error", err.Error()).Error("failed to establish boot state")
