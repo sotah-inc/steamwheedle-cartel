@@ -12,6 +12,7 @@ import (
 )
 
 type BootResponse struct {
+	Regions         sotah.RegionList     `json:"regions"`
 	GameVersionList gameversion.List     `json:"game_versions"`
 	FirebaseConfig  sotah.FirebaseConfig `json:"firebase_config"`
 }
@@ -25,6 +26,7 @@ func (sta BootState) ListenForBoot(stop ListenStopChan) error {
 		m := messenger.NewMessage()
 
 		res := BootResponse{
+			Regions:         sta.Regions,
 			GameVersionList: sta.GameVersionList,
 			FirebaseConfig:  sta.FirebaseConfig,
 		}
