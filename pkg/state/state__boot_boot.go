@@ -15,6 +15,7 @@ type BootResponse struct {
 	Regions         sotah.RegionList     `json:"regions"`
 	GameVersionList gameversion.List     `json:"game_versions"`
 	FirebaseConfig  sotah.FirebaseConfig `json:"firebase_config"`
+	Expansions      []sotah.Expansion    `json:"expansions"`
 }
 
 func (res BootResponse) EncodeForDelivery() ([]byte, error) {
@@ -29,6 +30,7 @@ func (sta BootState) ListenForBoot(stop ListenStopChan) error {
 			Regions:         sta.Regions,
 			GameVersionList: sta.GameVersionList,
 			FirebaseConfig:  sta.FirebaseConfig,
+			Expansions:      sta.Expansions,
 		}
 
 		encodedResponse, err := res.EncodeForDelivery()
