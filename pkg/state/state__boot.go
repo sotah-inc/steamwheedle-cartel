@@ -16,6 +16,7 @@ type NewBootStateOptions struct {
 	Regions         sotah.RegionList
 	Expansions      []sotah.Expansion
 	FirebaseConfig  sotah.FirebaseConfig
+	FeatureFlags    sotah.FeatureFlags
 }
 
 func NewBootState(opts NewBootStateOptions) (BootState, error) {
@@ -26,6 +27,7 @@ func NewBootState(opts NewBootStateOptions) (BootState, error) {
 		SessionSecret:   uuid.NewV4(),
 		Expansions:      opts.Expansions,
 		FirebaseConfig:  opts.FirebaseConfig,
+		FeatureFlags:    opts.FeatureFlags,
 	}, nil
 }
 
@@ -40,6 +42,7 @@ type BootState struct {
 	Regions         sotah.RegionList
 	Expansions      []sotah.Expansion
 	FirebaseConfig  sotah.FirebaseConfig
+	FeatureFlags    sotah.FeatureFlags
 }
 
 func (sta BootState) GetListeners() SubjectListeners {

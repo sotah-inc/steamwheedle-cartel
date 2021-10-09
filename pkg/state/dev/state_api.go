@@ -136,6 +136,7 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 		Regions:         regions,
 		Expansions:      config.SotahConfig.Expansions,
 		FirebaseConfig:  config.SotahConfig.FirebaseConfig,
+		FeatureFlags:    config.SotahConfig.FeatureFlags,
 	})
 	if err != nil {
 		logging.WithField("error", err.Error()).Error("failed to establish boot state")

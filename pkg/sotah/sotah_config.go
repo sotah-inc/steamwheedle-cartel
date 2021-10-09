@@ -3,6 +3,8 @@ package sotah
 import (
 	"encoding/json"
 
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah/featureflags"
+
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/gameversion"
 
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
@@ -53,6 +55,8 @@ type FirebaseConfig struct {
 	BrowserApiKey string `json:"browser_api_key"`
 }
 
+type FeatureFlags map[featureflags.FeatureFlag][]gameversion.GameVersion
+
 type Config struct {
 	Regions              RegionList                          `json:"regions"`
 	GameVersions         gameversion.List                    `json:"game_versions"`
@@ -62,6 +66,7 @@ type Config struct {
 	PrimarySkillTiers    map[string][]blizzardv2.SkillTierId `json:"primary_skilltiers"`
 	ProfessionsBlacklist []blizzardv2.ProfessionId           `json:"professions_blacklist"`
 	FirebaseConfig       FirebaseConfig                      `json:"firebase_config"`
+	FeatureFlags         FeatureFlags                        `json:"feature_flags"`
 }
 
 func (c Config) FilterInRegions(regs RegionList) RegionList {
