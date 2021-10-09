@@ -3,6 +3,8 @@ package state
 import (
 	"encoding/json"
 
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
+
 	nats "github.com/nats-io/nats.go"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/gameversion"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
@@ -26,6 +28,8 @@ func (res BootResponse) EncodeForDelivery() ([]byte, error) {
 func (sta BootState) ListenForBoot(stop ListenStopChan) error {
 	err := sta.Messenger.Subscribe(string(subjects.Boot), stop, func(natsMsg nats.Msg) {
 		m := messenger.NewMessage()
+
+		logging.WithField("feature-flags", sta.FeatureFlags).Info("sending feature-flag")
 
 		res := BootResponse{
 			Regions:         sta.Regions,
