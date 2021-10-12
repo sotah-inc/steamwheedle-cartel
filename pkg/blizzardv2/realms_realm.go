@@ -36,7 +36,7 @@ type RealmResponse struct {
 	Timezone       string         `json:"timezone"`
 	Type           struct {
 		Type realmtype.RealmType `json:"type"`
-		Name locale.Mapping      `json:"string"`
+		Name locale.Mapping      `json:"name"`
 	} `json:"type"`
 	IsTournament bool      `json:"is_tournament"`
 	Slug         RealmSlug `json:"slug"`
