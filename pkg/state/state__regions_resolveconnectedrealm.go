@@ -3,6 +3,8 @@ package state
 import (
 	"encoding/json"
 
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
+
 	nats "github.com/nats-io/nats.go"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
@@ -42,6 +44,11 @@ func (sta RegionsState) ListenForResolveConnectedRealm(stop ListenStopChan) erro
 
 			connectedRealm, err := sta.RegionsDatabase.GetConnectedRealmBySlugTuple(tuple)
 			if err != nil {
+				logging.WithField(
+					"tuple",
+					tuple,
+				).Error("failed to resolve connected-realm in regions database")
+
 				m.Err = err.Error()
 				m.Code = codes.NotFound
 				sta.Messenger.ReplyTo(natsMsg, m)
