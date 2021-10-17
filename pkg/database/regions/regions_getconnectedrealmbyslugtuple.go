@@ -4,7 +4,6 @@ import (
 	"errors"
 
 	"github.com/boltdb/bolt"
-	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
@@ -24,24 +23,18 @@ func (rBase Database) GetConnectedRealmBySlugTuple(
 		}
 
 		return bkt.ForEach(func(k []byte, v []byte) error {
+			if !out.IsZero() {
+				return nil
+			}
+
 			keyTuple, err := tupleFromConnectedRealmKeyName(k)
 			if err != nil {
 				return err
 			}
 
 			if !keyTuple.RegionVersionTuple.Equals(tuple.RegionVersionTuple) {
-				logging.WithFields(logrus.Fields{
-					"key-tuple": keyTuple.RegionVersionTuple.String(),
-					"tuple":     tuple.RegionVersionTuple.String(),
-				}).Debug("key-tuple was not equal to provided tuple")
-
 				return nil
 			}
-
-			logging.WithFields(logrus.Fields{
-				"key-tuple": keyTuple.String(),
-				"tuple":     tuple.String(),
-			}).Debug("key-tuple was equal to provided tuple")
 
 			realmComposite, err := sotah.NewRealmCompositeFromStorage(v)
 			if err != nil {
@@ -50,18 +43,8 @@ func (rBase Database) GetConnectedRealmBySlugTuple(
 
 			for _, realm := range realmComposite.ConnectedRealmResponse.Realms {
 				if realm.Slug != tuple.RealmSlug {
-					logging.WithFields(logrus.Fields{
-						"realm-slug":       realm.Slug,
-						"tuple-realm-slug": tuple.RealmSlug,
-					}).Debug("realm-slug was not equal to provided tuple")
-
 					continue
 				}
-
-				logging.WithFields(logrus.Fields{
-					"realm-slug":       realm.Slug,
-					"tuple-realm-slug": tuple.RealmSlug,
-				}).Debug("realm-slug was equal to provided tuple")
 
 				out = realmComposite
 
