@@ -58,6 +58,11 @@ func (rBase Database) GetConnectedRealmBySlugTuple(
 					continue
 				}
 
+				logging.WithFields(logrus.Fields{
+					"realm-slug":       realm.Slug,
+					"tuple-realm-slug": tuple.RealmSlug,
+				}).Debug("realm-slug was equal to provided tuple")
+
 				out = realmComposite
 
 				return nil
