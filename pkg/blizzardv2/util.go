@@ -164,6 +164,10 @@ type RegionVersionRealmTuple struct {
 	RealmSlug RealmSlug `json:"realm_slug"`
 }
 
+func (tuple RegionVersionRealmTuple) String() string {
+	return fmt.Sprintf("%s-%s-%s", tuple.RegionName, tuple.Version, tuple.RealmSlug)
+}
+
 // download-connected-realm tuple
 
 type DownloadConnectedRealmTuple struct {
