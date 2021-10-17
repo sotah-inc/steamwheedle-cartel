@@ -18,6 +18,10 @@ func (rBase Database) RealmExists(tuple blizzardv2.RegionVersionRealmTuple) (boo
 		}
 
 		return bkt.ForEach(func(k []byte, v []byte) error {
+			if out {
+				return nil
+			}
+
 			keyTuple, err := tupleFromConnectedRealmKeyName(k)
 			if err != nil {
 				return err

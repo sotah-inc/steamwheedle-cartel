@@ -22,9 +22,9 @@ func (c Client) Collect() error {
 		return err
 	}
 
-	//if err := c.CallItemPricesIntake(collectAuctionsResults.tuples); err != nil {
-	//	return err
-	//}
+	if err := c.CallItemPricesIntake(collectAuctionsResults.tuples); err != nil {
+		return err
+	}
 
 	//if err := c.CallPetsIntake(); err != nil {
 	//	return err
