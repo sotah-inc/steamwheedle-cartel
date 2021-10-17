@@ -31,12 +31,17 @@ func (rBase Database) GetConnectedRealmBySlugTuple(
 
 			if !keyTuple.RegionVersionTuple.Equals(tuple.RegionVersionTuple) {
 				logging.WithFields(logrus.Fields{
-					"key-tuple": keyTuple.String(),
-					"tuple":     tuple.String(),
+					"key-tuple": keyTuple.RegionVersionTuple.String(),
+					"tuple":     tuple.RegionVersionTuple.String(),
 				}).Debug("key-tuple was not equal to provided tuple")
 
 				return nil
 			}
+
+			logging.WithFields(logrus.Fields{
+				"key-tuple": keyTuple.String(),
+				"tuple":     tuple.String(),
+			}).Debug("key-tuple was equal to provided tuple")
 
 			realmComposite, err := sotah.NewRealmCompositeFromStorage(v)
 			if err != nil {
