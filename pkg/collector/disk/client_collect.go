@@ -59,10 +59,9 @@ func (c Client) Collect() error {
 	//logging.WithFields(logrus.Fields{
 	//	"recipe-item-ids": len(recipesIntakeResponse.RecipeItemIds),
 	//}).Info("DID NOT COMBINE RECIPE ITEM-IDS IN INTAKE RESPONSE")
-	//itemIntakeResponse, err := c.CallItemsIntake(collectAuctionsResults.versionItems)
-	//if err != nil {
-	//	return err
-	//}
+	if _, err := c.CallItemsIntake(collectAuctionsResults.versionItems); err != nil {
+		return err
+	}
 
 	//if err := c.CallTokenHistoryIntake(); err != nil {
 	//	return err
