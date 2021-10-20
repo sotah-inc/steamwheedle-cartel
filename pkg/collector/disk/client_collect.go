@@ -4,27 +4,26 @@ import (
 	"time"
 
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state"
 )
 
 func (c Client) Collect() error {
 	startTime := time.Now()
 	logging.Info("calling DiskCollector.Collect()")
 
-	collectAuctionsResults, err := c.collectAuctions()
-	if err != nil {
-		return err
-	}
+	//collectAuctionsResults, err := c.collectAuctions()
+	//if err != nil {
+	//	return err
+	//}
 
-	if err := c.CallLiveAuctionsIntake(state.IntakeRequest{
-		Tuples: collectAuctionsResults.tuples.RegionVersionConnectedRealmTuples(),
-	}); err != nil {
-		return err
-	}
+	//if err := c.CallLiveAuctionsIntake(state.IntakeRequest{
+	//	Tuples: collectAuctionsResults.tuples.RegionVersionConnectedRealmTuples(),
+	//}); err != nil {
+	//	return err
+	//}
 
-	if err := c.CallItemPricesIntake(collectAuctionsResults.tuples); err != nil {
-		return err
-	}
+	//if err := c.CallItemPricesIntake(collectAuctionsResults.tuples); err != nil {
+	//	return err
+	//}
 
 	//if err := c.CallPetsIntake(); err != nil {
 	//	return err
@@ -59,9 +58,9 @@ func (c Client) Collect() error {
 	//logging.WithFields(logrus.Fields{
 	//	"recipe-item-ids": len(recipesIntakeResponse.RecipeItemIds),
 	//}).Info("DID NOT COMBINE RECIPE ITEM-IDS IN INTAKE RESPONSE")
-	if _, err := c.CallItemsIntake(collectAuctionsResults.versionItems); err != nil {
-		return err
-	}
+	//if _, err := c.CallItemsIntake(collectAuctionsResults.versionItems); err != nil {
+	//	return err
+	//}
 
 	//if err := c.CallTokenHistoryIntake(); err != nil {
 	//	return err
