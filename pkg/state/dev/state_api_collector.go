@@ -35,7 +35,7 @@ func (sta ApiState) StartCollector(stopChan sotah.WorkerStopChan) sotah.WorkerSt
 	go func() {
 		ticker := time.NewTicker(20 * time.Minute)
 
-		logging.Info("starting collector")
+		logging.Info("startinggggggg collector")
 	outer:
 		for {
 			select {
