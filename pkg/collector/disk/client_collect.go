@@ -4,22 +4,23 @@ import (
 	"time"
 
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state"
 )
 
 func (c Client) Collect() error {
 	startTime := time.Now()
 	logging.Info("calling DiskCollector.Collect()")
 
-	//collectAuctionsResults, err := c.collectAuctions()
-	//if err != nil {
-	//	return err
-	//}
+	collectAuctionsResults, err := c.collectAuctions()
+	if err != nil {
+		return err
+	}
 
-	//if err := c.CallLiveAuctionsIntake(state.IntakeRequest{
-	//	Tuples: collectAuctionsResults.tuples.RegionVersionConnectedRealmTuples(),
-	//}); err != nil {
-	//	return err
-	//}
+	if err := c.CallLiveAuctionsIntake(state.IntakeRequest{
+		Tuples: collectAuctionsResults.tuples.RegionVersionConnectedRealmTuples(),
+	}); err != nil {
+		return err
+	}
 
 	//if err := c.CallItemPricesIntake(collectAuctionsResults.tuples); err != nil {
 	//	return err
