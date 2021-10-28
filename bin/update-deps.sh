@@ -2,7 +2,7 @@
 
 ORIGINAL_DIR=`pwd`
 COMMIT_MESSAGE=$1
-git add . \
+git add ./pkg \
   && git commit -m "$COMMIT_MESSAGE" \
   && git push origin HEAD \
   && cd extern/steamwheedle-cartel-server \
