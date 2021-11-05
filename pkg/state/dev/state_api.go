@@ -35,6 +35,8 @@ type ApiStateConfig struct {
 }
 
 func NewAPIState(config ApiStateConfig) (ApiState, error) {
+	logging.Info("starting api state")
+
 	// establishing an initial state
 	sta := ApiState{State: state.State{RunID: uuid.NewV4(), Listeners: nil, BusListeners: nil}}
 
