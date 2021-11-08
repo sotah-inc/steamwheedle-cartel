@@ -5,6 +5,9 @@ require (
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751 // indirect
 	github.com/alecthomas/units v0.0.0-20190924025748-f65c72e2690d // indirect
 	github.com/boltdb/bolt v1.3.1
+	github.com/influxdata/go-syslog v1.0.1 // indirect
+	github.com/influxdata/go-syslog/v2 v2.0.1 // indirect
+	github.com/influxdata/go-syslog/v3 v3.0.0
 	github.com/lithammer/fuzzysearch v1.0.2
 	github.com/myesui/uuid v1.0.0 // indirect
 	github.com/nats-io/nats-server/v2 v2.1.6 // indirect

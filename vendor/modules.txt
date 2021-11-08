@@ -31,6 +31,10 @@ github.com/golang/protobuf/ptypes/struct
 github.com/golang/protobuf/ptypes/timestamp
 # github.com/googleapis/gax-go/v2 v2.0.3
 github.com/googleapis/gax-go/v2
+# github.com/influxdata/go-syslog/v3 v3.0.0
+github.com/influxdata/go-syslog/v3
+github.com/influxdata/go-syslog/v3/common
+github.com/influxdata/go-syslog/v3/rfc5424
 # github.com/konsorten/go-windows-terminal-sequences v1.0.1
 github.com/konsorten/go-windows-terminal-sequences
 # github.com/lithammer/fuzzysearch v1.0.2
