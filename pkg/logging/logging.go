@@ -23,6 +23,10 @@ func SetLevel(level logrus.Level) {
 	logger.SetLevel(level)
 }
 
+func SetFormatter(formatter logrus.Formatter) {
+	logger.SetFormatter(formatter)
+}
+
 // Info logs
 func Info(args ...interface{}) {
 	logger.Info(args...)
