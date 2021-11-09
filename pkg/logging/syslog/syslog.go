@@ -28,6 +28,12 @@ type levelSeverityMap map[logrus.Level]syslog.Priority
 
 var lsMap = levelSeverityMap{
 	logrus.DebugLevel: syslog.LOG_DEBUG,
+	logrus.TraceLevel: syslog.LOG_DEBUG,
+	logrus.InfoLevel:  syslog.LOG_INFO,
+	logrus.WarnLevel:  syslog.LOG_WARNING,
+	logrus.ErrorLevel: syslog.LOG_ERR,
+	logrus.FatalLevel: syslog.LOG_CRIT,
+	logrus.PanicLevel: syslog.LOG_CRIT,
 }
 
 func (h Hook) Fire(entry *logrus.Entry) error {
