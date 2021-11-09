@@ -57,9 +57,11 @@ func (h Hook) Fire(entry *logrus.Entry) error {
 		return err
 	}
 
-	fmt.Printf("sending log line: %s\n", hookMessageBody)
+	fullHookMessageBody := fmt.Sprintf("%d %s", len(hookMessageBody)+1, hookMessageBody)
 
-	if _, err := fmt.Fprint(h.conn, hookMessageBody); err != nil {
+	fmt.Printf("sending log line: %s\n", fullHookMessageBody)
+
+	if _, err := fmt.Fprint(h.conn, fullHookMessageBody); err != nil {
 		return err
 	}
 
