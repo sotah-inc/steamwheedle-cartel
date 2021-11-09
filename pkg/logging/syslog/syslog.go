@@ -17,11 +17,21 @@ func NewHook(network string, address string) (Hook, error) {
 		return Hook{}, err
 	}
 
-	return Hook{conn: conn}, nil
+	connIn := make(chan string)
+	go func() {
+		for msg := range connIn {
+			if _, err := fmt.Fprint(conn, msg); err != nil {
+				fmt.Printf("failed to write to syslog endpoint: %s\n", err.Error())
+			}
+		}
+	}()
+
+	return Hook{conn: conn, connIn: connIn}, nil
 }
 
 type Hook struct {
-	conn net.Conn
+	conn   net.Conn
+	connIn chan string
 }
 
 type levelSeverityMap map[logrus.Level]syslog.Priority
@@ -61,9 +71,7 @@ func (h Hook) Fire(entry *logrus.Entry) error {
 
 	fmt.Printf("sending log line: %s\n", fullHookMessageBody)
 
-	if _, err := fmt.Fprint(h.conn, fullHookMessageBody); err != nil {
-		return err
-	}
+	h.connIn <- fullHookMessageBody
 
 	return nil
 }
