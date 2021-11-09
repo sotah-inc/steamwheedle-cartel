@@ -2,6 +2,7 @@ package stackdriver
 
 import (
 	"errors"
+	"fmt"
 	"log/syslog"
 	"net"
 	"time"
@@ -25,14 +26,21 @@ type Hook struct {
 
 type levelSeverityMap map[logrus.Level]syslog.Priority
 
-const levelSeverityMap
+var lsMap = levelSeverityMap{
+	logrus.DebugLevel: syslog.LOG_DEBUG,
+}
 
 func (h Hook) Fire(entry *logrus.Entry) error {
+	severity, ok := lsMap[entry.Level]
+	if !ok {
+		return errors.New("failed to resolve severity from level")
+	}
+
 	msg := &rfc5424.SyslogMessage{}
 	msg.SetVersion(1)
 	msg.SetMessage(entry.Message)
 	msg.SetTimestamp(entry.Time.Format(time.RFC3339))
-	msg.SetPriority(uint8(syslog.LOG_DAEMON))
+	msg.SetPriority(uint8(syslog.LOG_DAEMON*8 + severity))
 
 	if !msg.Valid() {
 		return errors.New("rfc5424 message was not valid")
@@ -43,14 +51,11 @@ func (h Hook) Fire(entry *logrus.Entry) error {
 		return err
 	}
 
-	switch entry.Level {
-	case logrus.DebugLevel:
-		return h.writer.Debug(hookMessageBody)
-	case logrus.InfoLevel:
-		return h.writer.Info(hookMessageBody)
+	if _, err := fmt.Fprint(h.conn, hookMessageBody); err != nil {
+		return err
 	}
 
-	return errors.New("invalid entry level provided")
+	return nil
 }
 
 func (h Hook) Levels() []logrus.Level {
