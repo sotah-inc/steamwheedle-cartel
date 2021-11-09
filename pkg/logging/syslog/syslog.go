@@ -1,4 +1,4 @@
-package stackdriver
+package syslog
 
 import (
 	"errors"
@@ -11,8 +11,8 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func NewHook(protocol string, address string) (Hook, error) {
-	conn, err := net.Dial(protocol, address)
+func NewHook(network string, address string) (Hook, error) {
+	conn, err := net.Dial(network, address)
 	if err != nil {
 		return Hook{}, err
 	}
