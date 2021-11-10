@@ -27,7 +27,7 @@ func NewHook(network string, address string) (Hook, error) {
 					continue
 				}
 
-				fmt.Printf("failed to write to syslog endpoint: %s\n", err.Error())
+				fmt.Printf("failed to write to syslog endpoint: %s (none)\n", err.Error())
 			}
 		}
 	}()
