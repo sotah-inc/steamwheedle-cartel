@@ -55,7 +55,7 @@ func (h Hook) send(msg string, attempt int) error {
 		fmt.Printf("received error: %s\n", err.Error())
 
 		if err.Error() != ErrBrokenPipe {
-			fmt.Printf("error was not broken-pipe: %s\n", err.Error())
+			fmt.Printf("error was not %s: %s\n", ErrBrokenPipe, err.Error())
 
 			return err
 		}
