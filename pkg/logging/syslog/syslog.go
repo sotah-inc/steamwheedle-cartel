@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log/syslog"
 	"net"
+	"strings"
 	"time"
 
 	"github.com/influxdata/go-syslog/v3/rfc5424"
@@ -54,7 +55,7 @@ func (h Hook) send(msg string, attempt int) error {
 	if _, err := fmt.Fprint(h.conn, msg); err != nil {
 		fmt.Printf("received error: %s\n", err.Error())
 
-		if err.Error() != ErrBrokenPipe {
+		if !strings.HasSuffix(err.Error(), ErrBrokenPipe) {
 			fmt.Printf("error was not %s: %s\n", ErrBrokenPipe, err.Error())
 
 			return err
@@ -64,9 +65,9 @@ func (h Hook) send(msg string, attempt int) error {
 
 		conn, err := net.Dial(h.network, h.address)
 		if err != nil {
-			fmt.Printf("failed to reconnect: %s\n", err.Error())
+			fmt.Printf("failed to reconnect: %s, attempting to reconnect\n", err.Error())
 
-			return err
+			return h.send(msg, attempt+1)
 		}
 
 		h.conn = conn
