@@ -21,6 +21,12 @@ func NewHook(network string, address string) (Hook, error) {
 	go func() {
 		for msg := range connIn {
 			if _, err := fmt.Fprint(conn, msg); err != nil {
+				if netError, ok := err.(*net.OpError); !ok {
+					fmt.Printf("failed to write to syslog endpoint: %s (%s)\n", netError.Error(), netError.Op)
+
+					continue
+				}
+
 				fmt.Printf("failed to write to syslog endpoint: %s\n", err.Error())
 			}
 		}
