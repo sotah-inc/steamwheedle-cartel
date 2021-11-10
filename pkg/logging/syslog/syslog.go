@@ -27,7 +27,7 @@ func NewHook(network string, address string) (Hook, error) {
 	go func() {
 		for msg := range h.connIn {
 			if err := h.send(msg, 0); err != nil {
-				fmt.Printf("failed to send message: %s", err.Error())
+				fmt.Printf("failed to send message: %s\n", err.Error())
 
 				continue
 			}
@@ -52,16 +52,26 @@ func (h Hook) send(msg string, attempt int) error {
 	}
 
 	if _, err := fmt.Fprint(h.conn, msg); err != nil {
+		fmt.Printf("received error: %s\n", err.Error())
+
 		if err.Error() != ErrBrokenPipe {
+			fmt.Printf("error was not broken-pipe: %s\n", err.Error())
+
 			return err
 		}
 
+		fmt.Println("reconnecting")
+
 		conn, err := net.Dial(h.network, h.address)
 		if err != nil {
+			fmt.Printf("failed to reconnect: %s\n", err.Error())
+
 			return err
 		}
 
 		h.conn = conn
+
+		fmt.Printf("resending on attempt: %d\n", attempt+1)
 
 		return h.send(msg, attempt+1)
 	}
