@@ -103,6 +103,14 @@ func (h Hook) Fire(entry *logrus.Entry) error {
 	msg.SetMessage(entry.Message)
 	msg.SetTimestamp(entry.Time.Format(time.RFC3339))
 	msg.SetPriority(uint8(syslog.LOG_DAEMON | severity))
+	for field, value := range entry.Data {
+		parsedValue, ok := value.(string)
+		if !ok {
+			continue
+		}
+
+		msg.SetParameter(field, field, parsedValue)
+	}
 
 	if !msg.Valid() {
 		return errors.New("rfc5424 message was not valid")
