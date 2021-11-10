@@ -17,21 +17,56 @@ func NewHook(network string, address string) (Hook, error) {
 		return Hook{}, err
 	}
 
-	connIn := make(chan string)
+	h := Hook{
+		network: network,
+		address: address,
+		conn:    conn,
+		connIn:  make(chan string),
+	}
+
 	go func() {
-		for msg := range connIn {
-			if _, err := fmt.Fprint(conn, msg); err != nil {
-				fmt.Printf("failed to write to syslog endpoint: %s (%v)\n", err.Error(), conn == nil)
+		for msg := range h.connIn {
+			if err := h.send(msg, 0); err != nil {
+				fmt.Printf("failed to send message: %s", err.Error())
+
+				continue
 			}
 		}
 	}()
 
-	return Hook{conn: conn, connIn: connIn}, nil
+	return h, nil
 }
 
 type Hook struct {
-	conn   net.Conn
-	connIn chan string
+	network string
+	address string
+	conn    net.Conn
+	connIn  chan string
+}
+
+const ErrBrokenPipe = "write: broken pipe"
+
+func (h Hook) send(msg string, attempt int) error {
+	if attempt > 5 {
+		return errors.New("maximum send attempt reached")
+	}
+
+	if _, err := fmt.Fprint(h.conn, msg); err != nil {
+		if err.Error() != ErrBrokenPipe {
+			return err
+		}
+
+		conn, err := net.Dial(h.network, h.address)
+		if err != nil {
+			return err
+		}
+
+		h.conn = conn
+
+		return h.send(msg, attempt+1)
+	}
+
+	return nil
 }
 
 type levelSeverityMap map[logrus.Level]syslog.Priority
