@@ -98,9 +98,7 @@ func (h Hook) Fire(entry *logrus.Entry) error {
 		return errors.New("failed to resolve severity from level")
 	}
 
-	msg := &rfc5424.SyslogMessage{
-		StructuredData: &map[string]map[string]string{},
-	}
+	msg := &rfc5424.SyslogMessage{}
 	msg.SetVersion(1)
 	msg.SetMessage(entry.Message)
 	msg.SetTimestamp(entry.Time.Format(time.RFC3339))
@@ -125,7 +123,7 @@ func (h Hook) Fire(entry *logrus.Entry) error {
 
 	fullHookMessageBody := fmt.Sprintf("%d %s\n", len(hookMessageBody)+1, hookMessageBody)
 
-	//fmt.Printf("sending log line: %s\n", fullHookMessageBody)
+	fmt.Printf("sending log line: %s\n", fullHookMessageBody)
 
 	h.connIn <- fullHookMessageBody
 
