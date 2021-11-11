@@ -53,26 +53,26 @@ func (h Hook) send(msg string, attempt int) error {
 	}
 
 	if _, err := fmt.Fprint(h.conn, msg); err != nil {
-		fmt.Printf("received error: %s\n", err.Error())
+		//fmt.Printf("received error: %s\n", err.Error())
 
 		if !strings.HasSuffix(err.Error(), ErrBrokenPipe) {
-			fmt.Printf("error was not %s: %s\n", ErrBrokenPipe, err.Error())
+			//fmt.Printf("error was not %s: %s\n", ErrBrokenPipe, err.Error())
 
 			return err
 		}
 
-		fmt.Println("reconnecting")
+		//fmt.Println("reconnecting")
 
 		conn, err := net.Dial(h.network, h.address)
 		if err != nil {
-			fmt.Printf("failed to reconnect: %s, attempting to reconnect\n", err.Error())
+			//fmt.Printf("failed to reconnect: %s, attempting to reconnect\n", err.Error())
 
 			return h.send(msg, attempt+1)
 		}
 
 		h.conn = conn
 
-		fmt.Printf("resending on attempt: %d\n", attempt+1)
+		//fmt.Printf("resending on attempt: %d\n", attempt+1)
 
 		return h.send(msg, attempt+1)
 	}
@@ -125,7 +125,7 @@ func (h Hook) Fire(entry *logrus.Entry) error {
 
 	fullHookMessageBody := fmt.Sprintf("%d %s\n", len(hookMessageBody)+1, hookMessageBody)
 
-	fmt.Printf("sending log line: %s\n", fullHookMessageBody)
+	//fmt.Printf("sending log line: %s\n", fullHookMessageBody)
 
 	h.connIn <- fullHookMessageBody
 
