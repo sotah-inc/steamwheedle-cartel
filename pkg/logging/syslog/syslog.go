@@ -109,7 +109,7 @@ func (h Hook) Fire(entry *logrus.Entry) error {
 			continue
 		}
 
-		msg.SetParameter(field, field, parsedValue)
+		msg.SetParameter("examplesdid@32473", field, parsedValue)
 	}
 
 	if !msg.Valid() {
