@@ -61,9 +61,9 @@ func (sta ProfessionsState) ListenForItemsRecipes(stop ListenStopChan) error {
 		}
 
 		logging.WithFields(logrus.Fields{
-			"kind":         request.Kind,
-			"items":        request.ItemIds,
-			"item-recipes": irMap,
+			"kind":             request.Kind,
+			"items":            request.ItemIds,
+			"item-recipes-map": irMap,
 		}).Info("resolved item-recipes with request")
 
 		// marshalling for messenger
