@@ -21,8 +21,6 @@ func (l List) Includes(providedVersion GameVersion) bool {
 	return false
 }
 
-var GameVersions = List{Classic, Retail}
-
 type VersionNamespaceMap map[GameVersion]string
 
 var DynamicNamespaceMap = VersionNamespaceMap{

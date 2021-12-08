@@ -17,7 +17,6 @@ type BootResponse struct {
 	Regions         sotah.RegionList     `json:"regions"`
 	GameVersionList gameversion.List     `json:"game_versions"`
 	FirebaseConfig  sotah.FirebaseConfig `json:"firebase_config"`
-	Expansions      []sotah.Expansion    `json:"expansions"`
 	FeatureFlags    sotah.FeatureFlags   `json:"feature_flags"`
 }
 
@@ -35,7 +34,6 @@ func (sta BootState) ListenForBoot(stop ListenStopChan) error {
 			Regions:         sta.Regions,
 			GameVersionList: sta.GameVersionList,
 			FirebaseConfig:  sta.FirebaseConfig,
-			Expansions:      sta.Expansions,
 			FeatureFlags:    sta.FeatureFlags,
 		}
 
