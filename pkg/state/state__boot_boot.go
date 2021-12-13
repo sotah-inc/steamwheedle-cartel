@@ -3,10 +3,7 @@ package state
 import (
 	"encoding/json"
 
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
-
 	nats "github.com/nats-io/nats.go"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/gameversion"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger/codes"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
@@ -14,10 +11,9 @@ import (
 )
 
 type BootResponse struct {
-	Regions         sotah.RegionList     `json:"regions"`
-	GameVersionList gameversion.List     `json:"game_versions"`
-	FirebaseConfig  sotah.FirebaseConfig `json:"firebase_config"`
-	FeatureFlags    sotah.FeatureFlags   `json:"feature_flags"`
+	Regions        sotah.RegionList     `json:"regions"`
+	FirebaseConfig sotah.FirebaseConfig `json:"firebase_config"`
+	VersionMeta    sotah.VersionMeta    `json:"version_meta"`
 }
 
 func (res BootResponse) EncodeForDelivery() ([]byte, error) {
@@ -28,13 +24,10 @@ func (sta BootState) ListenForBoot(stop ListenStopChan) error {
 	err := sta.Messenger.Subscribe(string(subjects.Boot), stop, func(natsMsg nats.Msg) {
 		m := messenger.NewMessage()
 
-		logging.WithField("feature-flags", sta.FeatureFlags).Info("sending feature-flag")
-
 		res := BootResponse{
-			Regions:         sta.Regions,
-			GameVersionList: sta.GameVersionList,
-			FirebaseConfig:  sta.FirebaseConfig,
-			FeatureFlags:    sta.FeatureFlags,
+			Regions:        sta.Regions,
+			FirebaseConfig: sta.FirebaseConfig,
+			VersionMeta:    sta.VersionMeta,
 		}
 
 		encodedResponse, err := res.EncodeForDelivery()

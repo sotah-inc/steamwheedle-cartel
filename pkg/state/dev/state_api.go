@@ -75,7 +75,7 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 		UseGCloud:    config.UseGCloud,
 		CacheDir:     config.DiskStoreCacheDir,
 		RegionNames:  regions.Names(),
-		GameVersions: config.SotahConfig.GameVersions,
+		GameVersions: config.SotahConfig.GameVersions(),
 		ResolveItems: func(
 			version gameversion.GameVersion,
 			ids blizzardv2.ItemIds,
@@ -121,7 +121,7 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 		Messenger:          mess,
 		RealmSlugWhitelist: config.SotahConfig.Whitelist,
 		RegionsDatabaseDir: config.DatabaseConfig.RegionsDir,
-		GameVersionList:    config.SotahConfig.GameVersions,
+		GameVersionList:    config.SotahConfig.GameVersions(),
 	})
 	if err != nil {
 		logging.WithField("error", err.Error()).Error("failed to establish region state")
@@ -132,13 +132,10 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 	// gathering boot state
 	logging.Info("producing new boot-state")
 	sta.BootState, err = state.NewBootState(state.NewBootStateOptions{
-		BlizzardState:   sta.BlizzardState,
-		Messenger:       mess,
-		GameVersionList: config.SotahConfig.GameVersions,
-		Regions:         regions,
-		Expansions:      config.SotahConfig.Expansions,
-		FirebaseConfig:  config.SotahConfig.FirebaseConfig,
-		FeatureFlags:    config.SotahConfig.FeatureFlags,
+		BlizzardState:  sta.BlizzardState,
+		Messenger:      mess,
+		Regions:        regions,
+		FirebaseConfig: config.SotahConfig.FirebaseConfig,
 	})
 	if err != nil {
 		logging.WithField("error", err.Error()).Error("failed to establish boot state")

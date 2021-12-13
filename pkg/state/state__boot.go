@@ -2,7 +2,6 @@ package state
 
 import (
 	"github.com/twinj/uuid"
-	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/gameversion"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state/subjects"
@@ -12,22 +11,18 @@ type NewBootStateOptions struct {
 	BlizzardState BlizzardState
 	Messenger     messenger.Messenger
 
-	GameVersionList gameversion.List
-	Regions         sotah.RegionList
-	Expansions      []sotah.Expansion
-	FirebaseConfig  sotah.FirebaseConfig
-	FeatureFlags    sotah.FeatureFlags
+	Regions        sotah.RegionList
+	FirebaseConfig sotah.FirebaseConfig
+	VersionMeta    sotah.VersionMeta
 }
 
 func NewBootState(opts NewBootStateOptions) (BootState, error) {
 	return BootState{
-		GameVersionList: opts.GameVersionList,
-		Regions:         opts.Regions,
-		Messenger:       opts.Messenger,
-		SessionSecret:   uuid.NewV4(),
-		Expansions:      opts.Expansions,
-		FirebaseConfig:  opts.FirebaseConfig,
-		FeatureFlags:    opts.FeatureFlags,
+		Regions:        opts.Regions,
+		Messenger:      opts.Messenger,
+		SessionSecret:  uuid.NewV4(),
+		FirebaseConfig: opts.FirebaseConfig,
+		VersionMeta:    opts.VersionMeta,
 	}, nil
 }
 
@@ -38,11 +33,9 @@ type BootState struct {
 	SessionSecret uuid.UUID
 
 	// receiving from config file
-	GameVersionList gameversion.List
-	Regions         sotah.RegionList
-	Expansions      []sotah.Expansion
-	FirebaseConfig  sotah.FirebaseConfig
-	FeatureFlags    sotah.FeatureFlags
+	Regions        sotah.RegionList
+	FirebaseConfig sotah.FirebaseConfig
+	VersionMeta    sotah.VersionMeta
 }
 
 func (sta BootState) GetListeners() SubjectListeners {

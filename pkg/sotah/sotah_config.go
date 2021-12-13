@@ -57,7 +57,7 @@ type FirebaseConfig struct {
 	BrowserApiKey string `json:"browser_api_key"`
 }
 
-type FeatureFlags map[featureflags.FeatureFlag][]gameversion.GameVersion
+type FeatureFlagVersionsMap map[featureflags.FeatureFlag][]gameversion.GameVersion
 
 type VersionMeta struct {
 	Name         gameversion.GameVersion    `json:"name"`
@@ -66,9 +66,19 @@ type VersionMeta struct {
 	FeatureFlags []featureflags.FeatureFlag `json:"feature_flags"`
 }
 
+func (meta VersionMeta) SupportsFeature(flag featureflags.FeatureFlag) bool {
+	for _, foundFlag := range meta.FeatureFlags {
+		if foundFlag == flag {
+			return true
+		}
+	}
+
+	return false
+}
+
 type Config struct {
 	Regions              RegionList                          `json:"regions"`
-	GameVersionMeta      VersionMeta                         `json:"game_version_meta"`
+	GameVersionMeta      []VersionMeta                       `json:"game_version_meta"`
 	Whitelist            RealmSlugWhitelist                  `json:"whitelist"`
 	UseGCloud            bool                                `json:"use_gcloud"`
 	PrimarySkillTiers    map[string][]blizzardv2.SkillTierId `json:"primary_skilltiers"`
@@ -85,6 +95,15 @@ func (c Config) FilterInRegions(regs RegionList) RegionList {
 		}
 
 		out = append(out, reg)
+	}
+
+	return out
+}
+
+func (c Config) GameVersions() []gameversion.GameVersion {
+	out := make([]gameversion.GameVersion, len(c.GameVersionMeta))
+	for i, meta := range c.GameVersionMeta {
+		out[i] = meta.Name
 	}
 
 	return out
