@@ -13,7 +13,7 @@ import (
 type BootResponse struct {
 	Regions        sotah.RegionList     `json:"regions"`
 	FirebaseConfig sotah.FirebaseConfig `json:"firebase_config"`
-	VersionMeta    sotah.VersionMeta    `json:"version_meta"`
+	VersionMeta    []sotah.VersionMeta  `json:"version_meta"`
 }
 
 func (res BootResponse) EncodeForDelivery() ([]byte, error) {

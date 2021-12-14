@@ -13,7 +13,7 @@ type NewBootStateOptions struct {
 
 	Regions        sotah.RegionList
 	FirebaseConfig sotah.FirebaseConfig
-	VersionMeta    sotah.VersionMeta
+	VersionMeta    []sotah.VersionMeta
 }
 
 func NewBootState(opts NewBootStateOptions) (BootState, error) {
@@ -35,7 +35,7 @@ type BootState struct {
 	// receiving from config file
 	Regions        sotah.RegionList
 	FirebaseConfig sotah.FirebaseConfig
-	VersionMeta    sotah.VersionMeta
+	VersionMeta    []sotah.VersionMeta
 }
 
 func (sta BootState) GetListeners() SubjectListeners {
