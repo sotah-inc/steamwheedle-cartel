@@ -26,6 +26,8 @@ func NewConfigFromFilepath(relativePath string) (Config, error) {
 }
 
 func NewConfig(body []byte) (Config, error) {
+	logging.WithField("config", string(body)).Debug("parsing config")
+
 	c := &Config{}
 	if err := json.Unmarshal(body, &c); err != nil {
 		return Config{}, err
