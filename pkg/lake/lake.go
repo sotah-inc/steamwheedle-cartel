@@ -5,6 +5,7 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/gameversion"
 	BaseLake "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/lake/base"
 	DiskLake "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/lake/disk"
+	GCloudLake "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/lake/gcloud"
 )
 
 type NewClientOptions struct {
@@ -38,21 +39,7 @@ type NewClientOptions struct {
 
 func NewClient(opts NewClientOptions) (BaseLake.Client, error) {
 	if opts.UseGCloud {
-		return DiskLake.NewClient(DiskLake.NewClientOptions{
-			CacheDir:                opts.CacheDir,
-			RegionNames:             opts.RegionNames,
-			GameVersions:            opts.GameVersions,
-			ResolveItems:            opts.ResolveItems,
-			ResolveItemMedias:       opts.ResolveItemMedias,
-			ResolvePets:             opts.ResolvePets,
-			ResolveProfessions:      opts.ResolveProfessions,
-			ResolveProfessionMedias: opts.ResolveProfessionMedias,
-			ResolveSkillTiers:       opts.ResolveSkillTiers,
-			ResolveRecipes:          opts.ResolveRecipes,
-			ResolveRecipeMedias:     opts.ResolveRecipeMedias,
-			PrimarySkillTiers:       opts.PrimarySkillTiers,
-			ResolveItemClasses:      opts.ResolveItemClasses,
-		})
+		return GCloudLake.NewClient()
 	}
 
 	return DiskLake.NewClient(DiskLake.NewClientOptions{

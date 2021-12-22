@@ -5,6 +5,7 @@ import (
 
 	"github.com/sirupsen/logrus"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
+	BaseCollector "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/collector/base" // nolint:lll
 	BaseLake "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/lake/base"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
@@ -16,13 +17,7 @@ type collectAuctionsResult struct {
 	itemIds blizzardv2.ItemIds
 }
 
-type collectAuctionsResults struct {
-	versionItems            blizzardv2.VersionItemsMap
-	regionVersionTimestamps sotah.RegionVersionTimestamps
-	tuples                  blizzardv2.LoadConnectedRealmTuples
-}
-
-func (c Client) collectAuctions() (collectAuctionsResults, error) {
+func (c Client) CollectAuctions() (BaseCollector.CollectAuctionsResults, error) {
 	startTime := time.Now()
 	logging.Info("calling DiskCollector.collectAuctions()")
 
@@ -34,12 +29,12 @@ func (c Client) collectAuctions() (collectAuctionsResults, error) {
 			err.Error(),
 		).Error("failed to produce chan for resolving auctions")
 
-		return collectAuctionsResults{}, err
+		return BaseCollector.CollectAuctionsResults{}, err
 	}
 	storeAucsInJobs := make(chan BaseLake.WriteAuctionsWithTuplesInJob)
 	storeAucsOutJobs := c.lakeClient.WriteAuctionsWithTuples(storeAucsInJobs)
 	resultsInJob := make(chan collectAuctionsResult)
-	resultsOutJob := make(chan collectAuctionsResults)
+	resultsOutJob := make(chan BaseCollector.CollectAuctionsResults)
 
 	// interpolating resolve-auctions-out jobs into store-auctions-in jobs
 	go func() {
@@ -75,24 +70,24 @@ func (c Client) collectAuctions() (collectAuctionsResults, error) {
 
 	// spinning up a worker for receiving results from auctions-out worker
 	go func() {
-		results := collectAuctionsResults{
-			versionItems:            blizzardv2.VersionItemsMap{},
-			regionVersionTimestamps: sotah.RegionVersionTimestamps{},
-			tuples:                  blizzardv2.LoadConnectedRealmTuples{},
+		results := BaseCollector.CollectAuctionsResults{
+			VersionItems:            blizzardv2.VersionItemsMap{},
+			RegionVersionTimestamps: sotah.RegionVersionTimestamps{},
+			Tuples:                  blizzardv2.LoadConnectedRealmTuples{},
 		}
 		for job := range resultsInJob {
 			// loading last-modified in
-			results.regionVersionTimestamps = results.regionVersionTimestamps.SetTimestamp(
+			results.RegionVersionTimestamps = results.RegionVersionTimestamps.SetTimestamp(
 				job.tuple.RegionVersionConnectedRealmTuple,
 				statuskinds.Downloaded,
 				job.tuple.LastModified,
 			)
 
 			// loading item-ids in
-			results.versionItems = results.versionItems.Insert(job.tuple.Version, job.itemIds)
+			results.VersionItems = results.VersionItems.Insert(job.tuple.Version, job.itemIds)
 
 			// loading tuple in
-			results.tuples = append(results.tuples, job.tuple)
+			results.Tuples = append(results.Tuples, job.tuple)
 		}
 
 		resultsOutJob <- results
@@ -105,7 +100,7 @@ func (c Client) collectAuctions() (collectAuctionsResults, error) {
 		if storeAucsOutJob.Err() != nil {
 			logging.WithFields(storeAucsOutJob.ToLogrusFields()).Error("failed to store auctions")
 
-			return collectAuctionsResults{}, storeAucsOutJob.Err()
+			return BaseCollector.CollectAuctionsResults{}, storeAucsOutJob.Err()
 		}
 
 		totalPersisted += 1
@@ -115,11 +110,11 @@ func (c Client) collectAuctions() (collectAuctionsResults, error) {
 	results := <-resultsOutJob
 
 	// optionally updating region state
-	if !results.regionVersionTimestamps.IsZero() {
-		if err := c.receiveRegionTimestamps(results.regionVersionTimestamps); err != nil {
+	if !results.RegionVersionTimestamps.IsZero() {
+		if err := c.receiveRegionTimestamps(results.RegionVersionTimestamps); err != nil {
 			logging.WithField("error", err.Error()).Error("failed to receive timestamps")
 
-			return collectAuctionsResults{}, err
+			return BaseCollector.CollectAuctionsResults{}, err
 		}
 	}
 

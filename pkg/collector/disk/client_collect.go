@@ -12,18 +12,18 @@ func (c Client) Collect() error {
 	startTime := time.Now()
 	logging.Info("calling DiskCollector.Collect()")
 
-	collectAuctionsResults, err := c.collectAuctions()
+	collectAuctionsResults, err := c.CollectAuctions()
 	if err != nil {
 		return err
 	}
 
 	if err := c.CallLiveAuctionsIntake(state.IntakeRequest{
-		Tuples: collectAuctionsResults.tuples.RegionVersionConnectedRealmTuples(),
+		Tuples: collectAuctionsResults.Tuples.RegionVersionConnectedRealmTuples(),
 	}); err != nil {
 		return err
 	}
 
-	if err := c.CallItemPricesIntake(collectAuctionsResults.tuples); err != nil {
+	if err := c.CallItemPricesIntake(collectAuctionsResults.Tuples); err != nil {
 		return err
 	}
 
@@ -44,11 +44,11 @@ func (c Client) Collect() error {
 		return err
 	}
 
-	if err := c.CallRecipePricesIntake(collectAuctionsResults.tuples); err != nil {
+	if err := c.CallRecipePricesIntake(collectAuctionsResults.Tuples); err != nil {
 		return err
 	}
 
-	if err := c.CallStatsIntake(collectAuctionsResults.tuples); err != nil {
+	if err := c.CallStatsIntake(collectAuctionsResults.Tuples); err != nil {
 		return err
 	}
 
@@ -60,7 +60,7 @@ func (c Client) Collect() error {
 	logging.WithFields(logrus.Fields{
 		"recipe-item-ids": len(recipesIntakeResponse.RecipeItemIds),
 	}).Info("DID NOT COMBINE RECIPE ITEM-IDS IN INTAKE RESPONSE")
-	itemIntakeResponse, err := c.CallItemsIntake(collectAuctionsResults.versionItems)
+	itemIntakeResponse, err := c.CallItemsIntake(collectAuctionsResults.VersionItems)
 	if err != nil {
 		return err
 	}

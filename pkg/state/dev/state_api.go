@@ -10,6 +10,7 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/messenger"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah"
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah/featureflags"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state"
 )
 
@@ -218,7 +219,22 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 
 			var nextTuples []blizzardv2.DownloadConnectedRealmTuple
 			for _, tuple := range downloadTuples {
-				if tuple.Version != gameversion.Retail {
+				isFetchAuctionsEnabled := func() bool {
+					for _, meta := range config.SotahConfig.GameVersionMeta {
+						if meta.Name != tuple.Version {
+							continue
+						}
+
+						for _, flag := range meta.FeatureFlags {
+							if flag == featureflags.Auctions {
+								return true
+							}
+						}
+					}
+
+					return false
+				}()
+				if !isFetchAuctionsEnabled {
 					continue
 				}
 
