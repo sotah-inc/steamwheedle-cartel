@@ -14,12 +14,17 @@ import (
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state"
 )
 
+type DownloadAuctionsDatabaseConfig struct {
+	RegionsDir      string
+	LiveAuctionsDir string
+}
+
 type DownloadAuctionsStateConfig struct {
 	SotahConfig       sotah.Config
 	MessengerConfig   messenger.Config
 	DiskStoreCacheDir string
 	BlizzardConfig    blizzardv2.ClientConfig
-	DatabaseConfig    ApiStateDatabaseConfig
+	DatabaseConfig    DownloadAuctionsDatabaseConfig
 	UseGCloud         bool
 }
 
