@@ -15,8 +15,7 @@ import (
 )
 
 type DownloadAuctionsDatabaseConfig struct {
-	RegionsDir      string
-	LiveAuctionsDir string
+	RegionsDir string
 }
 
 type DownloadAuctionsStateConfig struct {
@@ -165,41 +164,11 @@ func NewDownloadAuctionsState(config DownloadAuctionsStateConfig) (DownloadAucti
 		MessengerClient:         mess,
 	})
 
-	// resolving all tuples
-	tuples, err := regionState.ResolveTuples()
-	if err != nil {
-		logging.WithField("error", err.Error()).Error("failed to resolve all tuples")
-
-		return DownloadAuctionsState{}, err
-	}
-
-	// resolving live-auctions state
-	logging.Info("producing new live-auctions state")
-	sta.LiveAuctionsState, err = state.NewLiveAuctionsState(state.NewLiveAuctionsStateOptions{
-		Messenger:                mess,
-		LakeClient:               lakeClient,
-		LiveAuctionsDatabasesDir: config.DatabaseConfig.LiveAuctionsDir,
-		ReceiveRegionTimestamps:  regionState.ReceiveTimestamps,
-		Tuples:                   tuples,
-	})
-	if err != nil {
-		logging.WithField("error", err.Error()).Error("failed to initialise live-auctions state")
-
-		return DownloadAuctionsState{}, err
-	}
-
-	// establishing listeners
-	logging.Info("establishing listeners")
-	sta.Listeners = state.NewListeners(state.NewSubjectListeners([]state.SubjectListeners{
-		sta.LiveAuctionsState.GetListeners(),
-	}))
-
 	return sta, nil
 }
 
 type DownloadAuctionsState struct {
 	state.State
 
-	LiveAuctionsState state.LiveAuctionsState
-	Collector         BaseCollector.Client
+	Collector BaseCollector.Client
 }
