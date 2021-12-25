@@ -1,12 +1,16 @@
 package dev
 
 import (
+	"time"
+
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
 	devState "source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/state/dev"
 )
 
 func DownloadAuctions(config devState.DownloadAuctionsStateConfig) error {
-	logging.Info("starting api")
+	logging.Info("starting DownloadAuctions()")
+
+	startTime := time.Now()
 
 	// establishing a state
 	sta, err := devState.NewDownloadAuctionsState(config)
@@ -20,7 +24,10 @@ func DownloadAuctions(config devState.DownloadAuctionsStateConfig) error {
 		return err
 	}
 
-	logging.Info("finished DownloadAuctions()")
+	logging.WithField(
+		"duration",
+		time.Since(startTime).Milliseconds(),
+	).Info("finished DownloadAuctions()")
 
 	return nil
 }
