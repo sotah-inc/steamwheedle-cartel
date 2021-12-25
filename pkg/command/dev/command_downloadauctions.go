@@ -25,7 +25,7 @@ func DownloadAuctions(config devState.DownloadAuctionsStateConfig) error {
 	}
 
 	logging.WithField(
-		"duration",
+		"duration-in-ms",
 		time.Since(startTime).Milliseconds(),
 	).Info("finished DownloadAuctions()")
 
