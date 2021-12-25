@@ -16,5 +16,11 @@ func DownloadAuctions(config devState.DownloadAuctionsStateConfig) error {
 		return err
 	}
 
-	return sta.Run()
+	if err := sta.Run(); err != nil {
+		return err
+	}
+
+	logging.Info("finished DownloadAuctions()")
+
+	return nil
 }
