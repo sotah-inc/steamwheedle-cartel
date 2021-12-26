@@ -1,7 +1,6 @@
 package dev
 
 import (
-	"github.com/sirupsen/logrus"
 	"github.com/twinj/uuid"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2/gameversion"
@@ -238,11 +237,6 @@ func NewAPIState(config ApiStateConfig) (ApiState, error) {
 				if !isFetchAuctionsEnabled {
 					continue
 				}
-
-				logging.WithFields(logrus.Fields{
-					"tuple":         tuple.String(),
-					"last-modified": tuple.LastModified,
-				}).Info("appending tuple for fetching")
 
 				nextTuples = append(nextTuples, tuple)
 			}
