@@ -115,7 +115,8 @@ func (c Client) CollectAuctions() (BaseCollector.CollectAuctionsResults, error) 
 		logrus.Fields{
 			"timestamps": results.RegionVersionTimestamps,
 			"is-zero":    results.RegionVersionTimestamps.IsZero(),
-		}).Info("CollectAuctions() received region-version timestamps")
+		},
+	).Info("CollectAuctions() received region-version timestamps")
 
 	if !results.RegionVersionTimestamps.IsZero() {
 		if err := c.receiveRegionTimestamps(results.RegionVersionTimestamps); err != nil {

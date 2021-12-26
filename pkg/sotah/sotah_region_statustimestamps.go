@@ -28,6 +28,7 @@ func (timestamps StatusTimestamps) IsZero() bool {
 	logging.WithFields(logrus.Fields{
 		"timestamps":      timestamps,
 		"timestamps-list": timestamps.ToList(),
+		"is-zero":         timestamps.ToList().IsZero(),
 	}).Info("checking timestamps")
 
 	return timestamps.ToList().IsZero()
