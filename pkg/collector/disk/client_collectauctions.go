@@ -111,10 +111,11 @@ func (c Client) CollectAuctions() (BaseCollector.CollectAuctionsResults, error) 
 
 	// optionally updating region state
 
-	logging.WithField(
-		"timestamps",
-		results.RegionVersionTimestamps,
-	).Info("CollectAuctions() received region-version timestamps")
+	logging.WithFields(
+		logrus.Fields{
+			"timestamps": results.RegionVersionTimestamps,
+			"is-zero":    results.RegionVersionTimestamps.IsZero(),
+		}).Info("CollectAuctions() received region-version timestamps")
 
 	if !results.RegionVersionTimestamps.IsZero() {
 		if err := c.receiveRegionTimestamps(results.RegionVersionTimestamps); err != nil {
