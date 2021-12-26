@@ -22,11 +22,11 @@ func (timestamps UnixTimestamps) Before(limit UnixTimestamp) UnixTimestamps {
 func (timestamps UnixTimestamps) IsZero() bool {
 	for _, timestamp := range timestamps {
 		if timestamp.IsZero() {
-			return false
+			return true
 		}
 	}
 
-	return true
+	return false
 }
 
 func NormalizeToDay(targetTimestamp UnixTimestamp) UnixTimestamp {

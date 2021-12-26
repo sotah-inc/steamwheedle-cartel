@@ -29,7 +29,7 @@ func (timestamps StatusTimestamps) IsZero() bool {
 		"timestamps":      timestamps,
 		"timestamps-list": timestamps.ToList(),
 		"is-zero":         timestamps.ToList().IsZero(),
-	}).Info("checking timestamps")
+	}).Info("StatusTimestamps().IsZero() checking timestamps")
 
 	return timestamps.ToList().IsZero()
 }
