@@ -45,6 +45,8 @@ func (c Client) CollectAuctions() (BaseCollector.CollectAuctionsResults, error) 
 				continue
 			}
 
+			logging.Info("received auctions for parsing")
+
 			if !aucsOutJob.IsNew() {
 				logging.WithFields(logrus.Fields{
 					"region":             aucsOutJob.Tuple.RegionName,
