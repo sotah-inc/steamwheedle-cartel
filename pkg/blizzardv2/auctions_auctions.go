@@ -91,11 +91,6 @@ func NewAuctionsFromHTTP(
 	uri string,
 	ifModifiedSince time.Time,
 ) (AuctionsResponse, ResponseMeta, error) {
-	logging.WithFields(logrus.Fields{
-		"uri":               uri,
-		"if-modified-since": ifModifiedSince,
-	}).Info("sending auctions request")
-
 	resp, err := Download(DownloadOptions{Uri: uri, IfModifiedSince: ifModifiedSince})
 	//resp, err := Download(DownloadOptions{Uri: uri})
 	if err != nil {
@@ -112,7 +107,7 @@ func NewAuctionsFromHTTP(
 			logging.WithFields(logrus.Fields{
 				"status": resp.Status,
 				"uri":    ClearAccessToken(uri),
-			}).Info("resp from auctions was not 304 Not Modified")
+			}).Info("resp from auctions was 304 Not Modified")
 
 			return AuctionsResponse{}, resp, nil
 		}
