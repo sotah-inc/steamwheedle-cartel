@@ -3,6 +3,8 @@ package regions
 import (
 	"errors"
 
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
+
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 
 	"github.com/boltdb/bolt"
@@ -12,6 +14,11 @@ import (
 func (rBase Database) ReceiveRegionTimestamps(
 	rvtStamps sotah.RegionVersionTimestamps,
 ) error {
+	logging.WithField(
+		"timestamps",
+		rvtStamps,
+	).Info("ReceiveRegionTimestamps() received region-version timestamps")
+
 	return rBase.db.Batch(func(tx *bolt.Tx) error {
 		for regionName, vrStamps := range rvtStamps {
 			for gameVersion, csStamps := range vrStamps {

@@ -110,6 +110,12 @@ func (c Client) CollectAuctions() (BaseCollector.CollectAuctionsResults, error) 
 	results := <-resultsOutJob
 
 	// optionally updating region state
+
+	logging.WithField(
+		"timestamps",
+		results.RegionVersionTimestamps,
+	).Info("CollectAuctions() received region-version timestamps")
+
 	if !results.RegionVersionTimestamps.IsZero() {
 		if err := c.receiveRegionTimestamps(results.RegionVersionTimestamps); err != nil {
 			logging.WithField("error", err.Error()).Error("failed to receive timestamps")
