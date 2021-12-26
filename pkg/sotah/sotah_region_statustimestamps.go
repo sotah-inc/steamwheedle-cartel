@@ -3,6 +3,8 @@ package sotah
 import (
 	"encoding/json"
 
+	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
+
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/sotah/statuskinds"
 )
 
@@ -21,6 +23,8 @@ func (timestamps StatusTimestamps) ToList() UnixTimestamps {
 }
 
 func (timestamps StatusTimestamps) IsZero() bool {
+	logging.WithField("timestamps", timestamps).Info("checking timestamps")
+
 	return timestamps.ToList().IsZero()
 }
 
