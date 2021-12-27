@@ -60,11 +60,15 @@ func (rBase Database) GetConnectedRealmBySlugTuple(
 				return nil
 			}
 
-			return errors.New("could not resolve connected-realm with slug")
+			return nil
 		})
 	})
 	if err != nil {
 		return sotah.RealmComposite{}, err
+	}
+
+	if out.IsZero() {
+		return sotah.RealmComposite{}, errors.New("could not resolve connected-realm with slug")
 	}
 
 	return out, nil
