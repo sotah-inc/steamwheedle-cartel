@@ -3,8 +3,6 @@ package regions
 import (
 	"errors"
 
-	"github.com/sirupsen/logrus"
-
 	"github.com/boltdb/bolt"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/blizzardv2"
 	"source.developers.google.com/p/sotah-prod/r/steamwheedle-cartel.git/pkg/logging"
@@ -47,11 +45,6 @@ func (rBase Database) GetConnectedRealmBySlugTuple(
 
 			for _, realm := range realmComposite.ConnectedRealmResponse.Realms {
 				if realm.Slug != tuple.RealmSlug {
-					logging.WithFields(logrus.Fields{
-						"tuple": tuple.RealmSlug,
-						"realm": realm.Slug,
-					}).Info("comparing tuple with realm")
-
 					continue
 				}
 
