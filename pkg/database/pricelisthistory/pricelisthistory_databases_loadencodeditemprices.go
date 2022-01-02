@@ -79,7 +79,7 @@ func (phdBases *Databases) LoadEncodedItemPrices(
 	postWork := func() {
 		close(out)
 	}
-	util.Work(4, worker, postWork)
+	util.Work(8, worker, postWork)
 
 	return out
 }
