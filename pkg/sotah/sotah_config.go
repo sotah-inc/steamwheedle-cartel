@@ -39,18 +39,18 @@ type RealmSlugWhitelist map[blizzardv2.RegionName]map[gameversion.GameVersion]bl
 func (wl RealmSlugWhitelist) Get(
 	regionName blizzardv2.RegionName,
 	version gameversion.GameVersion,
-) blizzardv2.RealmSlugs {
+) *blizzardv2.RealmSlugs {
 	versionRealmSlugs, ok := wl[regionName]
 	if !ok {
-		return blizzardv2.RealmSlugs{}
+		return nil
 	}
 
 	realmSlugs, ok := versionRealmSlugs[version]
 	if !ok {
-		return blizzardv2.RealmSlugs{}
+		return nil
 	}
 
-	return realmSlugs
+	return &realmSlugs
 }
 
 type FirebaseConfig struct {

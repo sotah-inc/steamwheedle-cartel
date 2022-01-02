@@ -13,7 +13,7 @@ type GetAllConnectedRealmsOptions struct {
 	GetConnectedRealmIndexURL func() (string, error)
 	GetConnectedRealmURL      func(string) (string, error)
 	Blacklist                 []ConnectedRealmId
-	RealmWhitelist            RealmSlugs
+	RealmWhitelist            *RealmSlugs
 }
 
 type GetAllConnectedRealmsJob struct {
@@ -73,9 +73,14 @@ func GetAllConnectedRealms(
 			}
 
 			cRealm.Realms = func() RealmResponses {
+				if opts.RealmWhitelist == nil {
+					return cRealm.Realms
+				}
+				foundRealmWhitelist := *opts.RealmWhitelist
+
 				foundRealms := RealmResponses{}
 				for _, realm := range cRealm.Realms {
-					if len(opts.RealmWhitelist) > 0 && !opts.RealmWhitelist.Has(realm.Slug) {
+					if len(foundRealmWhitelist) > 0 && !foundRealmWhitelist.Has(realm.Slug) {
 						continue
 					}
 

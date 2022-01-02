@@ -43,7 +43,7 @@ func NewRegionState(opts NewRegionStateOptions) (RegionsState, error) {
 	for _, region := range opts.Regions {
 		for _, version := range opts.GameVersionList {
 			resolvedWhitelist := opts.RealmSlugWhitelist.Get(region.Name, version)
-			if len(resolvedWhitelist) == 0 {
+			if resolvedWhitelist != nil && len(*resolvedWhitelist) == 0 {
 				continue
 			}
 

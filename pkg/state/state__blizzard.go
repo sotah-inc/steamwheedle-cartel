@@ -38,7 +38,7 @@ func (sta BlizzardState) ResolveConnectedRealms(
 	region sotah.Region,
 	version gameversion.GameVersion,
 	blacklist []blizzardv2.ConnectedRealmId,
-	whitelist blizzardv2.RealmSlugs,
+	whitelist *blizzardv2.RealmSlugs,
 ) (chan blizzardv2.GetAllConnectedRealmsJob, error) {
 	return blizzardv2.GetAllConnectedRealms(blizzardv2.GetAllConnectedRealmsOptions{
 		GetConnectedRealmIndexURL: func() (string, error) {
