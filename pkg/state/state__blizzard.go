@@ -133,7 +133,7 @@ func (sta BlizzardState) ResolveItems(
 			return sta.BlizzardClient.AppendAccessToken(dst)
 		},
 		ItemIds: ids,
-		Limit:   250,
+		Limit:   1000,
 	})
 }
 
