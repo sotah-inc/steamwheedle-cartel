@@ -43,7 +43,31 @@ func NewRegionState(opts NewRegionStateOptions) (RegionsState, error) {
 	for _, region := range opts.Regions {
 		for _, version := range opts.GameVersionList {
 			resolvedWhitelist := opts.RealmSlugWhitelist.Get(region.Name, version)
-			if resolvedWhitelist != nil && len(*resolvedWhitelist) == 0 {
+			shouldSkip := func() bool {
+				if resolvedWhitelist == nil {
+					logging.WithFields(logrus.Fields{
+						"realm-slug-whitelist": opts.RealmSlugWhitelist,
+						"region":               region.Name,
+						"game-version":         version,
+					}).Info("resolved whitelist was nil")
+
+					return false
+				}
+				foundWhitelist := *resolvedWhitelist
+
+				if len(foundWhitelist) == 0 {
+					logging.WithFields(logrus.Fields{
+						"realm-slug-whitelist": opts.RealmSlugWhitelist,
+						"region":               region.Name,
+						"game-version":         version,
+					}).Info("resolved whitelist was empty")
+
+					return true
+				}
+
+				return false
+			}()
+			if shouldSkip {
 				continue
 			}
 
